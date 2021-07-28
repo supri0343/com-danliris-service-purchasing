@@ -296,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                              //PEB = cc != null ? cc.BCNo : "peb-",
                              //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                             //EksporQty = cc != null ? cc.Quantity : 0
+                             EksporQty = bb != null ? bb.TotalQuantity : 0
                          }).OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).Distinct().ToList();
 
             //var DataTrace = Data2.Select((a, coba) => new
@@ -407,7 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     Sisa = Math.Round(sisa1.ReceiptQty - sisa2.QtyBUK,2),
                     SubkonOutQty = subconout == null ? 0 : subconout.totalQty,
                     ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
-                    EksporQty = PEB != null ? PEB.Quantity : 0
+                    EksporQty = i.EksporQty
                 };
 
                 traceableIn1.Add(trace1);
@@ -440,6 +440,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 //PEBDate = new DateTimeOffset(new DateTime(1970, 1, 1)),
                 PO = i.PO,
                 //ProduksiQty = cutting == null ? 0 : cutting.Sum(x => x.TotalCuttingInQuantity),
+                EksporQty = i.EksporQty,
                 QtyBUK = i.QtyBUK,
                 ReceiptQty = i.ReceiptQty,
                 ROJob = i.ROJob,
@@ -472,7 +473,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 BUK = a.BUK,
                                 BUM = a.BUM,
                                 count = 0,
-                                EksporQty = r.EksporQty,
+                                EksporQty = a.EksporQty,
                                 //ExType = i.ExType,
                                 Invoice = r.Invoice,
                                 ItemCode = a.ItemCode,
@@ -575,27 +576,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Ekspor Qty", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Sample Qty", DataType = typeof(Double) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", 0, "", 
-                    "No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, 
+                    "","No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
             else
             {
-                var docNo = Query.ToArray();
-                var q = Query.ToList();
-                var index = 0;
-                foreach (TraceableInBeacukaiViewModel a in q)
-                {
-                    TraceableInBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo && o.BonNo == o.BonNo);
-                    if (dup != null)
-                    {
-                        if (dup.count == 0)
-                        {
-                            index++;
-                            dup.count = index;
-                        }
-                    }
-                    a.count = dup.count;
-                }
-                Query = q;
+                //var docNo = Query.ToArray();
+                //var q = Query.ToList();
+                //var index = 0;
+                //foreach (TraceableInBeacukaiViewModel a in q)
+                //{
+                //    TraceableInBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo && o.BonNo == o.BonNo);
+                //    if (dup != null)
+                //    {
+                //        if (dup.count == 0)
+                //        {
+                //            index++;
+                //            dup.count = index;
+                //        }
+                //    }
+                //    a.count = dup.count;
+                //}
+                //Query = q;
                 //var index = 0;
                 foreach (var item in Query)
                 {
@@ -1118,11 +1119,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join b in dbContext.GarmentUnitDeliveryOrders on a.UnitDOId equals b.Id
                          join c in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals c.UnitDOItemId
                          join d in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals d.Id
+                         join i in dbContext.GarmentUnitReceiptNotes on d.URNId equals i.Id
                          join e in dbContext.GarmentDeliveryOrderDetails on d.DODetailId equals e.Id
                          join f in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals f.Id
                          join g in dbContext.GarmentDeliveryOrders on f.GarmentDOId equals g.Id
                          join h in dbContext.GarmentBeacukais on g.CustomsId equals h.Id
                          where listRo.Contains(b.RONo)
+                         && i.URNType == "PEMBELIAN"
                          select new TraceableOutBeacukaiDetailViewModel
                          {
                              BCDate = h.BeacukaiDate.DateTime,
@@ -1145,14 +1148,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              UnitQtyName = key.UnitQtyName
 
                          }).ToList();
+            //var cc = 
 
+            //foreach(var g in rinciandetil)
+            //{
+            //    var QtyExpend = expend2.FirstOrDefault(x => x.RONo == g.DestinationJob && x.ProductCode == g.ItemCode);
 
-            foreach(var g in rinciandetil)
-            {
-                var QtyExpend = expend2.FirstOrDefault(x => x.RONo == g.DestinationJob && x.ProductCode == g.ItemCode);
-
-                g.SmallestQuantity = QtyExpend == null ? g.SmallestQuantity : QtyExpend.Quantity;
-            }
+            //    g.SmallestQuantity = QtyExpend == null ? g.SmallestQuantity : QtyExpend.Quantity;
+            //}
 
             foreach (var i in Query)
             {
