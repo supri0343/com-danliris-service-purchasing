@@ -692,6 +692,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         SmallQuantity = i.SmallQuantity,
                         SmallUomId = i.SmallUomId,
                         SmallUomUnit = i.SmallUomUnit,
+                        Remark = i.Remark
                     })
                     .Where(i => (i.DealQuantity - i.DOQuantity) > 0)
                     .ToList()
@@ -1131,7 +1132,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, EPONo);
 
-            Query = Query.Select(s => new GarmentExternalPurchaseOrder
+            Query = Query
+            .Where(entity => (entity.IsOverBudget == true && entity.IsApproved == true) || (entity.IsOverBudget == false))
+            .Select(s => new GarmentExternalPurchaseOrder
             {
                 Id = s.Id,
                 UId = s.UId,
@@ -1173,9 +1176,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}", int supplierId = 0, string currencyCode = null, string paymentType = null, int Page = 1, int Size = 10)
+        public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, int supplierId = 0, string currencyCode = null, string paymentType = null, int Page = 1, int Size = 10)
         {
-            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t => t.IsDispositionCreatedAll == false)); ;
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t => t.IsDispositionCreatedAll == false));
 
             List<string> searchAttributes = new List<string>()
             {
@@ -1221,8 +1224,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             });
 
 
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            //Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
 
             //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             //Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
@@ -1319,6 +1322,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              });
 
             return QueryItem.ToList();
+        }
+
+        public bool GetIsUnpost(int Id)
+        {
+            bool response = true;
+
+            var searchDisposition = this.dbContext.GarmentDispositionPurchases
+                        .Include(s => s.GarmentDispositionPurchaseItems)
+                        .ThenInclude(s => s.GarmentDispositionPurchaseDetails)
+                        .Where(s => s.GarmentDispositionPurchaseItems.Any(t => t.EPOId == Id)
+                        ).ToList();
+
+            if (searchDisposition.Count == 0)
+            {
+                response = false;
+            }
+
+            return response;
         }
     }
 }
