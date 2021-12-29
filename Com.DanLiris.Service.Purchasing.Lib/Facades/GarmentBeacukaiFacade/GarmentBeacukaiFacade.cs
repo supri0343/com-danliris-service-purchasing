@@ -435,6 +435,54 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
             return ListData.Distinct().ToList();
         }
 
+        public List<object> ReadBCByPOSerialNumbers(string Keyword)
+        {
+            //var Query = this.dbSet.Where(entity => entity.IsPosted && !entity.IsClosed && !entity.IsCanceled).Select(entity => new { entity.Id});
+
+            var pos = Keyword.Split(",").ToArray();
+
+            //string POSerialNumber = (FilterDictionary["POSerialNumber"] ?? "").Trim();
+            //IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems.Where(entity=>entity.RONo==RONo ); //CreatedUtc > DateTime(2018, 12, 31)
+
+            var DODetails = dbContext.GarmentDeliveryOrderDetails.Where(o => pos.Contains(o.POSerialNumber)).Select(a => new { a.GarmentDOItemId, a.POSerialNumber });
+
+            var QueryData = (from dod in DODetails
+                             join doi in dbContext.GarmentDeliveryOrderItems on dod.GarmentDOItemId equals doi.Id
+                             join DO in dbContext.GarmentDeliveryOrders on doi.GarmentDOId equals DO.Id
+                             join bci in dbContext.GarmentBeacukaiItems on DO.Id equals bci.GarmentDOId
+                             join bc in dbContext.GarmentBeacukais on bci.BeacukaiId equals bc.Id
+                             select new
+                             {
+                                 bc.Id,
+                                 dod.POSerialNumber,
+                                 bc.BeacukaiNo,
+                                 bc.BeacukaiDate,
+                                 bc.CustomsType
+                             }).Distinct();
+
+            // var Ids = QueryData.Select(a => a.POSerialNumber).Distinct().ToList();
+            //var data = this.dbSet.Where(o => Ids.Contains(o.Id))
+            //    .Select(bc => new { bc.Id, bc.BeacukaiNo, bc.BeacukaiDate, bc.CustomsType });
+            var listdata = QueryData.GroupBy(x => x.POSerialNumber).Select(x => new
+            {
+                POSerialNumber = x.Key,
+                customnos = x.Select(y=>y.BeacukaiNo).ToList(),
+                customdate = x.Select(y => y.BeacukaiDate).ToList(),
+                customtype = x.Select(y => y.CustomsType).ToList()
+            }).ToList();
+
+            List<object> ListData = new List<object>();
+            foreach (var item in listdata)
+            {
+                // var customno = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x=>x.BeacukaiNo).ToList();
+                // var customdate = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x => x.BeacukaiDate).ToList();
+                // var customtype = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x => x.CustomsType).ToList();
+
+                ListData.Add(new { POSerialNumber = item.POSerialNumber, customnos = item.customnos, customdates = item.customdate, customtypes = item.customtype });
+            }
+            return ListData.Distinct().ToList();
+        }
+
         //     public async Task<List<ImportValueViewModel>> ReadImportValue(string keyword)
         //     {
         //var query = dbContext.ImportValues.AsQueryable();

@@ -472,5 +472,49 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             );
             return new ReadResponse<object>(listData, Total, OrderDictionary);
         }
+
+        public List<object> ReadForLeftOver(string ro)
+        {
+            var ROs = ro.Split(",").ToList();
+            var query = (from a in dbContext.GarmentUnitDeliveryOrders
+                        join b in dbContext.GarmentUnitDeliveryOrderItems on a.Id equals b.UnitDOId
+                        join c in dbContext.GarmentDeliveryOrderDetails on b.POSerialNumber equals c.POSerialNumber
+                        join d in dbContext.GarmentDeliveryOrderItems on c.GarmentDOItemId equals d.Id
+                        join e in dbContext.GarmentBeacukaiItems on d.GarmentDOId equals e.GarmentDOId
+                        join f in dbContext.GarmentBeacukais on e.BeacukaiId equals f.Id
+                        where ROs.Contains(a.RONo) && a.IsDeleted == false && b.IsDeleted == false
+                        select new
+                        {
+                            b.ProductCode,
+                            b.POSerialNumber,
+                            b.ProductName,
+                            a.RONo,
+                            f.BeacukaiNo,
+                            f.BeacukaiDate,
+                            f.CustomsType
+                        }).Distinct().ToList();
+
+            List<object> listdata = new List<object>();
+
+            listdata.AddRange
+                (
+                query.Select(s => new
+                {
+                    s.ProductCode,
+                    s.POSerialNumber,
+                    s.ProductName,
+                    s.RONo,
+                    s.BeacukaiNo,
+                    s.BeacukaiDate,
+                    s.CustomsType
+
+                })
+                );
+
+            return listdata;
+                        
+        }
+
+        
     }
 }

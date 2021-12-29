@@ -485,35 +485,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index = 8;
                     foreach (KeyValuePair<string, int> b in invoicespan)
                     {
+                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-
-
-                        index += b.Value;
-                    }
-
-                    index = 8;
-                    foreach (KeyValuePair<string, int> b in invoicespan)
-                    {
-                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
-                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Merge = true;
-                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        sheet.Cells["G" + index + ":G" + (index + b.Value - 1)].Merge = true;
-                        sheet.Cells["G" + index + ":G" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        sheet.Cells["W" + index + ":W" + (index + b.Value - 1)].Merge = true;
-                        sheet.Cells["W" + index + ":W" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
 
 
                         index += b.Value;
                     }
+
+                    //index = 8;
+                    //foreach (KeyValuePair<string, int> b in invoicespan)
+                    //{
+                        
+                    //    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["G" + index + ":G" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["G" + index + ":G" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["W" + index + ":W" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["W" + index + ":W" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+
+                    //    index += b.Value;
+                    //}
 
                     index = 8;
                     foreach (KeyValuePair<string, int> c in uenspan)
@@ -571,15 +574,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index = 8;
                     foreach (KeyValuePair<string, int> c in supplierspan)
                     {
-                        sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         index += c.Value;
                     }
                     index = 8;
                     foreach (KeyValuePair<string, int> c in billspan)
                     {
-                        sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Merge = true;
                         sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Merge = true;
@@ -720,15 +723,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
                 DPPVATBankExpenditureNoteViewModel viewModel;
-                //if (result.GetValueOrDefault("data") == null)
-                //{
-                //    viewModel = new DPPVATBankExpenditureNoteViewModel();
-                //}
-                //else
-                //{
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new DPPVATBankExpenditureNoteViewModel();
+                }
+                else
+                {
                     viewModel = JsonConvert.DeserializeObject<DPPVATBankExpenditureNoteViewModel>(result.GetValueOrDefault("data").ToString());
 
-                //}
+                }
                 return viewModel;
             }
             else
