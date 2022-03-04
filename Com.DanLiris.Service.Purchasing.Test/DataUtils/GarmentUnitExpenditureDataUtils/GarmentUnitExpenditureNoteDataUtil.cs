@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
                 {
                     IsSave = true,
                     DODetailId = item.DODetailId,
-                    
+
                     EPOItemId = item.EPOItemId,
 
                     URNItemId = item.URNItemId,

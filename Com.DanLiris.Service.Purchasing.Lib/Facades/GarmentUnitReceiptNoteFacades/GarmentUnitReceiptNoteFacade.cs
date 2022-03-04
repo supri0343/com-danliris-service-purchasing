@@ -45,6 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentUnitReceiptNote> dbSet;
         private readonly DbSet<GarmentDeliveryOrderDetail> dbSetGarmentDeliveryOrderDetail;
+        private readonly DbSet<GarmentExternalPurchaseOrder> dbSetGarmentExternalPurchaseOrder;
         private readonly DbSet<GarmentExternalPurchaseOrderItem> dbSetGarmentExternalPurchaseOrderItems;
         private readonly DbSet<GarmentInternalPurchaseOrderItem> dbSetGarmentInternalPurchaseOrderItems;
         private readonly DbSet<GarmentInventoryDocument> dbSetGarmentInventoryDocument;
@@ -66,6 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentUnitReceiptNote>();
             dbSetGarmentDeliveryOrderDetail = dbContext.Set<GarmentDeliveryOrderDetail>();
+            dbSetGarmentExternalPurchaseOrder = dbContext.Set<GarmentExternalPurchaseOrder>();
             dbSetGarmentExternalPurchaseOrderItems = dbContext.Set<GarmentExternalPurchaseOrderItem>();
             dbSetGarmentInternalPurchaseOrderItems = dbContext.Set<GarmentInternalPurchaseOrderItem>();
             dbSetGarmentInventoryDocument = dbContext.Set<GarmentInventoryDocument>();
@@ -182,8 +184,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             viewModel.IsInvoice = dbContext.GarmentDeliveryOrders.Where(gdo => gdo.Id == viewModel.DOId).Select(gdo => gdo.IsInvoice).FirstOrDefault();
 
+            var dataDo = dbsetGarmentDeliveryOrder.Where(gdo => gdo.Id == viewModel.DOId).Include(x => x.Items).FirstOrDefault();
+            long epoId = 0;
+            if(dataDo != null)
+            {
+                epoId = dataDo.Items.Select(x => x.EPOId).FirstOrDefault();
+            }
+
             foreach (var item in viewModel.Items)
             {
+                if (epoId > 0)
+                {
+                    item.PaymentType = dbSetGarmentExternalPurchaseOrder.Where(x => x.Id == epoId).FirstOrDefault().PaymentType;
+                    item.PaymentMethod = dbSetGarmentExternalPurchaseOrder.Where(x => x.Id == epoId).FirstOrDefault().PaymentMethod;
+                }
                 item.Buyer = new BuyerViewModel
                 {
                     Name = dbContext.GarmentPurchaseRequests.Where(m => m.Id == item.PRId).Select(m => m.BuyerName).FirstOrDefault()
@@ -2201,7 +2215,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         //                Updated = await dbContext.SaveChangesAsync();
 
         //            });
-                    
+
 
         //            transaction.Commit();
         //        }
@@ -2215,6 +2229,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         //    return Updated;
         //}
 
+        //public int UrnDateRevise(List<long> ids, string user, DateTime reviseDate)
+        //{
+        //    int Updated = 0;
+        //    using (var transaction = this.dbContext.Database.BeginTransaction())
+        //    {
+        //        try
+        //        {
+        //            //var Ids = ListEPO.Select(d => d.Id).ToList();
+        //            var listData = this.dbSet
+        //                .Where(m => ids.Contains(m.Id) && !m.IsDeleted)
+        //                .Include(d => d.Items)
+        //                .ToList();
+        //            listData.ForEach(m =>
+        //            {
+        //                EntityExtension.FlagForUpdate(m, user, "Facade");
+
+
+        //                GarmentUenUrnChangeDateHistory changeDateHistory = new GarmentUenUrnChangeDateHistory
+        //                {
+        //                    DateOld = m.CreatedUtc,
+        //                    DateNow = reviseDate,
+        //                    DocumentNo = m.URNNo,
+
+        //                };
+
+        //                m.CreatedUtc = reviseDate;
+
+        //                EntityExtension.FlagForCreate(changeDateHistory, user, "Facade");
+        //                dbSetUenUrnChangeDate.Add(changeDateHistory);
+
+        //            });
+
+        //            Updated = dbContext.SaveChanges();
+        //            transaction.Commit();
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            transaction.Rollback();
+        //            throw new Exception(e.Message);
+        //        }
+        //    }
+
+        //    return Updated;
+        //}
         public int UrnDateRevise(List<long> ids, string user, DateTime reviseDate)
         {
             int Updated = 0;
@@ -2222,25 +2280,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             {
                 try
                 {
-                    //var Ids = ListEPO.Select(d => d.Id).ToList();
-                    var listData = this.dbSet
-                        .Where(m => ids.Contains(m.Id) && !m.IsDeleted)
-                        .Include(d => d.Items)
-                        .ToList();
-                    listData.ForEach(m =>
+
+                    //var listData = this.dbSet
+                    //    .Where(m => ids.Contains(m.Id) && !m.IsDeleted)
+                    //    .Include(d => d.Items)
+                    //    .ToList();
+                    var listdata = (from a in dbContext.GarmentDOItems
+                                    join b in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals b.Id
+                                    join c in dbContext.GarmentUnitReceiptNotes on b.URNId equals c.Id
+                                    where ids.Contains(c.Id)
+                                    && c.URNType == "PEMBELIAN"
+                                    select a).Distinct().ToList();
+
+                    var listdata2 = (from a in dbContext.GarmentDOItems
+                                     join b in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals b.Id
+                                     join c in dbContext.GarmentUnitReceiptNotes on b.URNId equals c.Id
+                                     where ids.Contains(c.Id)
+                                     && c.URNType == "PEMBELIAN"
+                                     select b).Distinct().ToList();
+
+                    var listdata3 = (from a in dbContext.GarmentDOItems
+                                     join b in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals b.Id
+                                     join c in dbContext.GarmentUnitReceiptNotes on b.URNId equals c.Id
+                                     where ids.Contains(c.Id)
+                                     && c.URNType == "PEMBELIAN"
+                                     select c).Distinct().ToList();
+
+                    listdata.ForEach(c =>
                     {
-                        EntityExtension.FlagForUpdate(m, user, "Facade");
-                       
+                        EntityExtension.FlagForUpdate(c, user, "Facade");
+                        c.CreatedUtc = reviseDate;
+                    });
+
+                    listdata2.ForEach(c =>
+                    {
+                        EntityExtension.FlagForUpdate(c, user, "Facade");
+                        c.CreatedUtc = reviseDate;                     
+                    });
+
+                    listdata3.ForEach(c =>
+                    {
+                        EntityExtension.FlagForUpdate(c, user, "Facade");
+
 
                         GarmentUenUrnChangeDateHistory changeDateHistory = new GarmentUenUrnChangeDateHistory
                         {
-                            DateOld = m.CreatedUtc,
+                            DateOld = c.CreatedUtc,
                             DateNow = reviseDate,
-                            DocumentNo = m.URNNo,
+                            DocumentNo = c.URNNo,
 
                         };
 
-                        m.CreatedUtc = reviseDate;
+                        c.CreatedUtc = reviseDate;
 
                         EntityExtension.FlagForCreate(changeDateHistory, user, "Facade");
                         dbSetUenUrnChangeDate.Add(changeDateHistory);
@@ -2260,7 +2351,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return Updated;
         }
 
-        
+
 
 
     }
