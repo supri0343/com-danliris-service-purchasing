@@ -656,6 +656,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     //where b.IsDeleted == false && c.IsDeleted == false
 
                                     join b in EPOExpend on a.POSerialNumber equals b.PO_SerialNumber
+                                           where a.Product.Code != null
                                            
                                      select new MutationBBCentralViewModelTemp
                                     {
