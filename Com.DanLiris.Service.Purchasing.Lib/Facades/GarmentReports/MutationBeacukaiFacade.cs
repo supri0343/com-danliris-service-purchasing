@@ -163,8 +163,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
-            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL"  };
-            var pemasukan = new[] { "PROSES", "PEMBELIAN" };
+            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL", "SUBCON" };
+            var pemasukan = new[] { "PROSES", "PEMBELIAN", "SISA SUBCON" };
 
             var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
             var coderequirement = new[] { "BP", "BE" };
@@ -881,8 +881,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
-            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL" };
-            var pemasukan = new[] { "PROSES", "PEMBELIAN" };
+            //var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL" };
+            //var pemasukan = new[] { "PROSES", "PEMBELIAN" };
+
+            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL", "SUBCON" };
+            var pemasukan = new[] { "PROSES", "PEMBELIAN", "SISA SUBCON" };
 
             var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
             var coderequirement = new[] { "BP", "BE" };
