@@ -598,7 +598,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var EPOExpend = (from a in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters()
                        join b in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on a.GarmentEPOId equals b.Id
-                       where a.IsDeleted == false && b.IsDeleted == false 
+                       //where a.IsDeleted == false && b.IsDeleted == false 
                        select new
                        {
                            PO_SerialNumber = a.PO_SerialNumber,
