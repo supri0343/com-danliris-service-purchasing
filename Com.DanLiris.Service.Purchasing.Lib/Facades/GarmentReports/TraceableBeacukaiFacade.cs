@@ -17,6 +17,8 @@ using System.Globalization;
 using OfficeOpenXml.Style;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentCuttingOut;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentPreparing;
+using Com.Moonlay.NetCore.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
@@ -1453,5 +1455,194 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         }
 
         #endregion
+
+        public List<TraceableInWithBUMBeacukaiViewModel> Read(string bum)
+        {
+            var Query = (from t in dbContext.GarmentDeliveryOrders
+                         join c in dbContext.GarmentDeliveryOrderItems on t.Id equals c.GarmentDOId
+                         join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
+                         join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
+                         join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
+                         join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId into unitdoitem
+                         from ff in unitdoitem.DefaultIfEmpty()
+                         join g in dbContext.GarmentUnitDeliveryOrders on ff.UnitDOId equals g.Id into unitdo
+                         from gg in unitdo.DefaultIfEmpty()
+                         join h in dbContext.GarmentUnitExpenditureNoteItems on ff.Id equals h.UnitDOItemId into uenitem
+                         from hh in uenitem.DefaultIfEmpty()
+                         join i in dbContext.GarmentUnitExpenditureNotes on hh.UENId equals i.Id into uen
+                         from ii in uen.DefaultIfEmpty()
+                         where r.URNType == "PEMBELIAN" && r.URNNo==bum
+                         select new TraceableInWithBUMBeacukaiViewModel
+                         {
+                             //BCDate = a.BeacukaiDate,
+                             //BCNo = a.BeacukaiNo,
+                             //BCType = a.CustomsType,
+                             //BJQty = 0,
+                             //BonNo = a.BillNo,
+                             URNNo = r.URNNo,
+                             SmallQty = e.SmallQuantity,
+                             SatuanReceipt = e.SmallUomUnit,
+                             UnitDONo = gg.UnitDONo,
+                             ROJob = gg.RONo,
+                             UnitDOType = gg.UnitDOType,
+                             DOQuantity = ff.Quantity,
+                             DOUomUnit = ff.UomUnit,
+                             BUK = ii.UENNo,
+                             QtyBUK = hh.Quantity,
+                             UENType = ii.ExpenditureType,
+                             SatuanBUK = hh.UomUnit,
+                             //ItemName = d.ProductName,
+                             PO = d.POSerialNumber
+                             //ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
+
+                             //ROSample = gg.UnitDOType == "SAMPLE" ? gg.RONo : "rosamp-",
+                             //SatuanBUK = hh != null ? hh.UomUnit : "satbuk-",
+                             //SatuanReceipt = e.SmallUomUnit,
+                             //SampleQty = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
+                             //UnitDOType = gg.UnitDOType
+                         }).OrderBy(x=>x.URNNo).ThenBy(x=>x.PO).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.UnitDONo).ThenBy(x => x.BUK)
+                         .ToList();
+
+            //List<string> searchAttributes = new List<string>()
+            //{
+            //    "URNNo"
+            //};
+
+            //Query = QueryHelper<TraceableInWithBUMBeacukaiViewModel>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            //Query = QueryHelper<TraceableInWithBUMBeacukaiViewModel>.ConfigureFilter(Query, FilterDictionary);
+
+            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            //Query = QueryHelper<TraceableInWithBUMBeacukaiViewModel>.ConfigureOrder(Query, OrderDictionary);
+
+            //Pageable<TraceableInWithBUMBeacukaiViewModel> pageable = new Pageable<TraceableInWithBUMBeacukaiViewModel>(Query, Page - 1, Size);
+            //int TotalData = pageable.TotalCount;
+
+            //List<object> ListData = new List<object>();
+            //ListData.AddRange(pageable.Data.Select(s => new
+            //{
+            //    s.URNNo,
+            //    s.SmallQty,
+            //    s.SatuanReceipt,
+            //    s.UnitDONo,
+            //    s.ROJob,
+            //    s.UnitDOType,
+            //    s.DOQuantity,
+            //    s.DOUomUnit,
+            //    s.BUK,
+            //    s.QtyBUK,
+            //    s.UENType,
+            //    s.SatuanBUK
+            //}));
+
+            //return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
+            //return new ReadResponse<object>(ListData, TotalData);
+            return Query;
+
+        }
+
+        public MemoryStream GetExceltracebyBUM(string bum)
+        {
+            var query = Read(bum);
+
+            DataTable result = new DataTable();
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No BON", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PO", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Qty Terima", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DONo", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No RO", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DO Type ", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DO Qty", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Keluar", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "BUK No ", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Qty BUK", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tipe Pengeluaran", DataType = typeof(string) });
+
+            var index = 0;
+            foreach (var i in query)
+            {
+                index++;
+                result.Rows.Add(index,i.URNNo,i.PO,i.SmallQty,i.SatuanReceipt,i.UnitDONo,i.ROJob,i.UnitDOType,i.DOQuantity,i.DOUomUnit,i.BUK,i.QtyBUK,i.SatuanBUK,i.UENType);
+            }
+
+
+            ExcelPackage package = new ExcelPackage();
+            bool styling = true;
+
+            foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") })
+            {
+                var sheet = package.Workbook.Worksheets.Add(item.Value);
+                sheet.Cells["A1"].LoadFromDataTable(item.Key, true, (styling == true) ? OfficeOpenXml.Table.TableStyles.Light16 : OfficeOpenXml.Table.TableStyles.None);
+
+                Dictionary<string, int> nobonspan = new Dictionary<string, int>();
+                Dictionary<string, int> pospan = new Dictionary<string, int>();
+                Dictionary<string, int> qtyreceiptspan = new Dictionary<string, int>();
+
+                var docNo = query.ToArray();
+                int value;
+                foreach (var a in query)
+                {
+                    if (nobonspan.TryGetValue(a.URNNo , out value))
+                    {
+                        nobonspan[a.URNNo]++;
+                    }
+                    else
+                    {
+                        nobonspan[a.URNNo] = 1;
+                    }
+                    if (pospan.TryGetValue(a.PO, out value))
+                    {
+                        pospan[a.PO]++;
+                    }
+                    else
+                    {
+                        pospan[a.PO] = 1;
+                    }
+                    if (qtyreceiptspan.TryGetValue(a.PO + a.SmallQty, out value))
+                    {
+                        qtyreceiptspan[a.PO+ a.SmallQty]++;
+                    }
+                    else
+                    {
+                        qtyreceiptspan[a.PO+ a.SmallQty] = 1;
+                    }
+                }
+
+                index = 2;
+                foreach (KeyValuePair<string, int> c in nobonspan)
+                {
+                    sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Merge = true;
+                    sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    index += c.Value;
+                }
+
+                index = 2;
+                foreach (KeyValuePair<string, int> c in pospan)
+                {
+                    sheet.Cells["C" + index + ":C" + (index + c.Value - 1)].Merge = true;
+                    sheet.Cells["C" + index + ":C" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    index += c.Value;
+                }
+
+                index = 2;
+                foreach (KeyValuePair<string, int> c in qtyreceiptspan)
+                {
+                    sheet.Cells["D" + index + ":D" + (index + c.Value - 1)].Merge = true;
+                    sheet.Cells["D" + index + ":D" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    index += c.Value;
+                }
+                sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+            }
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+        }
+
     }
 }
