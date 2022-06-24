@@ -1012,7 +1012,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         }
 
-        public List<BeacukaiAddedViewModel> GetPEBbyBCNo(string bcno)
+        public List<BeacukaiAddedViewModelbyBCNo> GetPEBbyBCNo(string bcno)
         {
             //var param = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
             string shippingInvoiceUri = APIEndpoint.CustomsReport + $"customs-reports/getPEB/byBCNo?bcno={bcno}";
@@ -1025,21 +1025,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var content = httpResponse.Content.ReadAsStringAsync().Result;
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<BeacukaiAddedViewModel> viewModel;
+                List<BeacukaiAddedViewModelbyBCNo> viewModel;
                 if (result.GetValueOrDefault("data") == null)
                 {
-                    viewModel = new List<BeacukaiAddedViewModel>();
+                    viewModel = new List<BeacukaiAddedViewModelbyBCNo>();
                 }
                 else
                 {
-                    viewModel = JsonConvert.DeserializeObject<List<BeacukaiAddedViewModel>>(result.GetValueOrDefault("data").ToString());
+                    viewModel = JsonConvert.DeserializeObject<List<BeacukaiAddedViewModelbyBCNo>>(result.GetValueOrDefault("data").ToString());
 
                 }
                 return viewModel;
             }
             else
             {
-                return new List<BeacukaiAddedViewModel>();
+                return new List<BeacukaiAddedViewModelbyBCNo>();
             }
         }
 
