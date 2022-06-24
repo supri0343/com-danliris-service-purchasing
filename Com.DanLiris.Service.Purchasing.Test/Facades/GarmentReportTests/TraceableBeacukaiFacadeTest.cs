@@ -135,10 +135,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 
 			var facade = new TraceableBeacukaiFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 			var data = await UnitExpenditureNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var data1 = await garmentUnitReceiptNoteDataUtil(urnfacade, GetCurrentMethod()).GetNewData();
-		
+			//var data1 = garmentUnitReceiptNoteDataUtil(urnfacade, GetCurrentMethod()).GetTestDataWithStorage();
 
-			var Response = facade.Read(data1.URNNo);
+			long nowTicks =  DateTimeOffset.Now.Ticks;
+			var urnno = string.Concat("BUMUnitCode", nowTicks);
+
+			var Response = facade.Read(urnno);
+			Assert.NotNull(Response);
+		}
+
+		[Fact]
+		public async Task Should_Success_Get_Excel_Trace_ByBUM()
+		{
+
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var urnfacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+			var facade = new TraceableBeacukaiFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await UnitExpenditureNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			//var data1 = garmentUnitReceiptNoteDataUtil(urnfacade, GetCurrentMethod()).GetTestDataWithStorage();
+
+			long nowTicks = DateTimeOffset.Now.Ticks;
+			var urnno = string.Concat("BUMUnitCode", nowTicks);
+
+			var Response = facade.GetExceltracebyBUM(urnno);
 			Assert.NotNull(Response);
 		}
 	}
