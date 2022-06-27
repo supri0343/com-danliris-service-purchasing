@@ -135,10 +135,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 
 			var facade = new TraceableBeacukaiFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 			var data = await UnitExpenditureNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			//var data1 = garmentUnitReceiptNoteDataUtil(urnfacade, GetCurrentMethod()).GetTestDataWithStorage();
+            var data1 = await garmentUnitReceiptNoteDataUtil(urnfacade, GetCurrentMethod()).GetNewDataWithStorage();
 
-			long nowTicks =  DateTimeOffset.Now.Ticks;
-			var urnno = string.Concat("BUMUnitCode", nowTicks);
+            string Year = data.ExpenditureDate.ToString("yy");
+			string Month = data.ExpenditureDate.ToString("MM");
+			string Day = data.ExpenditureDate.ToString("dd");
+
+
+
+			//long nowTicks =  DateTimeOffset.Now.Ticks;
+			var urnno = string.Concat("BUM",data1.UnitCode,Year, Month, Day,"001");
 
 			var Response = facade.Read(urnno);
 			Assert.NotNull(Response);
