@@ -21,6 +21,7 @@ using Com.Moonlay.NetCore.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using static Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports.TraceableInBeacukaiViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentSampleExpenditureGood;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
