@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentSampleExpenditureGood
 {
     public class GarmentSampleExpenditureGoodViewModel
     {

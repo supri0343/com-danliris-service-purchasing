@@ -4,8 +4,6 @@ using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using Buyer = Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentExpenditureGood.Buyer;
-using GarmentComodity = Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentExpenditureGood.GarmentComodity;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 {

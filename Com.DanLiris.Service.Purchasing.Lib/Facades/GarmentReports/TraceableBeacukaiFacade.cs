@@ -21,6 +21,7 @@ using Com.Moonlay.NetCore.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using static Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports.TraceableInBeacukaiViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentSampleExpenditureGood;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
@@ -268,7 +269,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         public List<TraceableInBeacukaiViewModel> GetTraceableInQuery(string filter, string tipe, string tipebc)
         {
-            var Query = tipe == "BCNo" ? (from a in (from aa in dbContext.GarmentBeacukais
+            var Query =  (from a in (from aa in dbContext.GarmentBeacukais
                                                      where aa.BeacukaiNo == filter && aa.CustomsType == tipebc
                                                      select aa)
                                           join t in dbContext.GarmentDeliveryOrders on a.Id equals t.CustomsId
@@ -303,47 +304,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                               //PO = d.POSerialNumber,
                                               ROJob = gg.UnitDOType == "PROSES" ? gg.RONo : "rojob-",
                                               ROSample = gg.UnitDOType == "SAMPLE" ? gg.RONo : "rosamp-",
-                                              SatuanBUK = hh != null ?  hh.UomUnit : "satbuk-",
+                                              SatuanBUK = hh != null ? hh.UomUnit : "satbuk-",
                                               SatuanReceipt = e.SmallUomUnit,
                                               UnitDOType = gg.UnitDOType,
                                               EksporQty = 0,
                                               SampleQty = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
-
-                                          }) :
-                                         (from a in (from aa in dbContext.GarmentBeacukais
-                                                     select aa)
-                                          join deliv in dbContext.GarmentDeliveryOrders on a.Id equals deliv.CustomsId
-                                          join c in dbContext.GarmentDeliveryOrderItems on deliv.Id equals c.GarmentDOId
-                                          join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
-                                          join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
-                                          join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
-                                          join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId
-                                          join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
-                                          join h in dbContext.GarmentUnitExpenditureNoteItems on f.Id equals h.UnitDOItemId
-                                          join i in dbContext.GarmentUnitExpenditureNotes on h.UENId equals i.Id
-                                          where g.RONo == filter
-                                          where r.URNType == "PEMBELIAN"
-                                          where i.ExpenditureType == "PROSES"
-                                          select new TraceableInBeacukaiViewModelTemp
-                                          {
-                                              BCDate = a.BeacukaiDate,
-                                              BCNo = a.BeacukaiNo,
-                                              BCType = a.CustomsType,
-                                              BJQty = 0,
-                                              BonNo = a.BillNo,
-                                              BUK = i.UENNo,
-                                              BUM = r.URNNo,
-                                              EksporQty = 0,
-                                              QtyBUK = h.Quantity,
-                                              ItemCode = d.ProductCode,
-                                              ItemName = d.ProductName,
-                                              PO = d.POSerialNumber,
-                                              ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
-                                              ROJob = g.RONo,
-                                              SatuanBUK = h.UomUnit,
-                                              SatuanReceipt = e.SmallUomUnit,
-                                              SampleQty = i.ExpenditureType == "SAMPLE" ? h.Quantity : 0
                                           });
+                                         // }) :
+                                         //(from a in (from aa in dbContext.GarmentBeacukais
+                                         //            select aa)
+                                         // join deliv in dbContext.GarmentDeliveryOrders on a.Id equals deliv.CustomsId
+                                         // join c in dbContext.GarmentDeliveryOrderItems on deliv.Id equals c.GarmentDOId
+                                         // join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
+                                         // join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
+                                         // join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
+                                         // join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId
+                                         // join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
+                                         // join h in dbContext.GarmentUnitExpenditureNoteItems on f.Id equals h.UnitDOItemId
+                                         // join i in dbContext.GarmentUnitExpenditureNotes on h.UENId equals i.Id
+                                         // where g.RONo == filter
+                                         // where r.URNType == "PEMBELIAN"
+                                         // where i.ExpenditureType == "PROSES"
+                                         // select new TraceableInBeacukaiViewModelTemp
+                                         // {
+                                         //     BCDate = a.BeacukaiDate,
+                                         //     BCNo = a.BeacukaiNo,
+                                         //     BCType = a.CustomsType,
+                                         //     BJQty = 0,
+                                         //     BonNo = a.BillNo,
+                                         //     BUK = i.UENNo,
+                                         //     BUM = r.URNNo,
+                                         //     EksporQty = 0,
+                                         //     QtyBUK = h.Quantity,
+                                         //     ItemCode = d.ProductCode,
+                                         //     ItemName = d.ProductName,
+                                         //     PO = d.POSerialNumber,
+                                         //     ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
+                                         //     ROJob = g.RONo,
+                                         //     SatuanBUK = h.UomUnit,
+                                         //     SatuanReceipt = e.SmallUomUnit,
+                                         //     SampleQty = i.ExpenditureType == "SAMPLE" ? h.Quantity : 0
+                                         // });
 
             //Query = Query.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BonNo, x.BUM, x.BUK, x.ItemCode, x.ItemName, x.PO, x.ROJob, x.SatuanBUK, x.SatuanReceipt }, (key, group) => new TraceableInBeacukaiViewModelTemp
             //{
