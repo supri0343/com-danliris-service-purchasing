@@ -1716,6 +1716,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     UnitQtyName = key.UnitQtyName
 
                                 }).ToList();
+
+            var item = Query.Select(x => x.RO).Distinct().ToList();
+
+            //var data = Query.Where(x => item.Contains(x.RO)).Select(s => new TraceableOutBeacukaiViewModel()).Take(1);
+            var data = Query.Where(x => item.Contains(x.RO)).Take(1).ToList();
+            //var rinci = data.rincian;
+
+            foreach (var a in data)
+            {
+                //foreach (var i in rinciandetil)
+                //{
+
+                //    a.rincian.Add(i);
+
+                //}
+                //var rinci = rinciandetil.Where(x => x.DestinationJob == a.RO).ToList();
+
+                a.rincian = rinciandetil;
+            };
+
+
+
+
             //var cc = 
 
             //foreach(var g in rinciandetil)
@@ -1725,13 +1748,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //    g.SmallestQuantity = QtyExpend == null ? g.SmallestQuantity : QtyExpend.Quantity;
             //}
 
-            foreach (var i in Query)
-            {
-                var rinci = rinciandetil.Where(x => x.DestinationJob == i.RO).ToList();
+            //foreach (var i in Query)
+            //{
+            //    var rinci = rinciandetil.Where(x => x.DestinationJob == i.RO).ToList();
 
-                i.rincian = rinci;
+            //    i.rincian = rinci;
 
-            }
+            //}
 
 
             return Query;
@@ -1877,12 +1900,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 string BCDate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                 result.Rows.Add(index, ExpenditureDate, item.ExpenditureGoodId, item.ComodityName, item.Qty, item.UnitQtyName, item.ExpenditureNo, item.BuyerName, item.BCType, item.BCNo, BCDate, item.RO);
 
-                foreach (var detail in item.rincian)
+                if (item.rincian != null)
                 {
-                    index2++;
-                    string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(detail.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
+                    foreach (var detail in item.rincian)
+                    {
+                        index2++;
+                        string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(detail.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                        result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
 
+                    }
                 }
 
             }
