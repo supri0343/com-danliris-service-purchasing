@@ -430,7 +430,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                                      //PEB = cc != null ? cc.BCNo : "peb-",
                                      //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                                     EksporQty = bb != null ? bb.TotalQuantity : 0,
+                                     EksporQty = bb != null ? (bb.ExpenditureType =="EXPORT" ? bb.TotalQuantity : 0) : 0,
                                      UnitDOType = a.UnitDOType
                                  }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo,  x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType,x.SampleQtyOut,x.EksporQty,x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
                                  {
@@ -512,7 +512,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                                      //PEB = cc != null ? cc.BCNo : "peb-",
                                      //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                                     EksporQty = bb != null ? bb.TotalQuantity : 0,
+                                     EksporQty = bb != null ? (bb.ExpenditureType == "EXPORT" ? bb.TotalQuantity : 0) : 0,
                                      UnitDOType = a.UnitDOType
                                  }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut,x.EksporQty,x.ROSample }, (key, group) => new TraceableInDataBeacukaiViewModel
                                  {
