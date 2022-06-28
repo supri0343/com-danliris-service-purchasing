@@ -395,16 +395,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
 
 
-            foreach (var i in Query2)
-            {
-                if (i.UnitDOType != "SAMPLE")
-                {
+            //foreach (var i in Query2)
+            //{
+            //    if (i.UnitDOType != "SAMPLE")
+            //    {
 
                     var Data1 = (from a in Query2
                                  join expend in expendituregoods on a.ROJob equals expend.RONo into expendgood
                                  from bb in expendgood.DefaultIfEmpty()
                                      //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
                                      //from cc in bcout.DefaultIfEmpty()
+                                     where a.UnitDOType != "SAMPLE"
                                  select new TraceableInDataBeacukaiViewModel
                                  {
                                      BCDate = a.BCDate,
@@ -412,50 +413,52 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      BCType = a.BCType,
                                      BJQty = a.BJQty,
                                      BonNo = a.BonNo,
-                                     BUK = a.BUK,
-                                     SampleOut = a.SampleOut,
+                                     //BUK = a.BUK,
+                                     //SampleOut = a.SampleOut,
                                      SampleQtyOut = a.SampleQtyOut,
-                                     BUM = a.BUM,
+                                     //BUM = a.BUM,
                                      QtyBUK = a.QtyBUK,
                                      ItemCode = a.ItemCode,
                                      ItemName = a.ItemName,
-                                     PO = a.PO,
+                                     //PO = a.PO,
                                      ReceiptQty = a.ReceiptQty,
                                      ROJob = a.ROJob,
-                                     ROSample = a.ROSample,
+                                     //ROSample = a.ROSample,
                                      SatuanBUK = a.SatuanBUK,
-                                     SatuanReceipt = a.SatuanReceipt,
+                                     //SatuanReceipt = a.SatuanReceipt,
                                      SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
                                      Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                                      //PEB = cc != null ? cc.BCNo : "peb-",
                                      //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
                                      EksporQty = bb != null ? bb.TotalQuantity : 0,
                                      UnitDOType = a.UnitDOType
-                                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.BUK, x.BUM, x.QtyBUK, x.ItemCode, x.ItemName, x.PO, x.ReceiptQty, x.ROJob, x.SatuanBUK, x.SatuanReceipt, x.SampleQty, x.Invoice, x.SampleOut, x.UnitDOType, x.ROSample }, (key, group) => new TraceableInDataBeacukaiViewModel
+                                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo,  x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType,x.SampleQtyOut,x.EksporQty,x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
                                  {
                                      BCDate = key.BCDate,
                                      BCNo = key.BCNo,
                                      BCType = key.BCType,
                                      BJQty = key.BJQty,
                                      BonNo = key.BonNo,
-                                     BUK = key.BUK,
-                                     SampleOut = key.SampleOut,
-                                     BUM = key.BUM,
+                                     //BUK = key.BUK,
+                                     //SampleOut = key.SampleOut,
+                                     SampleQtyOut = key.SampleQtyOut,
+                                     //BUM = key.BUM,
                                      QtyBUK = key.QtyBUK,
                                      ItemCode = key.ItemCode,
                                      ItemName = key.ItemName,
-                                     PO = key.PO,
+                                     //PO = key.PO,
                                      ReceiptQty = key.ReceiptQty,
                                      ROJob = key.ROJob,
-                                     ROSample = key.ROSample,
+                                     //ROSample = key.ROSample,
                                      SatuanBUK = key.SatuanBUK,
-                                     SatuanReceipt = key.SatuanReceipt,
+                                     //SatuanReceipt = key.SatuanReceipt,
                                      SampleQty = group.Sum(x => x.SampleQty),
                                      Invoice = key.Invoice,
                                      //PEB = cc != null ? cc.BCNo : "peb-",
                                      //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
                                      //EksporQty = key.EksporQty
-                                     EksporQty = group.Sum(x => x.EksporQty),
+                                     //EksporQty = group.Sum(x => x.EksporQty),
+                                     EksporQty = key.EksporQty,
                                      UnitDOType = key.UnitDOType
                                  })
                                  //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).
@@ -466,10 +469,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         Data2.Add(x);
                     }
 
-                }
+                //}
 
-                else
-                {
+                //else
+                //{
                     ////var expendituregoodsSample = GetSampleExpenditureGood(roSample);
                     ////var invoices = string.Join(",", expendituregoodsSample.Select(x => x.Invoice).Distinct().ToList());
                     ////var PEBS = GetPEB(invoices);
@@ -479,11 +482,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ////    PEBs.Add(p);
                     ////}
 
-                    var Data1 = (from a in Query2
+                    var Data3 = (from a in Query2
                                  join expend in expendituregoodsSample on a.ROJob equals expend.RONo into expendgood
                                  from bb in expendgood.DefaultIfEmpty()
                                      //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
                                      //from cc in bcout.DefaultIfEmpty()
+                                 where a.UnitDOType == "SAMPLE"
                                  select new TraceableInDataBeacukaiViewModel
                                  {
                                      BCDate = a.BCDate,
@@ -491,62 +495,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      BCType = a.BCType,
                                      BJQty = a.BJQty,
                                      BonNo = a.BonNo,
-                                     BUK = a.BUK,
-                                     SampleOut = a.SampleOut,
-                                     BUM = a.BUM,
+                                     //BUK = a.BUK,
+                                     //SampleOut = a.SampleOut,
+                                     //BUM = a.BUM,
                                      QtyBUK = a.QtyBUK,
                                      SampleQtyOut = a.SampleQtyOut,
                                      ItemCode = a.ItemCode,
                                      ItemName = a.ItemName,
-                                     PO = a.PO,
+                                     //PO = a.PO,
                                      ReceiptQty = a.ReceiptQty,
-                                     ROJob = a.ROJob,
+                                     //ROJob = a.ROJob,
                                      ROSample = a.ROSample,
                                      SatuanBUK = a.SatuanBUK,
-                                     SatuanReceipt = a.SatuanReceipt,
+                                     //SatuanReceipt = a.SatuanReceipt,
                                      SampleQty = bb == null ? 0 : bb.TotalQuantity,
                                      Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                                      //PEB = cc != null ? cc.BCNo : "peb-",
                                      //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                                     EksporQty = bb != null ? bb.TotalQuantity : 0
-                                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.BUK, x.BUM, x.QtyBUK, x.ItemCode, x.ItemName, x.PO, x.ReceiptQty, x.ROJob, x.SatuanBUK, x.SatuanReceipt, x.SampleQty, x.Invoice, x.SampleOut, x.ROSample }, (key, group) => new TraceableInDataBeacukaiViewModel
+                                     EksporQty = bb != null ? bb.TotalQuantity : 0,
+                                     UnitDOType = a.UnitDOType
+                                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut,x.EksporQty,x.ROSample }, (key, group) => new TraceableInDataBeacukaiViewModel
                                  {
                                      BCDate = key.BCDate,
                                      BCNo = key.BCNo,
                                      BCType = key.BCType,
                                      BJQty = key.BJQty,
                                      BonNo = key.BonNo,
-                                     BUK = key.BUK,
-                                     SampleOut = key.SampleOut,
-                                     BUM = key.BUM,
+                                     //BUK = key.BUK,
+                                     //SampleOut = key.SampleOut,
+                                     //BUM = key.BUM,
                                      QtyBUK = key.QtyBUK,
                                      ItemCode = key.ItemCode,
                                      ItemName = key.ItemName,
-                                     PO = key.PO,
+                                     SampleQtyOut = key.SampleQtyOut,
+                                     //PO = key.PO,
                                      ReceiptQty = key.ReceiptQty,
-                                     ROJob = key.ROJob,
+                                     //ROJob = key.ROJob,
                                      ROSample = key.ROSample,
                                      SatuanBUK = key.SatuanBUK,
-                                     SatuanReceipt = key.SatuanReceipt,
+                                     //SatuanReceipt = key.SatuanReceipt,
                                      SampleQty = group.Sum(x => x.SampleQty),
                                      Invoice = key.Invoice,
                                      //PEB = cc != null ? cc.BCNo : "peb-",
                                      //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
                                      //EksporQty = key.EksporQty
-                                     EksporQty = group.Sum(x => x.EksporQty)
+                                     //EksporQty = group.Sum(x => x.EksporQty)
+                                     EksporQty = key.EksporQty,
+                                     UnitDOType = key.UnitDOType
                                  })
                                  //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK)
                                  .ToList();
 
-                    foreach (var x in Data1)
+                    foreach (var x in Data3)
                     {
                         Data2.Add(x);
                     }
 
-                }
-            }
+            //}
+            //}
 
-            var data22 = Data2.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.PO, x.ReceiptQty, x.SampleQty, x.SatuanBUK, x.EksporQty, x.SampleQtyOut, x.UnitDOType, x.ROJob, x.Invoice }, (key, group) => new TraceableInDataBeacukaiViewModel
+            var data22 = Data2.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut,x.ROSample,x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
             {
                 BCDate = key.BCDate,
                 BCNo = key.BCNo,
@@ -560,17 +568,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 SampleQtyOut = key.SampleQtyOut,
                 ItemCode = key.ItemCode,
                 ItemName = key.ItemName,
-                PO = key.PO,
+                //PO = key.PO,
                 ReceiptQty = key.ReceiptQty,
                 ROJob = key.ROJob,
-                //ROSample = key.ROSample,
+                ROSample = key.ROSample,
                 SatuanBUK = key.SatuanBUK,
                 //SatuanReceipt = key.SatuanReceipt,
                 SampleQty = key.SampleQty,
                 Invoice = key.Invoice,
-                EksporQty = key.EksporQty,
-                UnitDOType = key.UnitDOType
-            });
+                EksporQty = group.Sum(x => x.EksporQty),
+                 UnitDOType = key.UnitDOType
+            }); ;
             //var DataTrace = Data2.Select((a, coba) => new
             //{
             //    rown = coba + 1,
@@ -604,6 +612,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 key.ItemCode,
                 key.ReceiptQty
             }).ToList();
+
             //var DistinctKeluarperPO = Query.Select(x => new { x.QtyBUK, x.PO }).GroupBy(x => new { x.PO, x.QtyBUK }, (key, group) => new
             //{
             //    key.PO,
@@ -626,7 +635,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 SampleQtyOut = group.Sum(x => x.SampleQtyOut)
             }).ToList();
 
-            var groupKeluarperExport = data22.GroupBy(x => new { x.BonNo, x.ItemCode }, (key, group) => new
+            var groupKeluarperExport1 = data22.Select(x => new { x.BonNo, x.ItemCode,x.EksporQty,x.SampleQty }).GroupBy(x => new { x.BonNo, x.ItemCode, x.EksporQty, x.SampleQty }, (key, group) => new
+            {
+                //SampleOut = key.SampleOut,
+                key.BonNo,
+                key.ItemCode,
+                key.EksporQty,
+                key.SampleQty
+            }).ToList();
+
+            var groupKeluarperExport = groupKeluarperExport1.GroupBy(x => new { x.BonNo, x.ItemCode }, (key, group) => new
             {
                 //SampleOut = key.SampleOut,
                 BonNo = key.BonNo,
@@ -670,10 +688,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     //var samplecuttingIn = GetSampleCuttingOut(roSample);
                     ////var finouts = GetFinishingOut(ro);
                     //var samplefinouts = GetSampleFinishingOut(roSample);
-                    var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingInType == "PEMBELIAN");
-                    var finishingout = samplefinouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingTo == "GUDANG JADI");
+                    var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROSample && x.finishingInType == "PEMBELIAN");
+                    var finishingout = samplefinouts.FirstOrDefault(x => x.roJob == i.ROSample && x.finishingTo == "GUDANG JADI");
 
-                    var cutting = samplecuttingIn.FirstOrDefault(x => x.RONo == i.ROJob);
+                    var cutting = samplecuttingIn.FirstOrDefault(x => x.RONo == i.ROSample);
                     var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
