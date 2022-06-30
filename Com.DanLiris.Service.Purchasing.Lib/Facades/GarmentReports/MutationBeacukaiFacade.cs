@@ -163,8 +163,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
-            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL"  };
-            var pemasukan = new[] { "PROSES", "PEMBELIAN" };
+            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL", "SUBCON" };
+            var pemasukan = new[] { "PROSES", "PEMBELIAN", "SISA SUBCON" };
 
             var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
             var coderequirement = new[] { "BP", "BE" };
@@ -598,7 +598,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var EPOExpend = (from a in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters()
                        join b in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on a.GarmentEPOId equals b.Id
-                       where a.IsDeleted == false && b.IsDeleted == false 
+                       //where a.IsDeleted == false && b.IsDeleted == false 
                        select new
                        {
                            PO_SerialNumber = a.PO_SerialNumber,
@@ -656,6 +656,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     //where b.IsDeleted == false && c.IsDeleted == false
 
                                     join b in EPOExpend on a.POSerialNumber equals b.PO_SerialNumber
+                                           where a.Product.Code != null
                                            
                                      select new MutationBBCentralViewModelTemp
                                     {
@@ -881,8 +882,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
-            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL" };
-            var pemasukan = new[] { "PROSES", "PEMBELIAN" };
+            //var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL" };
+            //var pemasukan = new[] { "PROSES", "PEMBELIAN" };
+
+            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL", "SUBCON" };
+            var pemasukan = new[] { "PROSES", "PEMBELIAN", "SISA SUBCON" };
 
             var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
             var coderequirement = new[] { "BP", "BE" };

@@ -159,13 +159,86 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             }
         }
 
+        [HttpGet]
+        public IActionResult Get(string bum)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
+
+                var model = _facade.Read(bum);
+
+                //var info = new Dictionary<string, object>
+                //    {
+                //        { "count", model.Data.Count },
+                //        { "total", model.TotalData },
+                //        { "order", model.Order },
+                //        { "page", page },
+                //        { "size", size }
+                //    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(model);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("download")]
+        public IActionResult GetXls(string bum)
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+
+            string accept = Request.Headers["Accept"];
+
+
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+
+                byte[] xlsInBytes;
+                //DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                //DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                var xls = _facade.GetExceltracebyBUM(bum);
+
+                string filename = String.Format("Laporan Fitur Penggunaan BUM - {0}.xlsx", bum);
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         //[HttpGet("out/detail")]
         //public IActionResult GettraceOutDetail(string ro)
         //{
         //    int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
         //    string accept = Request.Headers["Accept"];
 
-            
+
 
         //    try
         //    {

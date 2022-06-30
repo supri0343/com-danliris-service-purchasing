@@ -246,6 +246,127 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
+        [Fact]
+        public void Should_Success_Get_Report_byBUM()
+        {
+            var mockFacade = new Mock<ITraceableBeacukaiFacade>();
+            mockFacade.Setup(x => x.Read(It.IsAny<string>()))
+                .Returns(new List<TraceableInWithBUMBeacukaiViewModel> { });
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            TraceableBeacukaiController controller = new TraceableBeacukaiController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer unittesttoken";
+            controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
+
+            var response = controller.Get(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+
+        }
+
+        [Fact]
+        public void Should_Success_Fail_Get_Report__byBUM()
+        {
+            var mockFacade = new Mock<ITraceableBeacukaiFacade>();
+            mockFacade.Setup(x => x.Read(It.IsAny<string>()))
+                .Returns(new List<TraceableInWithBUMBeacukaiViewModel> { });
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            TraceableBeacukaiController controller = new TraceableBeacukaiController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            var response = controller.Get(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+
+        }
+
+        [Fact]
+        public void Should_Success_Get_Xls_Trace_ByBUM()
+        {
+            var mockFacade = new Mock<ITraceableBeacukaiFacade>();
+            mockFacade.Setup(x => x.GetExceltracebyBUM(It.IsAny<string>()))
+                .Returns(new MemoryStream());
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            TraceableBeacukaiController controller = new TraceableBeacukaiController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer unittesttoken";
+            controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(It.IsAny<string>());
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Xls_Trace_ByBUM()
+        {
+            var mockFacade = new Mock<ITraceableBeacukaiFacade>();
+            mockFacade.Setup(x => x.GetExceltracebyBUM(It.IsAny<string>()))
+                .Returns(new MemoryStream());
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            TraceableBeacukaiController controller = new TraceableBeacukaiController(mockFacade.Object, GetServiceProvider().Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+
         //[Fact]
         //public void Should_Success_Get_Report_Detail_Trace_Out()
         //{

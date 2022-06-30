@@ -17,6 +17,11 @@ using System.Globalization;
 using OfficeOpenXml.Style;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentCuttingOut;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentPreparing;
+using Com.Moonlay.NetCore.Lib;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using static Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports.TraceableInBeacukaiViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentSampleExpenditureGood;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
@@ -64,6 +69,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
+        public List<GarmentSampleExpenditureGoodViewModel> GetSampleExpenditureGood(string RONo)
+        {
+            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-expenditure-goods/traceable-by-ro";
+
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentSampleExpenditureGoodViewModel> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new List<GarmentSampleExpenditureGoodViewModel>();
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentSampleExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
+
+                }
+                return viewModel;
+            }
+            else
+            {
+                return new List<GarmentSampleExpenditureGoodViewModel>();
+            }
+        }
+
         public List<GarmentCuttingOutViewModel> GetCuttingOut(string RONo)
         {
             var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
@@ -95,10 +131,72 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
+        public List<GarmentCuttingOutViewModel> GetSampleCuttingOut(string RONo)
+        {
+            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-cutting-outs/for-traceable";
+
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentCuttingOutViewModel> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new List<GarmentCuttingOutViewModel>();
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+
+                }
+                return viewModel;
+            }
+            else
+            {
+                return new List<GarmentCuttingOutViewModel>();
+            }
+        }
+
         public List<GarmentFinishingOutViewModel> GetFinishingOut(string RONo)
         {
             var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
             string expenditureUri = APIEndpoint.GarmentProduction + $"finishing-outs/for-traceable";
+
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentFinishingOutViewModel> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new List<GarmentFinishingOutViewModel>();
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+
+                }
+                return viewModel;
+            }
+            else
+            {
+                return new List<GarmentFinishingOutViewModel>();
+            }
+        }
+
+        public List<GarmentFinishingOutViewModel> GetSampleFinishingOut(string RONo)
+        {
+            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-finishing-outs/traceable-by-ro";
 
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
@@ -168,9 +266,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Tuple.Create(Query, TotalData);
         }
 
+
         public List<TraceableInBeacukaiViewModel> GetTraceableInQuery(string filter, string tipe, string tipebc)
         {
-            var Query = tipe == "BCNo" ? (from a in (from aa in dbContext.GarmentBeacukais
+            var Query =  (from a in (from aa in dbContext.GarmentBeacukais
                                                      where aa.BeacukaiNo == filter && aa.CustomsType == tipebc
                                                      select aa)
                                           join t in dbContext.GarmentDeliveryOrders on a.Id equals t.CustomsId
@@ -194,52 +293,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                               BCType = a.CustomsType,
                                               BJQty = 0,
                                               BonNo = a.BillNo,
-                                              BUK = ii != null ? ii.UENNo : "buk-",
-                                              BUM = r.URNNo,
-                                              EksporQty = 0,
-                                              QtyBUK = hh != null ? hh.Quantity : 0,
+                                              //BUK = gg.UnitDOType != "SAMPLE" ? ii.UENNo : "buk-",
+                                              //SampleOut = gg.UnitDOType == "SAMPLE" ? ii.UENNo : "",
+                                              //BUM = r.URNNo,
                                               ItemCode = d.ProductCode,
                                               ItemName = d.ProductName,
-                                              PO = d.POSerialNumber,
                                               ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
-                                              ROJob = gg != null ? gg.RONo : "rojob-",
+                                              QtyBUK = ii != null ? (ii.ExpenditureType == "PROSES" ? hh.Quantity : 0) : 0,
+                                              SampleQtyOut = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
+                                              //PO = d.POSerialNumber,
+                                              ROJob = gg.UnitDOType == "PROSES" ? gg.RONo : "rojob-",
+                                              ROSample = gg.UnitDOType == "SAMPLE" ? gg.RONo : "rosamp-",
                                               SatuanBUK = hh != null ? hh.UomUnit : "satbuk-",
                                               SatuanReceipt = e.SmallUomUnit,
-                                              SampleQty = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0
-                                          }).Distinct() :
-                                         (from a in (from aa in dbContext.GarmentBeacukais
-                                                     select aa)
-                                          join deliv in dbContext.GarmentDeliveryOrders on a.Id equals deliv.CustomsId
-                                          join c in dbContext.GarmentDeliveryOrderItems on deliv.Id equals c.GarmentDOId
-                                          join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
-                                          join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
-                                          join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
-                                          join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId
-                                          join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
-                                          join h in dbContext.GarmentUnitExpenditureNoteItems on g.Id equals h.UnitDOItemId
-                                          join i in dbContext.GarmentUnitExpenditureNotes on h.UENId equals i.Id
-                                          where g.RONo == filter
-                                          where r.URNType == "PEMBELIAN"
-                                          select new TraceableInBeacukaiViewModelTemp
-                                          {
-                                              BCDate = a.BeacukaiDate,
-                                              BCNo = a.BeacukaiNo,
-                                              BCType = a.CustomsType,
-                                              BJQty = 0,
-                                              BonNo = a.BillNo,
-                                              BUK = i.UENNo,
-                                              BUM = r.URNNo,
+                                              UnitDOType = gg.UnitDOType,
                                               EksporQty = 0,
-                                              QtyBUK = h.Quantity,
-                                              ItemCode = d.ProductCode,
-                                              ItemName = d.ProductName,
-                                              PO = d.POSerialNumber,
-                                              ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
-                                              ROJob = g.RONo,
-                                              SatuanBUK = h.UomUnit,
-                                              SatuanReceipt = e.SmallUomUnit,
-                                              SampleQty = i.ExpenditureType == "SAMPLE" ? h.Quantity : 0
-                                          }).Distinct();
+                                              SampleQty = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
+                                          });
+                                         // }) :
+                                         //(from a in (from aa in dbContext.GarmentBeacukais
+                                         //            select aa)
+                                         // join deliv in dbContext.GarmentDeliveryOrders on a.Id equals deliv.CustomsId
+                                         // join c in dbContext.GarmentDeliveryOrderItems on deliv.Id equals c.GarmentDOId
+                                         // join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
+                                         // join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
+                                         // join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
+                                         // join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId
+                                         // join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
+                                         // join h in dbContext.GarmentUnitExpenditureNoteItems on f.Id equals h.UnitDOItemId
+                                         // join i in dbContext.GarmentUnitExpenditureNotes on h.UENId equals i.Id
+                                         // where g.RONo == filter
+                                         // where r.URNType == "PEMBELIAN"
+                                         // where i.ExpenditureType == "PROSES"
+                                         // select new TraceableInBeacukaiViewModelTemp
+                                         // {
+                                         //     BCDate = a.BeacukaiDate,
+                                         //     BCNo = a.BeacukaiNo,
+                                         //     BCType = a.CustomsType,
+                                         //     BJQty = 0,
+                                         //     BonNo = a.BillNo,
+                                         //     BUK = i.UENNo,
+                                         //     BUM = r.URNNo,
+                                         //     EksporQty = 0,
+                                         //     QtyBUK = h.Quantity,
+                                         //     ItemCode = d.ProductCode,
+                                         //     ItemName = d.ProductName,
+                                         //     PO = d.POSerialNumber,
+                                         //     ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
+                                         //     ROJob = g.RONo,
+                                         //     SatuanBUK = h.UomUnit,
+                                         //     SatuanReceipt = e.SmallUomUnit,
+                                         //     SampleQty = i.ExpenditureType == "SAMPLE" ? h.Quantity : 0
+                                         // });
 
             //Query = Query.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BonNo, x.BUM, x.BUK, x.ItemCode, x.ItemName, x.PO, x.ROJob, x.SatuanBUK, x.SatuanReceipt }, (key, group) => new TraceableInBeacukaiViewModelTemp
             //{
@@ -261,44 +366,219 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //    SatuanReceipt = key.SatuanReceipt
             //});
 
-            var Query2 = Query.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.ROJob).ThenBy(x => x.BUK).ToList();
+            var Query2 = Query.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.ROJob).ThenBy(x => x.ROSample).ToList();
 
+            var roSample = string.Join(",", Query2.Select(x => x.ROSample).Distinct().ToList());
             var ro = string.Join(",", Query2.Select(x => x.ROJob).Distinct().ToList());
+
+            List<TraceableInDataBeacukaiViewModel> Data2 = new List<TraceableInDataBeacukaiViewModel>();
+            List<BeacukaiAddedViewModel> PEBs = new List<BeacukaiAddedViewModel>();
+
+
+
             var expendituregoods = GetExpenditureGood(ro);
-            var cuttingIn = GetCuttingOut(ro);
             var invoices = string.Join(",", expendituregoods.Select(x => x.Invoice).Distinct().ToList());
-            var PEBs = GetPEB(invoices);
-            var finouts = GetFinishingOut(ro);
+            var PEBS = GetPEB(invoices);
 
-            var Data2 = (from a in Query2
-                         join expend in expendituregoods on a.ROJob equals expend.RONo into expendgood
-                         from bb in expendgood.DefaultIfEmpty()
-                             //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
-                             //from cc in bcout.DefaultIfEmpty()
-                         select new
-                         {
-                             BCDate = a.BCDate,
-                             BCNo = a.BCNo,
-                             BCType = a.BCType,
-                             BJQty = a.BJQty,
-                             BonNo = a.BonNo,
-                             BUK = a.BUK,
-                             BUM = a.BUM,
-                             QtyBUK = a.QtyBUK,
-                             ItemCode = a.ItemCode,
-                             ItemName = a.ItemName,
-                             PO = a.PO,
-                             ReceiptQty = a.ReceiptQty,
-                             ROJob = a.ROJob,
-                             SatuanBUK = a.SatuanBUK,
-                             SatuanReceipt = a.SatuanReceipt,
-                             SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
-                             Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
-                             //PEB = cc != null ? cc.BCNo : "peb-",
-                             //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                             EksporQty = bb != null ? bb.TotalQuantity : 0
-                         }).OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).Distinct().ToList();
+            foreach (var p in PEBS)
+            {
+                PEBs.Add(p);
+            }
 
+
+            var expendituregoodsSample = GetSampleExpenditureGood(roSample);
+            var invoicess = string.Join(",", expendituregoods.Select(x => x.Invoice).Distinct().ToList());
+            var PEBSS = GetPEB(invoicess);
+            foreach (var p in PEBSS)
+            {
+                PEBs.Add(p);
+            }
+
+
+            //foreach (var i in Query2)
+            //{
+            //    if (i.UnitDOType != "SAMPLE")
+            //    {
+
+                    var Data1 = (from a in Query2
+                                 join expend in expendituregoods on a.ROJob equals expend.RONo into expendgood
+                                 from bb in expendgood.DefaultIfEmpty()
+                                     //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
+                                     //from cc in bcout.DefaultIfEmpty()
+                                     where a.UnitDOType != "SAMPLE"
+                                 select new TraceableInDataBeacukaiViewModel
+                                 {
+                                     BCDate = a.BCDate,
+                                     BCNo = a.BCNo,
+                                     BCType = a.BCType,
+                                     BJQty = a.BJQty,
+                                     BonNo = a.BonNo,
+                                     //BUK = a.BUK,
+                                     //SampleOut = a.SampleOut,
+                                     SampleQtyOut = a.SampleQtyOut,
+                                     //BUM = a.BUM,
+                                     QtyBUK = a.QtyBUK,
+                                     ItemCode = a.ItemCode,
+                                     ItemName = a.ItemName,
+                                     //PO = a.PO,
+                                     ReceiptQty = a.ReceiptQty,
+                                     ROJob = a.ROJob,
+                                     //ROSample = a.ROSample,
+                                     SatuanBUK = a.SatuanBUK,
+                                     //SatuanReceipt = a.SatuanReceipt,
+                                     SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
+                                     Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
+                                     //PEB = cc != null ? cc.BCNo : "peb-",
+                                     //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
+                                     EksporQty = bb != null ? (bb.ExpenditureType =="EXPORT" ? bb.TotalQuantity : 0) : 0,
+                                     UnitDOType = a.UnitDOType
+                                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo,  x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType,x.SampleQtyOut,x.EksporQty,x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
+                                 {
+                                     BCDate = key.BCDate,
+                                     BCNo = key.BCNo,
+                                     BCType = key.BCType,
+                                     BJQty = key.BJQty,
+                                     BonNo = key.BonNo,
+                                     //BUK = key.BUK,
+                                     //SampleOut = key.SampleOut,
+                                     SampleQtyOut = key.SampleQtyOut,
+                                     //BUM = key.BUM,
+                                     QtyBUK = key.QtyBUK,
+                                     ItemCode = key.ItemCode,
+                                     ItemName = key.ItemName,
+                                     //PO = key.PO,
+                                     ReceiptQty = key.ReceiptQty,
+                                     ROJob = key.ROJob,
+                                     //ROSample = key.ROSample,
+                                     SatuanBUK = key.SatuanBUK,
+                                     //SatuanReceipt = key.SatuanReceipt,
+                                     SampleQty = group.Sum(x => x.SampleQty),
+                                     Invoice = key.Invoice,
+                                     //PEB = cc != null ? cc.BCNo : "peb-",
+                                     //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
+                                     //EksporQty = key.EksporQty
+                                     //EksporQty = group.Sum(x => x.EksporQty),
+                                     EksporQty = key.EksporQty,
+                                     UnitDOType = key.UnitDOType
+                                 })
+                                 //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).
+                                 .ToList();
+
+                    foreach (var x in Data1)
+                    {
+                        Data2.Add(x);
+                    }
+
+                //}
+
+                //else
+                //{
+                    ////var expendituregoodsSample = GetSampleExpenditureGood(roSample);
+                    ////var invoices = string.Join(",", expendituregoodsSample.Select(x => x.Invoice).Distinct().ToList());
+                    ////var PEBS = GetPEB(invoices);
+
+                    ////foreach (var p in PEBS)
+                    ////{
+                    ////    PEBs.Add(p);
+                    ////}
+
+                    var Data3 = (from a in Query2
+                                 join expend in expendituregoodsSample on a.ROJob equals expend.RONo into expendgood
+                                 from bb in expendgood.DefaultIfEmpty()
+                                     //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
+                                     //from cc in bcout.DefaultIfEmpty()
+                                 where a.UnitDOType == "SAMPLE"
+                                 select new TraceableInDataBeacukaiViewModel
+                                 {
+                                     BCDate = a.BCDate,
+                                     BCNo = a.BCNo,
+                                     BCType = a.BCType,
+                                     BJQty = a.BJQty,
+                                     BonNo = a.BonNo,
+                                     //BUK = a.BUK,
+                                     //SampleOut = a.SampleOut,
+                                     //BUM = a.BUM,
+                                     QtyBUK = a.QtyBUK,
+                                     SampleQtyOut = a.SampleQtyOut,
+                                     ItemCode = a.ItemCode,
+                                     ItemName = a.ItemName,
+                                     //PO = a.PO,
+                                     ReceiptQty = a.ReceiptQty,
+                                     //ROJob = a.ROJob,
+                                     ROSample = a.ROSample,
+                                     SatuanBUK = a.SatuanBUK,
+                                     //SatuanReceipt = a.SatuanReceipt,
+                                     SampleQty = bb == null ? 0 : bb.TotalQuantity,
+                                     Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
+                                     //PEB = cc != null ? cc.BCNo : "peb-",
+                                     //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
+                                     EksporQty = bb != null ? (bb.ExpenditureType == "EXPORT" ? bb.TotalQuantity : 0) : 0,
+                                     UnitDOType = a.UnitDOType
+                                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut,x.EksporQty,x.ROSample }, (key, group) => new TraceableInDataBeacukaiViewModel
+                                 {
+                                     BCDate = key.BCDate,
+                                     BCNo = key.BCNo,
+                                     BCType = key.BCType,
+                                     BJQty = key.BJQty,
+                                     BonNo = key.BonNo,
+                                     //BUK = key.BUK,
+                                     //SampleOut = key.SampleOut,
+                                     //BUM = key.BUM,
+                                     QtyBUK = key.QtyBUK,
+                                     ItemCode = key.ItemCode,
+                                     ItemName = key.ItemName,
+                                     SampleQtyOut = key.SampleQtyOut,
+                                     //PO = key.PO,
+                                     ReceiptQty = key.ReceiptQty,
+                                     //ROJob = key.ROJob,
+                                     ROSample = key.ROSample,
+                                     SatuanBUK = key.SatuanBUK,
+                                     //SatuanReceipt = key.SatuanReceipt,
+                                     SampleQty = group.Sum(x => x.SampleQty),
+                                     Invoice = key.Invoice,
+                                     //PEB = cc != null ? cc.BCNo : "peb-",
+                                     //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
+                                     //EksporQty = key.EksporQty
+                                     //EksporQty = group.Sum(x => x.EksporQty)
+                                     EksporQty = key.EksporQty,
+                                     UnitDOType = key.UnitDOType
+                                 })
+                                 //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK)
+                                 .ToList();
+
+                    foreach (var x in Data3)
+                    {
+                        Data2.Add(x);
+                    }
+
+            //}
+            //}
+
+            var data22 = Data2.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut,x.ROSample,x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
+            {
+                BCDate = key.BCDate,
+                BCNo = key.BCNo,
+                BCType = key.BCType,
+                BJQty = key.BJQty,
+                BonNo = key.BonNo,
+                //BUK = key.BUK,
+                //SampleOut = key.SampleOut,
+                //BUM = key.BUM,
+                QtyBUK = key.QtyBUK,
+                SampleQtyOut = key.SampleQtyOut,
+                ItemCode = key.ItemCode,
+                ItemName = key.ItemName,
+                //PO = key.PO,
+                ReceiptQty = key.ReceiptQty,
+                ROJob = key.ROJob,
+                ROSample = key.ROSample,
+                SatuanBUK = key.SatuanBUK,
+                //SatuanReceipt = key.SatuanReceipt,
+                SampleQty = key.SampleQty,
+                Invoice = key.Invoice,
+                EksporQty = group.Sum(x => x.EksporQty),
+                 UnitDOType = key.UnitDOType
+            }); ;
             //var DataTrace = Data2.Select((a, coba) => new
             //{
             //    rown = coba + 1,
@@ -327,27 +607,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             List<TraceableInBeacukaiViewModelTemp> traceableIn1 = new List<TraceableInBeacukaiViewModelTemp>();
             List<TraceableInBeacukaiViewModel> traceableIn2 = new List<TraceableInBeacukaiViewModel>();
 
-            var DistinctMasukperPO = Query.Select(x => new { x.ReceiptQty, x.PO }).GroupBy(x => new { x.PO, x.ReceiptQty }, (key, group) => new {
-                key.PO,
+            var DistinctMasukperPO = Query.Select(x => new { x.ReceiptQty, x.BonNo, x.ItemCode }).GroupBy(x => new { x.BonNo, x.ReceiptQty, x.ItemCode }, (key, group) => new {
+                key.BonNo,
+                key.ItemCode,
                 key.ReceiptQty
             }).ToList();
-            var DistinctKeluarperPO = Query.Select(x => new { x.QtyBUK, x.PO }).GroupBy(x => new { x.PO, x.QtyBUK }, (key, group) => new
-            {
-                key.PO,
-                key.QtyBUK
 
-            }).ToList();
+            //var DistinctKeluarperPO = Query.Select(x => new { x.QtyBUK, x.PO }).GroupBy(x => new { x.PO, x.QtyBUK }, (key, group) => new
+            //{
+            //    key.PO,
+            //    key.QtyBUK
 
-            var groupMasukperPO = DistinctMasukperPO.GroupBy(x => new { x.PO }, (key, group) => new
+            //}).ToList();
+
+            var groupMasukperPO = DistinctMasukperPO.GroupBy(x => new { x.BonNo, x.ItemCode }, (key, group) => new
             {
-                PO = key.PO,
+                ItemCode = key.ItemCode,
+                BonNo = key.BonNo,
                 ReceiptQty = group.Sum(x => x.ReceiptQty)
             }).ToList();
 
-            var groupKeluarperPO = DistinctKeluarperPO.GroupBy(x => new { x.PO }, (key, group) => new
+            var groupKeluarperPO = Query.GroupBy(x => new { x.BonNo, x.ItemCode }, (key, group) => new
             {
-                PO = key.PO,
-                QtyBUK = group.Sum(x => x.QtyBUK)
+                ItemCode = key.ItemCode,
+                BonNo = key.BonNo,
+                QtyBUK = group.Sum(x => x.QtyBUK),
+                SampleQtyOut = group.Sum(x => x.SampleQtyOut)
+            }).ToList();
+
+            var groupKeluarperExport1 = data22.Select(x => new { x.BonNo, x.ItemCode,x.EksporQty,x.SampleQty }).GroupBy(x => new { x.BonNo, x.ItemCode, x.EksporQty, x.SampleQty }, (key, group) => new
+            {
+                //SampleOut = key.SampleOut,
+                key.BonNo,
+                key.ItemCode,
+                key.EksporQty,
+                key.SampleQty
+            }).ToList();
+
+            var groupKeluarperExport = groupKeluarperExport1.GroupBy(x => new { x.BonNo, x.ItemCode }, (key, group) => new
+            {
+                //SampleOut = key.SampleOut,
+                BonNo = key.BonNo,
+                ItemCode = key.ItemCode,
+                EksporQty = group.Sum(x => x.EksporQty),
+                SampleQty = group.Sum(x => x.SampleQty)
             }).ToList();
 
             //var ListQtyMasukPerPO = DistinctMasukperPO.GroupBy(x => new { x.PO, x.ReceiptQty }, (key, group) => new
@@ -371,50 +674,142 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //            }).ToList();
 
 
+            var samplecuttingIn = GetSampleCuttingOut(roSample);
+            //var finouts = GetFinishingOut(ro);
+            var samplefinouts = GetSampleFinishingOut(roSample);
 
-            foreach (var i in Data2)
+            var cuttingIn = GetCuttingOut(ro);
+            var finouts = GetFinishingOut(ro);
+
+            foreach (var i in data22)
             {
-                var cutting = cuttingIn.FirstOrDefault(x => x.RONo == i.ROJob);
-                var sisa1 = groupMasukperPO.FirstOrDefault(x => x.PO == i.PO);
-                var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.PO == i.PO);
-                var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
-                //var PEBQty = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
-                var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingInType == "PEMBELIAN");
-                var finishingout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingTo == "GUDANG JADI");
-
-
-                var trace1 = new TraceableInBeacukaiViewModelTemp
+                if (i.UnitDOType == "SAMPLE")
                 {
-                    BCDate = i.BCDate,
-                    BCNo = i.BCNo,
-                    BCType = i.BCType,
-                    BJQty = (finishingout == null ? 0 : finishingout.totalQty) + (subconout == null ? 0 : subconout.totalQty),
-                    BonNo = i.BonNo,
-                    BUK = i.BUK,
-                    BUM = i.BUM,
-                    Invoice = i.Invoice,
-                    ItemCode = i.ItemCode,
-                    ItemName = i.ItemName,
-                    PEB = PEB != null ? PEB.BCNo : "peb-",
-                    PEBDate = PEB != null ? PEB.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                    PO = i.PO,
-                    QtyBUK = i.QtyBUK,
-                    ReceiptQty = i.ReceiptQty,
-                    ROJob = i.ROJob,
-                    SampleQty = 0,
-                    SatuanBUK = i.SatuanBUK,
-                    SatuanReceipt = i.SatuanReceipt,
-                    Sisa = Math.Round(sisa1.ReceiptQty - sisa2.QtyBUK, 2),
-                    SubkonOutQty = subconout == null ? 0 : subconout.totalQty,
-                    ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
-                    EksporQty = i.EksporQty
-                };
+                    //var samplecuttingIn = GetSampleCuttingOut(roSample);
+                    ////var finouts = GetFinishingOut(ro);
+                    //var samplefinouts = GetSampleFinishingOut(roSample);
+                    var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROSample && x.finishingInType == "PEMBELIAN");
+                    var finishingout = samplefinouts.FirstOrDefault(x => x.roJob == i.ROSample && x.finishingTo == "GUDANG JADI");
 
-                traceableIn1.Add(trace1);
+                    var cutting = samplecuttingIn.FirstOrDefault(x => x.RONo == i.ROSample);
+                    var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
+                    var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
+                    var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
 
+                    var eksQty = groupKeluarperExport.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
+                    //var PEBQty = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
+
+
+                    var trace1 = new TraceableInBeacukaiViewModelTemp
+                    {
+                        BCDate = i.BCDate,
+                        BCNo = i.BCNo,
+                        BCType = i.BCType,
+                        BJQty = (finishingout == null ? 0 : finishingout.totalQty),
+                        BonNo = i.BonNo,
+                        //BUK = i.BUK,
+                        //SampleOut = i.SampleOut,
+                        SampleQtyOut = sisa2.SampleQtyOut,
+                        //BUM = i.BUM,
+                        Invoice = i.Invoice,
+                        ItemCode = i.ItemCode,
+                        ItemName = i.ItemName,
+                        //PEB = PEB != null ? PEB.BCNo : "peb-",
+                        //PEBDate = PEB != null ? PEB.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
+                        //PO = i.PO,
+                        QtyBUK = sisa2.QtyBUK,
+                        ReceiptQty = sisa1.ReceiptQty,
+                        //ROJob = i.ROJob,
+                        //ROSample = i.ROSample,
+                        SampleQty = eksQty.SampleQty,
+                        SatuanBUK = i.SatuanBUK,
+                        SatuanReceipt = i.SatuanReceipt,
+                        Sisa = Math.Round(sisa1.ReceiptQty - sisa2.SampleQtyOut - sisa2.QtyBUK, 2),
+                        SubkonOutQty = 0,
+                        WIP = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
+                        EksporQty = eksQty.EksporQty
+                    };
+
+
+                    traceableIn1.Add(trace1);
+
+                }
+                else
+                {
+                    //var cuttingIn = GetCuttingOut(ro);
+                    //var finouts = GetFinishingOut(ro);
+                    var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingInType == "PEMBELIAN");
+                    var finishingout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingTo == "GUDANG JADI");
+
+                    var cutting = cuttingIn.FirstOrDefault(x => x.RONo == i.ROJob);
+                    var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
+                    var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
+                    //var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
+                    //var PEBQty = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
+                    var eksQty = groupKeluarperExport.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
+
+
+                    var trace1 = new TraceableInBeacukaiViewModelTemp
+                    {
+                        BCDate = i.BCDate,
+                        BCNo = i.BCNo,
+                        BCType = i.BCType,
+                        BJQty = (finishingout == null ? 0 : finishingout.totalQty) + (subconout == null ? 0 : subconout.totalQty),
+                        BonNo = i.BonNo,
+                        //BUK = i.BUK,
+                        //SampleOut = i.SampleOut,
+                        //BUM = i.BUM,
+                        Invoice = i.Invoice,
+                        ItemCode = i.ItemCode,
+                        ItemName = i.ItemName,
+                        //PEB = PEB != null ? PEB.BCNo : "peb-",
+                        //PEBDate = PEB != null ? PEB.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
+                        //PO = i.PO,
+                        QtyBUK = sisa2.QtyBUK,
+                        SampleQtyOut = sisa2.SampleQtyOut,
+                        ReceiptQty = sisa1.ReceiptQty,
+                        //ROJob = i.ROJob,
+                        //ROSample = i.ROSample,
+                        SampleQty = eksQty.SampleQty,
+                        SatuanBUK = i.SatuanBUK,
+                        SatuanReceipt = i.SatuanReceipt,
+                        Sisa = Math.Round(sisa1.ReceiptQty - sisa2.SampleQtyOut - sisa2.QtyBUK, 2),
+                        SubkonOutQty = subconout == null ? 0 : subconout.totalQty,
+                        //ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
+                        EksporQty = eksQty.EksporQty,
+                        WIP = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
+                    };
+
+                    traceableIn1.Add(trace1);
+                }
             }
 
+            var groupBJQty = traceableIn1.Select(x => new { x.BJQty, x.BonNo, x.ItemCode,x.WIP }).GroupBy(x => new { x.BonNo, x.BJQty, x.ItemCode,x.WIP }, (key, group) => new
+            {
+                key.ItemCode,
+                key.BonNo,
+                key.WIP,
+                key.BJQty
+            }).ToList();
 
+            var sumBJQty = groupBJQty.GroupBy(x => new { x.BonNo, x.ItemCode }, (key, group) => new
+            {
+                ItemCode = key.ItemCode,
+                BonNo = key.BonNo,
+                BJQty = group.Sum(x => x.BJQty),
+                WIP = group.Sum(x => x.WIP)
+            }).ToList();
+
+            foreach (var i in traceableIn1)
+            {
+                var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
+                var resulBJ = sumBJQty.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
+                //var resulBJ = sumBJQty.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
+
+                i.WIP = resulBJ.WIP;
+                i.BJQty = resulBJ.BJQty;
+                i.PEB = PEB != null ? PEB.BCNo : "peb-";
+            };
             //traceableIn1 = traceableIn1.OrderBy(x => x.ROJob).ThenBy(x => x.Invoice).ToList();
 
 
@@ -423,7 +818,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //    .ThenBy(x => x.BJQty).ThenBy(x => x.Invoice).ToList();
 
 
-            var trace21 = traceableIn1.Select((i, order) => new
+
+
+
+            var traceableIn11 = traceableIn1.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.EksporQty, x.PEB, x.Sisa, x.SampleQtyOut, x.WIP }, (key, group) => new TraceableInBeacukaiViewModelTemp
+            {
+                BCDate = key.BCDate,
+                BCNo = key.BCNo,
+                BCType = key.BCType,
+                BJQty = key.BJQty,
+                BonNo = key.BonNo,
+                //BUK = key.BUK,
+                //SampleOut = key.SampleOut,
+                //BUM = key.BUM,
+                QtyBUK = key.QtyBUK,
+                SampleQtyOut = key.SampleQtyOut,
+                ItemCode = key.ItemCode,
+                ItemName = key.ItemName,
+                //PO = key.PO,
+                ReceiptQty = key.ReceiptQty,
+                //ROJob = key.ROJob,
+                //ROSample = key.ROSample,
+                SatuanBUK = key.SatuanBUK,
+                //SatuanReceipt = key.SatuanReceipt,
+                SampleQty = key.SampleQty,
+                //Invoice = key.Invoice,
+                EksporQty = key.EksporQty,
+                PEB = key.PEB,
+                //PEBDate = key.PEBDate,
+                Sisa = key.Sisa,
+                WIP = key.WIP
+                //SubkonOutQty = key.SubkonOutQty,
+                //ProduksiQty = key.ProduksiQty
+            });
+
+            var trace21 = traceableIn11.Select((i, order) => new
             {
                 rown = order + 1,
                 BCDate = i.BCDate,
@@ -431,28 +860,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 BCType = i.BCType,
                 BJQty = i.BJQty,
                 BonNo = i.BonNo,
-                BUK = i.BUK,
-                BUM = i.BUM,
+                //BUK = i.BUK,
+                //SampleOut = i.SampleOut,
+                //BUM = i.BUM,
                 //Invoice = i.Invoice,
                 ItemCode = i.ItemCode,
                 ItemName = i.ItemName,
-                //PEB = PEB != null ? PEB.BCNo : "-",
+                PEB = i.PEB,
                 //PEBDate = new DateTimeOffset(new DateTime(1970, 1, 1)),
                 PO = i.PO,
                 //ProduksiQty = cutting == null ? 0 : cutting.Sum(x => x.TotalCuttingInQuantity),
                 EksporQty = i.EksporQty,
                 QtyBUK = i.QtyBUK,
+                SampleQtyOut = i.SampleQtyOut,
                 ReceiptQty = i.ReceiptQty,
-                ROJob = i.ROJob,
-                SampleQty = 0,
+                //ROJob = i.ROJob,
+                //ROSample = i.ROSample,
+                SampleQty = i.SampleQty,
                 SatuanBUK = i.SatuanBUK,
-                SatuanReceipt = i.SatuanReceipt,
+                //SatuanReceipt = i.SatuanReceipt,
                 Sisa = i.Sisa,
-                SubkonOutQty = i.SubkonOutQty,
-                ProduksiQty = i.ProduksiQty
+                WIP = i.WIP
+                //SubkonOutQty = i.SubkonOutQty,
+                //ProduksiQty = i.ProduksiQty
             });
 
-            var expendorder = Data2.OrderBy(x => x.ROJob).ThenBy(x => x.Invoice).Select((a, order) => new
+            var expendorder = data22.OrderBy(x => x.PEB).Select((a, order) => new
             {
                 rown = order + 1,
                 Invoice = a.Invoice,
@@ -461,36 +894,67 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 EksporQty = PEBs.FirstOrDefault(x => x.BonNo.Trim() == a.Invoice) == null ? 0 : PEBs.FirstOrDefault(x => x.BonNo.Trim() == a.Invoice).Quantity
             }).ToList();
 
-            var traceable = from a in trace21
-                            join r in expendorder on a.rown equals r.rown
-                            select new TraceableInBeacukaiViewModelTemp
-                            {
-                                BCDate = a.BCDate,
-                                BCNo = a.BCNo,
-                                BCType = a.BCType,
-                                BJQty = a.BJQty,
-                                BonNo = a.BonNo,
-                                BUK = a.BUK,
-                                BUM = a.BUM,
-                                count = 0,
-                                EksporQty = a.EksporQty,
-                                //ExType = i.ExType,
-                                Invoice = r.Invoice,
-                                ItemCode = a.ItemCode,
-                                ItemName = a.ItemName,
-                                PEB = r.PEB,
-                                PEBDate = r.PEBDate,
-                                PO = a.PO,
-                                ProduksiQty = a.ProduksiQty,
-                                QtyBUK = a.QtyBUK,
-                                ReceiptQty = a.ReceiptQty,
-                                ROJob = a.ROJob,
-                                SampleQty = a.SampleQty,
-                                SatuanBUK = a.SatuanBUK,
-                                SatuanReceipt = a.SatuanReceipt,
-                                Sisa = a.Sisa,
-                                SubkonOutQty = a.SubkonOutQty
-                            };
+            var traceable = (from a in trace21
+                             join r in expendorder on a.rown equals r.rown
+                             select new TraceableInBeacukaiViewModelTemp
+                             {
+                                 BCDate = a.BCDate,
+                                 BCNo = a.BCNo,
+                                 BCType = a.BCType,
+                                 BJQty = a.BJQty,
+                                 BonNo = a.BonNo,
+                                 //BUK = a.BUK,
+                                 //SampleOut = a.SampleOut,
+                                 //BUM = a.BUM,
+                                 count = 0,
+                                 EksporQty = a.EksporQty,
+                                 //ExType = i.ExType,
+                                 //Invoice = r.Invoice,
+                                 ItemCode = a.ItemCode,
+                                 ItemName = a.ItemName,
+                                 PEB = a.PEB,
+                                 //PEBDate = r.PEBDate,
+                                 //PO = a.PO,
+                                 //ProduksiQty = a.ProduksiQty,
+                                 QtyBUK = a.QtyBUK,
+                                 SampleQtyOut = a.SampleQtyOut,
+                                 ReceiptQty = a.ReceiptQty,
+                                 //ROJob = a.ROJob,
+                                 //ROSample = a.ROSample,
+                                 SampleQty = a.SampleQty,
+                                 SatuanBUK = a.SatuanBUK,
+                                 //SatuanReceipt = a.SatuanReceipt,
+                                 Sisa = a.Sisa,
+                                 WIP = a.WIP
+                                 //SubkonOutQty = a.SubkonOutQty
+                             }).
+                             //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).ThenBy(x=>x.BJQty).ThenBy(x => x.EksporQty).ThenBy(x => x.BJQty).ThenBy(x => x.Invoice);
+                             GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.count, x.EksporQty, x.ItemCode, x.ItemName, x.PEB, x.QtyBUK, x.SampleQtyOut, x.ReceiptQty, x.SampleQty, x.SatuanBUK, x.Sisa, x.WIP }, (key, group) => new TraceableInBeacukaiViewModelTemp
+                             {
+                                 BCDate = key.BCDate,
+                                 BCNo = key.BCNo,
+                                 BCType = key.BCType,
+                                 BJQty = key.BJQty,
+                                 BonNo = key.BonNo,
+                                 count = key.count,
+                                 EksporQty = key.EksporQty,
+                                 ItemCode = key.ItemCode,
+                                 ItemName = key.ItemName,
+                                 PEB = key.PEB,                              
+                                 QtyBUK = key.QtyBUK,
+                                 SampleQtyOut = key.SampleQtyOut,
+                                 ReceiptQty = key.ReceiptQty,                              
+                                 SampleQty = key.SampleQty,
+                                 SatuanBUK = key.SatuanBUK,
+                                 Sisa = key.Sisa,
+                                 WIP = key.WIP
+                             });
+
+
+                             //{
+                             //    BCDate =key.BCDate
+                             //});
+
 
 
             var traceableInBeacukaiViews = traceable.ToArray();
@@ -518,30 +982,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     BCType = i.BCType,
                     BJQty = i.BJQty == 0 ? "BJQty0" : i.BJQty.ToString(),
                     BonNo = i.BonNo,
-                    BUK = i.BUK,
-                    BUM = i.BUM,
-                    Invoice = i.Invoice,
+                    //BUK = i.BUK == null ? "buk-" : i.BUK.ToString(),
+                    SampleOut = i.SampleOut == "" ? "sampout-" : i.SampleOut,
+                    //BUM = i.BUM,
+                    //Invoice = i.Invoice,
                     ItemCode = i.ItemCode,
                     ItemName = i.ItemName,
                     PEB = i.PEB,
-                    PEBDate = i.PEBDate,
-                    PO = i.PO,
+                    //PEBDate = i.PEBDate,
+                    //PO = i.PO,
                     QtyBUK = i.QtyBUK == 0 ? "QtyBUK0" : i.QtyBUK.ToString(),
+                    SampleQtyOut = i.SampleQtyOut.ToString(),
                     ReceiptQty = i.ReceiptQty.ToString(),
-                    ROJob = i.ROJob,
+                    //ROJob = i.ROJob == null ? "rojob-":i.ROJob,
+                    //ROSample = i.ROJob == null ? "rosamp-" : i.ROSample,
                     SampleQty = i.SampleQty == 0 ? "SampleQty0" : i.SampleQty.ToString(),
                     SatuanBUK = i.SatuanBUK,
-                    SatuanReceipt = i.SatuanReceipt,
+                    //SatuanReceipt = i.SatuanReceipt,
                     Sisa = i.Sisa == 0 ? "Sisa0" : i.Sisa.ToString(),
-                    SubkonOutQty = i.SubkonOutQty == 0 ? "SubkonOutQty0" : i.SubkonOutQty.ToString(),
-                    ProduksiQty = i.ProduksiQty == 0 ? "ProduksiQty0" : i.ProduksiQty.ToString(),
+                    //SubkonOutQty = i.SubkonOutQty == 0 ? "SubkonOutQty0" : i.SubkonOutQty.ToString(),
+                    //ProduksiQty = i.ProduksiQty == 0 ? "ProduksiQty0" : i.ProduksiQty.ToString(),
                     count = i.count,
                     EksporQty = i.EksporQty == 0 ? "EksporQty0" : i.EksporQty.ToString(),
-                    ExType = ""
+                    ExType = "",
+                    WIP = i.WIP.ToString()
+
                 };
 
                 traceableIn2.Add(trace1);
             }
+
+            //traceableIn2.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType,, x.BonNo, x.BUK, x.BUM, x.QtyBUK, x.ItemCode, x.ItemName, x.PO, x.ReceiptQty, x.ROJob, x.SatuanBUK, x.SatuanReceipt, x.SampleQty, x.Invoice, x.SampleOut, x.UnitDOType }, (key, group) => new TraceableInBeacukaiViewModel
 
 
             return traceableIn2.Distinct().ToList();
@@ -558,26 +1029,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor BC", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal BC", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bon", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "ROJob", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PO", DataType = typeof(String) });
+
+            //result.Columns.Add(new DataColumn() { ColumnName = "PO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "No BUK", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Keluar", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Sisa", DataType = typeof(Double) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Keluar Proses", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "ROJob", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Keluar Sample", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "ROSample", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Subcon", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Keluar Proses", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Keluar Sample", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Sisa", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Keluar", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Produksi Qty", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "WIP (PCS)", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "BJ Qty", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Invoice", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Invoice", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "BC Keluar", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Tgl BC Keluar", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Tgl BC Keluar", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Ekspor Qty", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Sample Qty", DataType = typeof(Double) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0,
-                    "", "No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", 0,
+                     0,0, "","", 0, 0, "", 0, 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 //var docNo = Query.ToArray();
@@ -601,24 +1077,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 foreach (var item in Query)
                 {
                     string bcdate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : item.BCDate.DateTime.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string pebdate = item.PEBDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : item.PEBDate.Value.DateTime.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string rojob = item.ROJob == "rojob-" ? "-" : item.ROJob;
-                    string buk = item.BUK == "buk-" ? "-" : item.BUK;
+                    //string pebdate = item.PEBDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : item.PEBDate.Value.DateTime.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    //string rojob = item.ROJob == "rojob-" ? "-" : item.ROJob;
+                    //string rosamp = item.ROSample == "rosamp-" ? "-" : item.ROSample;
+                    //string sampleOut = item.SampleOut == "samout-" ? "-" : item.SampleOut;
+                    //string buk = item.BUK == "buk-" ? "-" : item.BUK;
                     string satuanbuk = item.SatuanBUK == "satbuk-" ? "-" : item.SatuanBUK;
-                    string invoice = item.Invoice == "invo-" ? "-" : item.Invoice;
+                    //string invoice = item.Invoice == "invo-" ? "-" : item.Invoice;
                     string PEB = item.PEB == "peb-" ? "-" : item.PEB;
                     double qtybuk = item.QtyBUK == "QtyBUK0" ? 0 : Convert.ToDouble(item.QtyBUK);
                     double sisa = item.Sisa == "Sisa0" ? 0 : Convert.ToDouble(item.Sisa);
-                    double produksiQty = item.ProduksiQty == "ProduksiQty0" ? 0 : Convert.ToDouble(item.ProduksiQty);
+                    //double subcon = item.Subcon ==  ? 0 : Convert.ToDouble(item.Sisa);
+                    //double produksiQty = item.ProduksiQty == "ProduksiQty0" ? 0 : Convert.ToDouble(item.ProduksiQty);
                     double bJQty = item.BJQty == "BJQty0" ? 0 : Convert.ToDouble(item.BJQty);
                     double eksporQty = item.EksporQty == "EksporQty0" ? 0 : Convert.ToDouble(item.EksporQty);
                     double sampleQty = item.SampleQty == "SampleQty0" ? 0 : Convert.ToDouble(item.SampleQty);
-                    result.Rows.Add(item.count, item.BCType, item.BCNo, bcdate, item.BonNo, rojob,
-                        item.PO, item.ItemCode, item.ItemName,
+                    result.Rows.Add(item.count, item.BCType, item.BCNo, bcdate, item.BonNo,
+                        item.ItemCode, item.ItemName,
                         item.ReceiptQty,
-                        item.SatuanReceipt, buk,
-                        qtybuk, sisa, satuanbuk, produksiQty, bJQty,
-                        invoice, PEB, pebdate, eksporQty, sampleQty);
+                        qtybuk,item.SampleQtyOut, sisa, satuanbuk,item.WIP, bJQty
+                        , PEB, eksporQty, sampleQty);
 
                 }
             }
@@ -642,6 +1120,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Dictionary<string, int> itemcodespan = new Dictionary<string, int>();
                 Dictionary<string, int> itemnamespan = new Dictionary<string, int>();
                 Dictionary<string, int> qtyreceiptspan = new Dictionary<string, int>();
+                Dictionary<string, int> qtybukspan = new Dictionary<string, int>();
+                Dictionary<string, int> qtysampleoutspan = new Dictionary<string, int>();
                 Dictionary<string, int> satuanreceiptspan = new Dictionary<string, int>();
                 Dictionary<string, int> nobukspan = new Dictionary<string, int>();
                 Dictionary<string, int> sisaspan = new Dictionary<string, int>();
@@ -653,6 +1133,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Dictionary<string, int> pebdatespan = new Dictionary<string, int>();
                 Dictionary<string, int> eksporqtyspan = new Dictionary<string, int>();
                 Dictionary<string, int> samppleqtyspan = new Dictionary<string, int>();
+                Dictionary<string, int> nobuksampspan = new Dictionary<string, int>();
+                Dictionary<string, int> rosampspan = new Dictionary<string, int>();
+                Dictionary<string, int> wipspan = new Dictionary<string, int>();
+
                 var docNo = Query.ToArray();
                 int value;
                 foreach (var a in Query)
@@ -667,7 +1151,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         bcnospan[a.BCType + a.BCNo + a.BCDate] = 1;
                     }
 
-                    //FactBeacukaiViewModel dup1 = Array.Find(docNo, o => o.BCType == a.BCType);
+                    ////FactBeacukaiViewModel dup1 = Array.Find(docNo, o => o.BCType == a.BCType);
                     if (bonspan.TryGetValue(a.BonNo, out value))
                     {
                         bonspan[a.BonNo]++;
@@ -677,62 +1161,78 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         bonspan[a.BonNo] = 1;
                     }
 
-                    if (rojobspan.TryGetValue(a.ROJob + a.PO, out value))
+                    //if (rojobspan.TryGetValue(a.ROJob + a.ROSample, out value))
+                    //{
+                    //    rojobspan[a.ROJob + a.ROSample]++;
+                    //}
+                    //else
+                    //{
+                    //    rojobspan[a.ROJob + a.ROSample] = 1;
+                    //}
+                    if (itemcodespan.TryGetValue(a.ItemCode + a.BonNo, out value))
                     {
-                        rojobspan[a.ROJob + a.PO]++;
+                        itemcodespan[a.ItemCode + a.BonNo]++;
                     }
                     else
                     {
-                        rojobspan[a.ROJob + a.PO] = 1;
+                        itemcodespan[a.ItemCode + a.BonNo] = 1;
                     }
-                    if (itemcodespan.TryGetValue(a.ItemCode + a.PO, out value))
+                    if (itemnamespan.TryGetValue(a.ItemName + a.BonNo, out value))
                     {
-                        itemcodespan[a.ItemCode + a.PO]++;
-                    }
-                    else
-                    {
-                        itemcodespan[a.ItemCode + a.PO] = 1;
-                    }
-                    if (itemnamespan.TryGetValue(a.ItemName + a.PO, out value))
-                    {
-                        itemnamespan[a.ItemName + a.PO]++;
+                        itemnamespan[a.ItemName + a.BonNo]++;
                     }
                     else
                     {
-                        itemnamespan[a.ItemName + a.PO] = 1;
+                        itemnamespan[a.ItemName + a.BonNo] = 1;
                     }
 
-                    if (qtyreceiptspan.TryGetValue(a.ReceiptQty + "bum" + a.PO + a.ROJob, out value))
+                    if (qtyreceiptspan.TryGetValue(a.ReceiptQty + "bum" + a.ItemCode, out value))
                     {
-                        qtyreceiptspan[a.ReceiptQty + "bum" + a.PO + a.ROJob]++;
+                        qtyreceiptspan[a.ReceiptQty + "bum" + a.ItemCode]++;
                     }
                     else
                     {
-                        qtyreceiptspan[a.ReceiptQty + "bum" + a.PO + a.ROJob] = 1;
+                        qtyreceiptspan[a.ReceiptQty + "bum" + a.ItemCode] = 1;
                     }
-                    if (satuanreceiptspan.TryGetValue(a.SatuanReceipt + "uomreceipt", out value))
+                    if (qtybukspan.TryGetValue(a.QtyBUK + "buk" + a.ItemCode, out value))
                     {
-                        satuanreceiptspan[a.SatuanReceipt + "uomreceipt"]++;
-                    }
-                    else
-                    {
-                        satuanreceiptspan[a.SatuanReceipt + "uomreceipt"] = 1;
-                    }
-                    if (nobukspan.TryGetValue(a.BUK + a.QtyBUK, out value))
-                    {
-                        nobukspan[a.BUK + a.QtyBUK]++;
+                        qtybukspan[a.QtyBUK + "buk" + a.ItemCode]++;
                     }
                     else
                     {
-                        nobukspan[a.BUK + a.QtyBUK] = 1;
+                        qtybukspan[a.QtyBUK + "buk" + a.ItemCode] = 1;
                     }
-                    if (sisaspan.TryGetValue(a.Sisa.ToString() + "sisa" + a.PO + a.ROJob, out value))
+                    if (qtysampleoutspan.TryGetValue(a.SampleQtyOut + "samp" + a.ItemCode, out value))
                     {
-                        sisaspan[a.Sisa.ToString() + "sisa" + a.PO + a.ROJob]++;
+                        qtysampleoutspan[a.SampleQtyOut + "samp" + a.ItemCode]++;
                     }
                     else
                     {
-                        sisaspan[a.Sisa.ToString() + "sisa" + a.PO + a.ROJob] = 1;
+                        qtysampleoutspan[a.SampleQtyOut + "samp" + a.ItemCode] = 1;
+                    }
+                    //if (satuanreceiptspan.TryGetValue(a.SatuanReceipt + "uomreceipt", out value))
+                    //{
+                    //    satuanreceiptspan[a.SatuanReceipt + "uomreceipt"]++;
+                    //}
+                    //else
+                    //{
+                    //    satuanreceiptspan[a.SatuanReceipt + "uomreceipt"] = 1;
+                    //}
+                    //if (nobukspan.TryGetValue(a.BUK + a.QtyBUK +a.SampleOut + a.PO, out value))
+                    //{
+                    //    nobukspan[a.BUK + a.QtyBUK + a.SampleOut + a.PO]++;
+                    //}
+                    //else
+                    //{
+                    //    nobukspan[a.BUK + a.QtyBUK + a.SampleOut + a.PO] = 1;
+                    //}
+                    if (sisaspan.TryGetValue(a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty, out value))
+                    {
+                        sisaspan[a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty]++;
+                    }
+                    else
+                    {
+                        sisaspan[a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty] = 1;
                     }
                     if (satuanbukspan.TryGetValue(a.SatuanBUK + "uombuk", out value))
                     {
@@ -742,74 +1242,109 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         satuanbukspan[a.SatuanBUK + "uombuk"] = 1;
                     }
-                    if (produksiQtyspan.TryGetValue(a.ProduksiQty.ToString() + a.ROJob, out value))
+                    if (wipspan.TryGetValue(a.WIP + "wip" + a.ItemCode, out value))
                     {
-                        produksiQtyspan[a.ProduksiQty.ToString() + a.ROJob]++;
+                        wipspan[a.WIP + "wip" + a.ItemCode]++;
                     }
                     else
                     {
-                        produksiQtyspan[a.ProduksiQty.ToString() + a.ROJob] = 1;
+                        wipspan[a.WIP + "wip" + a.ItemCode] = 1;
                     }
-                    if (bjquantityspan.TryGetValue(a.BJQty.ToString() + a.ROJob, out value))
+                    //if (produksiQtyspan.TryGetValue(a.ProduksiQty.ToString() + "proqty" + a.ROJob, out value))
+                    //{
+                    //    produksiQtyspan[a.ProduksiQty.ToString() + "proqty" + a.ROJob]++;
+                    //}
+                    //else
+                    //{
+                    //    produksiQtyspan[a.ProduksiQty.ToString() + "proqty" + a.ROJob] = 1;
+                    //}
+                    if (bjquantityspan.TryGetValue(a.BJQty.ToString() + a.ItemCode, out value))
                     {
-                        bjquantityspan[a.BJQty.ToString() + a.ROJob]++;
-                    }
-                    else
-                    {
-                        bjquantityspan[a.BJQty.ToString() + a.ROJob] = 1;
-                    }
-                    if (invoicespan.TryGetValue(a.Invoice + a.ROJob, out value))
-                    {
-                        invoicespan[a.Invoice + a.ROJob]++;
-                    }
-                    else
-                    {
-                        invoicespan[a.Invoice + a.ROJob] = 1;
-                    }
-                    if (pebnospan.TryGetValue(a.PEB + a.ROJob + a.Invoice, out value))
-                    {
-                        pebnospan[a.PEB + a.ROJob + a.Invoice]++;
+                        bjquantityspan[a.BJQty.ToString() + a.ItemCode]++;
                     }
                     else
                     {
-                        pebnospan[a.PEB + a.ROJob + a.Invoice] = 1;
+                        bjquantityspan[a.BJQty.ToString() + a.ItemCode] = 1;
+                    }
+                    //if (invoicespan.TryGetValue(a.Invoice + a.ROJob + a.ROSample+a.BUK+a.SampleOut, out value))
+                    //{
+                    //    invoicespan[a.Invoice + a.ROJob + a.ROSample + a.BUK + a.SampleOut]++;
+                    //}
+                    //else
+                    //{
+                    //    invoicespan[a.Invoice + a.ROJob + a.ROSample + a.BUK + a.SampleOut] = 1;
+                    //}
+                    if (pebnospan.TryGetValue(a.PEB + a.ItemCode + a.BonNo, out value))
+                    {
+                        pebnospan[a.PEB + a.ItemCode + a.BonNo]++;
+                    }
+                    else
+                    {
+                        pebnospan[a.PEB + a.ItemCode + a.BonNo] = 1;
                     }
 
-                    if (pebdatespan.TryGetValue(a.PEBDate.ToString() + a.ROJob + a.Invoice, out value))
+                    //if (pebdatespan.TryGetValue(a.PEBDate.ToString() + a.ROJob + a.Invoice, out value))
+                    //{
+                    //    pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice]++;
+                    //}
+                    //else
+                    //{
+                    //    pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice] = 1;
+                    //}
+
+                    if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString(), out value))
                     {
-                        pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice]++;
+                        eksporqtyspan[a.EksporQty.ToString()  + a.ItemCode + a.BJQty.ToString()]++;
                     }
                     else
                     {
-                        pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice] = 1;
+                        eksporqtyspan[a.EksporQty.ToString()  + a.ItemCode + a.BJQty.ToString()] = 1;
                     }
 
-                    if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ROJob + a.Invoice, out value))
+                    if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ItemCode, out value))
                     {
-                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob + a.Invoice]++;
+                        samppleqtyspan[a.SampleQty.ToString()  + a.ItemCode]++;
                     }
                     else
                     {
-                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob + a.Invoice] = 1;
+                        samppleqtyspan[a.SampleQty.ToString() + a.ItemCode] = 1;
                     }
 
-                    if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ROJob + a.Invoice, out value))
-                    {
-                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob + a.Invoice]++;
-                    }
-                    else
-                    {
-                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob + a.Invoice] = 1;
-                    }
+                    ////if (pospan.TryGetValue(a.PO + a.ROJob, out value))
+                    ////{
+                    ////    pospan[a.PO + a.ROJob]++;
+                    ////}
+                    ////else
+                    ////{
+                    ////    pospan[a.PO + a.ROJob] = 1;
+                    ////}
+                    //if (pospan.TryGetValue(a.PO , out value))
+                    //{
+                    //    pospan[a.PO ]++;
+                    //}
+                    //else
+                    //{
+                    //    pospan[a.PO ] = 1;
+                    //}
 
-                    if (pospan.TryGetValue(a.PO + a.ROJob, out value))
-                    {
-                        pospan[a.PO + a.ROJob]++;
-                    }
-                    else
-                    {
-                        pospan[a.PO + a.ROJob] = 1;
-                    }
+                    //if (nobuksampspan.TryGetValue(a.SampleOut + a.QtyBUK, out value))
+                    //{
+                    //    nobuksampspan[a.SampleOut + a.QtyBUK]++;
+                    //}
+                    //else
+                    //{
+                    //    nobuksampspan[a.SampleOut + a.QtyBUK] = 1;
+                    //}
+
+                    //if (rosampspan.TryGetValue(a.ROSample + a.PO, out value))
+                    //{
+                    //    rosampspan[a.ROSample + a.PO]++;
+                    //}
+                    //else
+                    //{
+                    //    rosampspan[a.ROSample + a.PO] = 1;
+                    //}
+
                 }
 
                 int index = 2;
@@ -834,21 +1369,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index += c.Value;
                 }
                 index = 2;
-                foreach (KeyValuePair<string, int> c in rojobspan)
+                foreach (KeyValuePair<string, int> c in itemcodespan)
                 {
                     sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                     index += c.Value;
                 }
+                ////index = 2;
+                ////foreach (KeyValuePair<string, int> c in pospan)
+                ////{
+                ////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
+                ////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                ////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                ////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                ////    index += c.Value;
+                ////}
                 index = 2;
-                foreach (KeyValuePair<string, int> c in pospan)
+                foreach (KeyValuePair<string, int> c in itemnamespan)
                 {
                     sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
                     index += c.Value;
                 }
                 index = 2;
-                foreach (KeyValuePair<string, int> c in itemcodespan)
+                foreach (KeyValuePair<string, int> c in qtyreceiptspan)
                 {
                     sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
@@ -856,15 +1403,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index += c.Value;
                 }
                 index = 2;
-                foreach (KeyValuePair<string, int> c in itemnamespan)
+                foreach (KeyValuePair<string, int> c in qtybukspan)
                 {
                     sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
+                    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
                     index += c.Value;
                 }
                 index = 2;
-                foreach (KeyValuePair<string, int> c in qtyreceiptspan)
+                foreach (KeyValuePair<string, int> c in qtysampleoutspan)
                 {
                     sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
@@ -872,41 +1422,61 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index += c.Value;
                 }
                 index = 2;
-                foreach (KeyValuePair<string, int> c in satuanreceiptspan)
+                foreach (KeyValuePair<string, int> c in sisaspan)
                 {
                     sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
                     index += c.Value;
                 }
+
                 index = 2;
-                foreach (KeyValuePair<string, int> c in nobukspan)
+                foreach (KeyValuePair<string, int> c in satuanbukspan)
                 {
                     sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    index += c.Value;
+                }
+
+                index = 2;
+                foreach (KeyValuePair<string, int> c in wipspan)
+                {
                     sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
                     index += c.Value;
                 }
+
+
                 index = 2;
-                foreach (KeyValuePair<string, int> c in sisaspan)
+                foreach (KeyValuePair<string, int> c in bjquantityspan)
                 {
                     sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
                     index += c.Value;
                 }
+                ////////index = 2;
+                ////////foreach (KeyValuePair<string, int> c in satuanbukspan)
+                ////////{
+                ////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
+                ////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                ////////    index += c.Value;
+                ////////}
                 index = 2;
-                foreach (KeyValuePair<string, int> c in satuanbukspan)
+                foreach (KeyValuePair<string, int> c in pebnospan)
                 {
                     sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
                     index += c.Value;
                 }
+
                 index = 2;
-                foreach (KeyValuePair<string, int> c in produksiQtyspan)
+                foreach (KeyValuePair<string, int> c in eksporqtyspan)
                 {
                     sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
@@ -914,53 +1484,69 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index += c.Value;
                 }
                 index = 2;
-                foreach (KeyValuePair<string, int> c in bjquantityspan)
+                foreach (KeyValuePair<string, int> c in samppleqtyspan)
                 {
                     sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Merge = true;
                     sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
                     index += c.Value;
                 }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in invoicespan)
-                {
-                    sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                //index = 2;
+                //foreach (KeyValuePair<string, int> c in satuanreceiptspan)
+                //{
+                //    sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Merge = true;
+                //    sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in pebnospan)
-                {
-                    sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                //    index += c.Value;
+                //}
+                //index = 2;
+                //foreach (KeyValuePair<string, int> c in produksiQtyspan)
+                //{
+                //    sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Merge = true;
+                //    sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in pebdatespan)
-                {
-                    sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                //    index += c.Value;
+                //}
+                //index = 2;
+                //foreach (KeyValuePair<string, int> c in bjquantityspan)
+                //{
+                //    sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Merge = true;
+                //    sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in eksporqtyspan)
-                {
-                    sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                //    index += c.Value;
+                //}
+                //index = 2;
+                //foreach (KeyValuePair<string, int> c in invoicespan)
+                //{
+                //    sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Merge = true;
+                //    sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in samppleqtyspan)
-                {
-                    sheet.Cells["V" + index + ":V" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["V" + index + ":V" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                //    index += c.Value;
+                //}
+                //index = 2;
+                //foreach (KeyValuePair<string, int> c in invoicespan)
+                //{
+                //    sheet.Cells["V" + index + ":V" + (index + c.Value - 1)].Merge = true;
+                //    sheet.Cells["V" + index + ":V" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    index += c.Value;
-                }
+                //    index += c.Value;
+                //}
+                //index = 2;
+                //foreach (KeyValuePair<string, int> c in invoicespan)
+                //{
+                //    sheet.Cells["W" + index + ":W" + (index + c.Value - 1)].Merge = true;
+                //    sheet.Cells["W" + index + ":W" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                //    index += c.Value;
+                //}
+                //index = 2;
+                //foreach (KeyValuePair<string, int> c in eksporqtyspan)
+                //{
+                //    sheet.Cells["X" + index + ":X" + (index + c.Value - 1)].Merge = true;
+                //    sheet.Cells["X" + index + ":X" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                //    index += c.Value;
+                //}
                 sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
             }
             MemoryStream stream = new MemoryStream();
@@ -971,7 +1557,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         #endregion
         #region Keluar
-        private List<GarmentExpenditureGoodViewModel> GetRono(string invoice)
+        public List<GarmentExpenditureGoodViewModel> GetRono(string invoice)
         {
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
             var param = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
@@ -1002,7 +1588,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         }
 
-        public List<BeacukaiAddedViewModel> GetPEBbyBCNo(string bcno)
+        public List<BeacukaiAddedViewModelbyBCNo> GetPEBbyBCNo(string bcno)
         {
             //var param = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
             string shippingInvoiceUri = APIEndpoint.CustomsReport + $"customs-reports/getPEB/byBCNo?bcno={bcno}";
@@ -1015,21 +1601,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var content = httpResponse.Content.ReadAsStringAsync().Result;
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<BeacukaiAddedViewModel> viewModel;
+                List<BeacukaiAddedViewModelbyBCNo> viewModel;
                 if (result.GetValueOrDefault("data") == null)
                 {
-                    viewModel = new List<BeacukaiAddedViewModel>();
+                    viewModel = new List<BeacukaiAddedViewModelbyBCNo>();
                 }
                 else
                 {
-                    viewModel = JsonConvert.DeserializeObject<List<BeacukaiAddedViewModel>>(result.GetValueOrDefault("data").ToString());
+                    viewModel = JsonConvert.DeserializeObject<List<BeacukaiAddedViewModelbyBCNo>>(result.GetValueOrDefault("data").ToString());
 
                 }
                 return viewModel;
             }
             else
             {
-                return new List<BeacukaiAddedViewModel>();
+                return new List<BeacukaiAddedViewModelbyBCNo>();
             }
         }
 
@@ -1148,6 +1734,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     UnitQtyName = key.UnitQtyName
 
                                 }).ToList();
+
+            var item = Query.Select(x => x.RO).Distinct().ToList();
+
+            //var data = Query.Where(x => item.Contains(x.RO)).Select(s => new TraceableOutBeacukaiViewModel()).Take(1);
+            var data = Query.Where(x => item.Contains(x.RO)).Take(1).ToList();
+            //var rinci = data.rincian;
+
+            foreach (var a in data)
+            {
+                //foreach (var i in rinciandetil)
+                //{
+
+                //    a.rincian.Add(i);
+
+                //}
+                //var rinci = rinciandetil.Where(x => x.DestinationJob == a.RO).ToList();
+
+                a.rincian = rinciandetil;
+            };
+
+
+
+
             //var cc = 
 
             //foreach(var g in rinciandetil)
@@ -1157,13 +1766,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //    g.SmallestQuantity = QtyExpend == null ? g.SmallestQuantity : QtyExpend.Quantity;
             //}
 
-            foreach (var i in Query)
-            {
-                var rinci = rinciandetil.Where(x => x.DestinationJob == i.RO).ToList();
+            //foreach (var i in Query)
+            //{
+            //    var rinci = rinciandetil.Where(x => x.DestinationJob == i.RO).ToList();
 
-                i.rincian = rinci;
+            //    i.rincian = rinci;
 
-            }
+            //}
 
 
             return Query;
@@ -1309,12 +1918,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 string BCDate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                 result.Rows.Add(index, ExpenditureDate, item.ExpenditureGoodId, item.ComodityName, item.Qty, item.UnitQtyName, item.ExpenditureNo, item.BuyerName, item.BCType, item.BCNo, BCDate, item.RO);
 
-                foreach (var detail in item.rincian)
+                if (item.rincian != null)
                 {
-                    index2++;
-                    string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
+                    foreach (var detail in item.rincian)
+                    {
+                        index2++;
+                        string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(detail.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                        result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
 
+                    }
                 }
 
             }
@@ -1445,5 +2057,194 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         }
 
         #endregion
+
+        public List<TraceableInWithBUMBeacukaiViewModel> Read(string bum)
+        {
+            var Query = (from t in dbContext.GarmentDeliveryOrders
+                         join c in dbContext.GarmentDeliveryOrderItems on t.Id equals c.GarmentDOId
+                         join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
+                         join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
+                         join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
+                         join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId into unitdoitem
+                         from ff in unitdoitem.DefaultIfEmpty()
+                         join g in dbContext.GarmentUnitDeliveryOrders on ff.UnitDOId equals g.Id into unitdo
+                         from gg in unitdo.DefaultIfEmpty()
+                         join h in dbContext.GarmentUnitExpenditureNoteItems on ff.Id equals h.UnitDOItemId into uenitem
+                         from hh in uenitem.DefaultIfEmpty()
+                         join i in dbContext.GarmentUnitExpenditureNotes on hh.UENId equals i.Id into uen
+                         from ii in uen.DefaultIfEmpty()
+                         where r.URNType == "PEMBELIAN" && r.URNNo==bum
+                         select new TraceableInWithBUMBeacukaiViewModel
+                         {
+                             //BCDate = a.BeacukaiDate,
+                             //BCNo = a.BeacukaiNo,
+                             //BCType = a.CustomsType,
+                             //BJQty = 0,
+                             //BonNo = a.BillNo,
+                             URNNo = r.URNNo,
+                             SmallQty = e.SmallQuantity,
+                             SatuanReceipt = e.SmallUomUnit,
+                             UnitDONo = gg.UnitDONo,
+                             ROJob = gg.RONo,
+                             UnitDOType = gg.UnitDOType,
+                             DOQuantity = ff.Quantity,
+                             DOUomUnit = ff.UomUnit,
+                             BUK = ii.UENNo,
+                             QtyBUK = hh.Quantity,
+                             UENType = ii.ExpenditureType,
+                             SatuanBUK = hh.UomUnit,
+                             //ItemName = d.ProductName,
+                             PO = d.POSerialNumber
+                             //ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
+
+                             //ROSample = gg.UnitDOType == "SAMPLE" ? gg.RONo : "rosamp-",
+                             //SatuanBUK = hh != null ? hh.UomUnit : "satbuk-",
+                             //SatuanReceipt = e.SmallUomUnit,
+                             //SampleQty = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
+                             //UnitDOType = gg.UnitDOType
+                         }).OrderBy(x=>x.URNNo).ThenBy(x=>x.PO).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.UnitDONo).ThenBy(x => x.BUK)
+                         .ToList();
+
+            //List<string> searchAttributes = new List<string>()
+            //{
+            //    "URNNo"
+            //};
+
+            //Query = QueryHelper<TraceableInWithBUMBeacukaiViewModel>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            //Query = QueryHelper<TraceableInWithBUMBeacukaiViewModel>.ConfigureFilter(Query, FilterDictionary);
+
+            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            //Query = QueryHelper<TraceableInWithBUMBeacukaiViewModel>.ConfigureOrder(Query, OrderDictionary);
+
+            //Pageable<TraceableInWithBUMBeacukaiViewModel> pageable = new Pageable<TraceableInWithBUMBeacukaiViewModel>(Query, Page - 1, Size);
+            //int TotalData = pageable.TotalCount;
+
+            //List<object> ListData = new List<object>();
+            //ListData.AddRange(pageable.Data.Select(s => new
+            //{
+            //    s.URNNo,
+            //    s.SmallQty,
+            //    s.SatuanReceipt,
+            //    s.UnitDONo,
+            //    s.ROJob,
+            //    s.UnitDOType,
+            //    s.DOQuantity,
+            //    s.DOUomUnit,
+            //    s.BUK,
+            //    s.QtyBUK,
+            //    s.UENType,
+            //    s.SatuanBUK
+            //}));
+
+            //return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
+            //return new ReadResponse<object>(ListData, TotalData);
+            return Query;
+
+        }
+
+        public MemoryStream GetExceltracebyBUM(string bum)
+        {
+            var query = Read(bum);
+
+            DataTable result = new DataTable();
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No BON", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PO", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Qty Terima", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DONo", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No RO", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DO Type ", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DO Qty", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Keluar", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "BUK No ", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Qty BUK", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tipe Pengeluaran", DataType = typeof(string) });
+
+            var index = 0;
+            foreach (var i in query)
+            {
+                index++;
+                result.Rows.Add(index,i.URNNo,i.PO,i.SmallQty,i.SatuanReceipt,i.UnitDONo,i.ROJob,i.UnitDOType,i.DOQuantity,i.DOUomUnit,i.BUK,i.QtyBUK,i.SatuanBUK,i.UENType);
+            }
+
+
+            ExcelPackage package = new ExcelPackage();
+            bool styling = true;
+
+            foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") })
+            {
+                var sheet = package.Workbook.Worksheets.Add(item.Value);
+                sheet.Cells["A1"].LoadFromDataTable(item.Key, true, (styling == true) ? OfficeOpenXml.Table.TableStyles.Light16 : OfficeOpenXml.Table.TableStyles.None);
+
+                Dictionary<string, int> nobonspan = new Dictionary<string, int>();
+                Dictionary<string, int> pospan = new Dictionary<string, int>();
+                Dictionary<string, int> qtyreceiptspan = new Dictionary<string, int>();
+
+                var docNo = query.ToArray();
+                int value;
+                foreach (var a in query)
+                {
+                    if (nobonspan.TryGetValue(a.URNNo , out value))
+                    {
+                        nobonspan[a.URNNo]++;
+                    }
+                    else
+                    {
+                        nobonspan[a.URNNo] = 1;
+                    }
+                    if (pospan.TryGetValue(a.PO, out value))
+                    {
+                        pospan[a.PO]++;
+                    }
+                    else
+                    {
+                        pospan[a.PO] = 1;
+                    }
+                    if (qtyreceiptspan.TryGetValue(a.PO + a.SmallQty, out value))
+                    {
+                        qtyreceiptspan[a.PO+ a.SmallQty]++;
+                    }
+                    else
+                    {
+                        qtyreceiptspan[a.PO+ a.SmallQty] = 1;
+                    }
+                }
+
+                index = 2;
+                foreach (KeyValuePair<string, int> c in nobonspan)
+                {
+                    sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Merge = true;
+                    sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    index += c.Value;
+                }
+
+                index = 2;
+                foreach (KeyValuePair<string, int> c in pospan)
+                {
+                    sheet.Cells["C" + index + ":C" + (index + c.Value - 1)].Merge = true;
+                    sheet.Cells["C" + index + ":C" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    index += c.Value;
+                }
+
+                index = 2;
+                foreach (KeyValuePair<string, int> c in qtyreceiptspan)
+                {
+                    sheet.Cells["D" + index + ":D" + (index + c.Value - 1)].Merge = true;
+                    sheet.Cells["D" + index + ":D" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    index += c.Value;
+                }
+                sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+            }
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+        }
+
     }
 }
