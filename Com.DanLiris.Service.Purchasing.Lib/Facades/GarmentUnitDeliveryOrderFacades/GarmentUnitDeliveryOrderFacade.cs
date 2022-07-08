@@ -157,12 +157,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         EntityExtension.FlagForUpdate(garmentDOItems, identityService.Username, USER_AGENT);
                         garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity - (decimal)garmentUnitDeliveryOrderItem.Quantity;
 
-                        garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentDOItems.DOCurrencyRate;
-                        if (garmentUnitDeliveryOrderItem.DOCurrencyRate == 0)
+                        GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.IgnoreQueryFilters().Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
+                        GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem1 = dbContext.GarmentUnitReceiptNoteItems.Single(w => w.URNId == garmentUnitReceiptNote.Id);
+
+                        garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNoteItem1.DOCurrencyRate;
+                        if (garmentUnitDeliveryOrderItem.DOCurrencyRate == 0 || garmentUnitDeliveryOrderItem.DOCurrencyRate == null)
                         {
                             throw new Exception("garmentUnitDeliveryOrderItem.DOCurrencyRate tidak boleh 0");
                         }
-                        GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.IgnoreQueryFilters().Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
+                        //GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.IgnoreQueryFilters().Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
                         garmentUnitReceiptNote.IsUnitDO = true;
 
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.IgnoreQueryFilters().Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
