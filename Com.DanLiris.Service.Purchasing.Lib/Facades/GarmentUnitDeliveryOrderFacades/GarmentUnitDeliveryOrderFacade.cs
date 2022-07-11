@@ -157,11 +157,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         EntityExtension.FlagForUpdate(garmentDOItems, identityService.Username, USER_AGENT);
                         garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity - (decimal)garmentUnitDeliveryOrderItem.Quantity;
 
-                        garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentDOItems.DOCurrencyRate;
-                        if (garmentUnitDeliveryOrderItem.DOCurrencyRate == 0)
-                        {
-                            throw new Exception("garmentUnitDeliveryOrderItem.DOCurrencyRate tidak boleh 0");
-                        }
                         GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.IgnoreQueryFilters().Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
                         garmentUnitReceiptNote.IsUnitDO = true;
 
@@ -169,6 +164,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity + (decimal)garmentUnitDeliveryOrderItem.Quantity;
 
                         EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
+
+                        garmentUnitDeliveryOrderItem.DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate;
+                        if (garmentUnitDeliveryOrderItem.DOCurrencyRate == 0 || garmentUnitDeliveryOrderItem.DOCurrencyRate == null)
+                        {
+                            throw new Exception("garmentUnitDeliveryOrderItem.DOCurrencyRate tidak boleh 0");
+                        }   
                         
                     }
 
