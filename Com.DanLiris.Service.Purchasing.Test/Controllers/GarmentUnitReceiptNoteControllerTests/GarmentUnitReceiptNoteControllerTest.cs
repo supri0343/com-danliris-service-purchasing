@@ -606,6 +606,60 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
             var response = controller.GetByRO();
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+        //
+        [Fact]
+        public void Should_Success_Get_By_DO()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.ReadDataByDO(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new List<object>
+                        {
+                         new
+                             {
+                               Id = 1,
+                               UnitId = 1,
+                               UnitCode = "Unit01",
+                               UnitName = "InutName01",
+                               DONo = "DONo01",
+                               BCNo = "BCNo01",
+                               BCType = "BCType01",
+                               URNNo = "URNNo01",
+                             },
+                         new
+                             {
+                               Id = 2,
+                               UnitId = 2,
+                               UnitCode = "Unit02",
+                               UnitName = "InutName02",
+                               DONo = "DONo02",
+                               BCNo = "BCNo02",
+                               BCType = "BCType01",
+                               URNNo = "URNNo02",
+                             },
+                         }
+                );
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetByDO();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_By_DO()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.ReadDataByDO(It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new Exception(""));
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.GetByDO();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+        //
 
         //[Fact]
         //public void Should_Succces_Get_Monitoring_IN()

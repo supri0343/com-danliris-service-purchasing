@@ -330,6 +330,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+        //
+        [HttpGet("by-do")]
+        public IActionResult GetByDO(string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                var result = facade.ReadDataByDO(keyword, filter);
+                Dictionary<string, object> Result =
+                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                       .Ok(result);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        //
 
         #region Flow Detail Permintaan 
         [HttpGet("laporan")]
