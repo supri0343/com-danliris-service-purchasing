@@ -211,7 +211,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
 			}
 		}
-		[HttpPost]
+        //      
+        [HttpGet("data/{id}")]
+        public IActionResult GetDataById(int id)
+        {
+            try
+            {
+                var viewModel = facade.GetDataUEN(id);
+                Dictionary<string, object> Result =
+                new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                .Ok(viewModel);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpPost]
         public async Task<IActionResult> Post([FromBody]GarmentUnitExpenditureNoteViewModel viewModel)
         {
             try

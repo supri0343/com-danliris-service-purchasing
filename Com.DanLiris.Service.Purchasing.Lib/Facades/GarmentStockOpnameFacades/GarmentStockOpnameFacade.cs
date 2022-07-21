@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentStockOpname> dbSet;
         private readonly DbSet<GarmentDOItems> dbSetDOItem;
-        private readonly DbSet<UnitReceiptNoteItem> dbSetUnitReceiptNoteItems;
+        private readonly DbSet<GarmentUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItems;
 
         public GarmentStockOpnameFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -44,7 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentStockOpname>();
             dbSetDOItem = dbContext.Set<GarmentDOItems>();
-            dbSetUnitReceiptNoteItems = dbContext.Set<UnitReceiptNoteItem>();
+            dbSetGarmentUnitReceiptNoteItems = dbContext.Set<GarmentUnitReceiptNoteItem>();
         }
 
         public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -255,10 +255,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
                     //}
                 }
 
-                var urnItem = dbSetUnitReceiptNoteItems.FirstOrDefault(urni => urni.Id == item.URNItemId);
+                var urnItem = dbSetGarmentUnitReceiptNoteItems.FirstOrDefault(urni => urni.Id == item.URNItemId);
                 if (urnItem != null)
                 {
-                    item.Price = item.Quantity * (decimal)item.DOCurrencyRate * (decimal)urnItem.PricePerDealUnit;
+                    item.Price = Math.Round((item.Quantity * (decimal)item.DOCurrencyRate * (decimal)urnItem.PricePerDealUnit),2);
                 }
             }
 

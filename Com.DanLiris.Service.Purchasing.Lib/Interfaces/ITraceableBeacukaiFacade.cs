@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,5 +14,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         //List<TraceableOutBeacukaiDetailViewModel> getQueryDetail(string RO);
         List<TraceableOutBeacukaiViewModel> getQueryTraceableOut(string bcno);
         MemoryStream GetExceltraceOut(string bcno);
+
+        //ReadResponse<object> Read(string bum, int Page = 1, int Size = 25, string Order = "{}");
+
+        List<TraceableInWithBUMBeacukaiViewModel> Read(string bum);
+        MemoryStream GetExceltracebyBUM(string bum);
     }
 }

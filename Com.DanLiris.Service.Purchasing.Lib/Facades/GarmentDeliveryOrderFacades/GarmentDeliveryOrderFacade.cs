@@ -141,6 +141,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 .FirstOrDefault();
             return model;
         }
+        //
+        public IQueryable<GarmentDOUrnViewModel> GetDataDOQuery(int id)
+        {
+            var Query = from a in dbContext.GarmentDeliveryOrders
+                        join b in dbContext.GarmentBeacukais on a.CustomsId equals b.Id
+                        join c in dbContext.GarmentUnitReceiptNotes on a.Id equals c.DOId
+                        where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && a.Id == id
+                        select new GarmentDOUrnViewModel
+                        {
+                            DOId = a.Id,
+                            DONo = a.DONo,
+                            BCNo = b.BeacukaiNo,
+                            BCType = b.CustomsType,
+                            URNNo = c.URNNo,
+                        };
+
+            return Query.AsQueryable();
+        }
+        //
+        public List<GarmentDOUrnViewModel> GetDataDO(int id)
+        {
+            var Query = GetDataDOQuery(id);
+
+            return Query.ToList();
+        }
+        //
 
         public List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds)
         {
@@ -2295,6 +2321,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             if (Query.ToArray().Count() == 0)
                 // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
+                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
                 result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
             else
             {
@@ -2312,6 +2339,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                     // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
                     result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.TermPayment, item.diffdate);
+                    //result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo);
                 }
             }
 

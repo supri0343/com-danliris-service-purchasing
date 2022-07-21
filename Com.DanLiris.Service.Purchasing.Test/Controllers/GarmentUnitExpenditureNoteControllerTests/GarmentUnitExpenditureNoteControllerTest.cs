@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpenditureNoteControllers;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -710,6 +711,66 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
 			var response = controller.GetROAsal(It.IsAny<int>());
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
+        //
+        [Fact]
+        public void Should_Success_Get_UEN_By_Id()
+        {
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.GetDataUEN(It.IsAny<int>()))
+                .Returns(new List<GarmentUENViewModel> { 
+                    new GarmentUENViewModel
+                    {
+                        UENId = 1,
+                        UENNo = "UENNO",
+                        UENDate = DateTimeOffset.Now,
+                        UnitRequestName = "UnitRequestName",
+                        UnitSenderName = "UnitSenderName",
+                        FabricType = "FabricType",
+                        RONo = "RONo",
+                        Quntity = 1,
+                        UOMUnit = "UomUnit",
+                    },
+                    new GarmentUENViewModel
+                    {
+                        UENId = 1,
+                        UENNo = "UENNO",
+                        UENDate = DateTimeOffset.Now,
+                        UnitRequestName = "UnitRequestName",
+                        UnitSenderName = "UnitSenderName",
+                        FabricType = "FabricType",
+                        RONo = "RONo1",
+                        Quntity = 2,
+                        UOMUnit = "UomUnit",
+                    },
+                    }
+                );
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitExpenditureNoteController controller = GetController(mockFacade, mockFacadeUnitDO, null, mockMapper);
+            var response = controller.GetDataById(1);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+        
+        [Fact]
+        public void Should_Error_Get_UEN_By_Id()
+        {
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+
+            mockFacade.Setup(x => x.GetDataUEN(It.IsAny<int>()))
+                .Returns(new List<GarmentUENViewModel>());
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
+            var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+        //
+
         //[Fact]
         //public void Should_Succces_Get_Monitoring_Out()
         //{

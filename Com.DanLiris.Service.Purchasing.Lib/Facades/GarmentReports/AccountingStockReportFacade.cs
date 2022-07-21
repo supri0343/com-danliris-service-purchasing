@@ -639,7 +639,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 NoArticle = key.NoArticle,
                 BeginningBalanceQty = group.Sum(x => x.BeginningBalanceQty),
                 BeginningBalanceUom = key.BeginningBalanceUom,
-                BeginningBalancePrice = group.Sum(x => x.BeginningBalancePrice),
+                //BeginningBalancePrice = group.Sum(x => x.BeginningBalanceQty),
+                BeginningBalancePrice = group.Sum(x => x.BeginningBalanceQty) == 0 ? 0: group.Sum(x => x.BeginningBalancePrice), //  BeginningBalanceQty = 0, then BeginningBalancePrice = 0
                 ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
                 ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                 ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
@@ -1207,6 +1208,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     BeginningBalanceQty = i.BeginningBalanceQty,
                     BeginningBalanceUom = i.BeginningBalanceUom,
                     BeginningBalancePrice = Convert.ToDouble(i.BeginningBalancePrice),
+                    //BeginningBalancePrice = i.BeginningBalanceQty == 0? 0: Convert.ToDouble(i.BeginningBalancePrice),
                     ReceiptCorrectionQty = i.ReceiptCorrectionQty,
                     ReceiptPurchaseQty = i.ReceiptPurchaseQty,
                     ReceiptProcessQty = i.ReceiptProcessQty,
