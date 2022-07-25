@@ -32,6 +32,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFaca
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUenUrnChangeDateHistory;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -56,6 +57,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentUnitExpenditureNote> dbSetGarmentUnitExpenditureNote;
         private readonly DbSet<GarmentDOItems> dbSetGarmentDOItems;
         private readonly DbSet<GarmentUenUrnChangeDateHistory> dbSetUenUrnChangeDate;
+        private readonly DbSet<GarmentBeacukai> dbSetBC;
+        private readonly DbSet<GarmentBeacukaiItem> dbSetBCI;
 
         private readonly IMapper mapper;
 
@@ -78,6 +81,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             dbSetGarmentUnitExpenditureNote = dbContext.Set<GarmentUnitExpenditureNote>();
             dbSetGarmentDOItems = dbContext.Set<GarmentDOItems>();
             dbSetUenUrnChangeDate = dbContext.Set<GarmentUenUrnChangeDateHistory>();
+            dbSetBC = dbContext.Set<GarmentBeacukai>();
+            dbSetBCI = dbContext.Set<GarmentBeacukaiItem>();
 
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
@@ -1558,6 +1563,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             List<object> ListData = new List<object>(data);
             return ListData;
         }
+        //
+        public List<object> ReadDataByDO(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentUnitReceiptNote> Query = this.dbSet;
+            IQueryable<GarmentBeacukai> QueryBC = this.dbSetBC;
+            IQueryable<GarmentBeacukaiItem> QueryBCI = this.dbSetBCI;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DONo",
+            };
+
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            long unitId = 0;
+            bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
+
+            var data = (from x in Query
+                        join b in QueryBCI on x.DOId equals b.GarmentDOId
+                        join a in QueryBC on b.BeacukaiId equals a.Id
+                        where x.URNType == "PEMBELIAN" &&
+                        (!hasUnitFilter ? true : x.UnitId == unitId)
+                        select new
+                        {
+                            x.DOId,
+                            x.DONo,
+                            x.Id,
+                            x.UnitId,
+                            x.UnitCode,
+                            x.UnitName,
+                            x.URNNo,
+                            a.BeacukaiNo,
+                            a.CustomsType,
+                        }).ToList();
+            List<object> ListData = new List<object>(data);
+            return ListData;
+        }
+        //
         #region Flow Detail Penerimaan
 
         private List<GarmentCategoryViewModel> GetProductCodes(int page, int size, string order, string filter)

@@ -5,9 +5,11 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFa
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
@@ -17,6 +19,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUti
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -131,6 +134,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
             //var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(testName));
             //var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
             return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+        }
+
+        private GarmentUnitReceiptNoteDataUtil dataUtilURN(GarmentUnitReceiptNoteFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
+
+            return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil, null);
         }
 
         //[Fact]
@@ -362,6 +382,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
             //var facadeReport = new GarmentBeacukaiFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
             var Response = facade.ReadBCByPOSerialNumbers("PONO123,PONO123");
+
+            Assert.NotNull(Response);
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_DO_BC_URN()
+        {
+            var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
+
+            await facadeDO.Create(dataDO, USERNAME);
+
+            var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+
+            GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME, dataDO);
+
+            await facade.Create(data, USERNAME);
+
+            var facadeurn = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            GarmentUnitReceiptNote dataUrn = await dataUtilURN(facadeurn, GetCurrentMethod()).GetTestData(dataDO, 1);
+
+            var Response = facadeDO.GetDataDO(1);
 
             Assert.NotNull(Response);
 
