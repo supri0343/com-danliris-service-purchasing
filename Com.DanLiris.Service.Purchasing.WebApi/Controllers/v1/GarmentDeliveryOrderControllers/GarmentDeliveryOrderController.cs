@@ -406,7 +406,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
+        //      
+        [HttpGet("data/{id}")]
+        public IActionResult GetDataDOById(int id)
+        {
+            try
+            {
+                var viewModel = facade.GetDataDO(id);
+                Dictionary<string, object> Result =
+                new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                .Ok(viewModel);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        //
         #region MONITORING ARRIVAL
         [HttpGet("arrivalReport")]
         public IActionResult GetReport(string category, DateTime? dateFrom, DateTime? dateTo)

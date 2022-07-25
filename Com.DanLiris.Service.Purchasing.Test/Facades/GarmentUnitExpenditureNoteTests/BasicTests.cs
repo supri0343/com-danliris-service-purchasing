@@ -403,7 +403,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var Response = facade.ReadByUENId((int)data.Id);
             Assert.NotEqual(0, Response.Id);
         }
+        //
+        [Fact]
+        public async Task Should_Success_Get_GUEN_Data_By_Id()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
+            var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestData();
+            var Response = facadeExpend.GetDataUEN(1);
+            Assert.NotNull(Response);
+        }
+        //
         [Fact]
         public async Task Should_Success_Create_Data()
         {

@@ -68,6 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 DOCurrencyRate = datas.CurrencyRate,
 
                 TotalAmount = nowTicks,
+                CustomsId = 1,
 
                 Items = new List<GarmentDeliveryOrderItem>
                 {

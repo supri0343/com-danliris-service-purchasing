@@ -141,6 +141,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 .FirstOrDefault();
             return model;
         }
+        //
+        public IQueryable<GarmentDOUrnViewModel> GetDataDOQuery(int id)
+        {
+            var Query = from a in dbContext.GarmentDeliveryOrders
+                        join b in dbContext.GarmentBeacukais on a.CustomsId equals b.Id
+                        join c in dbContext.GarmentUnitReceiptNotes on a.Id equals c.DOId
+                        where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && a.Id == id
+                        select new GarmentDOUrnViewModel
+                        {
+                            DOId = a.Id,
+                            DONo = a.DONo,
+                            BCNo = b.BeacukaiNo,
+                            BCType = b.CustomsType,
+                            URNNo = c.URNNo,
+                        };
+
+            return Query.AsQueryable();
+        }
+        //
+        public List<GarmentDOUrnViewModel> GetDataDO(int id)
+        {
+            var Query = GetDataDOQuery(id);
+
+            return Query.ToList();
+        }
+        //
 
         public List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds)
         {

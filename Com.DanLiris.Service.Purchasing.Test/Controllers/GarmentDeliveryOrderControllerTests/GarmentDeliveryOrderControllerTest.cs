@@ -450,6 +450,56 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             var response = await controller.Put(It.IsAny<int>(), this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
+        //       
+        [Fact]
+        public void Should_Success_Get_Data_DO_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.GetDataDO(1))
+                .Returns(new List<GarmentDOUrnViewModel>
+                        {
+                         new GarmentDOUrnViewModel
+                                 {
+                                   DOId = 1,
+                                   DONo = "DONo",
+                                   BCNo = "BeacukaiNo",
+                                   BCType = "CustomsType",
+                                   URNNo = "URNNo",
+                                 },
+                         new GarmentDOUrnViewModel
+                                 {
+                                   DOId = 1,
+                                   DONo = "DONo",
+                                   BCNo = "BeacukaiNo",
+                                   BCType = "CustomsType",
+                                   URNNo = "URNNo1",
+                                 },
+                         }
+                );
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.GetDataDOById(1);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_DO_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+            mockFacade.Setup(x => x.GetDataDO(1))
+               .Returns(new List<GarmentDOUrnViewModel>());
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentDeliveryOrderController controller = new GarmentDeliveryOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.Get(0);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+        //
 
         [Fact]
         public async Task Should_Error_Update_Data()
