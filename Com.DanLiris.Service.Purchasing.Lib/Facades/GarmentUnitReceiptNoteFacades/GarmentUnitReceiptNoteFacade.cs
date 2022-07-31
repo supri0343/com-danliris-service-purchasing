@@ -2060,7 +2060,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
 
             var categories1 = type == "FABRIC" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : type == "NON FABRIC" ? categories.Where(x => coderequirement.Contains(x.CodeRequirement)).Select(x => x.Name).ToArray() : categories.Select(x => x.Name).ToArray();
-            var Data1 = from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
+            var Data1 = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                         join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                         join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                         join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
@@ -2089,7 +2089,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             NamaBarang = a.ProductName,
                             KodeBarang = a.ProductCode,
                             Supplier = b.SupplierName
-                        };
+                        }).Distinct();
 
             Data1 = Data1.Where(x => (x.KodeBarang != "APL001") && (x.KodeBarang != "EMB001") && (x.KodeBarang != "GMT001") && (x.KodeBarang != "PRN001") && (x.KodeBarang != "SMP001") && (x.KodeBarang != "WSH001"));
 
