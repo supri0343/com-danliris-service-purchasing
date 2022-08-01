@@ -22,6 +22,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
 
         [MaxLength(100)]
         public string SectionName { get; set; }
+        [MaxLength(100)]
+        public string ApprovalPR { get; set; }
 
         [MaxLength(255)]
         public string BuyerId { get; set; }
