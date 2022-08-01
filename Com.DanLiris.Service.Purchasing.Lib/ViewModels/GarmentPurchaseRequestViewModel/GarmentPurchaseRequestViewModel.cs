@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public string SCNo { get; set; }
 
         public string SectionName { get; set; }
+        public string ApprovalPR { get; set; }
 
         public BuyerViewModel Buyer { get; set; }
 
