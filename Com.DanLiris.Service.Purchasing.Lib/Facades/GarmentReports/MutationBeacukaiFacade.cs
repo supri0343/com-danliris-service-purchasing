@@ -470,6 +470,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                           //join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
                            //from prs in PR.DefaultIfEmpty()
                                //join h in Codes on a.ProductCode equals h.Code
                            where a.IsDeleted == false && b.IsDeleted == false
