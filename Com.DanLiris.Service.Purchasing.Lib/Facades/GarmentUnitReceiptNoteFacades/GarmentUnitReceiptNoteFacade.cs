@@ -2060,11 +2060,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
 
             var categories1 = type == "FABRIC" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : type == "NON FABRIC" ? categories.Where(x => coderequirement.Contains(x.CodeRequirement)).Select(x => x.Name).ToArray() : categories.Select(x => x.Name).ToArray();
-            var Data1 = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
+
+            var Data1 = type == "FABRIC" ? (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                         join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                         join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                         join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                        join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                        //join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                         where a.IsDeleted == false && b.IsDeleted == false
                         //&& (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
                         && categories1.Contains(a.ProductName)
@@ -2089,10 +2090,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             NamaBarang = a.ProductName,
                             KodeBarang = a.ProductCode,
                             Supplier = b.SupplierName
-                        }).Distinct();
+                        })
+                        :
+                        (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
+                         join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
+                         join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
+                         join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                         //join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                         where a.IsDeleted == false && b.IsDeleted == false
+                         //&& (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
+                         && categories1.Contains(a.ProductName)
+                         && a.ProductName != "PROCESS"
+                         && b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                         && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                         select new GarmentUnitReceiptNoteINReportViewModel
+                         {
+                             NoSuratJalan = b.DONo,
+                             NoBUM = b.URNNo,
+                             UNit = b.UnitName,
+                             TanggalMasuk = b.ReceiptDate,
+                             TanggalBuatBon = b.CreatedUtc,
+                             Gudang = b.StorageName,
+                             AsalTerima = b.URNType,
+                             NoPO = a.POSerialNumber,
+                             Keterangan = a.ProductRemark,
+                             NoRO = a.RONo,
+                             JumlahDiterima = Convert.ToDouble(a.ReceiptQuantity),
+                             Satuan = a.UomUnit,
+                             JumlahKecil = Convert.ToDouble(a.ReceiptQuantity * a.Conversion),
+                             NamaBarang = a.ProductName,
+                             KodeBarang = a.ProductCode,
+                             Supplier = b.SupplierName
+                         });
 
-            Data1 = Data1.Where(x => (x.KodeBarang != "APL001") && (x.KodeBarang != "EMB001") && (x.KodeBarang != "GMT001") && (x.KodeBarang != "PRN001") && (x.KodeBarang != "SMP001") && (x.KodeBarang != "WSH001"));
+            if (type == "FABRIC")
+            {
+                Data1 = Data1.Where(x => (x.KodeBarang != "APL001") && (x.KodeBarang != "EMB001") && (x.KodeBarang != "GMT001") && (x.KodeBarang != "PRN001") && (x.KodeBarang != "SMP001") && (x.KodeBarang != "WSH001"));
+            }else if(type == "NON FABRIC")
+            {
+                Data1 = Data1.Where(x => (x.KodeBarang != "APL001") && (x.KodeBarang != "EMB001") && (x.KodeBarang != "GMT001") && (x.KodeBarang != "PRN001") && (x.KodeBarang != "SMP001") && (x.KodeBarang != "WSH001") && (x.KodeBarang != "QLT001") && (x.KodeBarang != "SMT001"));
 
+            }
 
 
 
