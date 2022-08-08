@@ -549,7 +549,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
 
         #region MonitoringAll
         [HttpGet("monitoringall")]
-        public IActionResult GetReportAll(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+        public IActionResult GetReportAll(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -557,7 +557,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
             try
             {
 
-                var data = facade.GetReportAll(unitId, supplierId, dateFrom, dateTo, page, size, Order, offset);
+                var data = facade.GetReportAll(unitId, supplierId, noSPB, dateFrom, dateTo, page, size, Order, offset);
 
                 return Ok(new
                 {
@@ -578,7 +578,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
         }
 
         [HttpGet("monitoringall/download")]
-        public IActionResult GetXlsAll(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetXlsAll(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo)
         {
 
             try
@@ -588,7 +588,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentOrder
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcel(unitId, supplierId, dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcel(unitId, supplierId, noSPB, dateFrom, dateTo, offset);
 
                 string filename = String.Format("UnitPaymentOrder - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
