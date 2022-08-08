@@ -770,7 +770,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         #endregion
 
         #region MonitoringAll
-        public IQueryable<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel> GetReportQueryAll(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IQueryable<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel> GetReportQueryAll(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -790,6 +790,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 && e.IsDeleted == false
                                 && f.IsDeleted == false
                                 && a.SupplierId == (string.IsNullOrWhiteSpace(supplierId) ? a.SupplierId : supplierId)
+                                && a.UPONo == (string.IsNullOrWhiteSpace(noSPB) ? a.UPONo : noSPB)
                                 && e.UnitId == (string.IsNullOrWhiteSpace(unitId) ? e.UnitId : unitId)
                                 && a.Date.AddHours(offset).Date >= DateFrom.Date
                                 && a.Date.AddHours(offset).Date <= DateTo.Date
@@ -831,9 +832,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Query;
         }
 
-        public Tuple<List<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel>, int> GetReportAll(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel>, int> GetReportAll(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
         {
-            var Query = GetReportQueryAll(unitId, supplierId, dateFrom, dateTo, offset);
+            var Query = GetReportQueryAll(unitId, supplierId, noSPB, dateFrom, dateTo, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
@@ -848,9 +849,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(string unitId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcel(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetReportQueryAll(unitId, supplierId, dateFrom, dateTo, offset);
+            var Query = GetReportQueryAll(unitId, supplierId,noSPB, dateFrom, dateTo, offset);
             Query = Query.OrderByDescending(b => b.tglspb);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
