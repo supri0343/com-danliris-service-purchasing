@@ -101,6 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                               d.IsPaidPPH,
                               a.UseIncomeTax,
                               a.UseVat,
+                              a.VatRate,
                               a.CategoryName,
                               position = d.Position == null ? ExpeditionPosition.INVALID : d.Position,
                               f.SupplierIsImport
@@ -133,8 +134,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                              PPN = groupdata.First().UseVat == true ? (
                                    (groupdata.Count(a => a.position == ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0 &&
                                    (groupdata.Count(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION)) != 0 ?
-                                    groupdata.Where(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION).Sum(a => (a.PriceTotal * 10) / 100) :
-                                    groupdata.Sum(a => (a.PriceTotal * 10) / 100)
+                                    groupdata.Where(a => a.position != ExpeditionPosition.SEND_TO_PURCHASING_DIVISION).Sum(a => (a.PriceTotal * (a.VatRate/100))) :
+                                    groupdata.Sum(a => (a.PriceTotal * (a.VatRate / 100)))
                              ) : 0,
                              Currency = groupdata.First().CurrencyCode,
                              BankExpenditureNoteDate = groupdata.First().BankExpenditureNoteDate,
