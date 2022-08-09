@@ -181,6 +181,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                         UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.Id == item.UPODetailId);
                         item.PricePerDealUnitBefore = upoDetail.PricePerDealUnit;
+                        upoDetail.PriceTotalCorrection = item.PriceTotalAfter;
+
                         if (upoDetail.PriceTotal != upoDetail.PriceTotalCorrection)
                         {
                             item.PriceTotalBefore = upoDetail.PriceTotalCorrection;
@@ -192,7 +194,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                        
                         upoDetail.PricePerDealUnitCorrection = item.PricePerDealUnitAfter;
-                        upoDetail.PriceTotalCorrection = item.PriceTotalAfter;
+                        
 
                         if (item.PriceTotalAfter > 0 && item.PricePerDealUnitAfter <= 0)
                         {
