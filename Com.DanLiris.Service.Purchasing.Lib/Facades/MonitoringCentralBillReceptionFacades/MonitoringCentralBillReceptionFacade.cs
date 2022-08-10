@@ -270,9 +270,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                 monitoringcentralbillreceptionViewModel.DOQuantity = deliveryOrderDetail.DOQuantity;
                 monitoringcentralbillreceptionViewModel.UOMUnit = deliveryOrderDetail.UomUnit;
                 monitoringcentralbillreceptionViewModel.PricePerDealUnit = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit, 2);
-                monitoringcentralbillreceptionViewModel.PriceTotal = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PriceTotal, 2);
+                monitoringcentralbillreceptionViewModel.PriceTotal = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit * deliveryOrderDetail.DOQuantity, 2);
                 monitoringcentralbillreceptionViewModel.Conversion = deliveryOrderDetail.Conversion;
-                monitoringcentralbillreceptionViewModel.SmallQuantity = deliveryOrderDetail.SmallQuantity;
+                monitoringcentralbillreceptionViewModel.SmallQuantity = deliveryOrderDetail.DOQuantity * deliveryOrderDetail.Conversion;
                 monitoringcentralbillreceptionViewModel.SmallUOMUnit = deliveryOrderDetail.SmallUomUnit;
                 monitoringcentralbillreceptionViewModel.InternNo = deliveryOrder.InternNo;
                 monitoringcentralbillreceptionViewModel.INDate = internNote == null ? new DateTime(1970, 1, 1) : internNote.INDate;

@@ -1028,10 +1028,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         public void Should_Success_GetAccuracyOfArrivalDetail()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var Response = facade.GetAccuracyOfArrivalDetail("", "Bahan Baku", DateTime.Now, DateTime.Now);
+            var Response = facade.GetAccuracyOfArrivalDetail("", "Bahan Baku", DateTime.Now, DateTime.Now, 0);
             Assert.NotNull(Response);
 
-            var Response2 = facade.GetAccuracyOfArrivalDetail("", "Bahan Pendukung", DateTime.Now, DateTime.Now);
+            var Response2 = facade.GetAccuracyOfArrivalDetail("", "Bahan Pendukung", DateTime.Now, DateTime.Now, 0);
             Assert.NotNull(Response2);
         }
 
