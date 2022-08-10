@@ -966,16 +966,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 AccuracyOfArrivalReportViewModel _new = new AccuracyOfArrivalReportViewModel
                 {
                     supplier = item.supplier,
-                    //poSerialNumber = item.poSerialNumber,
-                    //prDate = item.prDate,
-                    //poDate = item.poDate,
-                    //epoDate = item.epoDate,
-                    //product = item.product,
-                    //article = item.article,
-                    //roNo = item.roNo,
+                    poSerialNumber = item.poSerialNumber,
+                    prDate = item.prDate,
+                    poDate = item.poDate,
+                    epoDate = item.epoDate,
+                    product = item.product,
+                    article = item.article,
+                    roNo = item.roNo,
                     shipmentDate = item.shipmentDate,
                     doDate = item.doDate,
-                    //staff = item.staff,
+                    staff = item.staff,
                     category = item.category,
                     doNo = item.doNo,
                     ok_notOk = item.ok_notOk,
@@ -1088,10 +1088,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //if (endDate < startDate)
             //    throw new Exception("date range is invalid");
 
-            var Status = ""; //new[] { "" };
+            //var Status = ""; //new[] { "" };
             var Supplier = new[] { "MADEIRA", "MARATHON" };
 
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo && w.SupplierCode == "MORA").Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportResult = new List<AccuracyOfArrivalReportHeader>();
             //switch (category)
             //{
