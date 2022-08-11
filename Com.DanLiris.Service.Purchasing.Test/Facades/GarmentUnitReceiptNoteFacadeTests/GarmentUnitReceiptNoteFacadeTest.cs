@@ -316,6 +316,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             return new GarmentBeacukaiDataUtil(garmentDeliveryOrderDataUtil, facade);
         }
 
+        private GarmentUnitExpenditureNoteDataUtil dataUtilUEN(GarmentUnitExpenditureNoteFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider(), _dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(testName));
+            var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(testName));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil, null);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(testName), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+        
+            return new GarmentUnitExpenditureNoteDataUtil(facade, garmentUnitDeliveryOrderDatautil);
+        }
+
         [Fact]
         public async Task Should_Success_Get_All_Data()
         {
@@ -794,31 +817,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         //    Assert.NotEmpty(Response);
         //}
         //Monitoring Terima BP
-        //[Fact]
-        //public async Task Should_Success_Get_Terima_BP_Report_Data()
-        //{
-        //    GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        [Fact]
+        public async Task Should_Success_Get_Terima_BP_Report_Data()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-        //    GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //    var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
+            GarmentDeliveryOrderFacade facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilDO = dataUtilDO(facadeDO, GetCurrentMethod());
 
-        //    var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
+            var garmentDeliveryOrder = await Task.Run(() => datautilDO.GetNewData("User"));
 
-        //    var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //    var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO);
+            GarmentUnitExpenditureNoteFacade facadeuen = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautiluen = dataUtilUEN(facadeuen, GetCurrentMethod());
 
-        //    var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
-        //    var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
+            var garmentUEN = await Task.Run(() => datautiluen.GetNewData());
 
-        //    MonitoringCentralBillReceptionFacade TerimaBP = new MonitoringCentralBillReceptionFacade(_dbContext(GetCurrentMethod()));
+            var garmentunitreceiptnoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautilBon = new GarmentUnitReceiptNoteDataUtil(garmentunitreceiptnoteFacade, datautilDO, datautiluen);
 
-        //    var dataDO = await datautilDO.GetTestData();
-        //    var dataBon = await datautilBon.GetTestData();
-        //    var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
+            var garmentBeaCukaiFacade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datautilDO, garmentBeaCukaiFacade);
 
-        //    var Response = TerimaBP.GetMonitoringTerimaBonPusatReport(null, null, null, 1, 25, "{}", 7);
-        //    Assert.NotNull(Response.Item1);
-        //}
+            MonitoringCentralBillReceptionFacade TerimaBP = new MonitoringCentralBillReceptionFacade(_dbContext(GetCurrentMethod()));
+
+            var dataDO = await datautilDO.GetTestData();
+            var dataBon = await datautilBon.GetTestData();
+            var dataBC = await datautilBC.GetTestData(USERNAME, garmentDeliveryOrder);
+
+            var Response = TerimaBP.GetMonitoringTerimaBonPusatReport(null, null, null, 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
 
         //[Fact]
         //public async Task Should_Success_Get_Terima_BP_Report_Data_Null_Parameter()

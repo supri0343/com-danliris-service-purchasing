@@ -429,12 +429,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         //
         #region MONITORING ARRIVAL
         [HttpGet("arrivalReport")]
-        public IActionResult GetReport(string category, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetReport(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            //int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            var data = facade.GetAccuracyOfArrivalHeader(category, dateFrom, dateTo);
+            var data = facade.GetAccuracyOfArrivalHeader(category, dateFrom, dateTo, offset);
             return Ok(new
             {
                 apiVersion = ApiVersion,
@@ -480,12 +480,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         }
 
         [HttpGet("arrivalReportDetail")]
-        public IActionResult GetReportDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetReportDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            //int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            var data = facade.GetAccuracyOfArrivalDetail(supplier, category, dateFrom, dateTo);
+            var data = facade.GetAccuracyOfArrivalDetail(supplier, category, dateFrom, dateTo, offset);
 
             return Ok(new
             {
