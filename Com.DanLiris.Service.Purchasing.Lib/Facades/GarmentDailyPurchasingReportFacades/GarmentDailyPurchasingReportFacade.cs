@@ -64,9 +64,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      Quantity = (decimal)c.DOQuantity,
                                                                      Satuan = c.UomUnit,
                                                                      Kurs = (double)a.DOCurrencyRate,
-                                                                     Amount = c.PriceTotal,
+                                                                     Amount = c.DOQuantity * c.PricePerDealUnit,
                                                                      CurrencyCode = a.DOCurrencyCode,
-                                                                     AmountIDR = c.PriceTotal * (double)a.DOCurrencyRate,
+                                                                     AmountIDR = c.DOQuantity * c.PricePerDealUnit * (double)a.DOCurrencyRate,
                                                                  };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d2 = from gc in dbContext.GarmentCorrectionNotes
