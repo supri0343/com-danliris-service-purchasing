@@ -690,8 +690,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     //var samplefinouts = GetSampleFinishingOut(roSample);
                     var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROSample && x.finishingInType == "PEMBELIAN");
                     var finishingout = samplefinouts.FirstOrDefault(x => x.roJob == i.ROSample && x.finishingTo == "GUDANG JADI");
+                    //double nol = 0;
+                    //finishingout = finishingout == null ? finishingout.totalQty = Convert.ToDouble(nol) : finishingout;
 
-                    var cutting = samplecuttingIn.FirstOrDefault(x => x.RONo == i.ROSample);
+                    var cutting = samplecuttingIn.FirstOrDefault(x => x.RONo == i.ROSample && x.CuttingOutType == "SEWING");
                     var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
@@ -726,7 +728,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         SatuanReceipt = i.SatuanReceipt,
                         Sisa = Math.Round(sisa1.ReceiptQty - sisa2.SampleQtyOut - sisa2.QtyBUK, 2),
                         SubkonOutQty = 0,
-                        WIP = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
+                        WIP = (cutting != null ? cutting.TotalCuttingOutQuantity : 0) - (finishingout != null ? finishingout.totalQty : 0),
                         EksporQty = eksQty.EksporQty
                     };
 
@@ -741,7 +743,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingInType == "PEMBELIAN");
                     var finishingout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingTo == "GUDANG JADI");
 
-                    var cutting = cuttingIn.FirstOrDefault(x => x.RONo == i.ROJob);
+                    var cutting = cuttingIn.FirstOrDefault(x => x.RONo == i.ROJob && x.CuttingOutType == "SEWING");
                     var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     //var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
@@ -777,7 +779,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         SubkonOutQty = subconout == null ? 0 : subconout.totalQty,
                         //ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
                         EksporQty = eksQty.EksporQty,
-                        WIP = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
+                        WIP = (cutting != null ? cutting.TotalCuttingOutQuantity : 0) - (finishingout != null ? finishingout.totalQty : 0),
                     };
 
                     traceableIn1.Add(trace1);
@@ -1655,6 +1657,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var PEB = GetPEBbyBCNo(bcno.Trim());
 
+            var PEBs = PEB.Select(a => new { a.BCDate, a.BCNo, a.BCType, a.BonNo }).Distinct();
+
             //var filterexpend = new
             //{
             //    invoice = PEB.Select(x=>x.BonNo.Trim()).FirstOrDefault()
@@ -1664,7 +1668,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var expend = GetRono(invoices);
 
-            var Query = (from a in PEB
+            var Query = (from a in PEBs
                          join b in expend on a.BonNo.Trim() equals b.Invoice.Trim()
                          select new TraceableOutBeacukaiViewModel
                          {
