@@ -113,7 +113,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                         s.ValidatedMD2Date,
                         s.ValidatedPurchasingDate,
                         s.ValidatedDate,
-                        s.SectionName
+                        s.SectionName,
+                        s.ApprovalPR,
+                        s.ApprovalKadiv
                     }).ToList()
                 );
 

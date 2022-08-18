@@ -128,7 +128,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 ValidatedMD2Date = s.ValidatedMD2Date,
                 ValidatedPurchasingDate = s.ValidatedPurchasingDate,
                 SectionName=s.SectionName,
-                ApprovalPR = s.ApprovalPR
+                ApprovalPR = s.ApprovalPR,
+                ApprovalKadiv = s.ApprovalKadiv,
 
             });
 
