@@ -90,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderBy(b => b.EPODate); 
+                Query = Query.OrderByDescending(b => b.EPODate); 
             }
             else
             {
@@ -115,7 +115,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
         public MemoryStream GenerateExcel(string product, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             var Query = GetDisplayQuery(product, dateFrom, dateTo, offset);
-            Query = Query.OrderBy(b => b.SupplierCode).ThenBy(b => b.EPONo);
+            //Query = Query.OrderByDescending(b => b.SupplierCode).ThenBy(b => b.EPONo);
+            Query = Query.OrderByDescending(b => b.EPODate);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No PO Eksternal", DataType = typeof(String) });
