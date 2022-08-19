@@ -1,11 +1,11 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Microsoft.Extensions.DependencyInjection;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderViewModel;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -87,16 +87,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
         {
             var Query = GetDisplayQuery(product, dateFrom, dateTo, offset);
 
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            if (OrderDictionary.Count.Equals(0))
-            {
-                Query = Query.OrderByDescending(b => b.EPODate); 
-            }
-            else
-            {
-                string Key = OrderDictionary.Keys.First();
-                string OrderType = OrderDictionary[Key];
-            }
+            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            //if (OrderDictionary.Count.Equals(0))
+            //{
+                Query = Query.OrderByDescending(b => b.EPODate);
+            //}
+            //else
+            //{
+                //string Key = OrderDictionary.Keys.FirstOrDefault();
+                //string OrderType = OrderDictionary[Key];
+            //    Query = Query.OrderByDescending(b => b.EPODate);
+            //}
 
             var q = Query.ToList();
             var index = 0;
@@ -116,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
         {
             var Query = GetDisplayQuery(product, dateFrom, dateTo, offset);
             //Query = Query.OrderByDescending(b => b.SupplierCode).ThenBy(b => b.EPONo);
-            Query = Query.OrderByDescending(b => b.EPODate);
+            Query = Query.OrderByDescending(b => b.EPODate).ThenBy(b => b.EPONo);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No PO Eksternal", DataType = typeof(String) });
