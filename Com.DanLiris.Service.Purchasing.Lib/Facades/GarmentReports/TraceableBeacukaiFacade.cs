@@ -39,36 +39,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         #region Masuk
 
-        public List<GarmentExpenditureGoodViewModel> GetExpenditureGood(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"expenditure-goods/traceable-by-ro";
+        //public List<GarmentExpenditureGoodViewModel> GetExpenditureGood(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"expenditure-goods/traceable-by-ro";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentExpenditureGoodViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentExpenditureGoodViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentExpenditureGoodViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentExpenditureGoodViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentExpenditureGoodViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentExpenditureGoodViewModel>();
+        //    }
+        //}
 
         public List<GarmentForTraceableIN> GetFullGarment(string UENItemId)
         {
@@ -132,160 +132,160 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
-        public List<GarmentSampleExpenditureGoodViewModel> GetSampleExpenditureGood(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-expenditure-goods/traceable-by-ro";
+        //public List<GarmentSampleExpenditureGoodViewModel> GetSampleExpenditureGood(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-expenditure-goods/traceable-by-ro";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentSampleExpenditureGoodViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentSampleExpenditureGoodViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentSampleExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentSampleExpenditureGoodViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentSampleExpenditureGoodViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentSampleExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentSampleExpenditureGoodViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentSampleExpenditureGoodViewModel>();
+        //    }
+        //}
 
-        public List<GarmentCuttingOutViewModel> GetCuttingOut(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"cutting-outs/for-traceable";
+        //public List<GarmentCuttingOutViewModel> GetCuttingOut(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"cutting-outs/for-traceable";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentCuttingOutViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentCuttingOutViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentCuttingOutViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentCuttingOutViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentCuttingOutViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentCuttingOutViewModel>();
+        //    }
+        //}
 
-        public List<GarmentCuttingOutViewModel> GetSampleCuttingOut(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-cutting-outs/for-traceable";
+        //public List<GarmentCuttingOutViewModel> GetSampleCuttingOut(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-cutting-outs/for-traceable";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentCuttingOutViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentCuttingOutViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentCuttingOutViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentCuttingOutViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentCuttingOutViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentCuttingOutViewModel>();
+        //    }
+        //}
 
-        public List<GarmentFinishingOutViewModel> GetFinishingOut(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"finishing-outs/for-traceable";
+        //public List<GarmentFinishingOutViewModel> GetFinishingOut(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"finishing-outs/for-traceable";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentFinishingOutViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentFinishingOutViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentFinishingOutViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentFinishingOutViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentFinishingOutViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentFinishingOutViewModel>();
+        //    }
+        //}
 
-        public List<GarmentFinishingOutViewModel> GetSampleFinishingOut(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-finishing-outs/traceable-by-ro";
+        //public List<GarmentFinishingOutViewModel> GetSampleFinishingOut(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-finishing-outs/traceable-by-ro";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentFinishingOutViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentFinishingOutViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentFinishingOutViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentFinishingOutViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentFinishingOutViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentFinishingOutViewModel>();
+        //    }
+        //}
 
         public List<BeacukaiAddedViewModel> GetPEB(string invoice)
         {
