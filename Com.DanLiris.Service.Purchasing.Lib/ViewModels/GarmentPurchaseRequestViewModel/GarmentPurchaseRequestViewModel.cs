@@ -21,6 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 
         public string SectionName { get; set; }
         public string ApprovalPR { get; set; }
+        public string ApprovalKadiv { get; set; }
 
         public BuyerViewModel Buyer { get; set; }
 
