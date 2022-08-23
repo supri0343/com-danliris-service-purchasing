@@ -37,6 +37,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
                     Buyer = new BuyerViewModel(),
                     Unit = new UnitViewModel(),
                     SectionName = "SectionName",
+                    ApprovalPR = "ApprovalPR",
+                    ApprovalKadiv = "ApprovalKadiv",
                     CreatedBy="Fetih",
                     Remark="Remark",
                     Items=new List<GarmentPurchaseRequestItemViewModel>()

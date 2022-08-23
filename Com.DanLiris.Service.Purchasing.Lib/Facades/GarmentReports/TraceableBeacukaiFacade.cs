@@ -913,12 +913,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     //var samplecuttingIn = GetSampleCuttingOut(roSample);
                     ////var finouts = GetFinishingOut(ro);
                     //var samplefinouts = GetSampleFinishingOut(roSample);
+
                     var subconout = garmentSample.FirstOrDefault(x => x.RoJob == i.ROSample && x.FinishingInType == "PEMBELIAN");
                     var finishingout = garmentSample.FirstOrDefault(x => x.RoJob == i.ROSample && x.FinishingTo == "GUDANG JADI");
                     //double nol = 0;
                     //finishingout = finishingout == null ? finishingout.totalQty = Convert.ToDouble(nol) : finishingout;
 
                     var cutting = garmentSample.FirstOrDefault(x => x.RoJob == i.ROSample && x.CutOutType == "SEWING");
+
                     var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     //var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
@@ -955,6 +957,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         SubkonOutQty = 0,
                         BJQty = (finishingout == null ? 0 : finishingout.FinishingOutQuantity),
                         WIP = (cutting != null ? cutting.CutOutQuantity : 0) - (finishingout != null ? finishingout.FinishingOutQuantity : 0),
+
                         EksporQty = eksQty.EksporQty
                     };
 
@@ -971,7 +974,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     //double nol = 0;
                     //finishingout = finishingout == null ? finishingout.totalQty = Convert.ToDouble(nol) : finishingout;
 
+
                     var cutting = garment.FirstOrDefault(x => x.RoJob == i.ROJob && x.CutOutType == "SEWING");
+
                     var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     //var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
@@ -1007,7 +1012,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         SubkonOutQty = subconout == null ? 0 : subconout.FinishingOutQuantity,
                         //ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
                         EksporQty = eksQty.EksporQty,
+
                         WIP = (cutting != null ? cutting.CutOutQuantity : 0) - (finishingout != null ? finishingout.FinishingOutQuantity : 0),
+
                     };
 
                     traceableIn1.Add(trace1);
@@ -1885,6 +1892,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var PEB = GetPEBbyBCNo(bcno.Trim());
 
+            var PEBs = PEB.Select(a => new { a.BCDate, a.BCNo, a.BCType, a.BonNo }).Distinct();
+
             //var filterexpend = new
             //{
             //    invoice = PEB.Select(x=>x.BonNo.Trim()).FirstOrDefault()
@@ -1894,7 +1903,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var expend = GetRono(invoices);
 
-            var Query = (from a in PEB
+            var Query = (from a in PEBs
                          join b in expend on a.BonNo.Trim() equals b.Invoice.Trim()
                          select new TraceableOutBeacukaiViewModel
                          {
