@@ -1807,6 +1807,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 			return viewModel;
 
 		}
+        //
+        public IQueryable<GarmentUENViewModel> GetDataUENQuery(int id)
+        {
+            var Query = from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
+                        join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
+                        where a.IsDeleted == false && b.IsDeleted == false && b.Id == id
+                        select new GarmentUENViewModel
+                        {
+                            UENId = b.Id,
+                            UENNo = b.UENNo,
+                            UENDate = b.ExpenditureDate,
+                            UnitRequestName = b.UnitRequestName,
+                            UnitSenderName = b.UnitSenderName,
+                            FabricType = a.FabricType,
+                            RONo = a.RONo,
+                            Quntity = a.Quantity,
+                            UOMUnit = a.UomUnit,
+                        };
+
+            return Query.AsQueryable();
+
+        }
+        //
+        public List<GarmentUENViewModel> GetDataUEN(int id)
+        {
+            var Query = GetDataUENQuery(id);
+
+            return Query.ToList();
+        }
+        //  
         public Tuple<List<MonitoringOutViewModel>, int> GetReportOut(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order, int offset)
         {
             var Query = GetReportQueryOut(dateFrom, dateTo, type, offset);
@@ -1838,7 +1868,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                         join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                         //join h in Codes on a.ProductCode equals h.Code
-                        join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                        //join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                         where a.IsDeleted == false && b.IsDeleted == false
                         //&& (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
                         && categories1.Contains(a.ProductName)

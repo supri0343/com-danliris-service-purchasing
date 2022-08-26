@@ -22,6 +22,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using static Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports.TraceableInBeacukaiViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentSampleExpenditureGood;
+using iTextSharp.text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
@@ -38,10 +39,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         #region Masuk
 
-        public List<GarmentExpenditureGoodViewModel> GetExpenditureGood(string RONo)
+        //public List<GarmentExpenditureGoodViewModel> GetExpenditureGood(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"expenditure-goods/traceable-by-ro";
+
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+        //        List<GarmentExpenditureGoodViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentExpenditureGoodViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
+
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentExpenditureGoodViewModel>();
+        //    }
+        //}
+
+        public List<GarmentForTraceableIN> GetFullGarment(string UENItemId)
         {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"expenditure-goods/traceable-by-ro";
+            var param = new StringContent(JsonConvert.SerializeObject(UENItemId), Encoding.UTF8, "application/json");
+            string expenditureUri = APIEndpoint.GarmentProduction + $"finishing-outs/for-traceable-full-garment";
 
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
@@ -51,28 +83,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var content = httpResponse.Content.ReadAsStringAsync().Result;
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentExpenditureGoodViewModel> viewModel;
+                List<GarmentForTraceableIN> viewModel;
                 if (result.GetValueOrDefault("data") == null)
                 {
-                    viewModel = new List<GarmentExpenditureGoodViewModel>();
+                    viewModel = new List<GarmentForTraceableIN>();
                 }
                 else
                 {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentForTraceableIN>>(result.GetValueOrDefault("data").ToString());
 
                 }
                 return viewModel;
             }
             else
             {
-                return new List<GarmentExpenditureGoodViewModel>();
+                return new List<GarmentForTraceableIN>();
             }
         }
 
-        public List<GarmentSampleExpenditureGoodViewModel> GetSampleExpenditureGood(string RONo)
+        public List<GarmentForTraceableIN> GetFullGarmentSample(string UENItemId)
         {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-expenditure-goods/traceable-by-ro";
+            var param = new StringContent(JsonConvert.SerializeObject(UENItemId), Encoding.UTF8, "application/json");
+            string expenditureUri = APIEndpoint.GarmentProduction + $"finishing-outs/for-traceable-full-garment-sample";
 
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
@@ -82,147 +114,178 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var content = httpResponse.Content.ReadAsStringAsync().Result;
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentSampleExpenditureGoodViewModel> viewModel;
+                List<GarmentForTraceableIN> viewModel;
                 if (result.GetValueOrDefault("data") == null)
                 {
-                    viewModel = new List<GarmentSampleExpenditureGoodViewModel>();
+                    viewModel = new List<GarmentForTraceableIN>();
                 }
                 else
                 {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentSampleExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentForTraceableIN>>(result.GetValueOrDefault("data").ToString());
 
                 }
                 return viewModel;
             }
             else
             {
-                return new List<GarmentSampleExpenditureGoodViewModel>();
+                return new List<GarmentForTraceableIN>();
             }
         }
 
-        public List<GarmentCuttingOutViewModel> GetCuttingOut(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"cutting-outs/for-traceable";
+        //public List<GarmentSampleExpenditureGoodViewModel> GetSampleExpenditureGood(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-expenditure-goods/traceable-by-ro";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentCuttingOutViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentCuttingOutViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentSampleExpenditureGoodViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentSampleExpenditureGoodViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentSampleExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentCuttingOutViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentSampleExpenditureGoodViewModel>();
+        //    }
+        //}
 
-        public List<GarmentCuttingOutViewModel> GetSampleCuttingOut(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-cutting-outs/for-traceable";
+        //public List<GarmentCuttingOutViewModel> GetCuttingOut(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"cutting-outs/for-traceable";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentCuttingOutViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentCuttingOutViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentCuttingOutViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentCuttingOutViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentCuttingOutViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentCuttingOutViewModel>();
+        //    }
+        //}
 
-        public List<GarmentFinishingOutViewModel> GetFinishingOut(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"finishing-outs/for-traceable";
+        //public List<GarmentCuttingOutViewModel> GetSampleCuttingOut(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-cutting-outs/for-traceable";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentFinishingOutViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentFinishingOutViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentCuttingOutViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentCuttingOutViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentCuttingOutViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentFinishingOutViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentCuttingOutViewModel>();
+        //    }
+        //}
 
-        public List<GarmentFinishingOutViewModel> GetSampleFinishingOut(string RONo)
-        {
-            var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
-            string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-finishing-outs/traceable-by-ro";
+        //public List<GarmentFinishingOutViewModel> GetFinishingOut(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"finishing-outs/for-traceable";
 
-            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                var content = httpResponse.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
-                List<GarmentFinishingOutViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentFinishingOutViewModel>();
-                }
-                else
-                {
-                    viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+        //        List<GarmentFinishingOutViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentFinishingOutViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
-                return viewModel;
-            }
-            else
-            {
-                return new List<GarmentFinishingOutViewModel>();
-            }
-        }
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentFinishingOutViewModel>();
+        //    }
+        //}
+
+        //public List<GarmentFinishingOutViewModel> GetSampleFinishingOut(string RONo)
+        //{
+        //    var param = new StringContent(JsonConvert.SerializeObject(RONo), Encoding.UTF8, "application/json");
+        //    string expenditureUri = APIEndpoint.GarmentProduction + $"garment-sample-finishing-outs/traceable-by-ro";
+
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+        //    var httpResponse = httpClient.SendAsync(HttpMethod.Get, expenditureUri, param).Result;
+        //    if (httpResponse.IsSuccessStatusCode)
+        //    {
+        //        var content = httpResponse.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+        //        List<GarmentFinishingOutViewModel> viewModel;
+        //        if (result.GetValueOrDefault("data") == null)
+        //        {
+        //            viewModel = new List<GarmentFinishingOutViewModel>();
+        //        }
+        //        else
+        //        {
+        //            viewModel = JsonConvert.DeserializeObject<List<GarmentFinishingOutViewModel>>(result.GetValueOrDefault("data").ToString());
+
+        //        }
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return new List<GarmentFinishingOutViewModel>();
+        //    }
+        //}
 
         public List<BeacukaiAddedViewModel> GetPEB(string invoice)
         {
@@ -269,292 +332,452 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         public List<TraceableInBeacukaiViewModel> GetTraceableInQuery(string filter, string tipe, string tipebc)
         {
-            var Query =  (from a in (from aa in dbContext.GarmentBeacukais
-                                                     where aa.BeacukaiNo == filter && aa.CustomsType == tipebc
-                                                     select aa)
-                                          join t in dbContext.GarmentDeliveryOrders on a.Id equals t.CustomsId
-                                          join c in dbContext.GarmentDeliveryOrderItems on t.Id equals c.GarmentDOId
-                                          join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
-                                          join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
-                                          join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
-                                          join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId into unitdoitem
-                                          from ff in unitdoitem.DefaultIfEmpty()
-                                          join g in dbContext.GarmentUnitDeliveryOrders on ff.UnitDOId equals g.Id into unitdo
-                                          from gg in unitdo.DefaultIfEmpty()
-                                          join h in dbContext.GarmentUnitExpenditureNoteItems on ff.Id equals h.UnitDOItemId into uenitem
-                                          from hh in uenitem.DefaultIfEmpty()
-                                          join i in dbContext.GarmentUnitExpenditureNotes on hh.UENId equals i.Id into uen
-                                          from ii in uen.DefaultIfEmpty()
-                                          where r.URNType == "PEMBELIAN"
-                                          select new TraceableInBeacukaiViewModelTemp
-                                          {
-                                              BCDate = a.BeacukaiDate,
-                                              BCNo = a.BeacukaiNo,
-                                              BCType = a.CustomsType,
-                                              BJQty = 0,
-                                              BonNo = a.BillNo,
-                                              //BUK = gg.UnitDOType != "SAMPLE" ? ii.UENNo : "buk-",
-                                              //SampleOut = gg.UnitDOType == "SAMPLE" ? ii.UENNo : "",
-                                              //BUM = r.URNNo,
-                                              ItemCode = d.ProductCode,
-                                              ItemName = d.ProductName,
-                                              ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
-                                              QtyBUK = ii != null ? (ii.ExpenditureType == "PROSES" ? hh.Quantity : 0) : 0,
-                                              SampleQtyOut = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
-                                              //PO = d.POSerialNumber,
-                                              ROJob = gg.UnitDOType == "PROSES" ? gg.RONo : "rojob-",
-                                              ROSample = gg.UnitDOType == "SAMPLE" ? gg.RONo : "rosamp-",
-                                              SatuanBUK = hh != null ? hh.UomUnit : "satbuk-",
-                                              SatuanReceipt = e.SmallUomUnit,
-                                              UnitDOType = gg.UnitDOType,
-                                              EksporQty = 0,
-                                              SampleQty = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
-                                          });
-                                         // }) :
-                                         //(from a in (from aa in dbContext.GarmentBeacukais
-                                         //            select aa)
-                                         // join deliv in dbContext.GarmentDeliveryOrders on a.Id equals deliv.CustomsId
-                                         // join c in dbContext.GarmentDeliveryOrderItems on deliv.Id equals c.GarmentDOId
-                                         // join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
-                                         // join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
-                                         // join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
-                                         // join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId
-                                         // join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
-                                         // join h in dbContext.GarmentUnitExpenditureNoteItems on f.Id equals h.UnitDOItemId
-                                         // join i in dbContext.GarmentUnitExpenditureNotes on h.UENId equals i.Id
-                                         // where g.RONo == filter
-                                         // where r.URNType == "PEMBELIAN"
-                                         // where i.ExpenditureType == "PROSES"
-                                         // select new TraceableInBeacukaiViewModelTemp
-                                         // {
-                                         //     BCDate = a.BeacukaiDate,
-                                         //     BCNo = a.BeacukaiNo,
-                                         //     BCType = a.CustomsType,
-                                         //     BJQty = 0,
-                                         //     BonNo = a.BillNo,
-                                         //     BUK = i.UENNo,
-                                         //     BUM = r.URNNo,
-                                         //     EksporQty = 0,
-                                         //     QtyBUK = h.Quantity,
-                                         //     ItemCode = d.ProductCode,
-                                         //     ItemName = d.ProductName,
-                                         //     PO = d.POSerialNumber,
-                                         //     ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
-                                         //     ROJob = g.RONo,
-                                         //     SatuanBUK = h.UomUnit,
-                                         //     SatuanReceipt = e.SmallUomUnit,
-                                         //     SampleQty = i.ExpenditureType == "SAMPLE" ? h.Quantity : 0
-                                         // });
+            //var Query = (from a in (from aa in dbContext.GarmentBeacukais
+            //                        where aa.BeacukaiNo == filter && aa.CustomsType == tipebc
+            //                        select aa)
+            //             join t in dbContext.GarmentDeliveryOrders on a.Id equals t.CustomsId
+            //             join c in dbContext.GarmentDeliveryOrderItems on t.Id equals c.GarmentDOId
+            //             join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
+            //             join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
+            //             join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
+            //             join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId into unitdoitem
+            //             from ff in unitdoitem.DefaultIfEmpty()
+            //             join g in dbContext.GarmentUnitDeliveryOrders on ff.UnitDOId equals g.Id into unitdo
+            //             from gg in unitdo.DefaultIfEmpty()
+            //             join h in dbContext.GarmentUnitExpenditureNoteItems on ff.Id equals h.UnitDOItemId into uenitem
+            //             from hh in uenitem.DefaultIfEmpty()
+            //             join i in dbContext.GarmentUnitExpenditureNotes on hh.UENId equals i.Id into uen
+            //             from ii in uen.DefaultIfEmpty()
+            //             where r.URNType == "PEMBELIAN"
+            //             select new TraceableInBeacukaiViewModelTemp
+            //             {
+            //                 BCDate = a.BeacukaiDate,
+            //                 BCNo = a.BeacukaiNo,
+            //                 BCType = a.CustomsType,
+            //                 BJQty = 0,
+            //                 BonNo = a.BillNo,
+            //                 ItemCode = d.ProductCode,
+            //                 ItemName = d.ProductName,
+            //                 ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
+            //                 QtyBUK = ii != null ? (ii.ExpenditureType == "PROSES" ? hh.Quantity : 0) : 0,
+            //                 SampleQtyOut = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
+            //                 ROJob = gg.UnitDOType == "PROSES" ? gg.RONo : "rojob-",
+            //                 ROSample = gg.UnitDOType == "SAMPLE" ? gg.RONo : "rosamp-",
+            //                 SatuanBUK = hh != null ? hh.UomUnit : "satbuk-",
+            //                 SatuanReceipt = e.SmallUomUnit,
+            //                 UnitDOType = gg.UnitDOType,
+            //                 EksporQty = 0,
+            //                 SampleQty = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0,
+            //             });
 
-            //Query = Query.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BonNo, x.BUM, x.BUK, x.ItemCode, x.ItemName, x.PO, x.ROJob, x.SatuanBUK, x.SatuanReceipt }, (key, group) => new TraceableInBeacukaiViewModelTemp
-            //{
-            //    BCDate = key.BCDate,
-            //    BCNo = key.BCNo,
-            //    BCType = key.BCType,
-            //    BJQty = group.Sum(x => x.BJQty),
-            //    BonNo = key.BonNo,
-            //    BUM = key.BUM,
-            //    BUK = key.BUK,
-            //    EksporQty = group.Sum(x => x.EksporQty),
-            //    QtyBUK = group.Sum(x => x.QtyBUK),
-            //    ItemCode = key.ItemCode,
-            //    ItemName = key.ItemName,
-            //    PO = key.PO,
-            //    ReceiptQty = group.Sum(x => x.ReceiptQty),
-            //    ROJob = key.ROJob,
-            //    SatuanBUK = key.SatuanBUK,
-            //    SatuanReceipt = key.SatuanReceipt
-            //});
+            //New Query
+            //var expendType = new string[] { "PROSES", "SAMPLE" };
+
+            //var Query = (from a in dbContext.GarmentBeacukais
+            //             join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
+            //             join c in dbContext.GarmentUnitReceiptNotes on b.GarmentDONo equals c.DONo into urn
+            //             from cc in urn.DefaultIfEmpty()
+            //             join d in dbContext.GarmentUnitReceiptNoteItems on cc.Id equals d.URNId into urnitem
+            //             from dd in urnitem.DefaultIfEmpty()
+            //             join g in dbContext.GarmentUnitDeliveryOrderItems on dd.Id equals g.URNItemId into unitdoitem
+            //             from gg in unitdoitem.DefaultIfEmpty()
+            //             join h in dbContext.GarmentUnitDeliveryOrders on gg.UnitDOId equals h.Id into unitdo
+            //             from hh in unitdo.DefaultIfEmpty()
+            //             join e in dbContext.GarmentUnitExpenditureNoteItems on gg.Id equals e.UnitDOItemId into uenitem
+            //             from ee in uenitem.DefaultIfEmpty()
+            //             join f in dbContext.GarmentUnitExpenditureNotes on ee.UENId equals f.Id into uen
+            //             from ff in uen.DefaultIfEmpty()
+            //             where cc.URNType == "PEMBELIAN" && expendType.Contains(ff.ExpenditureType)
+            //            && a.BeacukaiNo == filter && a.CustomsType == tipebc
+            //             select new TraceableInBeacukaiViewModelTemp
+            //             {
+
+            //                 BCDate = a.BeacukaiDate,
+            //                 BCNo = a.BeacukaiNo,
+            //                 BCType = a.CustomsType,
+            //                 BonNo = a.BillNo,
+            //                 ItemCode = ee.ProductCode,
+            //                 ItemName = ee.ProductName,
+            //                 ReceiptQty = Math.Round((double)(dd.ReceiptQuantity * dd.Conversion), 2),
+            //                 SatuanReceipt = dd.SmallUomUnit,
+            //                 QtyBUK = ee != null ? (ff.ExpenditureType == "PROSES" ? ee.Quantity : 0) : 0,
+            //                 SampleQtyOut = ee != null ? (ff.ExpenditureType == "SAMPLE" ? ee.Quantity : 0) : 0,
+            //                 SatuanBUK = ee != null ? ee.UomUnit : "satbuk-",
+            //                 ROJob = hh.UnitDOType == "PROSES" ? hh.RONo : "rojob-",
+            //                 ROSample = hh.UnitDOType == "SAMPLE" ? hh.RONo : "rosamp-",
+            //                 //ROJob = ff.ExpenditureType == "PROSES" ? ee.RONo : "rojob-",
+            //                 //ROSample = ff.ExpenditureType == "SAMPLE" ? ee.RONo : "rosamp-",
+            //                 ExpenditureType = ff.ExpenditureType,
+            //                 EksporQty = 0,
+            //                 SampleQty = ee != null ? (ff.ExpenditureType == "SAMPLE" ? ee.Quantity : 0) : 0,
+            //                 UENItemId = ee.Id
+            //             });
+
+            var queryReceipt = (from a in (from aa in dbContext.GarmentBeacukais
+                                           where aa.BeacukaiNo == filter && aa.CustomsType == tipebc
+                                           select aa)
+                                join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
+                                join c in dbContext.GarmentUnitReceiptNotes on b.GarmentDONo equals c.DONo into urn
+                                from cc in urn.DefaultIfEmpty()
+                                join d in dbContext.GarmentUnitReceiptNoteItems on cc.Id equals d.URNId into urnitem
+                                from dd in urnitem.DefaultIfEmpty()
+                                where cc.URNType == "PEMBELIAN"
+                                select new TraceableInForToReceipt
+                                {
+                                    BCDate = a.BeacukaiDate,
+                                    BCNo = a.BeacukaiNo,
+                                    BCType = a.CustomsType,
+                                    BonNo = a.BillNo,
+                                    ItemCode = dd.ProductCode,
+                                    ItemName = dd.ProductName,
+                                    POSerialNumber = dd.POSerialNumber,
+                                    ReceiptQty = Math.Round((double)(dd.ReceiptQuantity * dd.Conversion), 2),
+                                    SatuanReceipt = dd.SmallUomUnit,
+                                    URNItemId = dd.Id
+                                });
+            var ReceiptValue = queryReceipt.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BonNo, x.ItemCode, x.ItemName, x.SatuanReceipt,x.POSerialNumber }, (key, group) => new TraceableInBeacukaiViewModelTemp
+            {
+                BCDate = key.BCDate,
+                BCNo = key.BCNo,
+                BCType = key.BCType,
+                BonNo = key.BonNo,
+                ItemCode = key.ItemCode,
+                ItemName = key.ItemName,
+                ReceiptQty = group.Sum(x => x.ReceiptQty),
+                SatuanReceipt = key.SatuanReceipt,
+                PO = key.POSerialNumber
+            });
+
+            var POReceipt = queryReceipt.Select(x => x.POSerialNumber).Distinct();
+
+            var expendType = new string[] { "PROSES", "SAMPLE" };
+            var queryExpend = from g in (from gg in dbContext.GarmentUnitDeliveryOrderItems
+                                         where POReceipt.Contains(gg.POSerialNumber)
+                                         select gg)
+                              join h in dbContext.GarmentUnitDeliveryOrders on g.UnitDOId equals h.Id into unitdo
+                              from hh in unitdo.DefaultIfEmpty()
+                              join e in dbContext.GarmentUnitExpenditureNoteItems on g.Id equals e.UnitDOItemId into uenitem
+                              from ee in uenitem.DefaultIfEmpty()
+                              join f in dbContext.GarmentUnitExpenditureNotes on ee.UENId equals f.Id into uen
+                              from ff in uen.DefaultIfEmpty()
+                              where expendType.Contains(ff.ExpenditureType)
+                              select new TraceableInForToExpend
+                              {
+                                  QtyBUK = ee != null ? (ff.ExpenditureType == "PROSES" ? ee.Quantity : 0) : 0,
+                                  SampleQtyOut = ee != null ? (ff.ExpenditureType == "SAMPLE" ? ee.Quantity : 0) : 0,
+                                  SatuanBUK = ee != null ? ee.UomUnit : "satbuk-",
+                                  ROJob = hh.UnitDOType == "PROSES" ? hh.RONo : "rojob-",
+                                  ROSample = hh.UnitDOType == "SAMPLE" ? hh.RONo : "rosamp-",
+                                  //ROJob = ff.ExpenditureType == "PROSES" ? ee.RONo : "rojob-",
+                                  //ROSample = ff.ExpenditureType == "SAMPLE" ? ee.RONo : "rosamp-",
+                                  ExpenditureType = ff.ExpenditureType,
+                                  //EksporQty = 0,
+                                  SampleQty = ee != null ? (ff.ExpenditureType == "SAMPLE" ? ee.Quantity : 0) : 0,
+                                  ItemCode = ee.ProductCode,
+                                  ItemName = ee.ProductName,
+                                  UnitDOType = hh.UnitDOType,
+                                  POSerialNumber = ee.POSerialNumber,
+                                  UENItemId = ee.Id,
+                                 
+                              };
+
+            var ExpendValue = queryExpend.GroupBy(x => new { x.SatuanBUK, x.ROSample, x.ExpenditureType, x.ItemCode, x.ItemName,x.POSerialNumber,x.ROJob,x.UnitDOType}, (key, group) => new TraceableInBeacukaiViewModelTemp
+            {
+                SampleQtyOut = group.Sum(x => x.SampleQtyOut),
+                QtyBUK = group.Sum(x => x.QtyBUK),
+                ItemCode = key.ItemCode,
+                ItemName = key.ItemName,
+                //ROJob = key.ROJob,
+                ROSample = key.ROSample,
+                SatuanBUK = key.SatuanBUK,
+                SampleQty = group.Sum(x => x.SampleQty),
+                ExpenditureType = key.ExpenditureType,
+                PO = key.POSerialNumber,
+                ROJob = key.ROJob,
+                UnitDOType = key.UnitDOType
+
+            });
+
+            List<TraceableInBeacukaiViewModelTemp> queryyss = new List<TraceableInBeacukaiViewModelTemp>();
+            foreach (var a in ExpendValue)
+            {
+                var match = ReceiptValue.FirstOrDefault(x => x.PO == a.PO);
+
+                var querrr = new TraceableInBeacukaiViewModelTemp
+                {
+                    BCDate = match.BCDate,
+                    BCNo = match.BCNo,
+                    BCType = match.BCType,
+                    BonNo = match.BonNo,
+                    ReceiptQty = match.ReceiptQty,
+                    SatuanReceipt = match.SatuanReceipt,
+
+                    SampleQtyOut = a.SampleQtyOut,
+                    QtyBUK = a.QtyBUK,
+                    ItemCode = a.ItemCode,
+                    ItemName = a.ItemName,
+                    //ROJob = key.ROJob,
+                    ROSample = a.ROSample,
+                    SatuanBUK = a.SatuanBUK,
+                    SampleQty = a.SampleQty,
+                    ExpenditureType = a.ExpenditureType,
+                    ROJob = a.ROJob,
+                    UnitDOType = a.UnitDOType
+                };
+
+                queryyss.Add(querrr);
+
+
+
+            }
+
+            //var queryNow = ReceiptValue.Union(ExpendValue).AsEnumerable();
+
+            var Query = queryyss.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BonNo, x.ItemCode, x.SatuanReceipt, x.ItemName, x.SatuanBUK, x.ROJob, x.ROSample, x.UnitDOType, x.ReceiptQty,x.SampleQtyOut,x.SampleQty,x.QtyBUK }, (key, group) => new TraceableInBeacukaiViewModelTemp
+            //var Query = queryNow.GroupBy(x => new { x.ItemCode, x.ItemName}, (key, group) => new TraceableInBeacukaiViewModelTemp
+
+            {
+                BCDate = key.BCDate,
+                BCNo = key.BCNo,
+                BCType = key.BCType,
+                BonNo = key.BonNo,
+                ItemCode = key.ItemCode,
+                ItemName = key.ItemName,
+                //ReceiptQty = group.Sum(x => x.ReceiptQty),
+                ReceiptQty = key.ReceiptQty,
+                SatuanReceipt = key.SatuanReceipt,
+                //SampleQtyOut = group.Sum(x => x.SampleQtyOut),
+                //QtyBUK = group.Sum(x => x.QtyBUK),
+                SampleQtyOut = key.SampleQtyOut,
+                QtyBUK = key.QtyBUK,
+                
+                ROJob = key.ROJob,
+                ROSample = key.ROSample,
+                SatuanBUK = key.SatuanBUK,
+                //SampleQty = group.Sum(x => x.SampleQty),
+                SampleQty = key.SampleQty,
+                UnitDOType = key.UnitDOType
+                //ExpenditureType = key.ExpenditureType
+
+            });
 
             var Query2 = Query.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.ROJob).ThenBy(x => x.ROSample).ToList();
 
             var roSample = string.Join(",", Query2.Select(x => x.ROSample).Distinct().ToList());
             var ro = string.Join(",", Query2.Select(x => x.ROJob).Distinct().ToList());
 
+            var UenItem = string.Join(",", queryExpend.Where(x=> x.ExpenditureType == "PROSES" ).Select(x => x.UENItemId).Distinct().ToList());
+            var UenItemSample = string.Join(",", queryExpend.Where(x => x.ExpenditureType == "SAMPLE").Select(x => x.UENItemId).Distinct().ToList());
+
             List<TraceableInDataBeacukaiViewModel> Data2 = new List<TraceableInDataBeacukaiViewModel>();
             List<BeacukaiAddedViewModel> PEBs = new List<BeacukaiAddedViewModel>();
+            //List<GarmentExpenditureGoodViewModel> expendituregoods = new List<GarmentExpenditureGoodViewModel>();
+            //List<GarmentSampleExpenditureGoodViewModel> expendituregoodsSample = new List<GarmentSampleExpenditureGoodViewModel>();
 
-
-
-            var expendituregoods = GetExpenditureGood(ro);
-            var invoices = string.Join(",", expendituregoods.Select(x => x.Invoice).Distinct().ToList());
-            var PEBS = GetPEB(invoices);
-
-            foreach (var p in PEBS)
+            var garment = GetFullGarment(UenItem);
+            var garmentSample = GetFullGarmentSample(UenItemSample);
+            if (UenItem.Count() > 0)
             {
-                PEBs.Add(p);
+                //expendituregoods = GetExpenditureGood(ro);
+                var invoices = string.Join(",", garment.Select(x => x.Invoice).Distinct().ToList());
+                var PEBS = GetPEB(invoices);
+
+                foreach (var p in PEBS)
+                {
+                    PEBs.Add(p);
+                }
             }
 
-
-            var expendituregoodsSample = GetSampleExpenditureGood(roSample);
-            var invoicess = string.Join(",", expendituregoods.Select(x => x.Invoice).Distinct().ToList());
-            var PEBSS = GetPEB(invoicess);
-            foreach (var p in PEBSS)
+            if (UenItemSample.Count() > 0)
             {
-                PEBs.Add(p);
+               
+                var invoicess = string.Join(",", garmentSample.Select(x => x.Invoice).Distinct().ToList());
+                var PEBSS = GetPEB(invoicess);
+                foreach (var p in PEBSS)
+                {
+                    PEBs.Add(p);
+                }
             }
 
+            //var Data1 = (from a in Query2
+            //             join expend in expendituregoods on a.ROJob equals expend.RONo into expendgood
+            //             from bb in expendgood.DefaultIfEmpty()
+            //                 //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
+            //                 //from cc in bcout.DefaultIfEmpty()
+            //                 where a.UnitDOType != "SAMPLE"
+            //             select new TraceableInDataBeacukaiViewModel
+            //             {
+            //                 BCDate = a.BCDate,
+            //                 BCNo = a.BCNo,
+            //                 BCType = a.BCType,
+            //                 BJQty = a.BJQty,
+            //                 BonNo = a.BonNo,
+            //                 SampleQtyOut = a.SampleQtyOut,
+            //                 QtyBUK = a.QtyBUK,
+            //                 ItemCode = a.ItemCode,
+            //                 ItemName = a.ItemName,
+            //                 ReceiptQty = a.ReceiptQty,
+            //                 ROJob = a.ROJob,
+            //                 SatuanBUK = a.SatuanBUK,
+            //                 SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
+            //                 Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
+            //                 EksporQty = bb != null ? (bb.ExpenditureType =="EXPORT" ? bb.TotalQuantity : 0) : 0,
+            //                 UnitDOType = a.UnitDOType
+            //             }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo,  x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType,x.SampleQtyOut,x.EksporQty,x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
+            //             {
+            //                 BCDate = key.BCDate,
+            //                 BCNo = key.BCNo,
+            //                 BCType = key.BCType,
+            //                 BJQty = key.BJQty,
+            //                 BonNo = key.BonNo,
+            //                 SampleQtyOut = key.SampleQtyOut,
+            //                 QtyBUK = key.QtyBUK,
+            //                 ItemCode = key.ItemCode,
+            //                 ItemName = key.ItemName,
+            //                 ReceiptQty = key.ReceiptQty,
+            //                 ROJob = key.ROJob,
+            //                 SatuanBUK = key.SatuanBUK,
+            //                 SampleQty = group.Sum(x => x.SampleQty),
+            //                 Invoice = key.Invoice,
+            //                 EksporQty = key.EksporQty,
+            //                 UnitDOType = key.UnitDOType
+            //             })
+            //             //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).
+            //             .ToList();
 
-            //foreach (var i in Query2)
+            //foreach (var x in Data1)
             //{
-            //    if (i.UnitDOType != "SAMPLE")
-            //    {
-
-                    var Data1 = (from a in Query2
-                                 join expend in expendituregoods on a.ROJob equals expend.RONo into expendgood
-                                 from bb in expendgood.DefaultIfEmpty()
-                                     //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
-                                     //from cc in bcout.DefaultIfEmpty()
-                                     where a.UnitDOType != "SAMPLE"
-                                 select new TraceableInDataBeacukaiViewModel
-                                 {
-                                     BCDate = a.BCDate,
-                                     BCNo = a.BCNo,
-                                     BCType = a.BCType,
-                                     BJQty = a.BJQty,
-                                     BonNo = a.BonNo,
-                                     //BUK = a.BUK,
-                                     //SampleOut = a.SampleOut,
-                                     SampleQtyOut = a.SampleQtyOut,
-                                     //BUM = a.BUM,
-                                     QtyBUK = a.QtyBUK,
-                                     ItemCode = a.ItemCode,
-                                     ItemName = a.ItemName,
-                                     //PO = a.PO,
-                                     ReceiptQty = a.ReceiptQty,
-                                     ROJob = a.ROJob,
-                                     //ROSample = a.ROSample,
-                                     SatuanBUK = a.SatuanBUK,
-                                     //SatuanReceipt = a.SatuanReceipt,
-                                     SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
-                                     Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
-                                     //PEB = cc != null ? cc.BCNo : "peb-",
-                                     //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                                     EksporQty = bb != null ? (bb.ExpenditureType =="EXPORT" ? bb.TotalQuantity : 0) : 0,
-                                     UnitDOType = a.UnitDOType
-                                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo,  x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType,x.SampleQtyOut,x.EksporQty,x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
-                                 {
-                                     BCDate = key.BCDate,
-                                     BCNo = key.BCNo,
-                                     BCType = key.BCType,
-                                     BJQty = key.BJQty,
-                                     BonNo = key.BonNo,
-                                     //BUK = key.BUK,
-                                     //SampleOut = key.SampleOut,
-                                     SampleQtyOut = key.SampleQtyOut,
-                                     //BUM = key.BUM,
-                                     QtyBUK = key.QtyBUK,
-                                     ItemCode = key.ItemCode,
-                                     ItemName = key.ItemName,
-                                     //PO = key.PO,
-                                     ReceiptQty = key.ReceiptQty,
-                                     ROJob = key.ROJob,
-                                     //ROSample = key.ROSample,
-                                     SatuanBUK = key.SatuanBUK,
-                                     //SatuanReceipt = key.SatuanReceipt,
-                                     SampleQty = group.Sum(x => x.SampleQty),
-                                     Invoice = key.Invoice,
-                                     //PEB = cc != null ? cc.BCNo : "peb-",
-                                     //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                                     //EksporQty = key.EksporQty
-                                     //EksporQty = group.Sum(x => x.EksporQty),
-                                     EksporQty = key.EksporQty,
-                                     UnitDOType = key.UnitDOType
-                                 })
-                                 //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).
-                                 .ToList();
-
-                    foreach (var x in Data1)
-                    {
-                        Data2.Add(x);
-                    }
-
-                //}
-
-                //else
-                //{
-                    ////var expendituregoodsSample = GetSampleExpenditureGood(roSample);
-                    ////var invoices = string.Join(",", expendituregoodsSample.Select(x => x.Invoice).Distinct().ToList());
-                    ////var PEBS = GetPEB(invoices);
-
-                    ////foreach (var p in PEBS)
-                    ////{
-                    ////    PEBs.Add(p);
-                    ////}
-
-                    var Data3 = (from a in Query2
-                                 join expend in expendituregoodsSample on a.ROJob equals expend.RONo into expendgood
-                                 from bb in expendgood.DefaultIfEmpty()
-                                     //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
-                                     //from cc in bcout.DefaultIfEmpty()
-                                 where a.UnitDOType == "SAMPLE"
-                                 select new TraceableInDataBeacukaiViewModel
-                                 {
-                                     BCDate = a.BCDate,
-                                     BCNo = a.BCNo,
-                                     BCType = a.BCType,
-                                     BJQty = a.BJQty,
-                                     BonNo = a.BonNo,
-                                     //BUK = a.BUK,
-                                     //SampleOut = a.SampleOut,
-                                     //BUM = a.BUM,
-                                     QtyBUK = a.QtyBUK,
-                                     SampleQtyOut = a.SampleQtyOut,
-                                     ItemCode = a.ItemCode,
-                                     ItemName = a.ItemName,
-                                     //PO = a.PO,
-                                     ReceiptQty = a.ReceiptQty,
-                                     //ROJob = a.ROJob,
-                                     ROSample = a.ROSample,
-                                     SatuanBUK = a.SatuanBUK,
-                                     //SatuanReceipt = a.SatuanReceipt,
-                                     SampleQty = bb == null ? 0 : bb.TotalQuantity,
-                                     Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
-                                     //PEB = cc != null ? cc.BCNo : "peb-",
-                                     //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                                     EksporQty = bb != null ? (bb.ExpenditureType == "EXPORT" ? bb.TotalQuantity : 0) : 0,
-                                     UnitDOType = a.UnitDOType
-                                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut,x.EksporQty,x.ROSample }, (key, group) => new TraceableInDataBeacukaiViewModel
-                                 {
-                                     BCDate = key.BCDate,
-                                     BCNo = key.BCNo,
-                                     BCType = key.BCType,
-                                     BJQty = key.BJQty,
-                                     BonNo = key.BonNo,
-                                     //BUK = key.BUK,
-                                     //SampleOut = key.SampleOut,
-                                     //BUM = key.BUM,
-                                     QtyBUK = key.QtyBUK,
-                                     ItemCode = key.ItemCode,
-                                     ItemName = key.ItemName,
-                                     SampleQtyOut = key.SampleQtyOut,
-                                     //PO = key.PO,
-                                     ReceiptQty = key.ReceiptQty,
-                                     //ROJob = key.ROJob,
-                                     ROSample = key.ROSample,
-                                     SatuanBUK = key.SatuanBUK,
-                                     //SatuanReceipt = key.SatuanReceipt,
-                                     SampleQty = group.Sum(x => x.SampleQty),
-                                     Invoice = key.Invoice,
-                                     //PEB = cc != null ? cc.BCNo : "peb-",
-                                     //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                                     //EksporQty = key.EksporQty
-                                     //EksporQty = group.Sum(x => x.EksporQty)
-                                     EksporQty = key.EksporQty,
-                                     UnitDOType = key.UnitDOType
-                                 })
-                                 //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK)
-                                 .ToList();
-
-                    foreach (var x in Data3)
-                    {
-                        Data2.Add(x);
-                    }
-
-            //}
+            //    Data2.Add(x);
             //}
 
-            var data22 = Data2.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut,x.ROSample,x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
+            var Data3 = (from a in Query2
+                         join expend in garmentSample on a.ROSample equals expend.RoJob into expendgood
+                         from bb in expendgood.DefaultIfEmpty()
+                             //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
+                             //from cc in bcout.DefaultIfEmpty()
+                         where a.UnitDOType == "SAMPLE"
+                         select new TraceableInDataBeacukaiViewModel
+                         {
+                             BCDate = a.BCDate,
+                             BCNo = a.BCNo,
+                             BCType = a.BCType,
+                             BJQty = a.BJQty,
+                             BonNo = a.BonNo,
+                             //BUK = a.BUK,
+                             //SampleOut = a.SampleOut,
+                             //BUM = a.BUM,
+                             QtyBUK = a.QtyBUK,
+                             SampleQtyOut = a.SampleQtyOut,
+                             ItemCode = a.ItemCode,
+                             ItemName = a.ItemName,
+                             //PO = a.PO,
+                             ReceiptQty = a.ReceiptQty,
+                             //ROJob = a.ROJob,
+                             ROSample = a.ROSample,
+                             SatuanBUK = a.SatuanBUK,
+                             //SatuanReceipt = a.SatuanReceipt,
+                             SampleQty = bb == null ? 0 : bb.ExpenditureQuantity,
+                             Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
+                             //PEB = cc != null ? cc.BCNo : "peb-",
+                             //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
+                             EksporQty = bb != null ? (bb.ExpenditureType == "EXPORT" ? bb.ExpenditureQuantity : 0) : 0,
+                             UnitDOType = a.UnitDOType
+                         }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut, x.EksporQty, x.ROSample }, (key, group) => new TraceableInDataBeacukaiViewModel
+                         {
+                             BCDate = key.BCDate,
+                             BCNo = key.BCNo,
+                             BCType = key.BCType,
+                             BJQty = key.BJQty,
+                             BonNo = key.BonNo,
+                             //BUK = key.BUK,
+                             //SampleOut = key.SampleOut,
+                             //BUM = key.BUM,
+                             QtyBUK = key.QtyBUK,
+                             ItemCode = key.ItemCode,
+                             ItemName = key.ItemName,
+                             SampleQtyOut = key.SampleQtyOut,
+                             //PO = key.PO,
+                             ReceiptQty = key.ReceiptQty,
+                             //ROJob = key.ROJob,
+                             ROSample = key.ROSample,
+                             SatuanBUK = key.SatuanBUK,
+                             //SatuanReceipt = key.SatuanReceipt,
+                             SampleQty = group.Sum(x => x.SampleQty),
+                             Invoice = key.Invoice,
+                             //PEB = cc != null ? cc.BCNo : "peb-",
+                             //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
+                             //EksporQty = key.EksporQty
+                             //EksporQty = group.Sum(x => x.EksporQty)
+                             EksporQty = key.EksporQty,
+                             UnitDOType = key.UnitDOType
+                         })
+                         //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK)
+                         .ToList();
+
+            foreach (var x in Data3)
+            {
+                Data2.Add(x);
+            }
+
+            var Data1 = (from a in Query2
+                         join expend in garment on a.ROJob equals expend.RoJob into expendgood
+                         from bb in expendgood.DefaultIfEmpty()
+                             //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
+                             //from cc in bcout.DefaultIfEmpty()
+                         where a.UnitDOType != "SAMPLE"
+                         select new TraceableInBeacukaiViewModelTemp
+                         {
+                             BCDate = a.BCDate,
+                             BCNo = a.BCNo,
+                             BCType = a.BCType,
+                             BJQty = a.BJQty,
+                             BonNo = a.BonNo,
+                             SampleQtyOut = a.SampleQtyOut,
+                             QtyBUK = a.QtyBUK,
+                             ItemCode = a.ItemCode,
+                             ItemName = a.ItemName,
+                             ReceiptQty = a.ReceiptQty,
+                             ROJob = a.ROJob,
+                             SatuanBUK = a.SatuanBUK,
+                             UnitDOType = a.UnitDOType,
+
+                             SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.ExpenditureQuantity : 0,
+                             Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
+                             EksporQty = bb != null ? (bb.ExpenditureType == "EXPORT" ? bb.ExpenditureQuantity : 0) : 0,
+
+                             //BJQty = (finishingout == null ? 0 : finishingout.totalQty),
+                             //WIP = (cutting != null ? cutting.TotalCuttingOutQuantity : 0) - (finishingout != null ? finishingout.totalQty : 0),
+                             //BJQty = garment != null ? (bb.FinishingTo == "GUDANG JADI" ? bb.FinishingOutQuantity : 0) : 0,
+                             //WIP = garment != null ? (bb.CutOutType == "SEWING" ? bb.CutOutQuantity : 0) - (bb.FinishingTo == "GUDANG JADI" ? bb.FinishingOutQuantity : 0):0
+
+                         }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut, x.EksporQty, x.ROJob }, (key, group) => new TraceableInDataBeacukaiViewModel
+                         {
+                             BCDate = key.BCDate,
+                             BCNo = key.BCNo,
+                             BCType = key.BCType,
+                             BJQty = key.BJQty,
+                             BonNo = key.BonNo,
+                             SampleQtyOut = key.SampleQtyOut,
+                             QtyBUK = key.QtyBUK,
+                             ItemCode = key.ItemCode,
+                             ItemName = key.ItemName,
+                             ReceiptQty = key.ReceiptQty,
+                             ROJob = key.ROJob,
+                             SatuanBUK = key.SatuanBUK,
+                             SampleQty = group.Sum(x => x.SampleQty),
+                             Invoice = key.Invoice,
+                             EksporQty = key.EksporQty,
+                             UnitDOType = key.UnitDOType
+                         })
+                         //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).
+                         .ToList();
+
+            foreach (var x in Data1)
+            {
+                Data2.Add(x);
+            }
+
+            var data22 = Data2.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BJQty, x.BonNo, x.QtyBUK, x.ItemCode, x.ItemName, x.ReceiptQty, x.SatuanBUK, x.SampleQty, x.Invoice, x.UnitDOType, x.SampleQtyOut,x.ROSample,x.ROJob }, (key, group) => new TraceableInBeacukaiViewModelTemp
             {
                 BCDate = key.BCDate,
                 BCNo = key.BCNo,
@@ -578,7 +801,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Invoice = key.Invoice,
                 EksporQty = group.Sum(x => x.EksporQty),
                  UnitDOType = key.UnitDOType
-            }); ;
+            }).ToList(); 
             //var DataTrace = Data2.Select((a, coba) => new
             //{
             //    rown = coba + 1,
@@ -605,6 +828,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //}).ToList();
 
             List<TraceableInBeacukaiViewModelTemp> traceableIn1 = new List<TraceableInBeacukaiViewModelTemp>();
+
+            //traceableIn1 = data22;
             List<TraceableInBeacukaiViewModel> traceableIn2 = new List<TraceableInBeacukaiViewModel>();
 
             var DistinctMasukperPO = Query.Select(x => new { x.ReceiptQty, x.BonNo, x.ItemCode }).GroupBy(x => new { x.BonNo, x.ReceiptQty, x.ItemCode }, (key, group) => new {
@@ -674,12 +899,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //            }).ToList();
 
 
-            var samplecuttingIn = GetSampleCuttingOut(roSample);
-            //var finouts = GetFinishingOut(ro);
-            var samplefinouts = GetSampleFinishingOut(roSample);
+            //var samplecuttingIn = GetSampleCuttingOut(roSample);
+            ////var finouts = GetFinishingOut(ro);
+            //var samplefinouts = GetSampleFinishingOut(roSample);
 
-            var cuttingIn = GetCuttingOut(ro);
-            var finouts = GetFinishingOut(ro);
+            //var cuttingIn = GetCuttingOut(ro);
+            //var finouts = GetFinishingOut(ro);
 
             foreach (var i in data22)
             {
@@ -688,13 +913,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     //var samplecuttingIn = GetSampleCuttingOut(roSample);
                     ////var finouts = GetFinishingOut(ro);
                     //var samplefinouts = GetSampleFinishingOut(roSample);
-                    var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROSample && x.finishingInType == "PEMBELIAN");
-                    var finishingout = samplefinouts.FirstOrDefault(x => x.roJob == i.ROSample && x.finishingTo == "GUDANG JADI");
 
-                    var cutting = samplecuttingIn.FirstOrDefault(x => x.RONo == i.ROSample);
+                    var subconout = garmentSample.FirstOrDefault(x => x.RoJob == i.ROSample && x.FinishingInType == "PEMBELIAN");
+                    var finishingout = garmentSample.FirstOrDefault(x => x.RoJob == i.ROSample && x.FinishingTo == "GUDANG JADI");
+                    //double nol = 0;
+                    //finishingout = finishingout == null ? finishingout.totalQty = Convert.ToDouble(nol) : finishingout;
+
+                    var cutting = garmentSample.FirstOrDefault(x => x.RoJob == i.ROSample && x.CutOutType == "SEWING");
+
                     var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
-                    var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
+                    //var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
 
                     var eksQty = groupKeluarperExport.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     //var PEBQty = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
@@ -705,7 +934,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         BCDate = i.BCDate,
                         BCNo = i.BCNo,
                         BCType = i.BCType,
-                        BJQty = (finishingout == null ? 0 : finishingout.totalQty),
+
                         BonNo = i.BonNo,
                         //BUK = i.BUK,
                         //SampleOut = i.SampleOut,
@@ -726,7 +955,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         SatuanReceipt = i.SatuanReceipt,
                         Sisa = Math.Round(sisa1.ReceiptQty - sisa2.SampleQtyOut - sisa2.QtyBUK, 2),
                         SubkonOutQty = 0,
-                        WIP = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
+                        BJQty = (finishingout == null ? 0 : finishingout.FinishingOutQuantity),
+                        WIP = (cutting != null ? cutting.CutOutQuantity : 0) - (finishingout != null ? finishingout.FinishingOutQuantity : 0),
+
                         EksporQty = eksQty.EksporQty
                     };
 
@@ -738,10 +969,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 {
                     //var cuttingIn = GetCuttingOut(ro);
                     //var finouts = GetFinishingOut(ro);
-                    var subconout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingInType == "PEMBELIAN");
-                    var finishingout = finouts.FirstOrDefault(x => x.roJob == i.ROJob && x.finishingTo == "GUDANG JADI");
+                    var subconout = garment.FirstOrDefault(x => x.RoJob == i.ROJob && x.FinishingInType == "PEMBELIAN");
+                    var finishingout = garment.FirstOrDefault(x => x.RoJob == i.ROJob && x.FinishingTo == "GUDANG JADI");
+                    //double nol = 0;
+                    //finishingout = finishingout == null ? finishingout.totalQty = Convert.ToDouble(nol) : finishingout;
 
-                    var cutting = cuttingIn.FirstOrDefault(x => x.RONo == i.ROJob);
+
+                    var cutting = garment.FirstOrDefault(x => x.RoJob == i.ROJob && x.CutOutType == "SEWING");
+
                     var sisa1 = groupMasukperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     var sisa2 = groupKeluarperPO.FirstOrDefault(x => x.BonNo == i.BonNo && x.ItemCode == i.ItemCode);
                     //var PEB = PEBs.FirstOrDefault(x => x.BonNo.Trim() == i.Invoice);
@@ -754,7 +989,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         BCDate = i.BCDate,
                         BCNo = i.BCNo,
                         BCType = i.BCType,
-                        BJQty = (finishingout == null ? 0 : finishingout.totalQty) + (subconout == null ? 0 : subconout.totalQty),
+                        BJQty = (finishingout == null ? 0 : finishingout.FinishingOutQuantity) + (subconout == null ? 0 : subconout.FinishingOutQuantity),
                         BonNo = i.BonNo,
                         //BUK = i.BUK,
                         //SampleOut = i.SampleOut,
@@ -774,10 +1009,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         SatuanBUK = i.SatuanBUK,
                         SatuanReceipt = i.SatuanReceipt,
                         Sisa = Math.Round(sisa1.ReceiptQty - sisa2.SampleQtyOut - sisa2.QtyBUK, 2),
-                        SubkonOutQty = subconout == null ? 0 : subconout.totalQty,
+                        SubkonOutQty = subconout == null ? 0 : subconout.FinishingOutQuantity,
                         //ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
                         EksporQty = eksQty.EksporQty,
-                        WIP = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
+
+                        WIP = (cutting != null ? cutting.CutOutQuantity : 0) - (finishingout != null ? finishingout.FinishingOutQuantity : 0),
+
                     };
 
                     traceableIn1.Add(trace1);
@@ -1294,16 +1531,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                     if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString(), out value))
                     {
-                        eksporqtyspan[a.EksporQty.ToString()  + a.ItemCode + a.BJQty.ToString()]++;
+                        eksporqtyspan[a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString()]++;
                     }
                     else
                     {
-                        eksporqtyspan[a.EksporQty.ToString()  + a.ItemCode + a.BJQty.ToString()] = 1;
+                        eksporqtyspan[a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString()] = 1;
                     }
 
                     if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ItemCode, out value))
                     {
-                        samppleqtyspan[a.SampleQty.ToString()  + a.ItemCode]++;
+                        samppleqtyspan[a.SampleQty.ToString() + a.ItemCode]++;
                     }
                     else
                     {
@@ -1655,6 +1892,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var PEB = GetPEBbyBCNo(bcno.Trim());
 
+            var PEBs = PEB.Select(a => new { a.BCDate, a.BCNo, a.BCType, a.BonNo }).Distinct();
+
             //var filterexpend = new
             //{
             //    invoice = PEB.Select(x=>x.BonNo.Trim()).FirstOrDefault()
@@ -1664,7 +1903,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var expend = GetRono(invoices);
 
-            var Query = (from a in PEB
+            var Query = (from a in PEBs
                          join b in expend on a.BonNo.Trim() equals b.Invoice.Trim()
                          select new TraceableOutBeacukaiViewModel
                          {
@@ -2082,15 +2321,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              //BJQty = 0,
                              //BonNo = a.BillNo,
                              URNNo = r.URNNo,
-                             SmallQty = e.SmallQuantity,
+                             SmallQty = e == null ? 0 : e.SmallQuantity,
                              SatuanReceipt = e.SmallUomUnit,
                              UnitDONo = gg.UnitDONo,
                              ROJob = gg.RONo,
                              UnitDOType = gg.UnitDOType,
-                             DOQuantity = ff.Quantity,
+                             DOQuantity = ff == null ? 0 : ff.Quantity,
                              DOUomUnit = ff.UomUnit,
                              BUK = ii.UENNo,
-                             QtyBUK = hh.Quantity,
+                             QtyBUK = hh == null ? 0 : hh.Quantity ,
                              UENType = ii.ExpenditureType,
                              SatuanBUK = hh.UomUnit,
                              //ItemName = d.ProductName,

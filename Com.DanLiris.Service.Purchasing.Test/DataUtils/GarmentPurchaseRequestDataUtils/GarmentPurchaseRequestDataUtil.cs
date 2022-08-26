@@ -52,6 +52,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestD
                 ValidatedDate = DateTimeOffset.Now,
 
                 SectionName = $"SectionName{nowTicksA}",
+                ApprovalPR = $"ApprovalPR{nowTicksA}",
+                ApprovalKadiv = $"ApprovalKadiv{nowTicksA}",
                 IsValidatedMD1 = true,
                 IsValidatedPurchasing = true,
                 IsValidatedMD2 = true,

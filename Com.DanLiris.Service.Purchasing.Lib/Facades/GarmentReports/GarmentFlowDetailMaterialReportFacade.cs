@@ -92,11 +92,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 								 ArticleDO = d.Article,
 								 UnitDOType = d.UnitDOType,
 								 UENNo = b.UENNo,
-								 ExpenditureDate = b.ExpenditureDate,
+								 ExpenditureDate = b.CreatedUtc,
 								 Quantity = a.Quantity,
 								 UomUnit = a.UomUnit,
-								 Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
-								 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
+                                 //Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
+                                 Total = Convert.ToDecimal(a.PricePerDealUnit) * Convert.ToDecimal(a.Quantity),
+                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
 
 							 });
 				return Query.AsQueryable();
@@ -136,10 +137,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 								 ArticleDO = d.Article,
 								 UnitDOType = d.UnitDOType,
 								 UENNo = b.UENNo,
-								 ExpenditureDate = b.ExpenditureDate,
+								 ExpenditureDate = b.CreatedUtc,
 								 Quantity = a.Quantity,
 								 UomUnit = a.UomUnit,
-								 Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
+								 //Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
+								 Total = Convert.ToDecimal(a.PricePerDealUnit) * Convert.ToDecimal(a.Quantity),
 								 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
 
 							 });
@@ -207,7 +209,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ExpendQtyTotal += item.Quantity;
                     ExpendPriceTotal += item.Total;
                     index++;
-                    string tanggal = item.ExpenditureDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string tanggal = item.ExpenditureDate.Value.AddHours(offset).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, item.ProductCode, item.ProductName, item.POSerialNumber, item.ProductRemark, item.RONo,
                         item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UENNo, item.UnitDestination, tanggal, NumberFormat(item.Quantity),
                         item.UomUnit, NumberFormat((double)item.Total));
@@ -296,7 +298,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ExpendQtyTotal += item.Quantity;
                     ExpendPriceTotal += item.Total;
                     index++;
-                    string tanggal = item.ExpenditureDate.Value.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string tanggal = item.ExpenditureDate.Value.AddHours(offset).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, item.ProductCode, item.ProductName, item.POSerialNumber, item.ProductRemark, item.RONo,
                         item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UnitDestination, item.UENNo, tanggal, NumberFormat(item.Quantity),
                         item.UomUnit);

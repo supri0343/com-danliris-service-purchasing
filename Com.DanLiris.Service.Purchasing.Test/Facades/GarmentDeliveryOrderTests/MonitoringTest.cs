@@ -325,43 +325,58 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         //}
 
 
-        //[Fact]
-        //public void ShouldSuccess_GetAccuracyOfArrivalHeader()
-        //{
-        //    //Setup
-        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-        //    string testName = GetCurrentAsyncMethod();
-        //    PurchasingDbContext dbCOntext = _dbContext(testName);
+        [Fact]
+        public void ShouldSuccess_GetAccuracyOfArrivalHeader()
+        {
+            //Setup
+            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+            string testName = GetCurrentAsyncMethod();
+            PurchasingDbContext dbCOntext = _dbContext(testName);
 
-        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
 
-        //    //Act
-        //    var response = facade.GetAccuracyOfArrivalHeader(null, null, null);
+            //Act
+            var response = facade.GetAccuracyOfArrivalHeader(null, null, null, 0);
 
-        //    //Assert
-        //    Assert.NotNull(response);
-        //}
+            //Assert
+            Assert.NotNull(response);
+        }
+               
+        [Fact]
+        public async Task ShouldSuccess_GetAccuracyOfArrivalHeader_with_CategoryBB()
+        {
+            //Setup
+            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+            string testName = GetCurrentAsyncMethod();
+            PurchasingDbContext dbCOntext = _dbContext(testName);
 
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+            var data = await dataUtil(facade, testName).GetTestData();
 
+            //Act
+            var response = facade.GetAccuracyOfArrivalHeader("Bahan Baku", null, null, 0);
 
-        //[Fact]
-        //public async Task ShouldSuccess_GetAccuracyOfArrivalHeader_with_CategoryBB()
-        //{
-        //    //Setup
-        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-        //    string testName = GetCurrentAsyncMethod();
-        //    PurchasingDbContext dbCOntext = _dbContext(testName);
+            //Assert
+            Assert.NotNull(response);
+        }
 
-        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-        //    var data = await dataUtil(facade, testName).GetTestData();
+        [Fact]
+        public async Task ShouldSuccess_GetAccuracyOfArrivalHeader_with_CategoryBP()
+        {
+            //Setup
+            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+            string testName = GetCurrentAsyncMethod();
+            PurchasingDbContext dbCOntext = _dbContext(testName);
 
-        //    //Act
-        //    var response = facade.GetAccuracyOfArrivalHeader("Bahan Baku", null, null);
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+            var data = await dataUtil(facade, testName).GetTestData();
 
-        //    //Assert
-        //    Assert.NotNull(response);
-        //}
+            //Act
+            var response = facade.GetAccuracyOfArrivalHeader("Bahan Pendukung", null, null, 0);
 
+            //Assert
+            Assert.NotNull(response);
+        }
         //[Fact]
         //public async Task ShouldSuccess_GetAccuracyOfArrivalHeader_with_CategoryBP()
         //{

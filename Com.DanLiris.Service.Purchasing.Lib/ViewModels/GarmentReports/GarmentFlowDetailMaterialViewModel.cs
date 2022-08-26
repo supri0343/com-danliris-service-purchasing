@@ -17,8 +17,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string ArticleDO { get; set; }
         public string UnitDOType { get; set; }
         public string UENNo { get; set; }
-        public DateTimeOffset? ExpenditureDate { get; set; }
-        public DateTimeOffset? CreatedUtc { get; set; }
+        public DateTime? ExpenditureDate { get; set; }
+        public DateTime? CreatedUtc { get; set; }
         public double Quantity { get; set; }
         public string UomUnit { get; set; }
         public double PricePerDealUnit { get; set; }

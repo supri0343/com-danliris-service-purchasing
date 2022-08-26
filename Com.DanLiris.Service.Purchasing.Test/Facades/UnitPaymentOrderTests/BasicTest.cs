@@ -276,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportAll(null, model.SupplierId, DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
+            var Response = facade.GetReportAll(null, model.SupplierId,model.UPONo, DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
             Assert.NotEmpty(Response.Item1);
         }
 
@@ -285,7 +285,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportAll("", "", DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
+            var Response = facade.GetReportAll("", "","", DateTime.MinValue, DateTime.MaxValue, 1, 25, "{}", 7);
             Assert.NotEmpty(Response.Item1);
         }
 
@@ -294,7 +294,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcel(null, model.SupplierId, DateTime.MinValue, DateTime.MaxValue, 7);
+            var Response = facade.GenerateExcel(null, model.SupplierId, model.UPONo, DateTime.MinValue, DateTime.MaxValue, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
@@ -303,7 +303,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
         {
             UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcel("", "", DateTime.MinValue, DateTime.MaxValue, 7);
+            var Response = facade.GenerateExcel("", "","", DateTime.MinValue, DateTime.MaxValue, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         #endregion

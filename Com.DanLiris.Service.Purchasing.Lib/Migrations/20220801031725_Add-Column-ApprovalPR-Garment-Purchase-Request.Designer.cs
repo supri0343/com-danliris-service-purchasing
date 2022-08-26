@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220801031725_Add-Column-ApprovalPR-Garment-Purchase-Request")]
+    partial class AddColumnApprovalPRGarmentPurchaseRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3641,9 +3642,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Active");
-
-                    b.Property<string>("ApprovalKadiv")
-                        .HasMaxLength(100);
 
                     b.Property<string>("ApprovalPR")
                         .HasMaxLength(100);

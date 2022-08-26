@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
@@ -31,5 +32,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         GarmentUnitExpenditureNoteItem GetBasicPriceByPOSerialNumber(string po);
 
         int UenDateRevise(List<long> ids, string user, DateTime reviseDate);
+        List<GarmentUENViewModel> GetDataUEN(int id);
     }
 }

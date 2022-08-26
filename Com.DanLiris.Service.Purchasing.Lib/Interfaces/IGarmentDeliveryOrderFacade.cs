@@ -42,8 +42,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Tuple<List<GarmentDeliveryOrderReportViewModel>, int> GetReportDO(string no, string poEksNo, long supplierId, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         MemoryStream GenerateExcelDO(string no, string poEksNo, long supplierId, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset);
 
-        AccuracyOfArrivalReportHeaderResult GetAccuracyOfArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo);
-        List<AccuracyOfArrivalReportDetail> GetAccuracyOfArrivalDetail(string supplierCode, string category, DateTime? dateFrom, DateTime? dateTo);
+        AccuracyOfArrivalReportHeaderResult GetAccuracyOfArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, int offset);
+        List<AccuracyOfArrivalReportDetail> GetAccuracyOfArrivalDetail(string supplierCode, string category, DateTime? dateFrom, DateTime? dateTo, int offset);
         List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds);
+        List<GarmentDOUrnViewModel> GetDataDO(int id);
     }
 }
