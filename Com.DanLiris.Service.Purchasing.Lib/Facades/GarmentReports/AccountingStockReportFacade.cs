@@ -103,6 +103,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ReceiptCorrectionQty = 0,
                                     ReceiptPurchaseQty = 0,
                                     ReceiptProcessQty = 0,
+                                    ReceiptSubconQty = 0,
+                                    ReceiptSubconPrice =0,
                                     ReceiptKon2AQty = 0,
                                     ReceiptKon2BQty = 0,
                                     ReceiptKon2CQty = 0,
@@ -156,6 +158,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
                                     ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                                     ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
+                                    ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                                    ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
                                     ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
                                     ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
                                     ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
@@ -283,6 +287,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptCorrectionQty = 0,
                                 ReceiptPurchaseQty = 0,
                                 ReceiptProcessQty = 0,
+                                ReceiptSubconQty = 0,
+                                ReceiptSubconPrice = 0,
                                 ReceiptKon2AQty = 0,
                                 ReceiptKon2BQty = 0,
                                 ReceiptKon2CQty = 0,
@@ -336,6 +342,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
                                 ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                                 ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
+                                ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                                ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
                                 ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
                                 ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
                                 ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
@@ -409,6 +417,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptCorrectionQty = 0,
                                 ReceiptPurchaseQty = 0,
                                 ReceiptProcessQty = 0,
+                                ReceiptSubconQty = 0,
+                                ReceiptSubconPrice = 0,
                                 ReceiptKon2AQty = 0,
                                 ReceiptKon2BQty = 0,
                                 ReceiptKon2CQty = 0,
@@ -463,6 +473,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
                                 ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                                 ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
+                                ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                                ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
                                 ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
                                 ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
                                 ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
@@ -534,6 +546,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ReceiptCorrectionQty = 0,
                                  ReceiptPurchaseQty = 0,
                                  ReceiptProcessQty = 0,
+                                 ReceiptSubconQty = 0,
+                                 ReceiptSubconPrice = 0,
                                  ReceiptKon2AQty = 0,
                                  ReceiptKon2BQty = 0,
                                  ReceiptKon2CQty = 0,
@@ -587,6 +601,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
                                  ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                                  ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
+                                 ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                                 ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
                                  ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
                                  ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
                                  ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
@@ -644,6 +660,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
                 ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                 ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
+                ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
                 ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
                 ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
                 ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
@@ -714,6 +732,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             ReceiptCorrectionQty = 0,
                             ReceiptPurchaseQty = b.URNType == "PEMBELIAN" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptProcessQty = b.URNType == "PROSES" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptSubconQty = b.URNType == "SUBCON" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptKon2AQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2A")*/ dd.UnitSenderCode == "C2A" ) ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptKon2BQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2B")*/ dd.UnitSenderCode == "C2B") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptKon2CQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2C")*/ dd.UnitSenderCode == "C2C") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
@@ -722,6 +741,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             ReceiptCorrectionPrice = 0,
                             ReceiptPurchasePrice = b.URNType == "PEMBELIAN" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptProcessPrice = b.URNType == "PROSES" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptSubconPrice = b.URNType == "SUBCON" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptKon2APrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2A")*/ dd.UnitSenderCode == "C2A") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptKon2BPrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2B")*/ dd.UnitSenderCode == "C2B") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptKon2CPrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2C")*/ dd.UnitSenderCode == "C2C") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
@@ -767,6 +787,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
                             ReceiptPurchaseQty = Math.Round(group.Sum(x => x.ReceiptPurchaseQty), 2),
                             ReceiptProcessQty = Math.Round(group.Sum(x => x.ReceiptProcessQty), 2),
+                            ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                            ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
                             ReceiptKon2AQty = Math.Round(group.Sum(x => x.ReceiptKon2AQty), 2),
                             ReceiptKon2BQty = Math.Round(group.Sum(x => x.ReceiptKon2BQty), 2),
                             ReceiptKon2CQty = Math.Round(group.Sum(x => x.ReceiptKon2CQty), 2),
@@ -837,7 +859,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptCorrectionQty = 0,
                              ReceiptPurchaseQty = 0,
                              ReceiptProcessQty = 0,
-                             ReceiptKon2AQty = 0,
+                              ReceiptSubconQty = 0,
+                              ReceiptSubconPrice = 0,
+                              ReceiptKon2AQty = 0,
                              ReceiptKon2BQty = 0,
                              ReceiptKon2CQty = 0,
                              ReceiptKon1AQty = 0,
@@ -907,7 +931,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptCorrectionPrice = group.Sum(x => x.ReceiptCorrectionPrice),
                              ReceiptPurchasePrice = group.Sum(x => x.ReceiptPurchasePrice),
                              ReceiptProcessPrice = group.Sum(x => x.ReceiptProcessPrice),
-                             ReceiptKon2APrice = group.Sum(x => x.ReceiptKon2APrice),
+                              ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                              ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
+                              ReceiptKon2APrice = group.Sum(x => x.ReceiptKon2APrice),
                              ReceiptKon2BPrice = group.Sum(x => x.ReceiptKon2BPrice),
                              ReceiptKon2CPrice = group.Sum(x => x.ReceiptKon2CPrice),
                              ReceiptKon1APrice = group.Sum(x => x.ReceiptKon1APrice),
@@ -970,6 +996,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                ReceiptCorrectionQty = Math.Round((decimal)e.SmallQuantity, 2),
                                ReceiptPurchaseQty = 0,
                                ReceiptProcessQty = 0,
+                               ReceiptSubconQty = 0,
+                               ReceiptSubconPrice = 0,
                                ReceiptKon2AQty = 0,
                                ReceiptKon2BQty = 0,
                                ReceiptKon2CQty = 0,
@@ -1023,6 +1051,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty),2),
                                ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                                ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
+                               ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                               ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
                                ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
                                ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
                                ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
@@ -1079,6 +1109,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
                 ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                 ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
+                ReceiptSubconQty = group.Sum(x => x.ReceiptSubconQty),
+                ReceiptSubconPrice = group.Sum(x => x.ReceiptSubconPrice),
                 ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
                 ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
                 ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
@@ -1140,6 +1172,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ReceiptKon2CQty = data.Sum(x => x.ReceiptKon2CQty),
                 ReceiptKon1AQty = data.Sum(x => x.ReceiptKon1AQty),
                 ReceiptKon1BQty = data.Sum(x => x.ReceiptKon1BQty),
+                ReceiptSubconQty = data.Sum(x => x.ReceiptSubconQty),
+                ReceiptSubconPrice = data.Sum(x => x.ReceiptSubconPrice),
                 ReceiptCorrectionPrice = data.Sum(x => x.ReceiptCorrectionPrice),
                 ReceiptPurchasePrice = data.Sum(x => x.ReceiptPurchasePrice),
                 ReceiptProcessPrice = data.Sum(x => x.ReceiptProcessPrice),
@@ -1166,8 +1200,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ExpendKon2CPrice = data.Sum(x => x.ExpendKon2CPrice),
                 ExpendKon1APrice = data.Sum(x => x.ExpendKon1APrice),
                 ExpendKon1BPrice = data.Sum(x => x.ExpendKon1BPrice),
-                EndingBalanceQty = Math.Round((decimal)data.Sum(x => x.BeginningBalanceQty) + (decimal)data.Sum(x => x.ReceiptCorrectionQty) + (decimal)data.Sum(a => a.ReceiptPurchaseQty) + (decimal)data.Sum(a => a.ReceiptProcessQty) + (decimal)data.Sum(a => a.ReceiptKon2AQty) + (decimal)data.Sum(a => a.ReceiptKon2BQty) + (decimal)data.Sum(a => a.ReceiptKon2CQty) + (decimal)data.Sum(a => a.ReceiptKon1AQty) + (decimal)data.Sum(a => a.ReceiptKon1BQty) - ((decimal)data.Sum(a => a.ExpendReturQty) + (decimal)data.Sum(a => a.ExpendSampleQty) + (decimal)data.Sum(a => a.ExpendRestQty) + (decimal)data.Sum(a => a.ExpendProcessQty) + (decimal)data.Sum(a => a.ExpendKon2AQty) + (decimal)data.Sum(a => a.ExpendKon2BQty) + (decimal)data.Sum(a => a.ExpendKon2CQty) + (decimal)data.Sum(a => a.ExpendKon1AQty) + (decimal)data.Sum(a => a.ExpendKon1BQty)), 2),
-                EndingBalancePrice = Math.Round((double)data.Sum(a => a.BeginningBalancePrice) + (double)data.Sum(a => a.ReceiptCorrectionPrice) + (double)data.Sum(a => a.ReceiptPurchasePrice) + (double)data.Sum(a => a.ReceiptProcessPrice) + (double)data.Sum(a => a.ReceiptKon2APrice) + (double)data.Sum(a => a.ReceiptKon2BPrice) + (double)data.Sum(a => a.ReceiptKon2CPrice) + (double)data.Sum(a => a.ReceiptKon1APrice) + (double)data.Sum(a => a.ReceiptKon1BPrice) - ((double)data.Sum(a => a.ExpendReturPrice) + (double)data.Sum(a => a.ExpendRestPrice) + (double)data.Sum(a => a.ExpendProcessPrice) + (double)data.Sum(a => a.ExpendSamplePrice) + (double)data.Sum(a => a.ExpendKon2APrice) + (double)data.Sum(a => a.ExpendKon2BPrice) + (double)data.Sum(a => a.ExpendKon2CPrice) + (double)data.Sum(a => a.ExpendKon1APrice) + (double)data.Sum(a => a.ExpendKon1BPrice)), 2),
+                EndingBalanceQty = Math.Round((decimal)data.Sum(x => x.BeginningBalanceQty) + (decimal)data.Sum(x => x.ReceiptCorrectionQty) + (decimal)data.Sum(a => a.ReceiptPurchaseQty) + (decimal)data.Sum(a => a.ReceiptProcessQty) + (decimal)data.Sum(a => a.ReceiptKon2AQty) + (decimal)data.Sum(a => a.ReceiptKon2BQty) + (decimal)data.Sum(a => a.ReceiptKon2CQty) + (decimal)data.Sum(a => a.ReceiptKon1AQty) + (decimal)data.Sum(a => a.ReceiptKon1BQty) + (decimal)data.Sum(a => a.ReceiptSubconQty) - ((decimal)data.Sum(a => a.ExpendReturQty) + (decimal)data.Sum(a => a.ExpendSampleQty) + (decimal)data.Sum(a => a.ExpendRestQty) + (decimal)data.Sum(a => a.ExpendProcessQty) + (decimal)data.Sum(a => a.ExpendKon2AQty) + (decimal)data.Sum(a => a.ExpendKon2BQty) + (decimal)data.Sum(a => a.ExpendKon2CQty) + (decimal)data.Sum(a => a.ExpendKon1AQty) + (decimal)data.Sum(a => a.ExpendKon1BQty) + (decimal)data.Sum(a => a.ExpendSubconQty)), 2),
+                EndingBalancePrice = Math.Round((double)data.Sum(a => a.BeginningBalancePrice) + (double)data.Sum(a => a.ReceiptCorrectionPrice) + (double)data.Sum(a => a.ReceiptPurchasePrice) + (double)data.Sum(a => a.ReceiptProcessPrice) + (double)data.Sum(a => a.ReceiptKon2APrice) + (double)data.Sum(a => a.ReceiptKon2BPrice) + (double)data.Sum(a => a.ReceiptKon2CPrice) + (double)data.Sum(a => a.ReceiptKon1APrice) + (double)data.Sum(a => a.ReceiptKon1BPrice) + (double)data.Sum(a => a.ReceiptSubconPrice) - ((double)data.Sum(a => a.ExpendReturPrice) + (double)data.Sum(a => a.ExpendRestPrice) + (double)data.Sum(a => a.ExpendProcessPrice) + (double)data.Sum(a => a.ExpendSamplePrice) + (double)data.Sum(a => a.ExpendKon2APrice) + (double)data.Sum(a => a.ExpendKon2BPrice) + (double)data.Sum(a => a.ExpendKon2CPrice) + (double)data.Sum(a => a.ExpendKon1APrice) + (double)data.Sum(a => a.ExpendKon1BPrice) + (double)data.Sum(a => a.ExpendSubconPrice)), 2),
                 ExpendOtherPrice = data.Sum(x => x.ExpendOtherPrice),
                 ExpendOtherQty = data.Sum(x => x.ExpendOtherQty),
                 ExpendSubconPrice = data.Sum(x => x.ExpendSubconPrice),
@@ -1212,6 +1246,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ReceiptCorrectionQty = i.ReceiptCorrectionQty,
                     ReceiptPurchaseQty = i.ReceiptPurchaseQty,
                     ReceiptProcessQty = i.ReceiptProcessQty,
+                    ReceiptSubconQty = i.ReceiptSubconQty,
+                    ReceiptSubconPrice = i.ReceiptSubconPrice,
                     ReceiptKon2AQty = i.ReceiptKon2AQty,
                     ReceiptKon2BQty = i.ReceiptKon2BQty,
                     ReceiptKon2CQty = i.ReceiptKon2CQty,
@@ -1340,6 +1376,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ExpendOtherQty = Math.Round(SaldoAkhirs.Sum(x => x.ExpendOtherQty),2),
                 ExpendSubconPrice = Math.Round(SaldoAkhirs.Sum(x => x.ExpendSubconPrice), 2),
                 ExpendSubconQty = Math.Round(SaldoAkhirs.Sum(x => x.ExpendSubconQty),2),
+                ReceiptSubconQty = Math.Round(SaldoAkhirs.Sum(x => x.ReceiptSubconQty), 2),
+                ReceiptSubconPrice = Math.Round(SaldoAkhirs.Sum(x => x.ReceiptSubconPrice), 2),
                 ExpendTransferPrice = Math.Round(SaldoAkhirs.Sum(x => x.ExpendTransferPrice), 2),
                 ExpendTransferQty = Math.Round(SaldoAkhirs.Sum(x => x.ExpendTransferQty),2)
 
@@ -1372,6 +1410,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             double PEMBELIANQtyTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptPurchaseQty));
             double PEMBELIANPriceTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptPurchasePrice));
             double PROSESQtyTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptProcessQty));
+            double SubconQtyTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptSubconQty));
+            double SubconQtyPrice = Query.Sum(x => Convert.ToDouble(x.ReceiptSubconPrice));
             double PROSESPriceTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptProcessPrice));
             double Konfeksi2AQtyTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptKon2AQty));
             double Konfeksi2APriceTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptKon2APrice));
@@ -1413,13 +1453,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             double? EndingQty = Query.Sum(x => Convert.ToDouble(x.EndingBalanceQty));
             double? EndingTotal = Query.Sum(x => Convert.ToDouble(x.EndingBalancePrice));
             DataTable result = new DataTable();
-            var headers = new string[] { "No", "Kode", "No RO", "PlanPO", "No Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "Saldo Akhir", "Saldo Akhir 1" };
+            var headers = new string[] { "No", "Kode", "No RO", "PlanPO", "No Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E M B E L I A N16", "P E M B E L I A N17", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17","P E N G E L U A R A N18", "P E N G E L U A R A N19", "Saldo Akhir", "Saldo Akhir 1" };
             if (unitcode == "SMP1")
             {
-                headers= new string[] { "No", "Kode", "No RO", "PlanPO", "No Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "P E N G E L U A R A N18", "P E N G E L U A R A N19", "Saldo Akhir", "Saldo Akhir 1" };
+                headers= new string[] { "No", "Kode", "No RO", "PlanPO", "No Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E M B E L I A N16", "P E M B E L I A N17", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "P E N G E L U A R A N18", "P E N G E L U A R A N19", "Saldo Akhir", "Saldo Akhir 1" };
             }
-            var headers2 = new string[] { "Koreksi", "Pembelian", "Proses", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C/EX.K4", "KONFEKSI 1A/EX.K3",  "KONFEKSI 1B", "Retur", "Sisa", "Proses", "Sample", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C/EX.K4", "KONFEKSI 1A/EX. K3", "KONFEKSI 1B" };
-            var subheaders = new string[] { "Jumlah", "Sat", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp" };
+            var headers2 = new string[] { "Koreksi", "Pembelian", "Proses","Subcon", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C/EX.K4", "KONFEKSI 1A/EX.K3",  "KONFEKSI 1B", "Retur", "Sisa", "Proses", "Sample", "Subcon", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C/EX.K4", "KONFEKSI 1A/EX. K3", "KONFEKSI 1B" };
+            var subheaders = new string[] { "Jumlah", "Sat", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp" };
             for (int i = 0; i < 7; i++)
             {
                 result.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(string) });
@@ -1458,6 +1498,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         Convert.ToDouble(ReceiptPurchasePrice),
                         Convert.ToDouble(item.ReceiptProcessQty),
                         Convert.ToDouble(item.ReceiptProcessPrice),
+                        Convert.ToDouble(item.ReceiptSubconQty),
+                        Convert.ToDouble(item.ReceiptSubconPrice),
                         Convert.ToDouble(ReceiptKon2AQty),
                         Convert.ToDouble(ReceiptKon2APrice),
                         Convert.ToDouble(ReceiptKon2BQty),
@@ -1476,6 +1518,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         item.ExpendProcessPrice,
                         item.ExpendSampleQty,
                         item.ExpendSamplePrice,
+                        item.ExpendSubconQty,
+                        item.ExpendSubconPrice,
                         item.ExpendKon2AQty,
                         item.ExpendKon2APrice,
                         item.ExpendKon2BQty,
@@ -1517,6 +1561,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         Convert.ToDouble(ReceiptPurchasePrice),
                         Convert.ToDouble(item.ReceiptProcessQty),
                         Convert.ToDouble(item.ReceiptProcessPrice),
+                        Convert.ToDouble(item.ReceiptSubconQty),
+                        Convert.ToDouble(item.ReceiptSubconPrice),
                         Convert.ToDouble(ReceiptKon2AQty),
                         Convert.ToDouble(ReceiptKon2APrice),
                         Convert.ToDouble(ReceiptKon2BQty),
@@ -1581,23 +1627,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells["H4:J5"].Merge = true;
             sheet.Cells["H4:J5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
             sheet.Cells["K4"].Value = headers[10];
-            sheet.Cells["K4:Z4"].Merge = true;
-            sheet.Cells["K4:Z4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+            sheet.Cells["K4:AB4"].Merge = true;
+            sheet.Cells["K4:AB4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
             if (unitcode != "SMP1")
             {
-                sheet.Cells["AA4"].Value = headers[26];
-                sheet.Cells["AA4:AR4"].Merge = true;
-                sheet.Cells["AA4:AR4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-                sheet.Cells["AS4"].Value = headers[44];
-                sheet.Cells["AS4:AT5"].Merge = true;
-                sheet.Cells["AS4:AT5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AC4"].Value = headers[28];
+                sheet.Cells["AC4:AV4"].Merge = true;
+                sheet.Cells["AC4:AV4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AW4"].Value = headers[48];
+                sheet.Cells["AW4:AX5"].Merge = true;
+                sheet.Cells["AW4:AX5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
             }
             else
             {
-                sheet.Cells["AA4"].Value = headers[26];
+                sheet.Cells["AA4"].Value = headers[28];
                 sheet.Cells["AA4:AT4"].Merge = true;
                 sheet.Cells["AA4:AT4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-                sheet.Cells["AU4"].Value = headers[44];
+                sheet.Cells["AU4"].Value = headers[48];
                 sheet.Cells["AU4:AV5"].Merge = true;
                 sheet.Cells["AU4:AV5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
             }
@@ -1633,6 +1679,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells["AC5"].Value = headers2[9];
             sheet.Cells["AC5:AD5"].Merge = true;
             sheet.Cells["AC5:AD5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+            //sheet.Cells["AE5"].Value = headers2[10];
+            //sheet.Cells["AE5:AF5"].Merge = true;
+            //sheet.Cells["AE5:AF5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
 
             if (unitcode != "SMP1")
             {
@@ -1657,6 +1706,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 sheet.Cells["AQ5"].Value = headers2[16];
                 sheet.Cells["AQ5:AR5"].Merge = true;
                 sheet.Cells["AQ5:AR5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AS5"].Value = headers2[17];
+                sheet.Cells["AS5:AT5"].Merge = true;
+                sheet.Cells["AS5:AT5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AU5"].Value = headers2[18];
+                sheet.Cells["AU5:AV5"].Merge = true;
+                sheet.Cells["AU5:AV5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                //sheet.Cells["AU5"].Value = headers2[19];
+                //sheet.Cells["AU5:AV5"].Merge = true;
+                //sheet.Cells["AU5:AV5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
             }
             else
             {
@@ -1703,16 +1761,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
 
             
-            for (var i = 19; unitcode!="SMP1" ? i < 39 : i < 41; i++)
+            for (var i = 19; unitcode!="SMP1" ? i < 43 : i < 48; i++)
             {
                 var col = (char)('A' + i - 19);
                 sheet.Cells[$"A{col}6"].Value = subheaders[i];
                 sheet.Cells[$"A{col}6"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
 
             }
-            sheet.Cells["A4:AS6"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells["A4:AS6"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells["A4:AS6"].Style.Font.Bold = true;
+            sheet.Cells["A4:AX6"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells["A4:AX6"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells["A4:AX6"].Style.Font.Bold = true;
             sheet.Cells[$"A{result.Rows.Count + 7}:G{result.Rows.Count + 7}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
             sheet.Cells[$"A{result.Rows.Count + 7}:G{result.Rows.Count + 7}"].Merge = true;
             sheet.Cells[$"A{result.Rows.Count + 7}:G{result.Rows.Count + 7}"].Style.Font.Bold = true;
@@ -1738,70 +1796,83 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells[$"O{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             sheet.Cells[$"P{7 + result.Rows.Count}"].Value = PROSESPriceTotal;
             sheet.Cells[$"P{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"Q{7 + result.Rows.Count}"].Value = Konfeksi2AQtyTotal;
+
+            sheet.Cells[$"Q{7 + result.Rows.Count}"].Value = SubconQtyTotal;
             sheet.Cells[$"Q{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"R{7 + result.Rows.Count}"].Value = Konfeksi2APriceTotal;
+            sheet.Cells[$"R{7 + result.Rows.Count}"].Value = SubconQtyPrice;
             sheet.Cells[$"R{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"S{7 + result.Rows.Count}"].Value = KONFEKSI2BQtyTotal;
+
+            sheet.Cells[$"S{7 + result.Rows.Count}"].Value = Konfeksi2AQtyTotal;
             sheet.Cells[$"S{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"T{7 + result.Rows.Count}"].Value = KONFEKSI2BPriceTotal;
+            sheet.Cells[$"T{7 + result.Rows.Count}"].Value = Konfeksi2APriceTotal;
             sheet.Cells[$"T{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"U{7 + result.Rows.Count}"].Value = KONFEKSI2CQtyTotal;
+            sheet.Cells[$"U{7 + result.Rows.Count}"].Value = KONFEKSI2BQtyTotal;
             sheet.Cells[$"U{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"V{7 + result.Rows.Count}"].Value = KONFEKSI2CPriceTotal;
+            sheet.Cells[$"V{7 + result.Rows.Count}"].Value = KONFEKSI2BPriceTotal;
             sheet.Cells[$"V{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"W{7 + result.Rows.Count}"].Value = KONFEKSI1AQtyTotal;
+            sheet.Cells[$"W{7 + result.Rows.Count}"].Value = KONFEKSI2CQtyTotal;
             sheet.Cells[$"W{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"X{7 + result.Rows.Count}"].Value = KONFEKSI1APriceTotal;
+            sheet.Cells[$"X{7 + result.Rows.Count}"].Value = KONFEKSI2CPriceTotal;
             sheet.Cells[$"X{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"Y{7 + result.Rows.Count}"].Value = KONFEKSI1BQtyTotal;
+            sheet.Cells[$"Y{7 + result.Rows.Count}"].Value = KONFEKSI1AQtyTotal;
             sheet.Cells[$"Y{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"Z{7 + result.Rows.Count}"].Value = KONFEKSI1BPriceTotal;
+            sheet.Cells[$"Z{7 + result.Rows.Count}"].Value = KONFEKSI1APriceTotal;
             sheet.Cells[$"Z{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
-            sheet.Cells[$"AA{7 + result.Rows.Count}"].Value = ReturQtyTotal;
+            sheet.Cells[$"AA{7 + result.Rows.Count}"].Value = KONFEKSI1BQtyTotal;
             sheet.Cells[$"AA{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AB{7 + result.Rows.Count}"].Value = ReturJumlahTotal;
+            sheet.Cells[$"AB{7 + result.Rows.Count}"].Value = KONFEKSI1BPriceTotal;
             sheet.Cells[$"AB{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AC{7 + result.Rows.Count}"].Value = SisaQtyTotal;
+
+            sheet.Cells[$"AC{7 + result.Rows.Count}"].Value = ReturQtyTotal;
             sheet.Cells[$"AC{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AD{7 + result.Rows.Count}"].Value = SisaPriceTotal;
+            sheet.Cells[$"AD{7 + result.Rows.Count}"].Value = ReturJumlahTotal;
             sheet.Cells[$"AD{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AE{7 + result.Rows.Count}"].Value = SisaQtyTotal;
+            sheet.Cells[$"AE{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"AF{7 + result.Rows.Count}"].Value = SisaPriceTotal;
+            sheet.Cells[$"AF{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
             if (unitcode != "SMP1")
             {
-                sheet.Cells[$"AE{7 + result.Rows.Count}"].Value = ExpendPROSESQtyTotal;
-                sheet.Cells[$"AE{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AF{7 + result.Rows.Count}"].Value = ExpendPROSESPriceTotal;
-                sheet.Cells[$"AF{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AG{7 + result.Rows.Count}"].Value = SAMPLEQtyTotal;
+                sheet.Cells[$"AG{7 + result.Rows.Count}"].Value = ExpendPROSESQtyTotal;
                 sheet.Cells[$"AG{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AH{7 + result.Rows.Count}"].Value = SAMPLEPriceTotal;
+                sheet.Cells[$"AH{7 + result.Rows.Count}"].Value = ExpendPROSESPriceTotal;
                 sheet.Cells[$"AH{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AI{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2AQtyTotal;
+                sheet.Cells[$"AI{7 + result.Rows.Count}"].Value = SAMPLEQtyTotal;
                 sheet.Cells[$"AI{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AJ{7 + result.Rows.Count}"].Value = ExpendKonfeksi2APriceTotal;
+                sheet.Cells[$"AJ{7 + result.Rows.Count}"].Value = SAMPLEPriceTotal;
                 sheet.Cells[$"AJ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AK{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BQtyTotal;
+
+                sheet.Cells[$"AK{7 + result.Rows.Count}"].Value = ExpendSUBCONQtyTotal;
                 sheet.Cells[$"AK{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AL{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BPriceTotal;
+                sheet.Cells[$"AL{7 + result.Rows.Count}"].Value = ExpendSUBCONPriceTotal;
                 sheet.Cells[$"AL{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AM{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CQtyTotal;
+
+                sheet.Cells[$"AM{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2AQtyTotal;
                 sheet.Cells[$"AM{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AN{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CPriceTotal;
+                sheet.Cells[$"AN{7 + result.Rows.Count}"].Value = ExpendKonfeksi2APriceTotal;
                 sheet.Cells[$"AN{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AO{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1AQtyTotal;
+                sheet.Cells[$"AO{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BQtyTotal;
                 sheet.Cells[$"AO{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AP{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1APriceTotal;
+                sheet.Cells[$"AP{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BPriceTotal;
                 sheet.Cells[$"AP{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AQ{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BQtyTotal;
+                sheet.Cells[$"AQ{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CQtyTotal;
                 sheet.Cells[$"AQ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AR{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BPriceTotal;
+                sheet.Cells[$"AR{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CPriceTotal;
                 sheet.Cells[$"AR{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AS{7 + result.Rows.Count}"].Value = EndingQty;
+                sheet.Cells[$"AS{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1AQtyTotal;
                 sheet.Cells[$"AS{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-                sheet.Cells[$"AT{7 + result.Rows.Count}"].Value = EndingTotal;
+                sheet.Cells[$"AT{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1APriceTotal;
                 sheet.Cells[$"AT{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AU{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BQtyTotal;
+                sheet.Cells[$"AU{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AV{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BPriceTotal;
+                sheet.Cells[$"AV{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AW{7 + result.Rows.Count}"].Value = EndingQty;
+                sheet.Cells[$"AW{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AX{7 + result.Rows.Count}"].Value = EndingTotal;
+                sheet.Cells[$"AX{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             }
             else
             {
@@ -1845,7 +1916,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
 
 
-            var widths = new int[] { 5, 10, 20, 15, 7, 20, 20, 10, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
+            var widths = new int[] { 5, 10, 20, 15, 7, 20, 20, 10, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
             foreach (var i in Enumerable.Range(0, headers.Length))
             {
                 sheet.Column(i + 1).Width = widths[i];

@@ -18,6 +18,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public decimal ReceiptCorrectionQty { get; set; }
         public decimal ReceiptPurchaseQty { get; set; }
         public decimal ReceiptProcessQty { get; set; }
+        public decimal ReceiptSubconPrice { get; set; }
+        public decimal ReceiptSubconQty{ get; set; }
         public decimal ReceiptKon2AQty { get; set; }
         public decimal ReceiptKon2BQty { get; set; }
         public decimal ReceiptKon2CQty { get; set; }
@@ -74,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public decimal ReceiptCorrectionQty { get; set; }
         public decimal ReceiptPurchaseQty { get; set; }
         public decimal ReceiptProcessQty { get; set; }
+        public decimal ReceiptSubconQty { get; set; }
         public decimal ReceiptKon2AQty { get; set; }
         public decimal ReceiptKon2BQty { get; set; }
         public decimal ReceiptKon2CQty { get; set; }
@@ -82,6 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public decimal ReceiptCorrectionPrice { get; set; }
         public decimal ReceiptPurchasePrice { get; set; }
         public decimal ReceiptProcessPrice { get; set; }
+        public decimal ReceiptSubconPrice { get; set; }
         public decimal ReceiptKon2APrice { get; set; }
         public decimal ReceiptKon2BPrice { get; set; }
         public decimal ReceiptKon2CPrice { get; set; }
