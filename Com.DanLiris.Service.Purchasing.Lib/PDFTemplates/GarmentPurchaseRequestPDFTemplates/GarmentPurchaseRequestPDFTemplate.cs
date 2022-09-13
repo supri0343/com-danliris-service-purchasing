@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseRequestPDFTemplates
@@ -31,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
 
             #region Header
 
-            Paragraph title = new Paragraph("PT DAN LIRIS", normal_font) { Alignment = Element.ALIGN_LEFT };
+            Paragraph title = new Paragraph("PT DAN LIRIS", header_font) { Alignment = Element.ALIGN_LEFT };
             document.Add(title);
 
             Paragraph companyName = new Paragraph("BUDGET MASTER EXPORT GARMENT", header_font) { Alignment = Element.ALIGN_LEFT };
@@ -94,9 +95,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentPurchaseReques
             cellCenter.Phrase = new Phrase("PO NUMBER", bold_font);
             tableContent.AddCell(cellCenter);
 
+            //
+            var newItems = new List<GarmentPurchaseRequestItemViewModel>();
+
+            foreach (var item in viewModel.Items)
+            {
+                newItems.Add(item);
+            }
+            newItems = newItems.OrderBy(a => a.PO_SerialNumber).ToList();
+            //
             double totalAmount = 0;
             int indexItem = 0;
-            foreach (var item in viewModel.Items)
+            foreach (var item in newItems)
             {
                 cellCenter.Phrase = new Phrase((++indexItem).ToString(), normal_font);
                 tableContent.AddCell(cellCenter);
