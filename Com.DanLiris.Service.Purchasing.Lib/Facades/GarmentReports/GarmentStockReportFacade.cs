@@ -477,10 +477,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var PrdoctCodes = string.Join(",", stock.Select(x => x.ProductCode).Distinct().ToList());
 
-            var Codes = GetProductCode(PrdoctCodes);
+            var jum = PrdoctCodes.Count();
+
+            //var productCode1 = PrdoctCodes.Take(2000).ToList();
+            //var productCode
+
+
+            List<GarmentProductViewModel> code = new List<GarmentProductViewModel>();
+            //for (var i=1;i < 60;i++)
+            //{
+            //    if (i == 1)
+            //    {
+            //        var productCode1 = string.Join(",",PrdoctCodes.Skip(0).Take(i * 2000).ToList());
+
+            //        var Codess = GetProductCode(productCode1);
+
+            //        foreach(var a in Codess)
+            //        {
+            //            code.Add(a);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        var productCode1 = string.Join(",", PrdoctCodes.Skip((i-1)*2000).Take(i * 2000).ToList());
+            //        var Codess = GetProductCode(productCode1);
+
+            //        foreach (var a in Codess)
+            //        {
+            //            code.Add(a);
+            //        } 
+            //    }
+
+            //}
+
+            //var Codes = GetProductCode(PrdoctCodes);
 
             stock1 = (from i in stock
-                      join b in Codes on i.ProductCode equals b.Code into produtcodes
+                      join b in code on i.ProductCode equals b.Code into produtcodes
                       from bb in produtcodes.DefaultIfEmpty()
                       select new GarmentStockReportViewModel
                       {
@@ -495,7 +528,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           PaymentMethod = i.PaymentMethod,
                           PlanPo = i.PlanPo,
                           ProductCode = i.ProductCode,
-                          ProductRemark = bb != null ? (ctg == "BB" ? string.Concat((bb == null ? "-" : bb.Composition), "", (bb == null ? "-" : bb.Width), "", (bb == null ? "-" : bb.Const), "", (bb == null ? "-" : bb.Yarn)) : bb.Name): "-",
+                          //ProductRemark = bb != null ? (ctg == "BB" ? string.Concat((bb == null ? "-" : bb.Composition), "", (bb == null ? "-" : bb.Width), "", (bb == null ? "-" : bb.Const), "", (bb == null ? "-" : bb.Yarn)) : bb.Name): "-",
+                          ProductRemark = bb != null ? bb.Name : "-",
                           ReceiptCorrectionQty = i.ReceiptCorrectionQty,
                           ReceiptQty = i.ReceiptQty,
                           ReceiptUom = i.ReceiptUom,
