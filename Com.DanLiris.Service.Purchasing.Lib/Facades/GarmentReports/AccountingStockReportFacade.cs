@@ -85,6 +85,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RO equals g.RONo into PR
                                 from prs in PR.DefaultIfEmpty()
                                 where a.IsDeleted == false && b.IsDeleted == false
+                                && c.IsDeleted == false && d.IsDeleted == false
+                                && f.IsDeleted == false && h.IsDeleted == false
+
                                 && a.Date.Date == lastdate.Date
                                 && c.CreatedUtc.Year <= DateTo.Date.Year
                                 && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
@@ -268,7 +271,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             from prs in PR.DefaultIfEmpty()
                                 //join h in Codes on a.ProductCode equals h.Code
                             where a.IsDeleted == false && b.IsDeleted == false
-                              &&
+                                && c.IsDeleted == false && d.IsDeleted == false
+                                &&
                               b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
@@ -397,7 +401,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             from urnitem in urnitems.DefaultIfEmpty()
                             where
                             a.IsDeleted == false && b.IsDeleted == false
-                               &&
+                                && c.IsDeleted == false && d.IsDeleted == false
+                                && urnitem.IsDeleted == false &&
                                b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                && 
@@ -527,7 +532,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  //join h in Codes on b.ProductCode equals h.Code
                              where
                              a.IsDeleted == false && b.IsDeleted == false
-                             &&
+                                && c.IsDeleted == false && d.IsDeleted == false
+                                && e.IsDeleted == false && g.IsDeleted == false &&
                              g.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                              && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
@@ -713,7 +719,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           from dd in UEN.DefaultIfEmpty()
                           //join h in Codes on a.ProductCode equals h.Code
                           where a.IsDeleted == false && b.IsDeleted == false
-                            &&
+                                && c.IsDeleted == false && d.IsDeleted == false
+                                && dd.IsDeleted == false &&
                             b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                             && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                             && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
@@ -840,7 +847,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join f in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals f.Id into urnitems
                           from urnitem in urnitems.DefaultIfEmpty()
                           where a.IsDeleted == false && b.IsDeleted == false
-                             &&
+                                && c.IsDeleted == false && d.IsDeleted == false
+                                && urnitem.IsDeleted == false &&
                              b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                              && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                              && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
@@ -977,7 +985,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                //join h in Codes on b.ProductCode equals h.Code
                            where
                            a.IsDeleted == false && b.IsDeleted == false
-                           &&
+                                && c.IsDeleted == false && d.IsDeleted == false
+                                && e.IsDeleted == false && g.IsDeleted == false &&
                            g.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                            && g.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                            && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
