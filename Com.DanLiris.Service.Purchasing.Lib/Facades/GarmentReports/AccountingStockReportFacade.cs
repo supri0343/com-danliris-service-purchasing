@@ -1991,7 +1991,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var httpContent = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
 
-            var garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCode";
+            var garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCodes";
             var httpResponse = httpClient.SendAsync(HttpMethod.Get, garmentProductionUri, httpContent).Result;
 
             if (httpResponse.IsSuccessStatusCode)

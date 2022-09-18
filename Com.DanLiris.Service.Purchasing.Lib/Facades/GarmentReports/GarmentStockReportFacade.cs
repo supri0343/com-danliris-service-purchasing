@@ -489,43 +489,71 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var PrdoctCodes = string.Join(",", stock.Select(x => x.ProductCode).Distinct().ToList());
 
-            var jum = PrdoctCodes.Count();
+            //var PrdoctCodes = stock.Select(x => x.ProductCode).Distinct().ToList();
 
-            //var productCode1 = PrdoctCodes.Take(2000).ToList();
-            //var productCode
+            //var count = (PrdoctCodes.Count());
 
-
-            List<GarmentProductViewModel> code = new List<GarmentProductViewModel>();
-            //for (var i=1;i < 60;i++)
+            //decimal jum = 0;
+            //List<GarmentProductViewModel> code = new List<GarmentProductViewModel>();
+            //if (count > 100)
             //{
-            //    if (i == 1)
-            //    {
-            //        var productCode1 = string.Join(",",PrdoctCodes.Skip(0).Take(i * 2000).ToList());
+            //    jum = Math.Round((decimal)count / 100, 0, MidpointRounding.AwayFromZero);
 
-            //        var Codess = GetProductCode(productCode1);
-
-            //        foreach(var a in Codess)
-            //        {
-            //            code.Add(a);
-            //        }
-            //    }
-            //    else
+            //    for (var i = 1; i <= jum; i++)
             //    {
-            //        var productCode1 = string.Join(",", PrdoctCodes.Skip((i-1)*2000).Take(i * 2000).ToList());
+            //        var productCode1 = string.Join(",", PrdoctCodes.Skip((i - 1) * 100).Take(i * 100).ToList());
             //        var Codess = GetProductCode(productCode1);
 
             //        foreach (var a in Codess)
             //        {
             //            code.Add(a);
-            //        } 
-            //    }
+            //        }
 
+            //        //if (i == 1)
+            //        //{
+            //        //    var productCode1 = string.Join(",", PrdoctCodes.Skip(0).Take(i * 100).ToList());
+
+            //        //    var Codess = GetProductCode(productCode1);
+
+            //        //    foreach (var a in Codess)
+            //        //    {
+            //        //        code.Add(a);
+            //        //    }
+            //        //}
+            //        //else
+            //        //{
+            //        //    var productCode1 = string.Join(",", PrdoctCodes.Skip((i - 1) * 100).Take(i * 100).ToList());
+            //        //    var Codess = GetProductCode(productCode1);
+
+            //        //    foreach (var a in Codess)
+            //        //    {
+            //        //        code.Add(a);
+            //        //    }
+            //        //}
+
+            //    }
+            //}else
+            //{
+
+            //    var productCode1 = string.Join(",",PrdoctCodes.ToList());
+            //    var Codes = GetProductCode(productCode1);
+            //    foreach (var a in Codes)
+            //    {
+            //        code.Add(a);
+            //    }
             //}
 
-            //var Codes = GetProductCode(PrdoctCodes);
+            //var productCode1 = PrdoctCodes.Take(2000).ToList();
+            //var productCode
+
+
+
+
+
+            var Codes = GetProductCode(PrdoctCodes);
 
             stock1 = (from i in stock
-                      join b in code on i.ProductCode equals b.Code into produtcodes
+                      join b in Codes on i.ProductCode equals b.Code into produtcodes
                       from bb in produtcodes.DefaultIfEmpty()
                       select new GarmentStockReportViewModel
                       {
@@ -540,8 +568,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           PaymentMethod = i.PaymentMethod,
                           PlanPo = i.PlanPo,
                           ProductCode = i.ProductCode,
-                          //ProductRemark = bb != null ? (ctg == "BB" ? string.Concat((bb == null ? "-" : bb.Composition), "", (bb == null ? "-" : bb.Width), "", (bb == null ? "-" : bb.Const), "", (bb == null ? "-" : bb.Yarn)) : bb.Name): "-",
-                          ProductRemark = bb != null ? bb.Name : "-",
+                          ProductRemark = bb != null ? (ctg == "BB" ? string.Concat((bb == null ? "-" : bb.Composition), "", (bb == null ? "-" : bb.Width), "", (bb == null ? "-" : bb.Const), "", (bb == null ? "-" : bb.Yarn)) : bb.Name) : "-",
+                          //ProductRemark = bb != null ? bb.Name : "-",
                           ReceiptCorrectionQty = i.ReceiptCorrectionQty,
                           ReceiptQty = i.ReceiptQty,
                           ReceiptUom = i.ReceiptUom,
@@ -856,11 +884,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         private List<GarmentProductViewModel> GetProductCode(string codes)
         {
+
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
 
             var httpContent = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
 
-            var garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCode";
+            string garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCodes";
             var httpResponse = httpClient.SendAsync(HttpMethod.Get, garmentProductionUri, httpContent).Result;
 
             if (httpResponse.IsSuccessStatusCode)
@@ -886,6 +915,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 return viewModel;
             }
         }
+
 
 
         //public List<GarmentProductViewModel> GetRemark(string itemcode)
