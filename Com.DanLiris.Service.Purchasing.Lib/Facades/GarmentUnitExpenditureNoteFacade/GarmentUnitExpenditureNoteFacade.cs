@@ -461,7 +461,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     }
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || (garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" && garmentUnitExpenditureNote.UnitSenderCode != "SMP1"))
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "SUBCON" || (garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" && garmentUnitExpenditureNote.UnitSenderCode != "SMP1"))
                     {
                         GarmentUnitReceiptNoteFacade garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(this.serviceProvider, dbContext);
                         GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(dbContext, this.serviceProvider);
@@ -608,7 +608,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         GarmentUnitDeliveryOrder garmentUnitDO = new GarmentUnitDeliveryOrder
                         {
-                            UnitDOType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
+                            UnitDOType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "SUBCON" ? "SUBCON" : "SAMPLE"),
                             UnitDODate = garmentUnitExpenditureNote.ExpenditureDate,
                             UnitRequestId = garmentUnitExpenditureNote.UnitRequestId,
                             UnitRequestCode = garmentUnitExpenditureNote.UnitRequestCode,
@@ -680,8 +680,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         GarmentUnitExpenditureNote uen = new GarmentUnitExpenditureNote
                         {
                             ExpenditureDate = garmentUnitExpenditureNote.ExpenditureDate,
-                            ExpenditureType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
-                            ExpenditureTo = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
+                            ExpenditureType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "SUBCON" ? "SUBCON" : "SAMPLE"),
+                            ExpenditureTo = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "SUBCON" ? "SUBCON" : "SAMPLE"),
                             UnitDOId = garmentUnitDO.Id,
                             UnitDONo = garmentUnitDO.UnitDONo,
                             UnitSenderId = garmentUnitDO.UnitSenderId,
