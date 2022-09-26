@@ -43,7 +43,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                            join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                            join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                                           join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                           //add join to URNItem
+                                           join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId
+
+                                           //disable Join with PO to UnitDo
+                                           //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                           join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId
                                            join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
                                            where a.BeacukaiNo == keyword
                                            //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
@@ -64,11 +69,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                               join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                               join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                               join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                                              join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                              //add join to URNItem
+                                              join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId
+
+                                              //disable Join with PO to UnitDo
+                                              //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                              join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId
                                               join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
                                               where f.POSerialNumber == keyword
                                               //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
-                                              //&& e.IsDeleted == false
+                                              //&& e.IsDeleted == false && f.IsDeleted==false &&g.IsDeleted==false && u.IsDeleted==false 
                                               select new BeacukaiNoFeatureViewModel
                                               {
                                                   BCType = a.CustomsType,
@@ -85,7 +95,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                               join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                               join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                               join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                                              join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                              //add join to URNItem
+                                              join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId
+
+                                              //disable Join with PO to UnitDo
+                                              //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                              join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId
                                               join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
                                               where g.RONo == keyword
                                               //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
@@ -144,7 +159,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var httpContent = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
 
-            var garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCode";
+            var garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCodes";
             var httpResponse = httpClient.SendAsync(HttpMethod.Get, garmentProductionUri, httpContent).Result;
 
             List<GarmentProductViewModel> viewModel = new List<GarmentProductViewModel>();
