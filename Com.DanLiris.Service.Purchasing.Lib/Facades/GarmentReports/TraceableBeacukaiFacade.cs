@@ -1556,537 +1556,545 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         public MemoryStream GetTraceableInExcel(string filter, string tipe, string tipebc)
         {
-            var Query = GetTraceableInQuery(filter, tipe, tipebc);
-            //Query.OrderBy(x => x.BCNo);
-            DataTable result = new DataTable();
-            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jenis BC", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nomor BC", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal BC", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "No Bon", DataType = typeof(String) });
 
-            //result.Columns.Add(new DataColumn() { ColumnName = "PO", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "Keluar Proses", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "ROJob", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "Keluar Sample", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "ROSample", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "Subcon", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Keluar Proses", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Keluar Sample", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Sisa", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Keluar", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "WIP (PCS)", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "BJ Qty", DataType = typeof(Double) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "Invoice", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "BC Keluar", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "Tgl BC Keluar", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Ekspor Qty", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Sample Qty", DataType = typeof(Double) });
-            if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", 0,
-                     0,0, "","", 0, 0, "", 0, 0); // to allow column name to be generated properly for empty data as template
+            var Query = GetTraceableInQuery(filter, tipe, tipebc);
+            if (Query.Count() == 0)
+            {
+                throw new Exception("Data Tidak Ditemukan.");
+            }
             else
             {
-                //var docNo = Query.ToArray();
-                //var q = Query.ToList();
-                //var index = 0;
-                //foreach (TraceableInBeacukaiViewModel a in q)
-                //{
-                //    TraceableInBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo && o.BonNo == o.BonNo);
-                //    if (dup != null)
-                //    {
-                //        if (dup.count == 0)
-                //        {
-                //            index++;
-                //            dup.count = index;
-                //        }
-                //    }
-                //    a.count = dup.count;
-                //}
-                //Query = q;
-                //var index = 0;
-                foreach (var item in Query)
-                {
-                    string bcdate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : item.BCDate.DateTime.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    //string pebdate = item.PEBDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : item.PEBDate.Value.DateTime.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    //string rojob = item.ROJob == "rojob-" ? "-" : item.ROJob;
-                    //string rosamp = item.ROSample == "rosamp-" ? "-" : item.ROSample;
-                    //string sampleOut = item.SampleOut == "samout-" ? "-" : item.SampleOut;
-                    //string buk = item.BUK == "buk-" ? "-" : item.BUK;
-                    string satuanbuk = item.SatuanBUK == "satbuk-" ? "-" : item.SatuanBUK;
-                    //string invoice = item.Invoice == "invo-" ? "-" : item.Invoice;
-                    string PEB = item.PEB == "peb-" ? "-" : item.PEB;
-                    double qtybuk = item.QtyBUK == "QtyBUK0" ? 0 : Convert.ToDouble(item.QtyBUK);
-                    double sisa = item.Sisa == "Sisa0" ? 0 : Convert.ToDouble(item.Sisa);
-                    //double subcon = item.Subcon ==  ? 0 : Convert.ToDouble(item.Sisa);
-                    //double produksiQty = item.ProduksiQty == "ProduksiQty0" ? 0 : Convert.ToDouble(item.ProduksiQty);
-                    double bJQty = item.BJQty == "BJQty0" ? 0 : Convert.ToDouble(item.BJQty);
-                    double eksporQty = item.EksporQty == "EksporQty0" ? 0 : Convert.ToDouble(item.EksporQty);
-                    double sampleQty = item.SampleQty == "SampleQty0" ? 0 : Convert.ToDouble(item.SampleQty);
-                    result.Rows.Add(item.count, item.BCType, item.BCNo, bcdate, item.BonNo,
-                        item.ItemCode, item.ItemName,
-                        item.ReceiptQty,
-                        qtybuk,item.SampleQtyOut, sisa, satuanbuk,item.WIP, bJQty
-                        , PEB, eksporQty, sampleQty);
+                //Query.OrderBy(x => x.BCNo);
+                DataTable result = new DataTable();
+                result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Jenis BC", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Nomor BC", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Tanggal BC", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "No Bon", DataType = typeof(String) });
 
+                //result.Columns.Add(new DataColumn() { ColumnName = "PO", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
+                //result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
+                //result.Columns.Add(new DataColumn() { ColumnName = "Keluar Proses", DataType = typeof(String) });
+                //result.Columns.Add(new DataColumn() { ColumnName = "ROJob", DataType = typeof(String) });
+                //result.Columns.Add(new DataColumn() { ColumnName = "Keluar Sample", DataType = typeof(String) });
+                //result.Columns.Add(new DataColumn() { ColumnName = "ROSample", DataType = typeof(String) });
+                //result.Columns.Add(new DataColumn() { ColumnName = "Subcon", DataType = typeof(Double) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Keluar Proses", DataType = typeof(Double) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Keluar Sample", DataType = typeof(Double) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Sisa", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Satuan Keluar", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "WIP (PCS)", DataType = typeof(Double) });
+                result.Columns.Add(new DataColumn() { ColumnName = "BJ Qty", DataType = typeof(Double) });
+                //result.Columns.Add(new DataColumn() { ColumnName = "Invoice", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "BC Keluar", DataType = typeof(String) });
+                //result.Columns.Add(new DataColumn() { ColumnName = "Tgl BC Keluar", DataType = typeof(String) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Ekspor Qty", DataType = typeof(Double) });
+                result.Columns.Add(new DataColumn() { ColumnName = "Sample Qty", DataType = typeof(Double) });
+                if (Query.ToArray().Count() == 0)
+                    result.Rows.Add("", "", "", "", "", "", "", 0,
+                         0, 0, "", "", 0, 0, "", 0, 0); // to allow column name to be generated properly for empty data as template
+                else
+                {
+                    //var docNo = Query.ToArray();
+                    //var q = Query.ToList();
+                    //var index = 0;
+                    //foreach (TraceableInBeacukaiViewModel a in q)
+                    //{
+                    //    TraceableInBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo && o.BonNo == o.BonNo);
+                    //    if (dup != null)
+                    //    {
+                    //        if (dup.count == 0)
+                    //        {
+                    //            index++;
+                    //            dup.count = index;
+                    //        }
+                    //    }
+                    //    a.count = dup.count;
+                    //}
+                    //Query = q;
+                    //var index = 0;
+                    foreach (var item in Query)
+                    {
+                        string bcdate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : item.BCDate.DateTime.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                        //string pebdate = item.PEBDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : item.PEBDate.Value.DateTime.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                        //string rojob = item.ROJob == "rojob-" ? "-" : item.ROJob;
+                        //string rosamp = item.ROSample == "rosamp-" ? "-" : item.ROSample;
+                        //string sampleOut = item.SampleOut == "samout-" ? "-" : item.SampleOut;
+                        //string buk = item.BUK == "buk-" ? "-" : item.BUK;
+                        string satuanbuk = item.SatuanBUK == "satbuk-" ? "-" : item.SatuanBUK;
+                        //string invoice = item.Invoice == "invo-" ? "-" : item.Invoice;
+                        string PEB = item.PEB == "peb-" ? "-" : item.PEB;
+                        double qtybuk = item.QtyBUK == "QtyBUK0" ? 0 : Convert.ToDouble(item.QtyBUK);
+                        double sisa = item.Sisa == "Sisa0" ? 0 : Convert.ToDouble(item.Sisa);
+                        //double subcon = item.Subcon ==  ? 0 : Convert.ToDouble(item.Sisa);
+                        //double produksiQty = item.ProduksiQty == "ProduksiQty0" ? 0 : Convert.ToDouble(item.ProduksiQty);
+                        double bJQty = item.BJQty == "BJQty0" ? 0 : Convert.ToDouble(item.BJQty);
+                        double eksporQty = item.EksporQty == "EksporQty0" ? 0 : Convert.ToDouble(item.EksporQty);
+                        double sampleQty = item.SampleQty == "SampleQty0" ? 0 : Convert.ToDouble(item.SampleQty);
+                        result.Rows.Add(item.count, item.BCType, item.BCNo, bcdate, item.BonNo,
+                            item.ItemCode, item.ItemName,
+                            item.ReceiptQty,
+                            qtybuk, item.SampleQtyOut, sisa, satuanbuk, item.WIP, bJQty
+                            , PEB, eksporQty, sampleQty);
+
+                    }
                 }
-            }
-            //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
-            ExcelPackage package = new ExcelPackage();
-            bool styling = true;
+                //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+                ExcelPackage package = new ExcelPackage();
+                bool styling = true;
 
-            foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") })
-            {
-                var sheet = package.Workbook.Worksheets.Add(item.Value);
-                sheet.Cells["A1"].LoadFromDataTable(item.Key, true, (styling == true) ? OfficeOpenXml.Table.TableStyles.Light16 : OfficeOpenXml.Table.TableStyles.None);
-                //sheet.Cells["C1:D1"].Merge = true;
-                //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                //sheet.Cells["E1:F1"].Merge = true;
-                //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                Dictionary<string, int> bcnospan = new Dictionary<string, int>();
-                Dictionary<string, int> bonspan = new Dictionary<string, int>();
-                Dictionary<string, int> rojobspan = new Dictionary<string, int>();
-                Dictionary<string, int> pospan = new Dictionary<string, int>();
-                Dictionary<string, int> itemcodespan = new Dictionary<string, int>();
-                Dictionary<string, int> itemnamespan = new Dictionary<string, int>();
-                Dictionary<string, int> qtyreceiptspan = new Dictionary<string, int>();
-                Dictionary<string, int> qtybukspan = new Dictionary<string, int>();
-                Dictionary<string, int> qtysampleoutspan = new Dictionary<string, int>();
-                Dictionary<string, int> satuanreceiptspan = new Dictionary<string, int>();
-                Dictionary<string, int> nobukspan = new Dictionary<string, int>();
-                Dictionary<string, int> sisaspan = new Dictionary<string, int>();
-                Dictionary<string, int> satuanbukspan = new Dictionary<string, int>();
-                Dictionary<string, int> produksiQtyspan = new Dictionary<string, int>();
-                Dictionary<string, int> bjquantityspan = new Dictionary<string, int>();
-                Dictionary<string, int> invoicespan = new Dictionary<string, int>();
-                Dictionary<string, int> pebnospan = new Dictionary<string, int>();
-                Dictionary<string, int> pebdatespan = new Dictionary<string, int>();
-                Dictionary<string, int> eksporqtyspan = new Dictionary<string, int>();
-                Dictionary<string, int> samppleqtyspan = new Dictionary<string, int>();
-                Dictionary<string, int> nobuksampspan = new Dictionary<string, int>();
-                Dictionary<string, int> rosampspan = new Dictionary<string, int>();
-                Dictionary<string, int> wipspan = new Dictionary<string, int>();
-
-                var docNo = Query.ToArray();
-                int value;
-                foreach (var a in Query)
+                foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") })
                 {
-                    //FactBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo);
-                    if (bcnospan.TryGetValue(a.BCType + a.BCNo + a.BCDate, out value))
+                    var sheet = package.Workbook.Worksheets.Add(item.Value);
+                    sheet.Cells["A1"].LoadFromDataTable(item.Key, true, (styling == true) ? OfficeOpenXml.Table.TableStyles.Light16 : OfficeOpenXml.Table.TableStyles.None);
+                    //sheet.Cells["C1:D1"].Merge = true;
+                    //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    //sheet.Cells["E1:F1"].Merge = true;
+                    //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                    Dictionary<string, int> bcnospan = new Dictionary<string, int>();
+                    Dictionary<string, int> bonspan = new Dictionary<string, int>();
+                    Dictionary<string, int> rojobspan = new Dictionary<string, int>();
+                    Dictionary<string, int> pospan = new Dictionary<string, int>();
+                    Dictionary<string, int> itemcodespan = new Dictionary<string, int>();
+                    Dictionary<string, int> itemnamespan = new Dictionary<string, int>();
+                    Dictionary<string, int> qtyreceiptspan = new Dictionary<string, int>();
+                    Dictionary<string, int> qtybukspan = new Dictionary<string, int>();
+                    Dictionary<string, int> qtysampleoutspan = new Dictionary<string, int>();
+                    Dictionary<string, int> satuanreceiptspan = new Dictionary<string, int>();
+                    Dictionary<string, int> nobukspan = new Dictionary<string, int>();
+                    Dictionary<string, int> sisaspan = new Dictionary<string, int>();
+                    Dictionary<string, int> satuanbukspan = new Dictionary<string, int>();
+                    Dictionary<string, int> produksiQtyspan = new Dictionary<string, int>();
+                    Dictionary<string, int> bjquantityspan = new Dictionary<string, int>();
+                    Dictionary<string, int> invoicespan = new Dictionary<string, int>();
+                    Dictionary<string, int> pebnospan = new Dictionary<string, int>();
+                    Dictionary<string, int> pebdatespan = new Dictionary<string, int>();
+                    Dictionary<string, int> eksporqtyspan = new Dictionary<string, int>();
+                    Dictionary<string, int> samppleqtyspan = new Dictionary<string, int>();
+                    Dictionary<string, int> nobuksampspan = new Dictionary<string, int>();
+                    Dictionary<string, int> rosampspan = new Dictionary<string, int>();
+                    Dictionary<string, int> wipspan = new Dictionary<string, int>();
+
+                    var docNo = Query.ToArray();
+                    int value;
+                    foreach (var a in Query)
                     {
-                        bcnospan[a.BCType + a.BCNo + a.BCDate]++;
-                    }
-                    else
-                    {
-                        bcnospan[a.BCType + a.BCNo + a.BCDate] = 1;
+                        //FactBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo);
+                        if (bcnospan.TryGetValue(a.BCType + a.BCNo + a.BCDate, out value))
+                        {
+                            bcnospan[a.BCType + a.BCNo + a.BCDate]++;
+                        }
+                        else
+                        {
+                            bcnospan[a.BCType + a.BCNo + a.BCDate] = 1;
+                        }
+
+                        ////FactBeacukaiViewModel dup1 = Array.Find(docNo, o => o.BCType == a.BCType);
+                        if (bonspan.TryGetValue(a.BonNo, out value))
+                        {
+                            bonspan[a.BonNo]++;
+                        }
+                        else
+                        {
+                            bonspan[a.BonNo] = 1;
+                        }
+
+                        //if (rojobspan.TryGetValue(a.ROJob + a.ROSample, out value))
+                        //{
+                        //    rojobspan[a.ROJob + a.ROSample]++;
+                        //}
+                        //else
+                        //{
+                        //    rojobspan[a.ROJob + a.ROSample] = 1;
+                        //}
+                        if (itemcodespan.TryGetValue(a.ItemCode + a.BonNo, out value))
+                        {
+                            itemcodespan[a.ItemCode + a.BonNo]++;
+                        }
+                        else
+                        {
+                            itemcodespan[a.ItemCode + a.BonNo] = 1;
+                        }
+                        if (itemnamespan.TryGetValue(a.ItemName + a.BonNo, out value))
+                        {
+                            itemnamespan[a.ItemName + a.BonNo]++;
+                        }
+                        else
+                        {
+                            itemnamespan[a.ItemName + a.BonNo] = 1;
+                        }
+
+                        if (qtyreceiptspan.TryGetValue(a.ReceiptQty + "bum" + a.ItemCode, out value))
+                        {
+                            qtyreceiptspan[a.ReceiptQty + "bum" + a.ItemCode]++;
+                        }
+                        else
+                        {
+                            qtyreceiptspan[a.ReceiptQty + "bum" + a.ItemCode] = 1;
+                        }
+                        if (qtybukspan.TryGetValue(a.QtyBUK + "buk" + a.ItemCode, out value))
+                        {
+                            qtybukspan[a.QtyBUK + "buk" + a.ItemCode]++;
+                        }
+                        else
+                        {
+                            qtybukspan[a.QtyBUK + "buk" + a.ItemCode] = 1;
+                        }
+                        if (qtysampleoutspan.TryGetValue(a.SampleQtyOut + "samp" + a.ItemCode, out value))
+                        {
+                            qtysampleoutspan[a.SampleQtyOut + "samp" + a.ItemCode]++;
+                        }
+                        else
+                        {
+                            qtysampleoutspan[a.SampleQtyOut + "samp" + a.ItemCode] = 1;
+                        }
+                        //if (satuanreceiptspan.TryGetValue(a.SatuanReceipt + "uomreceipt", out value))
+                        //{
+                        //    satuanreceiptspan[a.SatuanReceipt + "uomreceipt"]++;
+                        //}
+                        //else
+                        //{
+                        //    satuanreceiptspan[a.SatuanReceipt + "uomreceipt"] = 1;
+                        //}
+                        //if (nobukspan.TryGetValue(a.BUK + a.QtyBUK +a.SampleOut + a.PO, out value))
+                        //{
+                        //    nobukspan[a.BUK + a.QtyBUK + a.SampleOut + a.PO]++;
+                        //}
+                        //else
+                        //{
+                        //    nobukspan[a.BUK + a.QtyBUK + a.SampleOut + a.PO] = 1;
+                        //}
+                        if (sisaspan.TryGetValue(a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty, out value))
+                        {
+                            sisaspan[a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty]++;
+                        }
+                        else
+                        {
+                            sisaspan[a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty] = 1;
+                        }
+                        if (satuanbukspan.TryGetValue(a.SatuanBUK + "uombuk", out value))
+                        {
+                            satuanbukspan[a.SatuanBUK + "uombuk"]++;
+                        }
+                        else
+                        {
+                            satuanbukspan[a.SatuanBUK + "uombuk"] = 1;
+                        }
+                        if (wipspan.TryGetValue(a.WIP + "wip" + a.ItemCode, out value))
+                        {
+                            wipspan[a.WIP + "wip" + a.ItemCode]++;
+                        }
+                        else
+                        {
+                            wipspan[a.WIP + "wip" + a.ItemCode] = 1;
+                        }
+                        //if (produksiQtyspan.TryGetValue(a.ProduksiQty.ToString() + "proqty" + a.ROJob, out value))
+                        //{
+                        //    produksiQtyspan[a.ProduksiQty.ToString() + "proqty" + a.ROJob]++;
+                        //}
+                        //else
+                        //{
+                        //    produksiQtyspan[a.ProduksiQty.ToString() + "proqty" + a.ROJob] = 1;
+                        //}
+                        if (bjquantityspan.TryGetValue(a.BJQty.ToString() + a.ItemCode, out value))
+                        {
+                            bjquantityspan[a.BJQty.ToString() + a.ItemCode]++;
+                        }
+                        else
+                        {
+                            bjquantityspan[a.BJQty.ToString() + a.ItemCode] = 1;
+                        }
+                        //if (invoicespan.TryGetValue(a.Invoice + a.ROJob + a.ROSample+a.BUK+a.SampleOut, out value))
+                        //{
+                        //    invoicespan[a.Invoice + a.ROJob + a.ROSample + a.BUK + a.SampleOut]++;
+                        //}
+                        //else
+                        //{
+                        //    invoicespan[a.Invoice + a.ROJob + a.ROSample + a.BUK + a.SampleOut] = 1;
+                        //}
+                        if (pebnospan.TryGetValue(a.PEB + a.ItemCode + a.BonNo, out value))
+                        {
+                            pebnospan[a.PEB + a.ItemCode + a.BonNo]++;
+                        }
+                        else
+                        {
+                            pebnospan[a.PEB + a.ItemCode + a.BonNo] = 1;
+                        }
+
+                        //if (pebdatespan.TryGetValue(a.PEBDate.ToString() + a.ROJob + a.Invoice, out value))
+                        //{
+                        //    pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice]++;
+                        //}
+                        //else
+                        //{
+                        //    pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice] = 1;
+                        //}
+
+                        if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString(), out value))
+                        {
+                            eksporqtyspan[a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString()]++;
+                        }
+                        else
+                        {
+                            eksporqtyspan[a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString()] = 1;
+                        }
+
+                        if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ItemCode, out value))
+                        {
+                            samppleqtyspan[a.SampleQty.ToString() + a.ItemCode]++;
+                        }
+                        else
+                        {
+                            samppleqtyspan[a.SampleQty.ToString() + a.ItemCode] = 1;
+                        }
+
+                        ////if (pospan.TryGetValue(a.PO + a.ROJob, out value))
+                        ////{
+                        ////    pospan[a.PO + a.ROJob]++;
+                        ////}
+                        ////else
+                        ////{
+                        ////    pospan[a.PO + a.ROJob] = 1;
+                        ////}
+                        //if (pospan.TryGetValue(a.PO , out value))
+                        //{
+                        //    pospan[a.PO ]++;
+                        //}
+                        //else
+                        //{
+                        //    pospan[a.PO ] = 1;
+                        //}
+
+                        //if (nobuksampspan.TryGetValue(a.SampleOut + a.QtyBUK, out value))
+                        //{
+                        //    nobuksampspan[a.SampleOut + a.QtyBUK]++;
+                        //}
+                        //else
+                        //{
+                        //    nobuksampspan[a.SampleOut + a.QtyBUK] = 1;
+                        //}
+
+                        //if (rosampspan.TryGetValue(a.ROSample + a.PO, out value))
+                        //{
+                        //    rosampspan[a.ROSample + a.PO]++;
+                        //}
+                        //else
+                        //{
+                        //    rosampspan[a.ROSample + a.PO] = 1;
+                        //}
+
                     }
 
-                    ////FactBeacukaiViewModel dup1 = Array.Find(docNo, o => o.BCType == a.BCType);
-                    if (bonspan.TryGetValue(a.BonNo, out value))
+                    int index = 2;
+                    foreach (KeyValuePair<string, int> b in bcnospan)
                     {
-                        bonspan[a.BonNo]++;
-                    }
-                    else
-                    {
-                        bonspan[a.BonNo] = 1;
-                    }
-
-                    //if (rojobspan.TryGetValue(a.ROJob + a.ROSample, out value))
-                    //{
-                    //    rojobspan[a.ROJob + a.ROSample]++;
-                    //}
-                    //else
-                    //{
-                    //    rojobspan[a.ROJob + a.ROSample] = 1;
-                    //}
-                    if (itemcodespan.TryGetValue(a.ItemCode + a.BonNo, out value))
-                    {
-                        itemcodespan[a.ItemCode + a.BonNo]++;
-                    }
-                    else
-                    {
-                        itemcodespan[a.ItemCode + a.BonNo] = 1;
-                    }
-                    if (itemnamespan.TryGetValue(a.ItemName + a.BonNo, out value))
-                    {
-                        itemnamespan[a.ItemName + a.BonNo]++;
-                    }
-                    else
-                    {
-                        itemnamespan[a.ItemName + a.BonNo] = 1;
+                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        index += b.Value;
                     }
 
-                    if (qtyreceiptspan.TryGetValue(a.ReceiptQty + "bum" + a.ItemCode, out value))
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in bonspan)
                     {
-                        qtyreceiptspan[a.ReceiptQty + "bum" + a.ItemCode]++;
+                        sheet.Cells["E" + index + ":E" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["E" + index + ":E" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        index += c.Value;
                     }
-                    else
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in itemcodespan)
                     {
-                        qtyreceiptspan[a.ReceiptQty + "bum" + a.ItemCode] = 1;
+                        sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        index += c.Value;
                     }
-                    if (qtybukspan.TryGetValue(a.QtyBUK + "buk" + a.ItemCode, out value))
-                    {
-                        qtybukspan[a.QtyBUK + "buk" + a.ItemCode]++;
-                    }
-                    else
-                    {
-                        qtybukspan[a.QtyBUK + "buk" + a.ItemCode] = 1;
-                    }
-                    if (qtysampleoutspan.TryGetValue(a.SampleQtyOut + "samp" + a.ItemCode, out value))
-                    {
-                        qtysampleoutspan[a.SampleQtyOut + "samp" + a.ItemCode]++;
-                    }
-                    else
-                    {
-                        qtysampleoutspan[a.SampleQtyOut + "samp" + a.ItemCode] = 1;
-                    }
-                    //if (satuanreceiptspan.TryGetValue(a.SatuanReceipt + "uomreceipt", out value))
-                    //{
-                    //    satuanreceiptspan[a.SatuanReceipt + "uomreceipt"]++;
-                    //}
-                    //else
-                    //{
-                    //    satuanreceiptspan[a.SatuanReceipt + "uomreceipt"] = 1;
-                    //}
-                    //if (nobukspan.TryGetValue(a.BUK + a.QtyBUK +a.SampleOut + a.PO, out value))
-                    //{
-                    //    nobukspan[a.BUK + a.QtyBUK + a.SampleOut + a.PO]++;
-                    //}
-                    //else
-                    //{
-                    //    nobukspan[a.BUK + a.QtyBUK + a.SampleOut + a.PO] = 1;
-                    //}
-                    if (sisaspan.TryGetValue(a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty, out value))
-                    {
-                        sisaspan[a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty]++;
-                    }
-                    else
-                    {
-                        sisaspan[a.Sisa.ToString() + "sisa" + a.ItemCode + a.ReceiptQty] = 1;
-                    }
-                    if (satuanbukspan.TryGetValue(a.SatuanBUK + "uombuk", out value))
-                    {
-                        satuanbukspan[a.SatuanBUK + "uombuk"]++;
-                    }
-                    else
-                    {
-                        satuanbukspan[a.SatuanBUK + "uombuk"] = 1;
-                    }
-                    if (wipspan.TryGetValue(a.WIP + "wip" + a.ItemCode, out value))
-                    {
-                        wipspan[a.WIP + "wip" + a.ItemCode]++;
-                    }
-                    else
-                    {
-                        wipspan[a.WIP + "wip" + a.ItemCode] = 1;
-                    }
-                    //if (produksiQtyspan.TryGetValue(a.ProduksiQty.ToString() + "proqty" + a.ROJob, out value))
-                    //{
-                    //    produksiQtyspan[a.ProduksiQty.ToString() + "proqty" + a.ROJob]++;
-                    //}
-                    //else
-                    //{
-                    //    produksiQtyspan[a.ProduksiQty.ToString() + "proqty" + a.ROJob] = 1;
-                    //}
-                    if (bjquantityspan.TryGetValue(a.BJQty.ToString() + a.ItemCode, out value))
-                    {
-                        bjquantityspan[a.BJQty.ToString() + a.ItemCode]++;
-                    }
-                    else
-                    {
-                        bjquantityspan[a.BJQty.ToString() + a.ItemCode] = 1;
-                    }
-                    //if (invoicespan.TryGetValue(a.Invoice + a.ROJob + a.ROSample+a.BUK+a.SampleOut, out value))
-                    //{
-                    //    invoicespan[a.Invoice + a.ROJob + a.ROSample + a.BUK + a.SampleOut]++;
-                    //}
-                    //else
-                    //{
-                    //    invoicespan[a.Invoice + a.ROJob + a.ROSample + a.BUK + a.SampleOut] = 1;
-                    //}
-                    if (pebnospan.TryGetValue(a.PEB + a.ItemCode + a.BonNo, out value))
-                    {
-                        pebnospan[a.PEB + a.ItemCode + a.BonNo]++;
-                    }
-                    else
-                    {
-                        pebnospan[a.PEB + a.ItemCode + a.BonNo] = 1;
-                    }
-
-                    //if (pebdatespan.TryGetValue(a.PEBDate.ToString() + a.ROJob + a.Invoice, out value))
-                    //{
-                    //    pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice]++;
-                    //}
-                    //else
-                    //{
-                    //    pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice] = 1;
-                    //}
-
-                    if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString(), out value))
-                    {
-                        eksporqtyspan[a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString()]++;
-                    }
-                    else
-                    {
-                        eksporqtyspan[a.EksporQty.ToString() + a.ItemCode + a.BJQty.ToString()] = 1;
-                    }
-
-                    if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ItemCode, out value))
-                    {
-                        samppleqtyspan[a.SampleQty.ToString() + a.ItemCode]++;
-                    }
-                    else
-                    {
-                        samppleqtyspan[a.SampleQty.ToString() + a.ItemCode] = 1;
-                    }
-
-                    ////if (pospan.TryGetValue(a.PO + a.ROJob, out value))
+                    ////index = 2;
+                    ////foreach (KeyValuePair<string, int> c in pospan)
                     ////{
-                    ////    pospan[a.PO + a.ROJob]++;
+                    ////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
+                    ////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                    ////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                    ////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                    ////    index += c.Value;
                     ////}
-                    ////else
-                    ////{
-                    ////    pospan[a.PO + a.ROJob] = 1;
-                    ////}
-                    //if (pospan.TryGetValue(a.PO , out value))
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in itemnamespan)
+                    {
+                        sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in qtyreceiptspan)
+                    {
+                        sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in qtybukspan)
+                    {
+                        sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                        //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in qtysampleoutspan)
+                    {
+                        sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in sisaspan)
+                    {
+                        sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                        //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in satuanbukspan)
+                    {
+                        sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        index += c.Value;
+                    }
+
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in wipspan)
+                    {
+                        sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+
+
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in bjquantityspan)
+                    {
+                        sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+                    ////////index = 2;
+                    ////////foreach (KeyValuePair<string, int> c in satuanbukspan)
+                    ////////{
+                    ////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
+                    ////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                    ////////    index += c.Value;
+                    ////////}
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in pebnospan)
+                    {
+                        sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in eksporqtyspan)
+                    {
+                        sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+                    index = 2;
+                    foreach (KeyValuePair<string, int> c in samppleqtyspan)
+                    {
+                        sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                        index += c.Value;
+                    }
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in satuanreceiptspan)
                     //{
-                    //    pospan[a.PO ]++;
+                    //    sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                    //    index += c.Value;
                     //}
-                    //else
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in produksiQtyspan)
                     //{
-                    //    pospan[a.PO ] = 1;
-                    //}
+                    //    sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    //if (nobuksampspan.TryGetValue(a.SampleOut + a.QtyBUK, out value))
+                    //    index += c.Value;
+                    //}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in bjquantityspan)
                     //{
-                    //    nobuksampspan[a.SampleOut + a.QtyBUK]++;
+                    //    sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                    //    index += c.Value;
                     //}
-                    //else
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in invoicespan)
                     //{
-                    //    nobuksampspan[a.SampleOut + a.QtyBUK] = 1;
-                    //}
+                    //    sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    //if (rosampspan.TryGetValue(a.ROSample + a.PO, out value))
+                    //    index += c.Value;
+                    //}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in invoicespan)
                     //{
-                    //    rosampspan[a.ROSample + a.PO]++;
+                    //    sheet.Cells["V" + index + ":V" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["V" + index + ":V" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                    //    index += c.Value;
                     //}
-                    //else
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in invoicespan)
                     //{
-                    //    rosampspan[a.ROSample + a.PO] = 1;
+                    //    sheet.Cells["W" + index + ":W" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["W" + index + ":W" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+                    //    index += c.Value;
                     //}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in eksporqtyspan)
+                    //{
+                    //    sheet.Cells["X" + index + ":X" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["X" + index + ":X" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
+                    //    index += c.Value;
+                    //}
+                    sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
                 }
-
-                int index = 2;
-                foreach (KeyValuePair<string, int> b in bcnospan)
-                {
-                    sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Merge = true;
-                    sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    index += b.Value;
-                }
-
-                index = 2;
-                foreach (KeyValuePair<string, int> c in bonspan)
-                {
-                    sheet.Cells["E" + index + ":E" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["E" + index + ":E" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in itemcodespan)
-                {
-                    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    index += c.Value;
-                }
-                ////index = 2;
-                ////foreach (KeyValuePair<string, int> c in pospan)
-                ////{
-                ////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
-                ////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                ////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
-                ////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                ////    index += c.Value;
-                ////}
-                index = 2;
-                foreach (KeyValuePair<string, int> c in itemnamespan)
-                {
-                    sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in qtyreceiptspan)
-                {
-                    sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in qtybukspan)
-                {
-                    sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
-                    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in qtysampleoutspan)
-                {
-                    sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in sisaspan)
-                {
-                    sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
-                    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-
-                index = 2;
-                foreach (KeyValuePair<string, int> c in satuanbukspan)
-                {
-                    sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                    index += c.Value;
-                }
-
-                index = 2;
-                foreach (KeyValuePair<string, int> c in wipspan)
-                {
-                    sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-
-
-                index = 2;
-                foreach (KeyValuePair<string, int> c in bjquantityspan)
-                {
-                    sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-                ////////index = 2;
-                ////////foreach (KeyValuePair<string, int> c in satuanbukspan)
-                ////////{
-                ////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
-                ////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                ////////    index += c.Value;
-                ////////}
-                index = 2;
-                foreach (KeyValuePair<string, int> c in pebnospan)
-                {
-                    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-
-                index = 2;
-                foreach (KeyValuePair<string, int> c in eksporqtyspan)
-                {
-                    sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-                index = 2;
-                foreach (KeyValuePair<string, int> c in samppleqtyspan)
-                {
-                    sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Merge = true;
-                    sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                    index += c.Value;
-                }
-                //index = 2;
-                //foreach (KeyValuePair<string, int> c in satuanreceiptspan)
-                //{
-                //    sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Merge = true;
-                //    sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                //    index += c.Value;
-                //}
-                //index = 2;
-                //foreach (KeyValuePair<string, int> c in produksiQtyspan)
-                //{
-                //    sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Merge = true;
-                //    sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                //    index += c.Value;
-                //}
-                //index = 2;
-                //foreach (KeyValuePair<string, int> c in bjquantityspan)
-                //{
-                //    sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Merge = true;
-                //    sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                //    index += c.Value;
-                //}
-                //index = 2;
-                //foreach (KeyValuePair<string, int> c in invoicespan)
-                //{
-                //    sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Merge = true;
-                //    sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                //    index += c.Value;
-                //}
-                //index = 2;
-                //foreach (KeyValuePair<string, int> c in invoicespan)
-                //{
-                //    sheet.Cells["V" + index + ":V" + (index + c.Value - 1)].Merge = true;
-                //    sheet.Cells["V" + index + ":V" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                //    index += c.Value;
-                //}
-                //index = 2;
-                //foreach (KeyValuePair<string, int> c in invoicespan)
-                //{
-                //    sheet.Cells["W" + index + ":W" + (index + c.Value - 1)].Merge = true;
-                //    sheet.Cells["W" + index + ":W" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                //    index += c.Value;
-                //}
-                //index = 2;
-                //foreach (KeyValuePair<string, int> c in eksporqtyspan)
-                //{
-                //    sheet.Cells["X" + index + ":X" + (index + c.Value - 1)].Merge = true;
-                //    sheet.Cells["X" + index + ":X" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-                //    index += c.Value;
-                //}
-                sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+                MemoryStream stream = new MemoryStream();
+                package.SaveAs(stream);
+                return stream;
             }
-            MemoryStream stream = new MemoryStream();
-            package.SaveAs(stream);
-            return stream;
             //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
@@ -2412,185 +2420,192 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         {
             var index2 = 0;
             var query = getQueryTraceableOut(bcno);
-            var satuan = "-";
-
-            DataTable result = new DataTable();
-
-            result.Columns.Add(new DataColumn() { ColumnName = "no", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "tanggal keluar", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "no. bon", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "nama barang", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "jumlah barang", DataType = typeof(double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "satuan", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "no invoice", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "buyer", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "jenis", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "nomor", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "tanggal", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "RO", DataType = typeof(string) });
-
-            DataTable result2 = new DataTable();
-            result2.Columns.Add(new DataColumn() { ColumnName = "Nomor22", DataType = typeof(String) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "No RO", DataType = typeof(String) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "Nama Barang 2", DataType = typeof(String) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "Jumlah Pemakaian", DataType = typeof(Double) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "Satuan 2", DataType = typeof(String) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "jumlah budget", DataType = typeof(String) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "Jenis BC", DataType = typeof(String) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "No.", DataType = typeof(String) });
-            result2.Columns.Add(new DataColumn() { ColumnName = "Tanggal 2", DataType = typeof(String) });
-
-
-            //if (query.ToArray().Count() == 0)
-            //    result.Rows.Add("", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
-            //else
-            //{
-
-            var index = 0;
-            foreach (var item in query)
+            if (query.Count == 0)
             {
-                index++;
-                string ExpenditureDate = item.ExpenditureDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.ExpenditureDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                string BCDate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                result.Rows.Add(index, ExpenditureDate, item.ExpenditureGoodId, item.ComodityName, item.Qty, item.UnitQtyName, item.ExpenditureNo, item.BuyerName, item.BCType, item.BCNo, BCDate, item.RO);
+                throw new Exception("Data Tidak Tersedia.");
+            }
+            else
+            {
+                var satuan = "-";
 
-                if (item.rincian != null)
+                DataTable result = new DataTable();
+
+                result.Columns.Add(new DataColumn() { ColumnName = "no", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "tanggal keluar", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "no. bon", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "nama barang", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "jumlah barang", DataType = typeof(double) });
+                result.Columns.Add(new DataColumn() { ColumnName = "satuan", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "no invoice", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "buyer", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "jenis", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "nomor", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "tanggal", DataType = typeof(string) });
+                result.Columns.Add(new DataColumn() { ColumnName = "RO", DataType = typeof(string) });
+
+                DataTable result2 = new DataTable();
+                result2.Columns.Add(new DataColumn() { ColumnName = "Nomor22", DataType = typeof(String) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "No RO", DataType = typeof(String) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "Nama Barang 2", DataType = typeof(String) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "Jumlah Pemakaian", DataType = typeof(Double) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "Satuan 2", DataType = typeof(String) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "jumlah budget", DataType = typeof(String) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "Jenis BC", DataType = typeof(String) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "No.", DataType = typeof(String) });
+                result2.Columns.Add(new DataColumn() { ColumnName = "Tanggal 2", DataType = typeof(String) });
+
+
+                //if (query.ToArray().Count() == 0)
+                //    result.Rows.Add("", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                //else
+                //{
+
+                var index = 0;
+                foreach (var item in query)
                 {
-                    foreach (var detail in item.rincian)
-                    {
-                        index2++;
-                        string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(detail.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                        result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
+                    index++;
+                    string ExpenditureDate = item.ExpenditureDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.ExpenditureDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string BCDate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, ExpenditureDate, item.ExpenditureGoodId, item.ComodityName, item.Qty, item.UnitQtyName, item.ExpenditureNo, item.BuyerName, item.BCType, item.BCNo, BCDate, item.RO);
 
+                    if (item.rincian != null)
+                    {
+                        foreach (var detail in item.rincian)
+                        {
+                            index2++;
+                            string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(detail.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                            result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
+
+                        }
                     }
+
                 }
 
+
+                //}
+
+
+                //foreach (var detail in query)
+                //{
+                //    //var querydetail = getQueryDetail(detail.RO);
+
+
+
+
+                //    //if (querydetail.ToArray().Count() == 0)
+                //    //    result2.Rows.Add("", "", "", "", 0, "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                //    //else
+                //    //{
+
+
+                //        foreach (var item in querydetail)
+                //        {
+                //            index2++;
+                //            string BCDate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                //            result2.Rows.Add(index2, item.DestinationJob, item.ItemCode, item.ItemName, item.SmallestQuantity, item.UnitQtyName, item.BCType, item.BCNo, BCDate);
+
+                //        }
+                //    //}
+
+                //}
+
+
+                ExcelPackage package = new ExcelPackage();
+
+
+
+                var sheet = package.Workbook.Worksheets.Add("Data");
+
+
+                var Tittle = new string[] { "Monitoring Pengeluaran Hasil Produksi" };
+                var headers = new string[] { "No", "Tanggal Keluar", "No BON", "Nama Barang", "Jumlah Barang", "Satuan", "No. Invoice", "Buyer", "Dokumen", "Dokumen1", "Dokumen2", "RO" };
+                var subHeaders = new string[] { "Jenis", "Nomor", "Tanggal" };
+
+                //for (int i = 0; i < headers.Length; i++)
+                //{
+                //    result.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(string) });
+                //}
+
+
+
+                sheet.Cells["A5"].LoadFromDataTable(result, false, OfficeOpenXml.Table.TableStyles.Light16);
+
+                sheet.Cells["A2"].Value = Tittle[0];
+                sheet.Cells["A2:L2"].Merge = true;
+
+                sheet.Cells["I3"].Value = headers[8];
+                sheet.Cells["I3:K3"].Merge = true;
+
+                foreach (var i in Enumerable.Range(0, 8))
+                {
+                    var col = (char)('A' + i);
+                    sheet.Cells[$"{col}3"].Value = headers[i];
+                    sheet.Cells[$"{col}3:{col}4"].Merge = true;
+                }
+
+                foreach (var i in Enumerable.Range(0, 3))
+                {
+                    var col = (char)('I' + i);
+                    sheet.Cells[$"{col}4"].Value = subHeaders[i];
+                }
+
+                foreach (var i in Enumerable.Range(0, 1))
+                {
+                    var col = (char)('L' + i);
+                    sheet.Cells[$"{col}3"].Value = headers[i + 11];
+                    sheet.Cells[$"{col}3:{col}4"].Merge = true;
+                }
+                sheet.Cells["A1:L4"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                sheet.Cells["A1:L4"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                sheet.Cells["A1:L4"].Style.Font.Bold = true;
+                //-----------
+
+
+                var countdata = query.Count();
+
+                sheet.Cells[$"A{countdata + 11}"].LoadFromDataTable(result2, false, OfficeOpenXml.Table.TableStyles.Light16);
+
+                var Tittle1 = new string[] { "PERINCIAN PEMAKAIAN BAHAN BAKU DAN BAHAN PENOLONG" };
+                var headers1 = new string[] { "No", "No. RO", "Kode Barang", "Nama Barang", "Jumlah Pemakaian", "Satuan", "Dokumen", "Dokumen1", "Dokumen2" };
+                var subHeaders1 = new string[] { "Jenis", "Nomor", "Tanggal" };
+
+                sheet.Cells[$"A{countdata + 8}"].Value = Tittle1[0];
+                sheet.Cells[$"A{countdata + 8}:I{countdata + 8}"].Merge = true;
+
+                sheet.Cells[$"G{countdata + 9}"].Value = headers1[6];
+                sheet.Cells[$"G{countdata + 9}:I{countdata + 9}"].Merge = true;
+
+                foreach (var i in Enumerable.Range(0, 6))
+                {
+                    var col = (char)('A' + i);
+                    sheet.Cells[$"{col}{countdata + 9}"].Value = headers1[i];
+                    sheet.Cells[$"{col}{countdata + 9}:{col}{countdata + 10}"].Merge = true;
+                }
+
+                foreach (var i in Enumerable.Range(0, 3))
+                {
+                    var col = (char)('G' + i);
+                    sheet.Cells[$"{col}{countdata + 10}"].Value = subHeaders1[i];
+                }
+
+
+                sheet.Cells[$"A{countdata + 8}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                sheet.Cells[$"A{countdata + 8}:I{countdata + 10}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                sheet.Cells[$"A{countdata + 8}:I{countdata + 10}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                sheet.Cells[$"A{countdata + 8}:I{countdata + 10}"].Style.Font.Bold = true;
+
+                var widths = new int[] { 5, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20 };
+                foreach (var i in Enumerable.Range(0, headers.Length))
+                {
+                    sheet.Column(i + 1).Width = widths[i];
+                }
+
+                MemoryStream stream = new MemoryStream();
+                package.SaveAs(stream);
+                return stream;
             }
-
-
-            //}
-
-
-            //foreach (var detail in query)
-            //{
-            //    //var querydetail = getQueryDetail(detail.RO);
-
-
-
-
-            //    //if (querydetail.ToArray().Count() == 0)
-            //    //    result2.Rows.Add("", "", "", "", 0, "", "", "", ""); // to allow column name to be generated properly for empty data as template
-            //    //else
-            //    //{
-
-
-            //        foreach (var item in querydetail)
-            //        {
-            //            index2++;
-            //            string BCDate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-            //            result2.Rows.Add(index2, item.DestinationJob, item.ItemCode, item.ItemName, item.SmallestQuantity, item.UnitQtyName, item.BCType, item.BCNo, BCDate);
-
-            //        }
-            //    //}
-
-            //}
-
-
-            ExcelPackage package = new ExcelPackage();
-
-
-
-            var sheet = package.Workbook.Worksheets.Add("Data");
-
-
-            var Tittle = new string[] { "Monitoring Pengeluaran Hasil Produksi" };
-            var headers = new string[] { "No", "Tanggal Keluar", "No BON", "Nama Barang", "Jumlah Barang", "Satuan", "No. Invoice", "Buyer", "Dokumen", "Dokumen1", "Dokumen2", "RO" };
-            var subHeaders = new string[] { "Jenis", "Nomor", "Tanggal" };
-
-            //for (int i = 0; i < headers.Length; i++)
-            //{
-            //    result.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(string) });
-            //}
-
-
-
-            sheet.Cells["A5"].LoadFromDataTable(result, false, OfficeOpenXml.Table.TableStyles.Light16);
-
-            sheet.Cells["A2"].Value = Tittle[0];
-            sheet.Cells["A2:L2"].Merge = true;
-
-            sheet.Cells["I3"].Value = headers[8];
-            sheet.Cells["I3:K3"].Merge = true;
-
-            foreach (var i in Enumerable.Range(0, 8))
-            {
-                var col = (char)('A' + i);
-                sheet.Cells[$"{col}3"].Value = headers[i];
-                sheet.Cells[$"{col}3:{col}4"].Merge = true;
-            }
-
-            foreach (var i in Enumerable.Range(0, 3))
-            {
-                var col = (char)('I' + i);
-                sheet.Cells[$"{col}4"].Value = subHeaders[i];
-            }
-
-            foreach (var i in Enumerable.Range(0, 1))
-            {
-                var col = (char)('L' + i);
-                sheet.Cells[$"{col}3"].Value = headers[i + 11];
-                sheet.Cells[$"{col}3:{col}4"].Merge = true;
-            }
-            sheet.Cells["A1:L4"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells["A1:L4"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells["A1:L4"].Style.Font.Bold = true;
-            //-----------
-
-
-            var countdata = query.Count();
-
-            sheet.Cells[$"A{countdata + 11}"].LoadFromDataTable(result2, false, OfficeOpenXml.Table.TableStyles.Light16);
-
-            var Tittle1 = new string[] { "PERINCIAN PEMAKAIAN BAHAN BAKU DAN BAHAN PENOLONG" };
-            var headers1 = new string[] { "No", "No. RO", "Kode Barang", "Nama Barang", "Jumlah Pemakaian", "Satuan", "Dokumen", "Dokumen1", "Dokumen2" };
-            var subHeaders1 = new string[] { "Jenis", "Nomor", "Tanggal" };
-
-            sheet.Cells[$"A{countdata + 8}"].Value = Tittle1[0];
-            sheet.Cells[$"A{countdata + 8}:I{countdata + 8}"].Merge = true;
-
-            sheet.Cells[$"G{countdata + 9}"].Value = headers1[6];
-            sheet.Cells[$"G{countdata + 9}:I{countdata + 9}"].Merge = true;
-
-            foreach (var i in Enumerable.Range(0, 6))
-            {
-                var col = (char)('A' + i);
-                sheet.Cells[$"{col}{countdata + 9}"].Value = headers1[i];
-                sheet.Cells[$"{col}{countdata + 9}:{col}{countdata + 10}"].Merge = true;
-            }
-
-            foreach (var i in Enumerable.Range(0, 3))
-            {
-                var col = (char)('G' + i);
-                sheet.Cells[$"{col}{countdata + 10}"].Value = subHeaders1[i];
-            }
-
-
-            sheet.Cells[$"A{countdata + 8}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            sheet.Cells[$"A{countdata + 8}:I{countdata + 10}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[$"A{countdata + 8}:I{countdata + 10}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells[$"A{countdata + 8}:I{countdata + 10}"].Style.Font.Bold = true;
-
-            var widths = new int[] { 5, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20 };
-            foreach (var i in Enumerable.Range(0, headers.Length))
-            {
-                sheet.Column(i + 1).Width = widths[i];
-            }
-
-            MemoryStream stream = new MemoryStream();
-            package.SaveAs(stream);
-            return stream;
         }
 
         #endregion
