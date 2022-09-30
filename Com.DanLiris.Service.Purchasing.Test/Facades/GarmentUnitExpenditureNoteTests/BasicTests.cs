@@ -1968,7 +1968,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-            var Response = facadeTraceable.GetTraceableInExcel("", "BCNo", dataBC.CustomsType);
+            var Response = facadeTraceable.GetTraceableInExcel("BeacukaiNo", "BCNo", dataBC.CustomsType);
 
             Assert.IsType<MemoryStream>(Response);
 
