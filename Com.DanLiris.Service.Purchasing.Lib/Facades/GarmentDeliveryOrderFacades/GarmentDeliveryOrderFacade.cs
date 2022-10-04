@@ -2343,6 +2343,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
                 //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
                 result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
+                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "");
             else
             {
                 int index = 0;
@@ -2359,6 +2360,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                     // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
                     result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.TermPayment, item.diffdate);
+                    //result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.diffdate);
+
                     //result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo);
                 }
             }
