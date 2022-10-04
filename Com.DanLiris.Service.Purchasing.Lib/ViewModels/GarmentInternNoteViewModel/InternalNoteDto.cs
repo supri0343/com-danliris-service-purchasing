@@ -25,8 +25,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 
                 if (element.Invoice.UseVAT && element.Invoice.IsPayVAT)
                 {
-                    total += element.Invoice.TotalAmount * 0.1;
-                    correction += element.Invoice.CorrectionAmount * 0.1;
+                    total += element.Invoice.TotalAmount * 0.11;
+                    correction += element.Invoice.CorrectionAmount * 0.11;
                 }
                 
                 if (element.Invoice.UseIncomeTax && element.Invoice.IsPayTax)
@@ -45,8 +45,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 
                 if (element.Invoice.UseVAT && element.Invoice.IsPayVAT)
                 {
-                    total += element.Invoice.TotalAmount * 0.1;
-                    correction += element.Invoice.CorrectionAmount * 0.1;
+                    total += element.Invoice.TotalAmount * 0.11;
+                    correction += element.Invoice.CorrectionAmount * 0.11;
                 }
 
                 return total + correction;
