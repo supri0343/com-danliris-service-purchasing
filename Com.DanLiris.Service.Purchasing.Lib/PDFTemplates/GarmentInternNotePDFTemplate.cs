@@ -38,11 +38,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             //Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
-            Document document = new Document(PageSize.A4, 40, 40, 40, 40);
-            document.AddHeader("Header", viewModel.inNo);
+            Document document = new Document(PageSize.A4, 40, 40, 200, 40);
+            //document.AddHeader("Header", viewModel.inNo);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
-            writer.PageEvent = new PDFPages();
+            writer.PageEvent = new GarmentInternNotePDFHeader(viewModel, serviceProvider);
             document.Open();
 
 
@@ -58,54 +58,52 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region Header
 
-            string addressString = "PT DAN LIRIS" + "\n" + "JL. Merapi No.23" + "\n" + "Banaran, Grogol, Kab. Sukoharjo" + "\n" + "Jawa Tengah 57552 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777";
-            Paragraph address = new Paragraph(addressString, bold_font) { Alignment = Element.ALIGN_LEFT };
-            document.Add(address);
-            bold_font.SetStyle(Font.NORMAL);
+            //string addressString = "PT DAN LIRIS" + "\n" + "JL. Merapi No.23" + "\n" + "Banaran, Grogol, Kab. Sukoharjo" + "\n" + "Jawa Tengah 57552 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777";
+            //Paragraph address = new Paragraph(addressString, bold_font) { Alignment = Element.ALIGN_LEFT };
+            //document.Add(address);
+            //bold_font.SetStyle(Font.NORMAL);
 
-            string titleString = "NOTA INTERN\n\n";
-            Paragraph title = new Paragraph(titleString, bold_font) { Alignment = Element.ALIGN_CENTER };
-            document.Add(title);
-            bold_font.SetStyle(Font.NORMAL);
+            //string titleString = "NOTA INTERN\n\n";
+            //Paragraph title = new Paragraph(titleString, bold_font) { Alignment = Element.ALIGN_CENTER };
+            //document.Add(title);
+            //bold_font.SetStyle(Font.NORMAL);
 
-            PdfPTable tableInternNoteHeader = new PdfPTable(2);
-            tableInternNoteHeader.SetWidths(new float[] { 4.5f, 4.5f });
+            PdfPTable tableInternNoteHeader = new PdfPTable(1);
+            //tableInternNoteHeader.SetWidths(new float[] { 4.5f, 4.5f });
             PdfPCell cellInternNoteHeaderLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
             PdfPCell cellInternNoteHeaderRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
 
-            cellInternNoteHeaderLeft.Phrase = new Phrase("No. Nota Intern" + "      : " + viewModel.inNo, normal_font);
-            tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
+            //cellInternNoteHeaderLeft.Phrase = new Phrase("No. Nota Intern" + "      : " + viewModel.inNo, normal_font);
+            //tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
 
-            cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Nota Intern" + "       : " + viewModel.inDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
-            tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
+            //cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Nota Intern" + "       : " + viewModel.inDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            //tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
 
-            cellInternNoteHeaderLeft.Phrase = new Phrase("Kode Supplier" + "        : " + viewModel.supplier.Code, normal_font);
-            tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
+            //cellInternNoteHeaderLeft.Phrase = new Phrase("Kode Supplier" + "        : " + viewModel.supplier.Code, normal_font);
+            //tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
 
-            string paymentmethods = "";
-            List<DateTimeOffset> coba = new List<DateTimeOffset>();
-            foreach (GarmentInternNoteItemViewModel item in viewModel.items)
-            {
-                foreach (GarmentInternNoteDetailViewModel detail in item.details)
-                {
-                    coba.Add(detail.paymentDueDate);
-                    paymentmethods = detail.deliveryOrder.paymentMethod;
-                }
-            }
-            DateTimeOffset coba1 = coba.Min(p => p);
-            cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Jatuh Tempo" + "    : " + coba1.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
-            tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
+            //string paymentmethods = "";
+            //List<DateTimeOffset> coba = new List<DateTimeOffset>();
+            //foreach (GarmentInternNoteItemViewModel item in viewModel.items)
+            //{
+            //    foreach (GarmentInternNoteDetailViewModel detail in item.details)
+            //    {
+            //        coba.Add(detail.paymentDueDate);
+            //        paymentmethods = detail.deliveryOrder.paymentMethod;
+            //    }
+            //}
+            //DateTimeOffset coba1 = coba.Min(p => p);
+            //cellInternNoteHeaderRight.Phrase = new Phrase("Tanggal Jatuh Tempo" + "    : " + coba1.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            //tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
 
-            cellInternNoteHeaderLeft.Phrase = new Phrase("Nama Supplier" + "       : " + viewModel.supplier.Name, normal_font);
-            tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
+            //cellInternNoteHeaderLeft.Phrase = new Phrase("Nama Supplier" + "       : " + viewModel.supplier.Name, normal_font);
+            //tableInternNoteHeader.AddCell(cellInternNoteHeaderLeft);
 
-            cellInternNoteHeaderRight.Phrase = new Phrase("Term Pembayaran" + "         : " + paymentmethods, normal_font);
-            tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
-
+            //cellInternNoteHeaderRight.Phrase = new Phrase("Term Pembayaran" + "         : " + paymentmethods, normal_font);
+            //tableInternNoteHeader.AddCell(cellInternNoteHeaderRight);
 
             PdfPCell cellInternNoteHeader = new PdfPCell(tableInternNoteHeader); // dont remove
             tableInternNoteHeader.ExtendLastRow = false;
-            tableInternNoteHeader.SpacingAfter = 10f;
             document.Add(tableInternNoteHeader);
             #endregion
 
@@ -258,9 +256,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableContent.AddCell(cellRight);
             }
 
+
+            //float tblMarginTop = document.TopMargin;
+
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
             tableContent.ExtendLastRow = false;
             tableContent.SpacingAfter = 20f;
+            //tableContent.SpacingBefore = document.TopMargin - 40f;
             document.Add(tableContent);
             #endregion
 
@@ -376,7 +378,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellSignature = new PdfPCell(tableSignature); // dont remove
             tableSignature.ExtendLastRow = false;
             tableSignature.SpacingBefore = 20f;
-            tableSignature.SpacingAfter = 20f;
+            //tableSignature.SpacingAfter = 20f;
             document.Add(tableSignature);
 
             #endregion
@@ -387,6 +389,172 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             stream.Position = 0;
 
             return stream;
+        }
+
+        Chunk GetScalledChunk(string text, Font font, float scalling = 0.5f)
+        {
+            Chunk chunk = new Chunk(text, font);
+            chunk.SetHorizontalScaling(scalling);
+            return chunk;
+        }
+    }
+
+    class GarmentInternNotePDFHeader : PdfPageEventHelper
+    {
+        private BaseFont _baseFont;
+        private BaseFont _infoFont;
+        private IServiceProvider serviceProvider;
+        private GarmentInternNoteViewModel viewModel;
+        int clientTimeZoneOffset;
+        PdfContentByte cb;
+        PdfTemplate _headerTemplate, footerTemplate;
+        PdfReader totalCount;
+
+
+        public GarmentInternNotePDFHeader(GarmentInternNoteViewModel viewModel, IServiceProvider serviceProvider)
+        {
+            this.viewModel = viewModel;
+            this.serviceProvider = serviceProvider;
+        }
+
+        public override void OnOpenDocument(PdfWriter writer, Document document)
+        {
+            try
+            {
+                //PrintTime = DateTime.Now;
+                _baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                cb = writer.DirectContent;
+                //headerTemplate = cb.CreateTemplate(100, 100);
+                footerTemplate = cb.CreateTemplate(50, 50);
+            }
+            catch (DocumentException de)
+            {
+                //handle exception here
+            }
+            catch (System.IO.IOException ioe)
+            {
+                //handle exception here
+            }
+
+        }
+
+        public override void OnStartPage(PdfWriter writer, Document document)
+        {
+            base.OnStartPage(writer, document);
+            cb = writer.DirectContent;
+            cb.BeginText();
+
+            float height = writer.PageSize.Height, width = writer.PageSize.Width;
+            float marginLeft = document.LeftMargin, marginTop = document.TopMargin, marginRight = document.RightMargin, marginBottom = document.BottomMargin;
+
+            _baseFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            _infoFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+
+            cb.SetFontAndSize(BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED), 9);
+
+            var headOfficeX = marginLeft;
+            var headOfficeY = height - marginTop + 160;
+
+            string[] headOffices = {
+                    "PT DAN LIRIS",
+                    "JL. Merapi No.23",
+                    "Banaran, Grogol, Kab. Sukoharjo",
+                    "Jawa Tengah 57552 - INDONESIA",
+                    "PO.BOX 166 Solo 57100",
+                    "Telp. (0271) 740888, 714400",
+                    "Fax. (0271) 735222, 740777",
+                };
+            for (int i = 0; i < headOffices.Length; i++)
+            {
+                cb.ShowTextAligned(PdfContentByte.ALIGN_LEFT, headOffices[i], headOfficeX, headOfficeY + 10 - (i * 12), 0);
+            }
+
+            var titleY = height - marginTop + 80;
+            var infoY = height - marginTop + 50;
+
+            string titleString = "NOTA INTERN";
+
+            cb.ShowTextAligned(PdfContentByte.ALIGN_CENTER, titleString, width / 2, titleY, 0);
+            cb.EndText();
+        }
+
+        public override void OnEndPage(PdfWriter writer, Document document)
+        {
+            base.OnCloseDocument(writer, document);
+            var baseFontNormal = new Font(Font.HELVETICA, 9f, Font.NORMAL, BaseColor.Black);
+            var baseFontBig = new Font(Font.HELVETICA, 12f, Font.BOLD, BaseColor.Black);
+            cb = writer.DirectContent;
+
+            _baseFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            _infoFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            footerTemplate = cb.CreateTemplate(50, 50);
+
+            var pdfTab = new PdfPTable(2);
+            float[] tblCell = new float[] { 4.5f, 4.5f };
+            pdfTab.SetWidths(tblCell);
+
+            string paymentmethods = "";
+            List<DateTimeOffset> coba = new List<DateTimeOffset>();
+            foreach (GarmentInternNoteItemViewModel item in viewModel.items)
+            {
+                foreach (GarmentInternNoteDetailViewModel detail in item.details)
+                {
+                    coba.Add(detail.paymentDueDate);
+                    paymentmethods = detail.deliveryOrder.paymentMethod;
+                }
+            }
+            DateTimeOffset coba1 = coba.Min(p => p);
+
+            //PdfPCell newTblCell = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+            PdfPCell newTblCellLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+            PdfPCell newTblCellRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+
+            newTblCellLeft.Phrase = new Phrase("No. Nota Intern" + "      : " + viewModel.inNo, baseFontNormal);
+            pdfTab.AddCell(newTblCellLeft);
+            newTblCellLeft.Phrase = new Phrase("Tanggal Nota Intern" + "       : " + viewModel.inDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), baseFontNormal);
+            pdfTab.AddCell(newTblCellLeft);
+            newTblCellLeft.Phrase = new Phrase("Kode Supplier" + "        : " + viewModel.supplier.Code, baseFontNormal);
+            pdfTab.AddCell(newTblCellLeft);
+            newTblCellLeft.Phrase = new Phrase("Tanggal Jatuh Tempo" + "    : " + coba1.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), baseFontNormal);
+            pdfTab.AddCell(newTblCellLeft);
+            newTblCellLeft.Phrase = new Phrase("Nama Supplier" + "       : " + viewModel.supplier.Name, baseFontNormal);
+            pdfTab.AddCell(newTblCellLeft);
+            newTblCellLeft.Phrase = new Phrase("Term Pembayaran" + "         : " + paymentmethods, baseFontNormal);
+            pdfTab.AddCell(newTblCellLeft);
+
+            string text = "Page " + writer.CurrentPageNumber + " of " + writer.PageNumber;
+
+            {
+                cb.BeginText();
+                cb.SetFontAndSize(_infoFont, 12);
+                cb.SetTextMatrix(document.PageSize.GetRight(100), document.PageSize.GetBottom(30));
+                cb.ShowText(text);
+                cb.EndText();
+                float len = _infoFont.GetWidthPoint(text, 12);
+                cb.AddTemplate(footerTemplate, document.PageSize.GetRight(100) + len, document.PageSize.GetBottom(30));
+            }
+
+            pdfTab.TotalWidth = document.PageSize.Width - 80f;
+            pdfTab.WidthPercentage = 70;
+
+            //pdfTab.LockedWidth = true;
+            //pdfTab.HorizontalAlignment = Element.ALIGN_CENTER;    
+
+            //call WriteSelectedRows of PdfTable. This writes rows from PdfWriter in PdfTable
+            //first param is start row. -1 indicates there is no end row and all the rows to be included to write
+            //Third and fourth param is x and y position to start writing
+            pdfTab.WriteSelectedRows(0, -1, 40, document.PageSize.Height - document.TopMargin + 70, writer.DirectContent);
+
+            //cb.MoveTo(40, document.PageSize.GetBottom(50));
+            //cb.LineTo(document.PageSize.Width - 40, document.PageSize.GetBottom(50));
+            //cb.Stroke();
+
+            //totalCount.Close();
+        }
+
+        public override void OnCloseDocument(PdfWriter writer, Document document)
+        {
+            base.OnCloseDocument(writer, document);
         }
     }
 }
