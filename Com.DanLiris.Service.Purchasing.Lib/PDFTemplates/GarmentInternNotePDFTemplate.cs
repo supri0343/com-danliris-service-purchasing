@@ -325,7 +325,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableFooterRight.AddCell(cellLeftNoBorder);
             }
             else
-            {
+            {   
                 cellLeftNoBorder.Phrase = new Phrase($": " + 0, normal_font);
                 tableFooterRight.AddCell(cellLeftNoBorder);
             }
@@ -356,14 +356,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             PdfPCell cellFooter = new PdfPCell(tableFooter); // dont remove
             tableFooter.ExtendLastRow = false;
-            tableFooter.SpacingAfter = 20f;
+            tableFooter.SpacingAfter = 40f;
             document.Add(tableFooter);
 
             #endregion
 
-            #region TableSignature
+            #region TableRemark
+            List<DateTimeOffset> coba = new List<DateTimeOffset>();
+            foreach (GarmentInternNoteItemViewModel item in viewModel.items)
+            {
+                foreach (GarmentInternNoteDetailViewModel detail in item.details)
+                {
+                    coba.Add(detail.paymentDueDate);
+                }
+            }
+            DateTimeOffset coba1 = coba.Min(p => p);
+            if ( coba1 < viewModel.inDate)
+			{
+                PdfPTable tableRemark = new PdfPTable(2);
+                float[] widths = new float[] { 1f, 0.5f };
+                tableRemark.SetWidths(widths);
+                PdfPCell CellRemarkContent = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
 
-            PdfPTable tableSignature = new PdfPTable(3);
+                CellRemarkContent.Phrase = new Phrase("Alasan Keterlambatan\n\n\n\n\n\n\n", bold_font);
+                tableRemark.AddCell(CellRemarkContent);
+                CellRemarkContent.Phrase = new Phrase("TTD Kabag\n\n\n\n\n\n\n", bold_font);
+                tableRemark.AddCell(CellRemarkContent);
+
+                PdfPCell cellRemark = new PdfPCell(tableRemark); // don't remove
+                tableRemark.ExtendLastRow = false;
+                tableRemark.SpacingAfter = 10f;
+                document.Add(tableRemark);
+            }
+            
+
+			#endregion
+
+			#region TableSignature
+
+			PdfPTable tableSignature = new PdfPTable(3);
 
             PdfPCell cellSignatureContent = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
 
@@ -424,9 +455,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 //PrintTime = DateTime.Now;
                 _baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                 cb = writer.DirectContent;
-                //headerTemplate = cb.CreateTemplate(100, 100);
-                footerTemplate = cb.CreateTemplate(50, 50);
-            }
+				//headerTemplate = cb.CreateTemplate(100, 100);
+				footerTemplate = cb.CreateTemplate(50, 50);
+			}
             catch (DocumentException de)
             {
                 //handle exception here
@@ -522,6 +553,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             newTblCellLeft.Phrase = new Phrase("Term Pembayaran" + "         : " + paymentmethods, baseFontNormal);
             pdfTab.AddCell(newTblCellLeft);
 
+
+   //         if ( coba1 < viewModel.inDate)
+			//{
+   //             PdfPTable tableRemark = new PdfPTable(2);
+   //             float[] widths = new float[] { 1f, 0.5f };
+   //             tableRemark.SetWidths(widths);
+   //             PdfPCell CellRemarkContent = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
+
+   //             CellRemarkContent.Phrase = new Phrase("Remark :\n\n\n\n\n\n\n", baseFontNormal);
+   //             tableRemark.AddCell(CellRemarkContent);
+   //             CellRemarkContent.Phrase = new Phrase("TTD\n\n\n\n\n\n\n", baseFontNormal);
+   //             tableRemark.AddCell(CellRemarkContent);
+
+   //             PdfPCell cellRemark = new PdfPCell(tableRemark); // don't remove
+   //             tableRemark.ExtendLastRow = false;
+   //             tableRemark.SpacingAfter = 10f;
+   //             document.Add(tableRemark);
+   //         }
+
+           
             string text = "Page " + writer.CurrentPageNumber + " of " + writer.PageNumber;
 
             {
