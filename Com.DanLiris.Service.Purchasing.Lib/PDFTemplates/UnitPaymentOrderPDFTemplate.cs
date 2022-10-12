@@ -33,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellRightNoBorder = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
             PdfPCell cellJustifyNoBorder = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_JUSTIFIED };
             PdfPCell cellJustifyAllNoBorder = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_JUSTIFIED_ALL };
+            PdfPCell cellWithBorder = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
             PdfPCell cellCenter = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
@@ -135,6 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             double jumlah = 0;
 
             List<DateTimeOffset> DueDates = new List<DateTimeOffset>() { model.DueDate };
+            List<DateTimeOffset> CreatedUtc = new List<DateTimeOffset>() { model.CreatedUtc };
             List<DateTimeOffset> UnitReceiptNoteDates = new List<DateTimeOffset>() { DateTimeOffset.MinValue };
 
             //foreach (var f in new float[15])
@@ -387,6 +389,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             #endregion
 
             #region TableSignature
+
+            var createdUtcDate = model.CreatedUtc.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy");
+            var dueDates = model.DueDate.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy");
+            int dateComp = createdUtcDate.CompareTo(dueDates);
+
+            if (dateComp > 0)
+            {
+                PdfPTable tableConfirm = new PdfPTable(2);
+                tableConfirm.SetWidths(new float[] { 0.5f, 0.5f });
+
+                cellWithBorder.Phrase = new Paragraph("Alasan Keterlambatan", bold_font);
+                tableConfirm.AddCell(cellWithBorder);
+                cellWithBorder.Phrase = new Paragraph("TTD Kabag\n\n\n\n\n\n\n\n(                                   )", bold_font);
+                tableConfirm.AddCell(cellWithBorder);
+
+                tableConfirm.ExtendLastRow = false;
+                tableConfirm.SpacingAfter = 30f;
+                document.Add(tableConfirm);
+            }
 
             PdfPTable tableSignature = new PdfPTable(4);
 
