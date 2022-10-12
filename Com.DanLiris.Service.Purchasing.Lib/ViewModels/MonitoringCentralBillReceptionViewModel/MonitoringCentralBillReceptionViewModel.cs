@@ -34,7 +34,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.MonitoringCentralBillRe
         public double DOQuantity { get; set; }
         public string UOMUnit { get; set; }
         public double PricePerDealUnit { get; set; }
+        public double PPN { get; set; }
         public double PriceTotal { get; set; }
+        public double DPPValas { get; set; }
+        public double Rate { get; set; }
+        public string CurencyCode { get; set; }
         public double Conversion { get; set; }
         public double SmallQuantity { get; set; }
         public string SmallUOMUnit { get; set; }
