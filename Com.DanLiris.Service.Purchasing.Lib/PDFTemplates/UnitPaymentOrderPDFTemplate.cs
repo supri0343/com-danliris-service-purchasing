@@ -136,7 +136,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             double jumlah = 0;
 
             List<DateTimeOffset> DueDates = new List<DateTimeOffset>() { model.DueDate };
-            List<DateTimeOffset> CreatedUtc = new List<DateTimeOffset>() { model.CreatedUtc };
             List<DateTimeOffset> UnitReceiptNoteDates = new List<DateTimeOffset>() { DateTimeOffset.MinValue };
 
             //foreach (var f in new float[15])
