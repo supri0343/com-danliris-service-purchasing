@@ -391,9 +391,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             var createdUtcDate = model.CreatedUtc.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy");
             var dueDates = model.DueDate.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy");
-            int dateComp = createdUtcDate.CompareTo(dueDates);
+            //int dateComp = createdUtcDate.CompareTo(dueDates);
 
-            if (dateComp > 0)
+            if (createdUtcDate.CompareTo(dueDates) > 0)
             {
                 PdfPTable tableConfirm = new PdfPTable(2);
                 tableConfirm.SetWidths(new float[] { 0.5f, 0.5f });
