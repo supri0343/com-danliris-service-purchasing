@@ -389,11 +389,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region TableSignature
 
-            var createdUtcDate = model.CreatedUtc.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy");
-            var dueDates = model.DueDate.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy");
-            //int dateComp = createdUtcDate.CompareTo(dueDates);
 
-            if (createdUtcDate.CompareTo(dueDates) > 0)
+            List<DateTimeOffset> createdDate = new List<DateTimeOffset> { model.CreatedUtc };
+            DateTimeOffset getDate = createdDate.Min(p => p);
+
+            if (getDate > model.DueDate)
             {
                 PdfPTable tableConfirm = new PdfPTable(2);
                 tableConfirm.SetWidths(new float[] { 0.5f, 0.5f });
@@ -403,6 +403,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellWithBorder.Phrase = new Paragraph("TTD Kabag\n\n\n\n\n\n\n\n(                                   )", bold_font);
                 tableConfirm.AddCell(cellWithBorder);
 
+                PdfPCell cellMark = new PdfPCell(tableConfirm);
                 tableConfirm.ExtendLastRow = false;
                 tableConfirm.SpacingAfter = 30f;
                 document.Add(tableConfirm);
