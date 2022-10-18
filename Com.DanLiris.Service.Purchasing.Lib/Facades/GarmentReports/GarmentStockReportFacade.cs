@@ -71,7 +71,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     EndingUom = b.SmallUomUnit.Trim(),
                                     ExpandUom = b.SmallUomUnit.Trim(),
                                     ExpendQty = 0,
-                                    NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                    //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                    NoArticle = i != null ? i.Article.TrimEnd() : "-",
                                     PaymentMethod = j.PaymentMethod == "FREE FROM BUYER" || j.PaymentMethod == "CMT" || j.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                     PlanPo = b.POSerialNumber.Trim(),
                                     ProductCode = b.ProductCode.Trim(),
@@ -125,7 +126,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 EndingUom = a.SmallUomUnit.Trim(),
                                 ExpandUom = a.SmallUomUnit.Trim(),
                                 ExpendQty = 0,
-                                NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                NoArticle = c != null ? c.Article.TrimEnd() : "-",
                                 PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                 PlanPo = a.POSerialNumber.Trim(),
                                 ProductCode = a.ProductCode.Trim(),
@@ -182,7 +184,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                                 ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                                 ExpendQty = 0,
-                                NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                NoArticle = c != null ? c.Article.TrimEnd() : "-",
                                 PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                 PlanPo = a.POSerialNumber.Trim(),
                                 ProductCode = a.ProductCode.Trim(),
@@ -236,7 +239,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  EndingUom = b.SmallUomUnit.Trim(),
                                  ExpandUom = b.SmallUomUnit.Trim(),
                                  ExpendQty = 0,
-                                 NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                 //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                 NoArticle = c != null ? c.Article.TrimEnd() : "-",
                                  PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                  PlanPo = b.POSerialNumber.Trim(),
                                  ProductCode = b.ProductCode.Trim(),
@@ -308,7 +312,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               EndingUom = a.SmallUomUnit.Trim(),
                               ExpandUom = a.SmallUomUnit.Trim(),
                               ExpendQty = 0,
-                              NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                              //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                              NoArticle = c != null ? c.Article.TrimEnd() : "-",
                               PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                               PlanPo = a.POSerialNumber.Trim(),
                               ProductCode = a.ProductCode.Trim(),
@@ -360,7 +365,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                               ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                               ExpendQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) :  (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion : Convert.ToDecimal(a.Quantity),
-                              NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                              //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                              NoArticle = c != null ? c.Article.TrimEnd() : "-",
                               PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                               PlanPo = a.POSerialNumber.Trim(),
                               ProductCode = a.ProductCode.Trim(),
@@ -413,7 +419,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                EndingUom = b.SmallUomUnit,
                                ExpandUom = b.SmallUomUnit,
                                ExpendQty = 0,
-                               NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                               //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                               NoArticle = c != null ? c.Article.TrimEnd() : "-",
                                PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                PlanPo = b.POSerialNumber,
                                ProductCode = b.ProductCode,
@@ -464,7 +471,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }).ToList();
 
             var SaldoAkhir1 = SaldoAwal12.Concat(SaldoFiltered1).AsEnumerable();
-            var stock = SaldoAkhir1.GroupBy(x => new { x.BeginningBalanceUom, /*x.Buyer,*/ x.EndingUom, x.ExpandUom,x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
+            var stock = SaldoAkhir1.GroupBy(x => new { x.BeginningBalanceUom, /*x.Buyer,*/ x.EndingUom, x.ExpandUom,x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO,x.NoArticle }, (key, group) => new GarmentStockReportViewModelTemp
             {
                 BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2, MidpointRounding.AwayFromZero),
                 BeginningBalanceUom = key.BeginningBalanceUom,
@@ -473,7 +480,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 EndingUom = key.EndingUom,
                 ExpandUom = key.ExpandUom,
                 ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2, MidpointRounding.AwayFromZero),
-                //NoArticle = key.NoArticle,
+                NoArticle = key.NoArticle,
                 PaymentMethod = key.PaymentMethod,
                 PlanPo = key.PlanPo,
                 ProductCode = key.ProductCode,
@@ -564,7 +571,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           EndingUom = i.EndingUom,
                           ExpandUom = i.ExpandUom,
                           ExpendQty = decimal.ToDouble(i.ExpendQty),
-                          //NoArticle = i.NoArticle,
+                          NoArticle = i.NoArticle,
                           PaymentMethod = i.PaymentMethod,
                           PlanPo = i.PlanPo,
                           ProductCode = i.ProductCode,
@@ -808,7 +815,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 sheet.Column(i + 1).Width = widths[i];
             }
 
-            sheet.Column(5).Hidden = true;
+            //Uncomend to Hide Articel
+            //sheet.Column(5).Hidden = true;
 
             var a = Query.Count();
             sheet.Cells[$"A{7 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
