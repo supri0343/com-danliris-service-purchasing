@@ -33,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellRightNoBorder = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
             PdfPCell cellJustifyNoBorder = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_JUSTIFIED };
             PdfPCell cellJustifyAllNoBorder = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_JUSTIFIED_ALL };
+            PdfPCell cellWithBorder = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
             PdfPCell cellCenter = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
@@ -387,6 +388,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             #endregion
 
             #region TableSignature
+
+
+            List<DateTimeOffset> createdDate = new List<DateTimeOffset> { model.CreatedUtc };
+            DateTimeOffset getDate = createdDate.Min(p => p);
+
+            if (getDate > model.DueDate)
+            {
+                PdfPTable tableConfirm = new PdfPTable(2);
+                tableConfirm.SetWidths(new float[] { 0.5f, 0.5f });
+
+                cellWithBorder.Phrase = new Paragraph("Alasan Keterlambatan", bold_font);
+                tableConfirm.AddCell(cellWithBorder);
+                cellWithBorder.Phrase = new Paragraph("TTD Kabag\n\n\n\n\n\n\n\n(                                   )", bold_font);
+                tableConfirm.AddCell(cellWithBorder);
+
+                PdfPCell cellMark = new PdfPCell(tableConfirm);
+                tableConfirm.ExtendLastRow = false;
+                tableConfirm.SpacingAfter = 30f;
+                document.Add(tableConfirm);
+            }
 
             PdfPTable tableSignature = new PdfPTable(4);
 
