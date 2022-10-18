@@ -598,14 +598,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             Assert.NotEqual(-1, Response.Item2);
         }
 
-        [Fact]
-        public async Task Should_Success_Get_Report_Data_Null_Parameter()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportDO("", "", 0, null, null, null, null, 1, 25, "{}", 7);
-            Assert.NotEmpty(Response.Item1);
-        }
+        //[Fact]
+        //public async Task Should_Success_Get_Report_Data_Null_Parameter()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        //    var Response = facade.GetReportDO("", "", 0, null, null, null, null, 1, 25, "{}", 7);
+        //    Assert.NotEmpty(Response.Item1);
+        //}
 
         [Fact]
         public async Task Should_Success_Get_Report_Data_Excel()
