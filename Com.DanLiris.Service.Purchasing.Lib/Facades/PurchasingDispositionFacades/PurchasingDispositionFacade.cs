@@ -175,6 +175,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     IncomeTaxRate = x.IncomeTaxRate,
                     UseVat = x.UseVat,
                     UseIncomeTax = x.UseIncomeTax,
+                    VatId = x.VatId,
+                    VatRate = x.VatRate,
                     UId = x.UId,
                     Details = x.Details.Select(y => new PurchasingDispositionDetail()
                     {
