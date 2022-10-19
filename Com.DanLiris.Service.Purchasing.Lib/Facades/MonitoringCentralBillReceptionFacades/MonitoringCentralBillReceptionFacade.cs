@@ -72,7 +72,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | QTY Sbl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Satuan Sbl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Harga", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Jumlah Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | DPP", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | DPP Valas", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Rate", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Mata Uang", DataType = typeof(String) });
 
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Konversi", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Qty Stl Konv", DataType = typeof(String) });
@@ -92,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
             result.Columns.Add(new DataColumn() { ColumnName = "KONF | Sat Stl Konv", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "","","",""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -118,10 +122,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                     string URNConversion = string.Format("{0:N2}", item.URNConversion);
                     string URNSmallQuantity = string.Format("{0:N2}", item.URNSmallQuantity);
 
+                    string PPN = string.Format("{0:N2}", item.PPN);
+                    string DPPValas = string.Format("{0:N2}", item.DPPValas);
+                    string Rate = string.Format("{0:N2}", item.Rate);
+
                     result.Rows.Add(
                            index, item.BillNo, BillDate, item.PaymentBill, item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom,
                            item.SupplierCode, item.SupplierName, item.Article, item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode,
-                           item.ProductName, item.ProductRemark, DOQuantity, item.UOMUnit, PricePerDealUnit, PriceTotal, Conversion, SmallQuantity, item.SmallUOMUnit,
+                           item.ProductName, item.ProductRemark, DOQuantity, item.UOMUnit, PricePerDealUnit, PPN, PriceTotal, DPPValas, Rate, item.CurencyCode, Conversion, SmallQuantity, item.SmallUOMUnit,
                            item.InternNo, INDate, item.URNNo, ReceiptDate, item.UnitName, ReceiptQuantity, item.URNUOMUnit, URNPricePerDealUnit, URNPriceTotal, URNConversion, URNSmallQuantity, item.URNSmallUOMUnit);
                 }
             }
@@ -203,9 +211,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
             TotalCountReport = Query.Distinct().OrderByDescending(o => o.BillDate).Count();
             var queryResult = Query.Distinct().OrderByDescending(o => o.BillDate).Skip((page - 1) * size).Take(size).ToList();
             var deliveryOrderIds = queryResult.Select(s => s.DOId).Distinct().ToList();
-            var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.DOCurrencyRate, s.PaymentBill, s.PaymentMethod, s.SupplierCode, s.SupplierName, s.DONo, s.ArrivalDate, s.InternNo }).ToList();
+            var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => deliveryOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.BillNo, s.DOCurrencyRate, s.PaymentBill, s.PaymentMethod, s.SupplierCode, s.SupplierName, s.DONo, s.ArrivalDate, s.InternNo,s.VatRate }).ToList();
             var deliveryOrderItemIds = queryResult.Select(s => s.DOItemId).Distinct().ToList();
-            var deliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.EPONo }).ToList();
+            var deliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => deliveryOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.EPONo,s.CurrencyCode }).ToList();
             var deliveryOrderDetailIds = queryResult.Select(s => s.DODetailId).Distinct().ToList();
             var deliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.CodeRequirment, s.POSerialNumber, s.ProductCode, s.ProductName, s.DOQuantity, s.UomUnit, s.PricePerDealUnit, s.PriceTotal, s.Conversion, s.SmallQuantity, s.SmallUomUnit }).ToList();
             var beaCukaiIds = queryResult.Select(s => s.BCId).Distinct().ToList();
@@ -270,7 +278,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                 monitoringcentralbillreceptionViewModel.DOQuantity = deliveryOrderDetail.DOQuantity;
                 monitoringcentralbillreceptionViewModel.UOMUnit = deliveryOrderDetail.UomUnit;
                 monitoringcentralbillreceptionViewModel.PricePerDealUnit = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit, 2);
+                monitoringcentralbillreceptionViewModel.PPN = Math.Round((double)(deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit * deliveryOrderDetail.DOQuantity) * (double)(deliveryOrder.VatRate / 100), 2);
                 monitoringcentralbillreceptionViewModel.PriceTotal = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit * deliveryOrderDetail.DOQuantity, 2);
+                monitoringcentralbillreceptionViewModel.DPPValas = deliveryOrderItem.CurrencyCode != "IDR" ? Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit * deliveryOrderDetail.DOQuantity, 2) : 0;
+                monitoringcentralbillreceptionViewModel.Rate = Math.Round((double)deliveryOrder.DOCurrencyRate, 2); ;
+                monitoringcentralbillreceptionViewModel.CurencyCode = deliveryOrderItem.CurrencyCode;
                 monitoringcentralbillreceptionViewModel.Conversion = deliveryOrderDetail.Conversion;
                 monitoringcentralbillreceptionViewModel.SmallQuantity = deliveryOrderDetail.DOQuantity * deliveryOrderDetail.Conversion;
                 monitoringcentralbillreceptionViewModel.SmallUOMUnit = deliveryOrderDetail.SmallUomUnit;
@@ -341,7 +353,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | QTY Sbl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Satuan Sbl Konv", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Harga", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Jumlah Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | DPP", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | DPP Valas", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Rate", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Mata Uang", DataType = typeof(String) });
 
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Konversi", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Qty Stl Konv", DataType = typeof(String) });
@@ -361,7 +377,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
             result.Columns.Add(new DataColumn() { ColumnName = "KONF | Sat Stl Konv", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "","","","",""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -388,10 +404,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                     string URNConversion = string.Format("{0:N2}", item.URNConversion);
                     string URNSmallQuantity = string.Format("{0:N2}", item.URNSmallQuantity);
 
+                    string PPN = string.Format("{0:N2}", item.PPN);
+                    string DPPValas = string.Format("{0:N2}", item.DPPValas);
+                    string Rate = string.Format("{0:N2}", item.Rate);
+
                     result.Rows.Add(
                            index, item.BillNo, BillDate, item.PaymentBill, item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom,
                            item.SupplierCode, item.SupplierName, item.Article, item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode,
-                           item.ProductName, item.ProductRemark, DOQuantity, item.UOMUnit, PricePerDealUnit, PriceTotal, Conversion, SmallQuantity, item.SmallUOMUnit,
+                           item.ProductName, item.ProductRemark, DOQuantity, item.UOMUnit, PricePerDealUnit, PPN, PriceTotal, DPPValas, Rate, item.CurencyCode, Conversion, SmallQuantity, item.SmallUOMUnit,
                            item.InternNo, INDate, item.URNNo, ReceiptDate, item.UnitName, ReceiptQuantity, item.URNUOMUnit, URNPricePerDealUnit, URNPriceTotal, URNConversion, URNSmallQuantity, item.URNSmallUOMUnit);
                 }
             }

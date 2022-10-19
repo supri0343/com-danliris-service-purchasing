@@ -132,6 +132,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
 
                     DueDate = new DateTimeOffset(), // ???
 
+                    CreatedUtc = DateTime.Now,
+
                     Items = new List<UnitPaymentOrderItem> { }
                 };
             }

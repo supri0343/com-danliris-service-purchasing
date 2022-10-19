@@ -2650,7 +2650,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
-            var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "SMP1", "SAMPLE", new DateTime(2010, 12, 26), DateTime.Now, 7);
+            var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "", "SAMPLE", new DateTime(2010, 12, 26), DateTime.Now, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         /*[Fact]
@@ -2955,8 +2955,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dataRC = await dataUtilRC.GetNewData(dataUrn1);
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new GarmentStockReportFacade(serviceProvider, dbContext);
-            var Response = stockreport.GenerateExcelStockReport("BB", null, dataUrn1.UnitName, dataUrn1.UnitCode, new DateTime(1970, 1, 1), DateTime.Now, 7);
-            var Response2 = stockreport.GenerateExcelStockReport("BP", null, dataUrn2.UnitName, dataUrn2.UnitCode, new DateTime(1970, 1, 1), DateTime.Now, 7);
+            //var Response = stockreport.GenerateExcelStockReport("BB", null, dataUrn1.UnitName, dataUrn1.UnitCode, new DateTime(1970, 1, 1), DateTime.Now, 7);
+            var Response2 = stockreport.GenerateExcelStockReport("BB", null, dataUrn2.UnitName, dataUrn2.UnitCode, new DateTime(1970, 1, 1), DateTime.Now, 7);
             Assert.IsType<System.IO.MemoryStream>(Response2);
         }
 

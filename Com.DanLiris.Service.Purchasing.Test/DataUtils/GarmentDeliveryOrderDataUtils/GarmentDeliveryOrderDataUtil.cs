@@ -70,6 +70,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 TotalAmount = nowTicks,
                 CustomsId = 1,
 
+                VatId = 1,
+                VatRate = 1,
+            
+
                 Items = new List<GarmentDeliveryOrderItem>
                 {
                     new GarmentDeliveryOrderItem

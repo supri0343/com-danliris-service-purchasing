@@ -58,6 +58,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 where a.Date.Date == lastdate.Date
                                 && c.CreatedUtc.Year <= DateTo.Date.Year
                                 && a.IsDeleted == false && b.IsDeleted == false
+                                && c.IsDeleted == false && h.IsDeleted==false
+                                //&& i.IsDeleted == false && j.IsDeleted == false
                                 && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                 && categories1.Contains(b.ProductName)
                                 select new GarmentStockReportViewModelTemp
@@ -69,7 +71,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     EndingUom = b.SmallUomUnit.Trim(),
                                     ExpandUom = b.SmallUomUnit.Trim(),
                                     ExpendQty = 0,
-                                    NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                    //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                    NoArticle =  i.Article.TrimEnd(),
                                     PaymentMethod = j.PaymentMethod == "FREE FROM BUYER" || j.PaymentMethod == "CMT" || j.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                     PlanPo = b.POSerialNumber.Trim(),
                                     ProductCode = b.ProductCode.Trim(),
@@ -108,6 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 //join h in Codes on a.ProductCode equals h.Code
                             where
                             a.IsDeleted == false && b.IsDeleted == false
+                                //&& c.IsDeleted == false && d.IsDeleted == false
                               &&
                               b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
@@ -122,7 +126,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 EndingUom = a.SmallUomUnit.Trim(),
                                 ExpandUom = a.SmallUomUnit.Trim(),
                                 ExpendQty = 0,
-                                NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                NoArticle =  c.Article.TrimEnd(),
                                 PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                 PlanPo = a.POSerialNumber.Trim(),
                                 ProductCode = a.ProductCode.Trim(),
@@ -161,6 +166,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             from urnitem in urnitems.DefaultIfEmpty()
                             where
                             a.IsDeleted == false && b.IsDeleted == false
+                                //&& c.IsDeleted == false && d.IsDeleted == false
+                                //&& urnitem.IsDeleted == false 
+
                                &&
                                b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
@@ -176,7 +184,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                                 ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                                 ExpendQty = 0,
-                                NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                NoArticle = c.Article.TrimEnd(),
                                 PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                 PlanPo = a.POSerialNumber.Trim(),
                                 ProductCode = a.ProductCode.Trim(),
@@ -213,7 +222,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              from prs in PR.DefaultIfEmpty()
 
                              where
-                             a.IsDeleted == false && b.IsDeleted == false
+                              a.IsDeleted == false && b.IsDeleted == false
+                                //&& c.IsDeleted == false && d.IsDeleted == false
+                                && e.IsDeleted == false && g.IsDeleted == false
                              &&
                              g.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                              && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
@@ -228,7 +239,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  EndingUom = b.SmallUomUnit.Trim(),
                                  ExpandUom = b.SmallUomUnit.Trim(),
                                  ExpendQty = 0,
-                                 NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                 //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                 NoArticle = c.Article.TrimEnd() ,
                                  PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                  PlanPo = b.POSerialNumber.Trim(),
                                  ProductCode = b.ProductCode.Trim(),
@@ -283,8 +295,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
                           from prs in PR.DefaultIfEmpty()
                               //join h in Codes on a.ProductCode equals h.Code
-                          where a.IsDeleted == false && b.IsDeleted == false
-                              &&
+                          where a.IsDeleted == false && b.IsDeleted == false &&
+                                //&& c.IsDeleted == false && d.IsDeleted == false &&
+                          
+
                               b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                               && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
@@ -298,7 +312,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               EndingUom = a.SmallUomUnit.Trim(),
                               ExpandUom = a.SmallUomUnit.Trim(),
                               ExpendQty = 0,
-                              NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                              //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                              NoArticle =c.Article.TrimEnd(),
                               PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                               PlanPo = a.POSerialNumber.Trim(),
                               ProductCode = a.ProductCode.Trim(),
@@ -334,8 +349,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           from prs in PR.DefaultIfEmpty()
                           join f in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals f.Id into urnitems
                           from urnitem in urnitems.DefaultIfEmpty()
-                          where a.IsDeleted == false && b.IsDeleted == false
-                               &&
+                          where a.IsDeleted == false && b.IsDeleted == false &&
+                                //&& c.IsDeleted == false && d.IsDeleted == false
+                                //&& urnitem.IsDeleted == false &&
                                b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                                && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
@@ -349,7 +365,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                               ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                               ExpendQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) :  (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion : Convert.ToDecimal(a.Quantity),
-                              NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                              //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                              NoArticle =  c.Article.TrimEnd(),
                               PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                               PlanPo = a.POSerialNumber.Trim(),
                               ProductCode = a.ProductCode.Trim(),
@@ -387,7 +404,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                //join h in Codes on b.ProductCode equals h.Code
                            where
                              a.IsDeleted == false && b.IsDeleted == false
-                             &&
+                                //&& c.IsDeleted == false && d.IsDeleted == false
+                                && e.IsDeleted == false && g.IsDeleted == false &&
                              g.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                              && g.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
@@ -401,7 +419,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                EndingUom = b.SmallUomUnit,
                                ExpandUom = b.SmallUomUnit,
                                ExpendQty = 0,
-                               NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                               //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                               NoArticle =  c.Article.TrimEnd(),
                                PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                                PlanPo = b.POSerialNumber,
                                ProductCode = b.ProductCode,
@@ -452,7 +471,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }).ToList();
 
             var SaldoAkhir1 = SaldoAwal12.Concat(SaldoFiltered1).AsEnumerable();
-            var stock = SaldoAkhir1.GroupBy(x => new { x.BeginningBalanceUom, /*x.Buyer,*/ x.EndingUom, x.ExpandUom,x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
+            var stock = SaldoAkhir1.GroupBy(x => new { x.BeginningBalanceUom, /*x.Buyer,*/ x.EndingUom, x.ExpandUom,x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO,x.NoArticle }, (key, group) => new GarmentStockReportViewModelTemp
             {
                 BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2, MidpointRounding.AwayFromZero),
                 BeginningBalanceUom = key.BeginningBalanceUom,
@@ -461,7 +480,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 EndingUom = key.EndingUom,
                 ExpandUom = key.ExpandUom,
                 ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2, MidpointRounding.AwayFromZero),
-                //NoArticle = key.NoArticle,
+                NoArticle = key.NoArticle,
                 PaymentMethod = key.PaymentMethod,
                 PlanPo = key.PlanPo,
                 ProductCode = key.ProductCode,
@@ -477,6 +496,67 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var PrdoctCodes = string.Join(",", stock.Select(x => x.ProductCode).Distinct().ToList());
 
+            //var PrdoctCodes = stock.Select(x => x.ProductCode).Distinct().ToList();
+
+            //var count = (PrdoctCodes.Count());
+
+            //decimal jum = 0;
+            //List<GarmentProductViewModel> code = new List<GarmentProductViewModel>();
+            //if (count > 100)
+            //{
+            //    jum = Math.Round((decimal)count / 100, 0, MidpointRounding.AwayFromZero);
+
+            //    for (var i = 1; i <= jum; i++)
+            //    {
+            //        var productCode1 = string.Join(",", PrdoctCodes.Skip((i - 1) * 100).Take(i * 100).ToList());
+            //        var Codess = GetProductCode(productCode1);
+
+            //        foreach (var a in Codess)
+            //        {
+            //            code.Add(a);
+            //        }
+
+            //        //if (i == 1)
+            //        //{
+            //        //    var productCode1 = string.Join(",", PrdoctCodes.Skip(0).Take(i * 100).ToList());
+
+            //        //    var Codess = GetProductCode(productCode1);
+
+            //        //    foreach (var a in Codess)
+            //        //    {
+            //        //        code.Add(a);
+            //        //    }
+            //        //}
+            //        //else
+            //        //{
+            //        //    var productCode1 = string.Join(",", PrdoctCodes.Skip((i - 1) * 100).Take(i * 100).ToList());
+            //        //    var Codess = GetProductCode(productCode1);
+
+            //        //    foreach (var a in Codess)
+            //        //    {
+            //        //        code.Add(a);
+            //        //    }
+            //        //}
+
+            //    }
+            //}else
+            //{
+
+            //    var productCode1 = string.Join(",",PrdoctCodes.ToList());
+            //    var Codes = GetProductCode(productCode1);
+            //    foreach (var a in Codes)
+            //    {
+            //        code.Add(a);
+            //    }
+            //}
+
+            //var productCode1 = PrdoctCodes.Take(2000).ToList();
+            //var productCode
+
+
+
+
+
             var Codes = GetProductCode(PrdoctCodes);
 
             stock1 = (from i in stock
@@ -491,11 +571,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           EndingUom = i.EndingUom,
                           ExpandUom = i.ExpandUom,
                           ExpendQty = decimal.ToDouble(i.ExpendQty),
-                          //NoArticle = i.NoArticle,
+                          NoArticle = i.NoArticle,
                           PaymentMethod = i.PaymentMethod,
                           PlanPo = i.PlanPo,
                           ProductCode = i.ProductCode,
-                          ProductRemark = ctg == "BB" ? string.Concat((bb == null ? "-" : bb.Composition), "", (bb == null ? "-" : bb.Width), "", (bb == null ? "-" : bb.Const), "", (bb == null ? "-" : bb.Yarn)) : bb.Name,
+                          ProductRemark = bb != null ? (ctg == "BB" ? string.Concat((bb == null ? "-" : bb.Composition), "", (bb == null ? "-" : bb.Width), "", (bb == null ? "-" : bb.Const), "", (bb == null ? "-" : bb.Yarn)) : bb.Name) : "-",
+                          //ProductRemark = bb != null ? bb.Name : "-",
                           ReceiptCorrectionQty = i.ReceiptCorrectionQty,
                           ReceiptQty = i.ReceiptQty,
                           ReceiptUom = i.ReceiptUom,
@@ -734,7 +815,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 sheet.Column(i + 1).Width = widths[i];
             }
 
-            sheet.Column(5).Hidden = true;
+            //Uncomend to Hide Articel
+            //sheet.Column(5).Hidden = true;
 
             var a = Query.Count();
             sheet.Cells[$"A{7 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
@@ -810,11 +892,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         private List<GarmentProductViewModel> GetProductCode(string codes)
         {
+
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
 
             var httpContent = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
 
-            var garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCode";
+            string garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCodes";
             var httpResponse = httpClient.SendAsync(HttpMethod.Get, garmentProductionUri, httpContent).Result;
 
             if (httpResponse.IsSuccessStatusCode)
@@ -840,6 +923,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 return viewModel;
             }
         }
+
 
 
         //public List<GarmentProductViewModel> GetRemark(string itemcode)

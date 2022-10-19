@@ -101,7 +101,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                         SmallUomId = 1,
                         SmallUomUnit = "UomUnit1",
-                        SmallQuantity = 50
+                        SmallQuantity = 50,
+
+                        Article = "Art"
+
+                        
                     }
                 }
             };
@@ -184,6 +188,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                         SmallUomId = 1,
                         SmallUomUnit = "UomUnit1",
+                         Article = "Art"
                     }
                 }
             };
@@ -252,7 +257,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         Conversion=1,
                         RONo=datas[0].RONo,
 
-                        Remark = "ProductRemark"
+                        Remark = "ProductRemark",
+                         Article = "Art"
                     }
                 }
             };
@@ -335,6 +341,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                         ReceiptQuantity = 0,
                         DOQuantity = 1,
+
+                         Article = "Art"
 
                     }
                 }
@@ -423,6 +431,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                         SmallUomId = 1,
                         SmallUomUnit = "UomUnit1",
+
+                        Article = "Art"
                     });
                 }
             }
@@ -545,7 +555,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         Conversion=1,
                         RONo=data.RONo,
 
-                        Remark = "ProductRemark"
+                        Remark = "ProductRemark",
+
+                         Article = "Art"
                     }
                 }
             };
@@ -633,7 +645,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         Conversion=1,
                         RONo=data.RONo,
 
-                        Remark = "ProductRemark"
+                        Remark = "ProductRemark",
+
+                         Article = "Art"
                     }
                 }
             };
@@ -721,7 +735,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                         Conversion=1,
                         RONo=data.RONo,
 
-                        Remark = "ProductRemark"
+                        Remark = "ProductRemark",
+
+                         Article = "Art"
                     }
                 }
             };
