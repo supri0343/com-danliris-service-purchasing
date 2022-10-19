@@ -114,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          from upoItem in v.DefaultIfEmpty()
                          join w in _dbContext.UnitPaymentOrders on upoItem.UPOId equals w.Id into x
                          from upo in x.DefaultIfEmpty()
-                         join y in _dbContext.UnitPaymentOrderDetails on urnItem.Id equals y.URNItemId into z
+                         join y in _dbContext.UnitPaymentOrderDetails on upoItem.Id equals y.UPOItemId into z
                          from upoDetail in z.DefaultIfEmpty()
                          where
                           a.CreatedBy == (string.IsNullOrWhiteSpace(createdBy) ? a.CreatedBy : createdBy)
@@ -196,7 +196,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var unitPaymentOrderItemIds = queryresult.Select(s => s.UPOItemId).Distinct().ToList();
             var unitPaymentOrderItems = _dbContext.UnitPaymentOrderItems.Where(w => unitPaymentOrderItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
             var unitPaymentOrderDetailIds = queryresult.Select(s => s.UPODetailId).Distinct().ToList();
-            var unitPaymentOrderDetails = _dbContext.UnitPaymentOrderDetails.Where(w => unitReceiptNoteItemIds.Contains(w.URNItemId)).Select(s => new { s.Id, s.PriceTotal }).ToList();
+            var unitPaymentOrderDetails = _dbContext.UnitPaymentOrderDetails.Where(w => unitPaymentOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.PriceTotal }).ToList();
 
             foreach (var data in queryresult)
             {
