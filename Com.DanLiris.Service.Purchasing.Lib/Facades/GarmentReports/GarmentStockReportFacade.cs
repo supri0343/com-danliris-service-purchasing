@@ -621,7 +621,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             stock1 = stock1.Where(x => (x.ProductCode != "EMB001") && (x.ProductCode != "WSH001") && (x.ProductCode != "PRC001") && (x.ProductCode != "APL001") && (x.ProductCode != "QLT001") && (x.ProductCode != "SMT001") && (x.ProductCode != "GMT001") && (x.ProductCode != "PRN001") && (x.ProductCode != "SMP001")).ToList(); ;
             //stock1 = stock1.Where(x => (x.BeginningBalanceQty != 0) || (x.EndingBalanceQty != 0) || (x.ReceiptCorrectionQty != 0) || (x.ReceiptQty != 0) || (x.ExpendQty != 0)).ToList();
-            stock1 = stock1.Where(x => (x.BeginningBalanceQty >= 0) || (x.EndingBalanceQty >= 0) || (x.ReceiptCorrectionQty >= 0) || (x.ReceiptQty >= 0) || (x.ExpendQty >= 0)).ToList();
+            stock1 = stock1.Where(x => (x.BeginningBalanceQty > 0) || (x.EndingBalanceQty > 0) || (x.ReceiptCorrectionQty > 0) || (x.ReceiptQty > 0) || (x.ExpendQty > 0)).ToList();
 
             decimal TotalReceiptQty = 0;
             decimal TotalCorrectionQty = 0;
