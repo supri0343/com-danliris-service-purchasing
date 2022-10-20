@@ -58,7 +58,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 where a.Date.Date == lastdate.Date
                                 && c.CreatedUtc.Year <= DateTo.Date.Year
                                 && a.IsDeleted == false && b.IsDeleted == false
-                                && c.IsDeleted == false && h.IsDeleted==false
+                                && c.IsDeleted == false 
+                                //&& h.IsDeleted==false
                                 //&& i.IsDeleted == false && j.IsDeleted == false
                                 && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                 && categories1.Contains(b.ProductName)
