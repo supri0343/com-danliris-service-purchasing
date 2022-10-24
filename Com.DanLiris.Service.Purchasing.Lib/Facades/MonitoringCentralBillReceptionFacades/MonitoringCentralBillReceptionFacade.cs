@@ -278,7 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                 monitoringcentralbillreceptionViewModel.DOQuantity = deliveryOrderDetail.DOQuantity;
                 monitoringcentralbillreceptionViewModel.UOMUnit = deliveryOrderDetail.UomUnit;
                 monitoringcentralbillreceptionViewModel.PricePerDealUnit = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit, 2);
-                monitoringcentralbillreceptionViewModel.PPN = Math.Round((double)(deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit * deliveryOrderDetail.DOQuantity) * (double)(deliveryOrder.VatRate / 100), 2);
+                monitoringcentralbillreceptionViewModel.PPN = deliveryOrder.VatRate != null ? Math.Round((double)(deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit * deliveryOrderDetail.DOQuantity) * (double)(deliveryOrder.VatRate / 100), 2) : 0;
                 monitoringcentralbillreceptionViewModel.PriceTotal = Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit * deliveryOrderDetail.DOQuantity, 2);
                 monitoringcentralbillreceptionViewModel.DPPValas = deliveryOrderItem.CurrencyCode != "IDR" ? Math.Round((double)deliveryOrder.DOCurrencyRate * deliveryOrderDetail.PricePerDealUnit * deliveryOrderDetail.DOQuantity, 2) : 0;
                 monitoringcentralbillreceptionViewModel.Rate = Math.Round((double)deliveryOrder.DOCurrencyRate, 2); ;
