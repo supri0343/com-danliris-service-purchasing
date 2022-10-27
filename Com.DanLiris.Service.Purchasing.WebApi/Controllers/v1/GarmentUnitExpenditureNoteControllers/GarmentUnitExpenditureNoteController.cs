@@ -585,5 +585,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
+
+        [HttpGet("loader-by-ro")]
+        public IActionResult GetLoaderByRO(string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                var result = facade.ReadLoaderProductByROJob(keyword, filter);
+                Dictionary<string, object> Result =
+                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                       .Ok(result);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }
