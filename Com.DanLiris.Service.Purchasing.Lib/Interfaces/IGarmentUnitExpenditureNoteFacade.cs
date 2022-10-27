@@ -33,5 +33,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 
         int UenDateRevise(List<long> ids, string user, DateTime reviseDate);
         List<GarmentUENViewModel> GetDataUEN(int id);
+        List<object> ReadLoaderProductByROJob(string Keyword = null, string Filter = "{}", int size = 50);
     }
 }
