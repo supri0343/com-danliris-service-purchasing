@@ -220,7 +220,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
-                               join i in dbContext.GarmentDOItems on b.DOItemId equals i.Id
+                               //join i in dbContext.GarmentDOItems on b.DOItemId equals i.Id
                                join c in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals c.Id
                                //join g in dbContext.GarmentUnitReceiptNotes on c.URNId equals g.Id
                                join d in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on c.EPOItemId equals d.Id
@@ -228,9 +228,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RO equals h.RONo into PR
                            from prs in PR.DefaultIfEmpty()
                                where a.Date.Date == lastdate.Date
-                               && i.CreatedUtc.Year <= DateTo.Date.Year
+                               //&& i.CreatedUtc.Year <= DateTo.Date.Year
+                               && a.Date.Year <= DateTo.Date.Year
                                && a.IsDeleted == false && b.IsDeleted == false
-                               && i.IsDeleted == false && c.IsDeleted == false
+                               //&& i.IsDeleted == false && c.IsDeleted == false
                                //&& g.IsDeleted == false
                                && categories1.Contains(b.ProductName)
                                //&& pemasukan.Contains(g.URNType)
