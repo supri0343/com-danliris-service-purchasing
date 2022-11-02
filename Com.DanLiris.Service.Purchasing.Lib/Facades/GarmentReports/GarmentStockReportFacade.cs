@@ -49,17 +49,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                 join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
-                                join c in dbContext.GarmentDOItems on b.DOItemId equals c.Id
+                                //join c in dbContext.GarmentDOItems on b.DOItemId equals c.Id
                                 join h in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals h.Id
                                 join i in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on h.EPOItemId equals i.Id
                                 join j in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on i.GarmentEPOId equals j.Id
                                 join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RO equals g.RONo into PR
                                 from prs in PR.DefaultIfEmpty()
                                 where a.Date.Date == lastdate.Date
-                                && c.CreatedUtc.Year <= DateTo.Date.Year
+                                //&& c.CreatedUtc.Year <= DateTo.Date.Year
+                                && a.Date.Year <= DateTo.Date.Year
                                 && a.IsDeleted == false && b.IsDeleted == false
-                                && c.IsDeleted == false
-                                && h.IsDeleted == false
+                                //&& c.IsDeleted == false
+                                //&& h.IsDeleted == false
                                 //&& i.IsDeleted == false && j.IsDeleted == false
                                 && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                 && categories1.Contains(b.ProductName)
