@@ -981,5 +981,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             var response = controller.UrnReviseDate(DateTime.Now, new List<GarmentUnitExpenditureNoteViewModel>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void GetLoaderByRO_Success()
+        {
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitExpenditureNoteViewModel>>(It.IsAny<List<GarmentUnitExpenditureNote>>()))
+                .Returns(new List<GarmentUnitExpenditureNoteViewModel> { ViewModel });
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitExpenditureNoteViewModel>()))
+                .Verifiable();
+
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.UenDateRevise(It.IsAny<List<long>>(), It.IsAny<string>(), It.IsAny<DateTime>()))
+                .Returns(1);
+
+            var mockunitdo = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = GetController(mockFacade, mockunitdo, validateMock, mockMapper);
+            var response = controller.GetLoaderByRO();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        
     }
 }

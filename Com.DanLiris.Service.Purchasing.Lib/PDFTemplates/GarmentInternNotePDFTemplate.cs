@@ -573,7 +573,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
    //         }
 
            
-            string text = "Page " + writer.CurrentPageNumber + " of " + writer.PageNumber;
+            string text = "Page " + writer.CurrentPageNumber;
 
             {
                 cb.BeginText();

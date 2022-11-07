@@ -2597,5 +2597,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 			var Response = facade.GenerateExcelForUnit("BB", "", "FABRIC", "SMP1", "SAMPLE", DateTime.Now, DateTime.Now, 7);
 			Assert.NotNull(Response);
 		}
-	}
+
+        [Fact]
+        public async Task ReadLoaderProductByROJob_Success()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestData();
+            var Response = facadeExpend.ReadLoaderProductByROJob(null, "{'RONo': 'ro'}");
+            Assert.NotNull(Response);
+        }
+    }
 }
