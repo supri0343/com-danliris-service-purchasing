@@ -849,6 +849,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Diff = mm.Diff
             });
 
+            //mutation = mutation.Where(x => (x.BeginQty != 0) || (x.LastQty != 0) || (x.ReceiptQty != 0) || (x.ExpenditureQty != 0 || (x.AdjustmentQty != 0))).ToList();
+            //mutation = mutation.Where(x =>  x.LastQty > 0).ToList();
+
             return mutation;
 
         }
