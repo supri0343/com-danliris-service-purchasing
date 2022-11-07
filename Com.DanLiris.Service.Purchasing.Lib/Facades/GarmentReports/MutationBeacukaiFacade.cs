@@ -817,7 +817,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
             mutation = mutation.Where(x => (x.ItemCode != "EMB001") && (x.ItemCode != "WSH001") && (x.ItemCode != "PRC001") && (x.ItemCode != "APL001") && (x.ItemCode != "QLT001") && (x.ItemCode != "SMT001") && (x.ItemCode != "GMT001") && (x.ItemCode != "PRN001") && (x.ItemCode != "SMP001")).ToList(); ;
-            //mutation = mutation.Where(x => (x.BeginQty != 0) || (x.LastQty != 0) || (x.ReceiptQty != 0) || (x.ExpenditureQty != 0 || (x.AdjustmentQty != 0))).ToList();
+            mutation = mutation.Where(x => (x.BeginQty != 0) || (x.LastQty != 0) || (x.ReceiptQty != 0) || (x.ExpenditureQty != 0 || (x.AdjustmentQty != 0))).ToList();
             //mutation2 = mutation2.Where(x => x.AdjustmentQty > 0 || x.BeginQty > 0 || x.Diff > 0 || x.ExpenditureQty > 0 || x.LastQty > 0 || x.OpnameQty > 0 || x.ReceiptQty > 0).ToList();
             //mutation2 = mutation2.Where(x => x.LastQty > 0).ToList();
 
@@ -850,7 +850,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             });
 
             //mutation = mutation.Where(x => (x.BeginQty != 0) || (x.LastQty != 0) || (x.ReceiptQty != 0) || (x.ExpenditureQty != 0 || (x.AdjustmentQty != 0))).ToList();
-            mutation = mutation.Where(x =>  x.LastQty > 0).ToList();
+            //mutation = mutation.Where(x =>  x.LastQty > 0).ToList();
+            //mutation = mutation.Where(x =>  x.LastQty > 0).ToList();
+
 
             return mutation;
 
