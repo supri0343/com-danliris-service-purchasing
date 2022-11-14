@@ -55,10 +55,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 		public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset)
 		{
-			//DateTimeOffset dateFrom = DateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFrom;
-			//DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo;
+            //DateTimeOffset dateFrom = DateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFrom.Value.AddHours(offset);
+            //DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo.Value.AddHours(offset);
 
-			var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
+            var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
 
 			var categories1 = category == null || category=="undefined" || category =="" ? categories.Select(x => x.Name).ToArray():category == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : category == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray();
 
@@ -75,8 +75,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 							 a.IsDeleted == false && b.IsDeleted == false &&
 							 categories1.Contains(a.ProductName) &&
 							 b.CreatedUtc.Date >= DateFrom
-							 && b.CreatedUtc.Date <= DateTo
-							 && b.UnitSenderCode == "SMP1"
+                             && b.CreatedUtc.Date <= DateTo
+                             && b.UnitSenderCode == "SMP1"
 
 							 orderby a.CreatedUtc descending
 							 select new GarmentFlowDetailMaterialViewModel
@@ -96,8 +96,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 								 Quantity = a.Quantity,
 								 UomUnit = a.UomUnit,
                                  //Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
-                                 //Total = Convert.ToDecimal(a.PricePerDealUnit) * Convert.ToDecimal(a.Quantity),
-                                 Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate) * a.Quantity),
+                                 //Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate) * a.Quantity),
+                                 Total = Convert.ToDecimal(((a.PricePerDealUnit / ((double)(a.Conversion == 0 ? 1 : a.Conversion))) * a.DOCurrencyRate) * a.Quantity),
                                  UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
 
 							 });
@@ -121,8 +121,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 							 //(string.IsNullOrWhiteSpace(category) ? a.ProductCode == a.ProductCode : categories1.Contains(a.ProductCode))
 							 //&& f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
 							 b.CreatedUtc.Date >= DateFrom
-							 && b.CreatedUtc.Date <= DateTo
-							 && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
+                             && b.CreatedUtc.Date <= DateTo
+                             && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
 
 							 orderby a.CreatedUtc descending
 							 select new GarmentFlowDetailMaterialViewModel
@@ -141,10 +141,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 								 ExpenditureDate = b.CreatedUtc,
 								 Quantity = a.Quantity,
 								 UomUnit = a.UomUnit,
-								 //Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
-								 //Total = Convert.ToDecimal(a.PricePerDealUnit) * Convert.ToDecimal(a.Quantity),
-                                 Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate )* a.Quantity),
-								 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
+                                 //Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
+
+                                 //Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate) * a.Quantity),
+                                 Total = Convert.ToDecimal(((a.PricePerDealUnit / ((double)(a.Conversion == 0 ? 1 : a.Conversion))) * a.DOCurrencyRate) * a.Quantity),
+                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
 							 });
 				return Query.AsQueryable();
 			}
