@@ -98,9 +98,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  //Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
                                  //Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate) * a.Quantity),
                                  Total = Convert.ToDecimal(((a.PricePerDealUnit / ((double)(a.Conversion == 0 ? 1 : a.Conversion))) * a.DOCurrencyRate) * a.Quantity),
-                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
-
-							 });
+                                 //UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
+                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode != b.UnitRequestCode) ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode == b.UnitRequestCode ? "SUBCON" : b.ExpenditureType
+                             });
 				return Query.AsQueryable();
 			}
 			else
@@ -145,8 +145,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                  //Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate) * a.Quantity),
                                  Total = Convert.ToDecimal(((a.PricePerDealUnit / ((double)(a.Conversion == 0 ? 1 : a.Conversion))) * a.DOCurrencyRate) * a.Quantity),
-                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
-							 });
+                                 //UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
+                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode != b.UnitRequestCode) ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode == b.UnitRequestCode ? "SUBCON" : b.ExpenditureType  
+
+                             });
 				return Query.AsQueryable();
 			}
            
