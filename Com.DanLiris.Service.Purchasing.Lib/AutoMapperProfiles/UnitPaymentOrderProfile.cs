@@ -55,6 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 
                 .ForPath(d => d.unitReceiptNote._id, opt => opt.MapFrom(s => s.URNId))
                 .ForPath(d => d.unitReceiptNote.no, opt => opt.MapFrom(s => s.URNNo))
+                .ForPath(d => d.unitReceiptNote.date, opt => opt.MapFrom(s => s.URNDate))
                 .ForPath(d => d.unitReceiptNote.deliveryOrder._id, opt => opt.MapFrom(s => s.DOId))
                 .ForPath(d => d.unitReceiptNote.deliveryOrder.no, opt => opt.MapFrom(s => s.DONo))
 

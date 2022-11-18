@@ -93,6 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 {
                     URNNo = i.URNNo,
                     DONo = i.DONo,
+                    URNDate = i.URNDate,
                     Details = i.Details.ToList()
                 }).ToList(),
                 CreatedBy = s.CreatedBy,
@@ -1450,10 +1451,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 {
                     URNNo = i.URNNo,
                     DONo = i.DONo,
+                    URNDate = i.URNDate,
                     Details = i.Details.ToList()
                 }).ToList(),
                 CreatedBy = s.CreatedBy,
-                IsPosted = s.IsPosted,
+                IsPosted = s.IsPosted,  
                 LastModifiedUtc = s.LastModifiedUtc,
             });
 

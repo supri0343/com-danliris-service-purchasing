@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             }
             //else
             //{
-                cellHeaderContentRight.AddElement(new Phrase($"NPWP / NIK : {supplier.npwp}", normal_font));
+            cellHeaderContentRight.AddElement(new Phrase($"NPWP / NIK : {supplier.npwp}", normal_font));
             //}
             /* tambahan */
             tableHeader.AddCell(cellHeaderContentRight);
@@ -172,7 +172,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase(detail.ProductName, normal_font);
                     tableContent.AddCell(cellLeft);
 
-                    cellCenter.Phrase = new Phrase(string.Format("{0:n2}", detail.ReceiptQuantity) +$" {detail.UomUnit}", normal_font);
+                    cellCenter.Phrase = new Phrase(string.Format("{0:n2}", detail.ReceiptQuantity) + $" {detail.UomUnit}", normal_font);
                     tableContent.AddCell(cellCenter);
 
                     cellLeftMerge.Phrase = new Phrase($"{model.CurrencyCode}", normal_font);
@@ -212,7 +212,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable tableTax = new PdfPTable(3);
             tableTax.SetWidths(new float[] { 1f, 0.3f, 1f });
 
-            var ppn = jumlah * (model.VatRate/100);
+            var ppn = jumlah * (model.VatRate / 100);
             var total = jumlah + (model.UseVat ? ppn : 0);
             var pph = jumlah * model.IncomeTaxRate / 100;
             var totalWithPph = total - pph;
@@ -220,7 +220,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var withoutIncomeTax = true;
 
 
-            if(model.UseIncomeTax && model.IncomeTaxBy == "Supplier")
+            if (model.UseIncomeTax && model.IncomeTaxBy == "Supplier")
             {
                 withoutIncomeTax = false;
             }
@@ -389,24 +389,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region TableSignature
 
+            DateTimeOffset getUrnDate;
+            foreach (var i in model.Items)
+            {
+                getUrnDate = i.URNDate;
+            }
+
 
             List<DateTimeOffset> createdDate = new List<DateTimeOffset> { model.CreatedUtc };
             DateTimeOffset getDate = createdDate.Min(p => p);
 
-            if (getDate > model.DueDate)
+            PdfPTable tableConfirm = new PdfPTable(2);
+            tableConfirm.SetWidths(new float[] { 0.5f, 0.5f });
+
+            cellWithBorder.Phrase = new Paragraph("Alasan Keterlambatan", bold_font);
+            tableConfirm.AddCell(cellWithBorder);
+            cellWithBorder.Phrase = new Paragraph("TTD Kabag\n\n\n\n\n\n\n\n(                                   )", bold_font);
+            tableConfirm.AddCell(cellWithBorder);
+
+            PdfPCell cellMark = new PdfPCell(tableConfirm);
+            tableConfirm.ExtendLastRow = false;
+            tableConfirm.SpacingAfter = 30f;
+
+            if (model.PaymentMethod == "KREDIT")
             {
-                PdfPTable tableConfirm = new PdfPTable(2);
-                tableConfirm.SetWidths(new float[] { 0.5f, 0.5f });
+                if (getUrnDate > getDate)
+                {
+                    document.Add(tableConfirm);
+                }
+            }
 
-                cellWithBorder.Phrase = new Paragraph("Alasan Keterlambatan", bold_font);
-                tableConfirm.AddCell(cellWithBorder);
-                cellWithBorder.Phrase = new Paragraph("TTD Kabag\n\n\n\n\n\n\n\n(                                   )", bold_font);
-                tableConfirm.AddCell(cellWithBorder);
-
-                PdfPCell cellMark = new PdfPCell(tableConfirm);
-                tableConfirm.ExtendLastRow = false;
-                tableConfirm.SpacingAfter = 30f;
-                document.Add(tableConfirm);
+            if (model.PaymentMethod == "CASH")
+            {
+                if (getDate > model.DueDate)
+                {
+                    document.Add(tableConfirm);
+                }
             }
 
             PdfPTable tableSignature = new PdfPTable(4);
