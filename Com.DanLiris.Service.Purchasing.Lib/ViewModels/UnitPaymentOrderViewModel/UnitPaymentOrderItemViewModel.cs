@@ -14,6 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
     {
         public long _id { get; set; }
         public string no { get; set; }
+        public DateTimeOffset date { get; set; }
         public DeliveyOrder deliveryOrder { get; set; }
         public List<UnitPaymentOrderDetailViewModel> items { get; set; }
     }

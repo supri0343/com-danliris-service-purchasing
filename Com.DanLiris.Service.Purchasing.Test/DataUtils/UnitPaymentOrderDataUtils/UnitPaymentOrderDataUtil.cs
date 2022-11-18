@@ -66,6 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
 
                     DOId = unitReceiptNote.DOId,
                     DONo = unitReceiptNote.DONo,
+                    URNDate = unitReceiptNote.CreatedUtc,
                     Details = unitPaymentOrderDetails
                 }
             };
@@ -162,6 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
 
                     DOId = unitReceiptNote.DOId,
                     DONo = unitReceiptNote.DONo,
+                    URNDate = unitReceiptNote.CreatedUtc,
                     Details = unitPaymentOrderDetails
                 }
             };
@@ -254,6 +256,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
 
                     DOId = unitReceiptNote.DOId,
                     DONo = unitReceiptNote.DONo,
+                    URNDate = unitReceiptNote.CreatedUtc,
                     Details = unitPaymentOrderDetails
                 }
             };
@@ -346,6 +349,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUti
 
                     DOId = unitReceiptNote.DOId,
                     DONo = unitReceiptNote.DONo,
+                    URNDate = unitReceiptNote.CreatedUtc,
                     Details = unitPaymentOrderDetails
                 }
             };
