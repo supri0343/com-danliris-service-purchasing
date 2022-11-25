@@ -1236,7 +1236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                                 where b.RONo == RONo 
                                                                 && uenItem.IsDeleted == false
                                                                 && uenItem.ProductCode.Contains(Keyword)
-                                                                && uen.ExpenditureType=="SUBCON"
+                                                                && (uen.ExpenditureType=="SUBCON" || uen.ExpenditureType == "TRANSFER SUBCON")
                                                                 && uenItem.ProductName=="FABRIC"
                                                                 select uenItem).AsQueryable();
 
