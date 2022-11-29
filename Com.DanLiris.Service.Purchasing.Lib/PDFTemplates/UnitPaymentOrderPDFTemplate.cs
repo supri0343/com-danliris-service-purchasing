@@ -411,7 +411,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableConfirm.ExtendLastRow = false;
             tableConfirm.SpacingAfter = 30f;
 
-            if (model.PaymentMethod == "KREDIT")
+            if (model.PaymentMethod == "CASH")
             {
                 if (getUrnDate > getDate)
                 {
@@ -419,7 +419,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
             }
 
-            if (model.PaymentMethod == "CASH")
+            if (model.PaymentMethod == "KREDIT")
             {
                 if (getDate > model.DueDate)
                 {
