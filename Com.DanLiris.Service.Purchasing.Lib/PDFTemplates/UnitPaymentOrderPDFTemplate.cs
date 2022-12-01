@@ -413,7 +413,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             if (model.PaymentMethod == "CASH")
             {
-                if (getUrnDate > getDate)
+                if (getDate > getUrnDate)
                 {
                     document.Add(tableConfirm);
                 }
