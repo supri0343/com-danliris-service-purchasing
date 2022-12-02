@@ -8,21 +8,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<decimal>(
+            migrationBuilder.AddColumn<decimal>(
                 name: "SplitQuantity",
                 table: "GarmentDOItems",
-                nullable: true,
-                oldClrType: typeof(decimal));
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<decimal>(
+            migrationBuilder.DropColumn(
                 name: "SplitQuantity",
-                table: "GarmentDOItems",
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldNullable: true);
+                table: "GarmentDOItems");
         }
     }
 }
