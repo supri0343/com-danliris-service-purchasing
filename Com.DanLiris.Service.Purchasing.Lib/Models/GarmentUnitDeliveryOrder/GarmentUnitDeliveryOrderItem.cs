@@ -58,6 +58,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
 
         public int DOItemsId { get; set; }
 
+        public string Colour { get; set; }
+        public string Rack { get; set; }
+        public string Level { get; set; }
+        public string Box { get; set; }
+        public string Area { get; set; }
+
         [NotMapped]
         public bool IsSave { get; set; }
 

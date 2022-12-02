@@ -54,5 +54,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public long UENItemId { get; set; }
         public string PaymentType { get; set; }
         public string PaymentMethod { get; set; }
+
+        public string Colour { get; set; }
+        public string Rack { get; set; }
+        public string Level { get; set; }
+        public string Box { get; set; }
+        public string Area { get; set; }
     }
 }

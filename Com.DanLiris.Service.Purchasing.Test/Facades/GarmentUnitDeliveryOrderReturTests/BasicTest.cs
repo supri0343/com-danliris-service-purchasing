@@ -226,6 +226,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderR
             GarmentUnitDeliveryOrderViewModel viewModelWithItems = new GarmentUnitDeliveryOrderViewModel
             {
                 DONo = "DONo",
+                Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel
+                {
+                    name = "GUDANG BAHAN BAKU"
+                },
                 Items = new List<GarmentUnitDeliveryOrderItemViewModel>
                 {
                     new GarmentUnitDeliveryOrderItemViewModel
@@ -248,6 +252,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderR
             GarmentUnitDeliveryOrderViewModel viewModelWithItemsQuantityOver = new GarmentUnitDeliveryOrderViewModel
             {
                 DONo = "DONo",
+                Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel
+                {
+                    name = "GUDANG BAHAN BAKU"
+                },
                 Items = new List<GarmentUnitDeliveryOrderItemViewModel>
                 {
                     new GarmentUnitDeliveryOrderItemViewModel
@@ -265,6 +273,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderR
             {
                 DONo = "DONo",
                 UnitDOType = "RETUR",
+                Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel
+                {
+                    name = "GUDANG BAHAN BAKU"
+                },
                 Items = new List<GarmentUnitDeliveryOrderItemViewModel>
                 {
                     new GarmentUnitDeliveryOrderItemViewModel

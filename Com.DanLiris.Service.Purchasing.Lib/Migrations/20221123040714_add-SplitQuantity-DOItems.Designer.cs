@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221123040714_add-SplitQuantity-DOItems")]
+    partial class addSplitQuantityDOItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4144,13 +4145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("Area");
-
                     b.Property<decimal>("BeforeQuantity");
-
-                    b.Property<string>("Box");
-
-                    b.Property<string>("Colour");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -4200,8 +4195,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("Level");
-
                     b.Property<long>("POId");
 
                     b.Property<long>("POItemId");
@@ -4225,8 +4218,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("RO")
                         .HasMaxLength(255);
-
-                    b.Property<string>("Rack");
 
                     b.Property<decimal>("SmallQuantity");
 
@@ -6582,8 +6573,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("LastModifiedUtc");
 
                     b.Property<long>("UPOId");
-
-                    b.Property<DateTimeOffset>("URNDate");
 
                     b.Property<long>("URNId");
 

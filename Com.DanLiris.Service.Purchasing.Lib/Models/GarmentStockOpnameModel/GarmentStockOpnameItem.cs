@@ -54,5 +54,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel
         public decimal Quantity { get; set; }
 
         public decimal Price { get; set; }
+        public string Colour { get; set; }
+        public string Rack { get; set; }
+        public string Level { get; set; }
+        public string Box { get; set; }
+        public string Area { get; set; }
     }
 }
