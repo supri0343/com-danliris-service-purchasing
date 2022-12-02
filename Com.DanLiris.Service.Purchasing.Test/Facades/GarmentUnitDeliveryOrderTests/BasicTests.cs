@@ -14,6 +14,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
@@ -435,12 +436,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             GarmentUnitDeliveryOrderViewModel viewModelWithItems = new GarmentUnitDeliveryOrderViewModel
             {
                 RONo = "RONo",
+                Storage = new Lib.ViewModels.IntegrationViewModel.StorageViewModel
+                {
+                    name = "GUDANG BAHAN BAKU"
+                },
                 Items = new List<GarmentUnitDeliveryOrderItemViewModel>
                 {
                     new GarmentUnitDeliveryOrderItemViewModel
                     {
                         IsSave = true,
-                        Quantity = 0
+                        Quantity = 0,
+                        
+                        
                     }
                 }
             };

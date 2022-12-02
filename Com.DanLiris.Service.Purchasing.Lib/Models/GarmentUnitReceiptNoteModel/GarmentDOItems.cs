@@ -41,5 +41,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
 		public long URNItemId { get; set; }
 		[MaxLength(255)]
 		public string RO { get; set; }
+		public string Colour { get; set; }
+		public string Rack { get; set; }
+		public string Level { get; set; }
+		public string Box { get; set; }
+		public string Area { get; set; }
+		public decimal? SplitQuantity { get; set; }
 	}
 }

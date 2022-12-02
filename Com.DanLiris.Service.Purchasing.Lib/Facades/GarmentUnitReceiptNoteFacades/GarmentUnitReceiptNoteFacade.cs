@@ -432,6 +432,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
                                 PRItemId = garmentUnitReceiptNoteItem.PRItemId,
                                 RO = garmentUnitReceiptNoteItem.RONo,
+                                Rack = garmentUnitReceiptNoteItem.Rack,
+                                Level = garmentUnitReceiptNoteItem.Level,
+                                Box = garmentUnitReceiptNoteItem.Box,
+                                Area = garmentUnitReceiptNoteItem.Area,
+                                Colour = garmentUnitReceiptNoteItem.Colour,
+                                SplitQuantity = GarmentUnitDO.UnitDOFromId != 0 ? 0 : garmentUnitReceiptNoteItem.SmallQuantity,
 
                             };
                             EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
@@ -706,6 +712,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
                                     PRItemId = garmentUnitReceiptNoteItem.PRItemId,
                                     RO = garmentUnitReceiptNoteItem.RONo,
+
+                                    Rack = garmentUnitReceiptNoteItem.Rack,
+                                    Level = garmentUnitReceiptNoteItem.Level,
+                                    Box = garmentUnitReceiptNoteItem.Box,
+                                    Area = garmentUnitReceiptNoteItem.Area,
+                                    Colour = garmentUnitReceiptNoteItem.Colour,
+                                    SplitQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+
 
                                 };
                                 EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
@@ -1702,9 +1716,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
 								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
 								 Jenis = a.URNType,
-								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
+								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
 
-							 });
+                                 Colour = b.Colour,
+                                 Rack = b.Rack,
+                                 Box = b.Box,
+                                 Level = b.Level,
+                                 Area = b.Area,
+                             });
 
 				var index = 1;
 				foreach (var item in Query)
@@ -1730,9 +1749,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 							   jumlahterima = (double)item.jumlahterima,
 							   satuanterima = item.satuanterima,
 							   jumlah = item.jumlah,
-							   tipepembayaran = item.tipepembayaran
+							   tipepembayaran = item.tipepembayaran,
 
-						   });
+                               Colour = item.Colour,
+                               Rack = item.Rack,
+                               Box = item.Box,
+                               Level = item.Level,
+                               Area = item.Area,
+
+                           });
 
 				}
 			}
@@ -1777,9 +1802,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
 								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
 								 Jenis = a.URNType,
-								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
+								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
 
-							 });
+                                 Colour = b.Colour,
+                                 Rack = b.Rack,
+                                 Box = b.Box,
+                                 Level = b.Level,
+                                 Area = b.Area,
+                             });
 
 				var index = 1;
 				foreach (var item in Query)
@@ -1805,9 +1835,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 							   jumlahterima = (double)item.jumlahterima,
 							   satuanterima = item.satuanterima,
 							   jumlah = item.jumlah,
-							   tipepembayaran = item.tipepembayaran
+							   tipepembayaran = item.tipepembayaran,
 
-						   });
+                               Colour = item.Colour,
+                               Rack = item.Rack,
+                               Box = item.Box,
+                               Level = item.Level,
+                               Area = item.Area,
+
+                           });
 
 				}
 			}
@@ -1853,6 +1889,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bukti", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Asal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Warna", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Rak", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Box", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Level", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Area", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
@@ -1866,7 +1907,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             if (Query.ToArray().Count() == 0)
             {
                 //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
-                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "","","","","","", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1875,7 +1916,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 {
                     index++;
                     string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.nobukti, data.asal, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima);
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.nobukti, data.asal, tgl, data.Colour, data.Rack, data.Box, data.Level, data.Area, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima);
                     ReceiptQtyTotal += data.jumlahterima;
                     PurchaseQtyTotal += data.jumlahbeli;
                 }
@@ -1908,17 +1949,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             var a = Query.Count();
             sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Merge = true;
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Font.Bold = true;
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells[$"L{6 + a}"].Value = PurchaseQtyTotal;
-            sheet.Cells[$"L{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"N{6 + a}"].Value = ReceiptQtyTotal;
-            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"Q{6 + a}"].Value = PurchaseQtyTotal;
+            sheet.Cells[$"Q{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"R{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"S{6 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"S{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"T{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
             MemoryStream stream = new MemoryStream();
             package.SaveAs(stream);
@@ -1943,6 +1984,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Asal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bukti", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Warna", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Rak", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Box", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Level", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Area", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
@@ -1960,7 +2006,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             if (Query.ToArray().Count() == 0)
             {
                 //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
-                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1969,7 +2015,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 {
                     index++;
                     string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl,data.Colour, data.Rack, data.Box, data.Level, data.Area, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
                     ReceiptQtyTotal += data.jumlahterima;
                     PurchaseQtyTotal += data.jumlahbeli;
                     PriceReceiptTotal += (double)data.jumlah;
@@ -2006,20 +2052,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             var a = Query.Count();
             sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Merge = true;
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Font.Bold = true;
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells[$"L{6 + a}"].Value = PurchaseQtyTotal;
-            sheet.Cells[$"L{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"N{6 + a}"].Value = ReceiptQtyTotal;
-            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"P{6 + a}"].Value = PriceReceiptTotal;
-            sheet.Cells[$"P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:P{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"Q{6 + a}"].Value = PurchaseQtyTotal;
             sheet.Cells[$"Q{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"R{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"S{6 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"S{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"T{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"U{6 + a}"].Value = PriceReceiptTotal;
+            sheet.Cells[$"U{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"V{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
 
             MemoryStream stream = new MemoryStream();
