@@ -505,7 +505,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 OrderQuantity = (decimal)item.Quantity,
                                 CorrectionConversion = item.Conversion,
                                 UENItemId = item.Id,
-                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0
+                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0,
+                                Colour =item.Colour,
+                                Rack = item.Rack,
+                                Box = item.Box,
+                                Level = item.Level,
+                                Area = item.Area,
+
                             };
                             urnItems.Add(urnItem);
                             EntityExtension.FlagForCreate(urnItem, identityService.Username, USER_AGENT);
@@ -563,6 +569,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 PRItemId = garmentUnitReceiptNoteItem.PRItemId,
                                 RO = garmentUnitReceiptNoteItem.RONo,
 
+                                Colour = garmentUnitReceiptNoteItem.Colour,
+                                Rack = garmentUnitReceiptNoteItem.Rack,
+                                Box = garmentUnitReceiptNoteItem.Box,
+                                Level = garmentUnitReceiptNoteItem.Level,
+                                Area = garmentUnitReceiptNoteItem.Area,
+
                             };
                             garmentDOItems.DOItemNo = await garmentUnitReceiptNoteFacade.GenerateNoDOItems(garmentUnitReceiptNote);
 
@@ -601,6 +613,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 ReturQuantity = 0,
                                 FabricType = gUenItem.FabricType,
 
+                                Colour = urnItem.Colour,
+                                Rack = urnItem.Rack,
+                                Box = urnItem.Box,
+                                Level = urnItem.Level,
+                                Area = urnItem.Area,
                             };
                             unitDOItems.Add(garmentUnitDOItems);
                             EntityExtension.FlagForCreate(garmentUnitDOItems, identityService.Username, USER_AGENT);
@@ -669,8 +686,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 BuyerCode = garmentPurchaseRequest == null ? null : garmentPurchaseRequest.BuyerCode,
                                 DOCurrencyRate = unitDOItem.DOCurrencyRate,
                                 BasicPrice = gUenItem1.BasicPrice,
-                                Conversion = gUenItem1.Conversion
+                                Conversion = gUenItem1.Conversion,
 
+                                Colour = unitDOItem.Colour,
+                                Rack = unitDOItem.Rack,
+                                Box = unitDOItem.Box,
+                                Level = unitDOItem.Level,
+                                Area = unitDOItem.Area,
                             };
                             garmentUENItems.Add(uenItem);
 
@@ -831,7 +853,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 OrderQuantity = (decimal)item.Quantity,
                                 CorrectionConversion = item.Conversion,
                                 UENItemId = item.Id,
-                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0
+                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0,
+
+                                Colour = item.Colour,
+                                Rack = item.Rack,
+                                Box = item.Box,
+                                Level = item.Level,
+                                Area = item.Area,
                             };
                             urnItems.Add(urnItem);
                             EntityExtension.FlagForCreate(urnItem, identityService.Username, USER_AGENT);
@@ -888,6 +916,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
                                 PRItemId = garmentUnitReceiptNoteItem.PRItemId,
                                 RO = garmentUnitReceiptNoteItem.RONo,
+
+                                Colour = garmentUnitReceiptNoteItem.Colour,
+                                Rack = garmentUnitReceiptNoteItem.Rack,
+                                Box = garmentUnitReceiptNoteItem.Box,
+                                Level = garmentUnitReceiptNoteItem.Level,
+                                Area = garmentUnitReceiptNoteItem.Area,
 
                             };
                             garmentDOItems.DOItemNo = await garmentUnitReceiptNoteFacade.GenerateNoDOItems(garmentUnitReceiptNote);

@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221121013709_change-regionToArea in DOItems")]
+    partial class changeregionToAreainDOItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4144,13 +4145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("Area");
-
                     b.Property<decimal>("BeforeQuantity");
-
-                    b.Property<string>("Box");
-
-                    b.Property<string>("Colour");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -4200,8 +4195,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("Level");
-
                     b.Property<long>("POId");
 
                     b.Property<long>("POItemId");
@@ -4225,8 +4218,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("RO")
                         .HasMaxLength(255);
-
-                    b.Property<string>("Rack");
 
                     b.Property<decimal>("SmallQuantity");
 
@@ -4587,12 +4578,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("Area");
-
-                    b.Property<string>("Box");
-
-                    b.Property<string>("Colour");
-
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -4641,8 +4626,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("Level");
-
                     b.Property<long>("POItemId");
 
                     b.Property<string>("POSerialNumber")
@@ -4667,8 +4650,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("RONo")
                         .HasMaxLength(255);
-
-                    b.Property<string>("Rack");
 
                     b.Property<double>("ReturQuantity");
 
@@ -4813,19 +4794,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("Area");
-
                     b.Property<decimal>("BasicPrice")
                         .HasColumnType("decimal(38, 4)");
-
-                    b.Property<string>("Box");
 
                     b.Property<string>("BuyerCode")
                         .HasMaxLength(255);
 
                     b.Property<long>("BuyerId");
-
-                    b.Property<string>("Colour");
 
                     b.Property<decimal>("Conversion")
                         .HasColumnType("decimal(38, 20)");
@@ -4874,8 +4849,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("Level");
-
                     b.Property<long>("POItemId");
 
                     b.Property<string>("POSerialNumber")
@@ -4899,8 +4872,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("RONo")
                         .HasMaxLength(255);
-
-                    b.Property<string>("Rack");
 
                     b.Property<double>("ReturQuantity");
 
@@ -5014,8 +4985,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("SmallUomUnit")
                         .HasMaxLength(100);
-
-                    b.Property<decimal?>("SplitQuantity");
 
                     b.Property<string>("StorageCode")
                         .HasMaxLength(255);
@@ -5164,12 +5133,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("Area");
-
-                    b.Property<string>("Box");
-
-                    b.Property<string>("Colour");
-
                     b.Property<decimal>("Conversion")
                         .HasColumnType("decimal(38, 20)");
 
@@ -5223,8 +5186,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<string>("Level");
-
                     b.Property<decimal>("OrderQuantity");
 
                     b.Property<long>("POId");
@@ -5256,8 +5217,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("RONo")
                         .HasMaxLength(255);
-
-                    b.Property<string>("Rack");
 
                     b.Property<decimal>("ReceiptCorrection");
 
@@ -6582,8 +6541,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("LastModifiedUtc");
 
                     b.Property<long>("UPOId");
-
-                    b.Property<DateTimeOffset>("URNDate");
 
                     b.Property<long>("URNId");
 

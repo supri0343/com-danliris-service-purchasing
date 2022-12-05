@@ -99,7 +99,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  //Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate) * a.Quantity),
                                  Total = Convert.ToDecimal(((a.PricePerDealUnit / ((double)(a.Conversion == 0 ? 1 : a.Conversion))) * a.DOCurrencyRate) * a.Quantity),
                                  //UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
-                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode != b.UnitRequestCode) ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode == b.UnitRequestCode ? "SUBCON" : b.ExpenditureType
+                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode != b.UnitRequestCode) ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode == b.UnitRequestCode ? "SUBCON" : b.ExpenditureType,
+
+
+                                 Colour = a.Colour,
+                                 Rack = a.Rack,
+                                 Box = a.Box,
+                                 Level = a.Level,
+                                 Area = a.Area,
                              });
 				return Query.AsQueryable();
 			}
@@ -146,8 +153,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  //Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate) * a.Quantity),
                                  Total = Convert.ToDecimal(((a.PricePerDealUnit / ((double)(a.Conversion == 0 ? 1 : a.Conversion))) * a.DOCurrencyRate) * a.Quantity),
                                  //UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
-                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode != b.UnitRequestCode) ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode == b.UnitRequestCode ? "SUBCON" : b.ExpenditureType  
+                                 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode != b.UnitRequestCode) ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType == "TRANSFER SUBCON" && b.UnitSenderCode == b.UnitRequestCode ? "SUBCON" : b.ExpenditureType,
 
+                                 Colour = a.Colour,
+                                 Rack = a.Rack,
+                                 Box = a.Box,
+                                 Level = a.Level,
+                                 Area = a.Area,
                              });
 				return Query.AsQueryable();
 			}
@@ -200,11 +212,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "No.Bukti", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tujuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Warna", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Rak", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Box", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Level", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Area", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Double) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "","", 0, "", 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "","", "", "", "", "", "", 0, "", 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -215,7 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index++;
                     string tanggal = item.ExpenditureDate.Value.AddHours(offset).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, item.ProductCode, item.ProductName, item.POSerialNumber, item.ProductRemark, item.RONo,
-                        item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UENNo, item.UnitDestination, tanggal, NumberFormat(item.Quantity),
+                        item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UENNo, item.UnitDestination, tanggal , item.Colour, item.Rack, item.Box, item.Level, item.Area, NumberFormat(item.Quantity),
                         item.UomUnit, NumberFormat((double)item.Total));
                 }
             }
@@ -249,16 +266,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var a = Query.Count();
             sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Merge = true;
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.Font.Bold = true;
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells[$"N{6 + a}"].Value = NumberFormat(ExpendQtyTotal);
-            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"P{6 + a}"].Value = NumberFormat((double)ExpendPriceTotal);
-            sheet.Cells[$"P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"S{6 + a}"].Value = NumberFormat(ExpendQtyTotal);
+            sheet.Cells[$"S{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"T{6 + a}"].Value = NumberFormat((double)ExpendPriceTotal);
+            sheet.Cells[$"T{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"U{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             //sheet.Cells[$"{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
             MemoryStream stream = new MemoryStream();
@@ -290,10 +307,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Tujuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No.Bukti", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Warna", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Rak", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Box", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Level", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Area", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -304,7 +326,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index++;
                     string tanggal = item.ExpenditureDate.Value.AddHours(offset).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, item.ProductCode, item.ProductName, item.POSerialNumber, item.ProductRemark, item.RONo,
-                        item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UnitDestination, item.UENNo, tanggal, NumberFormat(item.Quantity),
+                        item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UnitDestination, item.UENNo, tanggal, item.Colour, item.Rack, item.Box, item.Level, item.Area, NumberFormat(item.Quantity),
                         item.UomUnit);
                 }
             }
@@ -338,14 +360,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var a = Query.Count();
             sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Merge = true;
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.Font.Bold = true;
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[$"A{6 + a}:M{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells[$"N{6 + a}"].Value = NumberFormat(ExpendQtyTotal);
-            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:R{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"S{6 + a}"].Value = NumberFormat(ExpendQtyTotal);
+            sheet.Cells[$"S{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"T{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             //sheet.Cells[$"{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
 
             MemoryStream stream = new MemoryStream();

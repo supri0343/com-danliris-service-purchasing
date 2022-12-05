@@ -25,6 +25,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string DOCurrencyRate { get; set; }
         public string UnitDestination { get; set; }
         public decimal Total { get; set; }
+        public string Colour { get; set; }
+        public string Rack { get; set; }
+        public string Level { get; set; }
+        public string Box { get; set; }
+        public string Area { get; set; }
 
 
     }
