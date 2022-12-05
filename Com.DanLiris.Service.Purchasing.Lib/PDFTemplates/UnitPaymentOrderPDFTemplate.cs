@@ -411,11 +411,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableConfirm.ExtendLastRow = false;
             tableConfirm.SpacingAfter = 30f;
 
+            var totalDays = (getDate - getUrnDate).TotalDays;
+
             if (model.PaymentMethod == "CASH")
             {
                 if (getDate > getUrnDate)
                 {
-                    document.Add(tableConfirm);
+                    if (totalDays >= 14)
+                    {
+                        document.Add(tableConfirm);
+                    }
                 }
             }
 
