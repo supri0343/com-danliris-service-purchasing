@@ -561,7 +561,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     currencyCodePPn = item.currency.code;
                     currencyCodeTotal = item.currency.code;
-                    totalPPn += (0.1 * item.priceTotalAfter);
+                    totalPPn += ( (Convert.ToDouble(viewModelSpb.vatTax.rate)/100) * item.priceTotalAfter);
                     total += item.priceTotalAfter;
 
                 }
