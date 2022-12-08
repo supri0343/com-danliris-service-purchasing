@@ -419,13 +419,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var QueryExpend = (from a in dbSetGarmentDOItems
                                join d in garmentUnitDeliveryOrderItems on a.Id equals d.DOItemsId
                                join e in garmentUnitDeliveryOrders on d.UnitDOId equals e.Id
-                               join c in garmentUnitExpenditureNotes on e.Id equals c.UnitDOId
-                               join b in garmentUnitExpenditureNoteItems on c.Id equals b.UENId
-                               
-                               where a.Id.Equals(id) && c.UnitSenderCode == a.UnitCode
+                               join b in garmentUnitExpenditureNoteItems on d.Id equals b.UnitDOItemId
+                               join c in garmentUnitExpenditureNotes on b.UENId equals c.Id
+                               where a.Id.Equals(id)
+                               && c.UnitSenderCode == a.UnitCode
                                 && a.IsDeleted == false && b.IsDeleted == false
-                                && c.IsDeleted == false && d.IsDeleted == false
-                                && e.IsDeleted == false
+                                && c.IsDeleted == false
+                                && d.IsDeleted == false
+                               && e.IsDeleted == false
+                               && b.Colour != (null)
                                select new StellingViewModels
                                {
                                    POSerialNumber = null,
@@ -438,11 +440,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                    Area = null,
                                    ReceiptDate = null,
                                    //QuantityReceipt = 
-                                   ExpenditureDate = c.CreatedUtc,
+                                   ExpenditureDate = b.CreatedUtc,
                                    QtyExpenditure = b.Quantity,
                                    Remaining = null,
                                    Remark = e.RONo,
-                                   User = c.CreatedBy
+                                   User = b.CreatedBy
                                });
 
             var data = QueryReceipt.Union(QueryExpend).ToList();
