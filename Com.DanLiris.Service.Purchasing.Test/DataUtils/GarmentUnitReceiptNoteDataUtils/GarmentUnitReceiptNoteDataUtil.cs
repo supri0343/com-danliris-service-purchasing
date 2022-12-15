@@ -100,7 +100,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 						
                         DOCurrencyRate=1,
 
-                        UENItemId=1
+                        UENItemId=1,
+
+                        Colour="-",
+
+                        
                     };
 					var garmentUnitReceiptNoteItem2 = new GarmentUnitReceiptNoteItem
 					{
@@ -141,7 +145,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 
 						DOCurrencyRate = 1,
 
-                        UENItemId = 1
+                        UENItemId = 1,
+                        Colour = "-",
                     };
 
 					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
@@ -300,7 +305,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         SmallUomUnit = detail.SmallUomUnit,
                         Conversion = (decimal)detail.Conversion,
                         CorrectionConversion = (decimal)detail.Conversion,
-                        DOCurrencyRate = 1
+                        DOCurrencyRate = 1,
+                        Colour = "-",
                     };
 
                     garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
@@ -386,6 +392,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         CorrectionConversion = (decimal)12,
 
                         DOCurrencyRate = 1,
+                        Colour = "-",
 
                         UENItemId = garmentUnitExpenditureNote.Items.First().Id
                     };
@@ -427,6 +434,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         CorrectionConversion = (decimal)12,
 
                         DOCurrencyRate = 1,
+                        Colour = "-",
 
                         UENItemId = garmentUnitExpenditureNote.Items.First().Id
                     };
@@ -466,6 +474,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 				DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate,
 
 				ReceiptDate = DateTimeOffset.Now,
+
 
 				Items = new List<GarmentUnitReceiptNoteItem>()
 			};
@@ -512,8 +521,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 						CorrectionConversion = (decimal)12,
 
 						DOCurrencyRate = 1,
+                        Colour = "-",
 
-						UENItemId = 1
+                        UENItemId = 1
 					};
 					var garmentUnitReceiptNoteItem2 = new GarmentUnitReceiptNoteItem
 					{
@@ -553,8 +563,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 						CorrectionConversion = (decimal)12,
 
 						DOCurrencyRate = 1,
+                        Colour = "-",
 
-						UENItemId = 1
+                        UENItemId = 1
 					};
 
 					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
@@ -639,8 +650,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 						CorrectionConversion = (decimal)12,
 
 						DOCurrencyRate = 1,
+                        Colour = "-",
 
-						UENItemId = 1
+                        UENItemId = 1
 					};
 					var garmentUnitReceiptNoteItem2 = new GarmentUnitReceiptNoteItem
 					{
@@ -680,8 +692,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 						CorrectionConversion = (decimal)12,
 
 						DOCurrencyRate = 1,
+                        Colour = "-",
 
-						UENItemId = 1
+                        UENItemId = 1
 					};
 
 					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);

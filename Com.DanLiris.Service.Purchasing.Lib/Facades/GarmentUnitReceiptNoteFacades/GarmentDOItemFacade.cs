@@ -220,10 +220,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             {
                 GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.StorageId == storageId);
             }
-            if (hasRONoFilter)
-            {
-                GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RO != RONo);
-            }
+            //if (hasRONoFilter)
+            //{
+            //    GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RO != RONo);
+            //}
            
 
             Keyword = (Keyword ?? "").Trim();
