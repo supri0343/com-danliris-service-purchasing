@@ -29,7 +29,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbContext = dbContext;
         }
 
-        private async Task<Tuple<List<MonitoringROJobOrderViewModel>, CostCalculationGarmentViewModel>> GetData(long costCalculationId) {
+        private async Task<Tuple<List<MonitoringROJobOrderViewModel>, CostCalculationGarmentViewModel>> GetData(long costCalculationId)
+        {
 
             CostCalculationGarmentViewModel costCalculationGarmentViewModel = await GetCostCalculation(costCalculationId);
 
@@ -74,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         POSerialNumber = m.PO_SerialNumber,
                         POMasterNumber = m.POMaster,
                         ProductCode = m.Product.Code,
-                        Description = m.Description, 
+                        Description = m.Description,
                         ProductName = productNames.GetValueOrDefault(m.Product.Id),
                         BudgetQuantity = m.BudgetQuantity,
                         UomPriceUnit = m.UOMPrice.Unit,
@@ -101,6 +102,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "PO Serial Number", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Budget Quantity", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(string) });
@@ -126,20 +128,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     var lastMergedRowPosition = rowPosition;
                     foreach (var i in d.Items)
                     {
-                        result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.BudgetQuantity, d.UomPriceUnit, d.Status, i.ROMaster, i.POMaster, i.DistributionQuantity, i.UomCCUnit, i.DONo, i.SupplierName, i.OverUsageReason);
+                        result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.Description, d.BudgetQuantity, d.UomPriceUnit, d.Status, i.ROMaster, i.POMaster, i.DistributionQuantity, i.UomCCUnit, i.DONo, i.SupplierName, i.OverUsageReason);
                         lastMergedRowPosition = rowPosition++;
                     }
-                    foreach (var col in new[] { "A", "B", "C", "D", "E", "F" })
+                    foreach (var col in new[] { "A", "B", "C", "D", "E", "F", "G" })
                     {
                         if (firstMergedRowPosition != lastMergedRowPosition)
                         {
-                            mergeCells.Add(($"{col}{firstMergedRowPosition}:{col}{lastMergedRowPosition}", col == "D" ? ExcelHorizontalAlignment.Right : ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Bottom));
+                            mergeCells.Add(($"{col}{firstMergedRowPosition}:{col}{lastMergedRowPosition}", col == "E" ? ExcelHorizontalAlignment.Right : ExcelHorizontalAlignment.Left, ExcelVerticalAlignment.Bottom));
                         }
                     }
                 }
                 else
                 {
-                    result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.BudgetQuantity, d.UomPriceUnit, d.Status, "", "", null, "", "", "", "");
+                    result.Rows.Add(d.POSerialNumber, d.ProductCode, d.ProductName, d.Description, d.BudgetQuantity, d.UomPriceUnit, d.Status, "", "", null, "", "", "", "");
                     rowPosition++;
                 }
             }
