@@ -256,7 +256,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         {
             IQueryable<GarmentDOItems> Query = dbSetGarmentDOItems
                 .Where(w => w.IsDeleted == false 
-                && w.RemainingQuantity > 0 
+                //&& w.RemainingQuantity > 0 
                 && w.POSerialNumber == (string.IsNullOrWhiteSpace(po) ? w.POSerialNumber : po)
                 && w.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? w.UnitCode : unitcode)
                 && w.ProductCode == (string.IsNullOrWhiteSpace(productcode) ? w.ProductCode : productcode)
@@ -304,6 +304,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         if(a == 0)
                         {
                             var data = dbSetGarmentDOItems.Where(x => x.Id == id).FirstOrDefault();
+                            if ((viewModels.Items[a].Colour.ToUpper() != data.Colour) && (viewModels.Items[a].Rack.ToUpper() != data.Rack) && (viewModels.Items[a].Box.ToUpper() != data.Box) && (viewModels.Items[a].Area.ToUpper() != data.Area))
+                            {
+                                data.SplitQuantity = viewModels.Items[a].Quantity;
+                            }
                             EntityExtension.FlagForUpdate(data, identityService.Username, USER_AGENT);
                             dataToCreate = data;
                             data.RemainingQuantity = viewModels.Items[a].Quantity;
@@ -312,7 +316,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             data.Box = viewModels.Items[a].Box.ToUpper();
                             data.Level = viewModels.Items[a].Level.ToUpper();
                             data.Area = viewModels.Items[a].Area.ToUpper();
-                            data.SplitQuantity = viewModels.Items[a].Quantity;
+                            //data.SplitQuantity = viewModels.Items[a].Quantity;
 
 
                             await dbContext.SaveChangesAsync();
@@ -395,7 +399,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     QtyExpenditure = null,
                                     Remaining = null,
                                     Remark = null,
-                                    User = a.CreatedBy
+                                    User = a.CreatedBy,
                                 }).GroupBy(x => new { x.POSerialNumber, x.Uom, x.Colour, x.Rack, x.Level, x.Box, x.Area, x.ReceiptDate, x.ExpenditureDate, x.QtyExpenditure, x.Remaining, x.Remark, x.User }, (key, group) => new StellingViewModels
                                 {
                                     POSerialNumber = key.POSerialNumber,
@@ -412,7 +416,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     QtyExpenditure = key.QtyExpenditure,
                                     Remaining = key.Remaining,
                                     Remark = key.Remark,
-                                    User = key.User
+                                    User = key.User,
                                 });
 
 
@@ -427,7 +431,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 && c.IsDeleted == false
                                 && d.IsDeleted == false
                                && e.IsDeleted == false
-                               && b.Colour != (null)
+                               && b.Colour != (null) 
+                               //&& b.CreatedUtc >= QueryReceipt.Select(x=> x.UpdateDate).FirstOrDefault()
                                select new StellingViewModels
                                {
                                    POSerialNumber = null,
