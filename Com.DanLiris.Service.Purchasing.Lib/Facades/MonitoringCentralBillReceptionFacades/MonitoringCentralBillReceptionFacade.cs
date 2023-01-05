@@ -186,9 +186,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                          //&& URN.URNType == (URN.URNType == null ? URN.URNType : "PEMBELIAN")
                          && (string.IsNullOrWhiteSpace(jnsBC) ? true : (jnsBC == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
                          //&& d.BeacukaiDate.AddHours(offset).Date >= d1.Date && d.BeacukaiDate.AddHours(offset).Date <= d2.Date
-                          && ((d1 != new DateTime(1970, 1, 1)) ? (d.ArrivalDate >= d1.Date && d.ArrivalDate <= d2.Date) : true)
+                          && ((d1 != new DateTime(1970, 1, 1)) ?  (d.ArrivalDate.Value.Date >= d1.Date &&  d.ArrivalDate.Value.Date <= d2.Date) : true)
                           && a.SupplierCode != "GDG"
-                         //
                          select new SelectedId
                          {
                              BillDate = d.BeacukaiDate,
@@ -205,7 +204,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillRecep
                              INVItemId = Inv == null ? 0 : Inv.Id,
                              URNId = URN == null ? 0 : URN.Id,
                              URNItemId = IURN == null ? 0 : IURN.Id,
-                         });
+                         }); ;
             #endregion
 
             TotalCountReport = Query.Distinct().OrderByDescending(o => o.BillDate).Count();
