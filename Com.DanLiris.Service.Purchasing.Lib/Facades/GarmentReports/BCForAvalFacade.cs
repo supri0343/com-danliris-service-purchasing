@@ -19,7 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         public class ViewModel
         {
             public string bcno { get; internal set; }
-            public DateTime bcdate { get; internal set; }
+            public DateTime? bcdate { get; internal set; }
             public long uenitemId { get; internal set; }
             public string poSerialNumber { get; internal set; }
             public string bctype { get; internal set; }
@@ -35,20 +35,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     where aa.IsDeleted == false && listItemId.Contains(aa.Id)
                                     select aa)
                          //join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
-                         join c in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals c.Id
-                         join d in dbContext.GarmentDeliveryOrderItems on c.GarmentDOItemId equals d.Id
-                         join e in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals e.Id
-                         join f in dbContext.GarmentBeacukaiItems on e.Id equals f.GarmentDOId
-                         join g in dbContext.GarmentBeacukais on f.BeacukaiId equals g.Id
-                         where  c.IsDeleted == false &&
-                         d.IsDeleted == false && e.IsDeleted == false && f.IsDeleted == false && g.IsDeleted == false
+                         join c in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals c.Id into doDet
+                         from doDetail in doDet.DefaultIfEmpty()
+                         join d in dbContext.GarmentDeliveryOrderItems on doDetail.GarmentDOItemId equals d.Id into doIte
+                         from doItem in doIte.DefaultIfEmpty()
+                         join e in dbContext.GarmentDeliveryOrders on doItem.GarmentDOId equals e.Id into doOrd
+                         from DoOrder in doOrd.DefaultIfEmpty()
+                         join f in dbContext.GarmentBeacukaiItems on DoOrder.Id equals f.GarmentDOId into bcIte
+                         from bcItem in bcIte.DefaultIfEmpty()
+                         join g in dbContext.GarmentBeacukais on bcItem.BeacukaiId equals g.Id into bc
+                         from beacukais in bc.DefaultIfEmpty()
+                         where  doDetail.IsDeleted == false &&
+                         doItem.IsDeleted == false && DoOrder.IsDeleted == false && bcItem.IsDeleted == false && beacukais.IsDeleted == false
                          select new ViewModel
                          {
-                             bcno = g.BeacukaiNo,
-                             bcdate = g.BeacukaiDate.Date,
+                             bcno = beacukais != null ? beacukais.BeacukaiNo : "-",
+                             bcdate = beacukais != null ? beacukais.BeacukaiDate.Date : DateTime.MinValue,
                              uenitemId = b.Id,
                              poSerialNumber = b.POSerialNumber,
-                             bctype = g.CustomsType
+                             bctype = beacukais != null ? beacukais.CustomsType : "-"
                          }).Distinct();
 
             return Query.ToList();
