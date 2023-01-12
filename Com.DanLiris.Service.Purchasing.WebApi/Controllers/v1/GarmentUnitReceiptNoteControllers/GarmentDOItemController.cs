@@ -199,7 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 {
                     Dictionary<string, object> Result =
                         new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                        .Ok(result);
+                        .Ok(result.Result);
                     return Ok(Result);
                 }
                 else
