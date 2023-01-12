@@ -2,6 +2,7 @@
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.draw;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -20,8 +21,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
 
-            //Document document = new Document(PageSize.A4.Rotate(),10, 10, 10, 10);
             Document document = new Document(PageSize.A4, 10, 10, 10, 10);
+            //Document document = new Document(PageSize.A4.Rotate(), 10, 10, 10, 10);
 
 
             MemoryStream stream = new MemoryStream();
@@ -29,146 +30,118 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             document.Open();
 
             IdentityService identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            #region Header
 
-            #region TableContent1
-            PdfPCell cellCenter = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 4 };
-            PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 4 };
-            PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding =  4};
-
-            PdfPTable tableContent1 = new PdfPTable(8);
-            //tableContent.SetWidths(new float[] { 4f, 2f, 2f, 2f, 2f, 2f, 2f,2f,0.5f,3.5f,2f,3.5f,2f,2f,3f, 3.5f });
-            tableContent1.SetWidths(new float[] { 4f, 2f, 2f, 2f, 2f, 2f, 2f, 2f});
-
-
-            var cell = new PdfPCell(new Phrase("DATA PENERIMAAN",bold_font));
-            cell.Colspan = 8;
-            cell.HorizontalAlignment = Element.ALIGN_CENTER;
-            cell.Padding = 3;
-            tableContent1.AddCell(cell);
-
-            //var cell2 = new PdfPCell(new Phrase("", bold_font));
-            ////cell2.Colspan = 8;
-            //tableContent.AddCell(cell2);
-
-            //var cell3 = new PdfPCell(new Phrase("KARTU STELLING", bold_font));
-            //cell3.Colspan = 7;
-            //cell3.HorizontalAlignment = Element.ALIGN_CENTER;
-            //cell3.Padding = 3;
-            //tableContent.AddCell(cell3);
-
-
-            cellCenter.Phrase = new Phrase("Nomor PO", bold_font);
-            tableContent1.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("QTY", bold_font);
-            tableContent1.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Satuan", bold_font);
-            tableContent1.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Warna", bold_font);
-            tableContent1.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Rak", bold_font);
-            tableContent1.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Level", bold_font);
-            tableContent1.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Box", bold_font);
-            tableContent1.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Area", bold_font);
-            tableContent1.AddCell(cellCenter);
-
-            foreach (var item in viewModel)
-            {
-                cellCenter.Phrase = new Phrase(item.POSerialNumber, normal_font);
-                tableContent1.AddCell(cellCenter);
-
-                cellCenter.Phrase = new Phrase($"{item.Quantity}", normal_font);
-                tableContent1.AddCell(cellCenter);
-
-                cellCenter.Phrase = new Phrase(item.Uom, normal_font);
-                tableContent1.AddCell(cellCenter);
-
-                cellCenter.Phrase = new Phrase(item.Colour, normal_font);
-                tableContent1.AddCell(cellCenter);
-
-                cellCenter.Phrase = new Phrase(item.Rack, normal_font);
-                tableContent1.AddCell(cellCenter);
-
-                cellCenter.Phrase = new Phrase(item.Level, normal_font);
-                tableContent1.AddCell(cellCenter);
-
-                cellCenter.Phrase = new Phrase(item.Box, normal_font);
-                tableContent1.AddCell(cellCenter);
-
-                cellCenter.Phrase = new Phrase(item.Area, normal_font);
-                tableContent1.AddCell(cellCenter);
-            }
-
-            PdfPCell cellContent1 = new PdfPCell(tableContent1);
-            tableContent1.ExtendLastRow = false;
-            tableContent1.SpacingAfter = 20f;
-            document.Add(tableContent1);
-
+            string titleString = "KARTU STELLING BAHAN BAKU";
+            Paragraph title = new Paragraph(titleString, header_font) { Alignment = Element.ALIGN_CENTER };
+            document.Add(title);
 
             #endregion
 
-            #region tableContent2
-            //cellCenter.Phrase = new Phrase("", bold_font);
-            //tableContent.AddCell(cellCenter);
+            #region Identity
+            PdfPTable tableIdentity = new PdfPTable(2);
+            tableIdentity.SetWidths(new float[] { 3f, 4f, });
+            PdfPCell cellIdentityContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_MIDDLE };
+            StellingEndViewModels data = viewModel.Where(x => x.QtyExpenditure == null).FirstOrDefault();
+            cellIdentityContentLeft.Phrase = new Phrase("BUYER", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " +data.Buyer , normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("ARTICLE", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.Article, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("KOMPOSISI/KONSTRUKSI", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.Construction, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("WARNA", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.Colour, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("SUPPLIER", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.Supplier, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("NO SURAT JALAN/INVOICE", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.DoNo, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
 
-            PdfPTable tableContent2 = new PdfPTable(7);
-            //tableContent.SetWidths(new float[] { 4f, 2f, 2f, 2f, 2f, 2f, 2f,2f,0.5f,3.5f,2f,3.5f,2f,2f,3f, 3.5f });
-            tableContent2.SetWidths(new float[] { 3.5f, 2f, 3.5f, 2f, 2f, 3f, 3.5f });
+            PdfPCell cellIdentity = new PdfPCell(tableIdentity);
+            tableIdentity.ExtendLastRow = false;
+            tableIdentity.SpacingAfter = 10f;
+            tableIdentity.SpacingBefore = 20f;
+            document.Add(tableIdentity);
 
-            var cell3 = new PdfPCell(new Phrase("KARTU STELLING", bold_font));
-            cell3.Colspan = 7;
+            #endregion
+
+            #region tableContent1
+            PdfPCell cellCenter = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 4 };
+            PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 4 };
+            PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 4 };
+
+
+            PdfPTable tableContent2 = new PdfPTable(9);
+            tableContent2.SetWidths(new float[] { 3.5f, 2f, 3.5f, 2f, 2f, 3f, 4.5f, 3f, 2.5f });
+
+            var cell1 = new PdfPCell(new Phrase("MASUK", bold_font));
+            cell1.Colspan = 2;
+            cell1.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell1.Padding = 3;
+            tableContent2.AddCell(cell1);
+
+            var cell2 = new PdfPCell(new Phrase("KELUAR", bold_font));
+            cell2.Colspan = 2;
+            cell2.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell2.Padding = 3;
+            tableContent2.AddCell(cell2 );
+
+            var cell3 = new PdfPCell(new Phrase("SISA", bold_font));
+            cell3.Colspan = 1;
             cell3.HorizontalAlignment = Element.ALIGN_CENTER;
             cell3.Padding = 3;
             tableContent2.AddCell(cell3);
 
-            cellCenter.Phrase = new Phrase("Tanggal Masuk", bold_font);
+            var cell4 = new PdfPCell(new Phrase("UNTUK", bold_font));
+            cell4.Colspan = 2;
+            cell4.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell4.Padding = 3;
+            tableContent2.AddCell(cell4);
+
+            var cell5 = new PdfPCell(new Phrase("USER", bold_font));
+            cell5.Rowspan = 2;
+            cell5.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell5.VerticalAlignment = Element.ALIGN_MIDDLE;
+            cell5.Padding = 3;
+            tableContent2.AddCell(cell5);
+
+            var cell6 = new PdfPCell(new Phrase("PARAF", bold_font));
+            cell6.Rowspan = 2;
+            cell6.HorizontalAlignment = Element.ALIGN_CENTER;
+            cell6.VerticalAlignment = Element.ALIGN_MIDDLE;
+            cell6.Padding = 3;
+            tableContent2.AddCell(cell6);
+
+            cellCenter.Phrase = new Phrase("TANGGAL", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Panjang (Mtr)", bold_font);
+            cellCenter.Phrase = new Phrase("QTY (Mtr)", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Tanggal Keluar", bold_font);
+            cellCenter.Phrase = new Phrase("TANGGAL", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Panjang (Mtr)", bold_font);
+            cellCenter.Phrase = new Phrase("QTY (Mtr)", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("Sisa", bold_font);
+            cellCenter.Phrase = new Phrase("QTY (Mtr)", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("RO Job", bold_font);
+            cellCenter.Phrase = new Phrase("RO JOB", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("User", bold_font);
+            cellCenter.Phrase = new Phrase("ARTICLE", bold_font);
             tableContent2.AddCell(cellCenter);
 
             int indexItem = 0;
 
             foreach (var item in viewModel)
             {
-
-                //cellCenter.Phrase = new Phrase(item.POSerialNumber, normal_font);
-                //tableContent.AddCell(cellCenter);
-
-                //cellCenter.Phrase = new Phrase($"{item.Quantity}", normal_font);
-                //tableContent.AddCell(cellCenter);
-
-                //cellCenter.Phrase = new Phrase(item.Uom, normal_font);
-                //tableContent.AddCell(cellCenter);
-
-                //cellCenter.Phrase = new Phrase(item.Colour, normal_font);
-                //tableContent.AddCell(cellCenter);
-
-                //cellCenter.Phrase = new Phrase(item.Rack, normal_font);
-                //tableContent.AddCell(cellCenter);
-
-                //cellCenter.Phrase = new Phrase(item.Level, normal_font);
-                //tableContent.AddCell(cellCenter);
-
-                //cellCenter.Phrase = new Phrase(item.Box, normal_font);
-                //tableContent.AddCell(cellCenter);
-
-                //cellCenter.Phrase = new Phrase(item.Area, normal_font);
-                //tableContent.AddCell(cellCenter);
-
-                //cellCenter.Phrase = new Phrase("", normal_font);
-                //tableContent.AddCell(cellCenter);
 
                 cellCenter.Phrase = new Phrase(item.ReceiptDate, normal_font);
                 tableContent2.AddCell(cellCenter);
@@ -188,13 +161,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
                 cellCenter.Phrase = new Phrase($"{item.Remark}", normal_font);
                 tableContent2.AddCell(cellCenter);
 
+                cellCenter.Phrase = new Phrase($"{item.Article}", normal_font);
+                tableContent2.AddCell(cellCenter);
+
                 cellCenter.Phrase = new Phrase(item.User, normal_font);
                 tableContent2.AddCell(cellCenter);
+
+                cellCenter.Phrase = new Phrase("", normal_font);
+                tableContent2.AddCell(cellCenter);
             }
+
+            PdfPCell cellEmpty = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 4 ,FixedHeight=17};
             
+            for(int x = 0;x < 150;x++)
+            {
+                //cellEmpty.Phrase = new Phrase("", normal_font);
+                tableContent2.AddCell(cellEmpty);
+            }
+
             PdfPCell cellContent2 = new PdfPCell(tableContent2);
             tableContent2.ExtendLastRow = false;
             tableContent2.SpacingAfter = 20f;
+
+           
+
             document.Add(tableContent2);
             #endregion
 

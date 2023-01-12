@@ -23,6 +23,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public string Remark { get; set; }
         public string User { get; set; }
 
+        public string Buyer { get; set; }
+        public string Article { get; set; }
+        public string Construction { get; set; }
+        public string Supplier { get; set; }
+        public string DoNo { get; set; }
+        public string RoNo { get; set; }
+
+        public long ProductId { get; set; }
+
     }
 
     public class StellingEndViewModels
@@ -43,6 +52,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public double? Remaining { get; set; }
         public string Remark { get; set; }
         public string User { get; set; }
+        public string Buyer { get; set; }
+        public string Article { get; set; }
+        public string Construction { get; set; }
+        public string Supplier { get; set; }
+        public string DoNo { get; set; }
+        public string RoNo { get; set; }
 
     }
 }

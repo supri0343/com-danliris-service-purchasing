@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,8 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewM
 using System.Data;
 using OfficeOpenXml;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNotePDFTemplates;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.CostCalculationGarment;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -42,6 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentUnitExpenditureNoteItem> garmentUnitExpenditureNoteItems;
         private readonly DbSet<GarmentUnitDeliveryOrderItem> garmentUnitDeliveryOrderItems;
         private readonly DbSet<GarmentUnitDeliveryOrder> garmentUnitDeliveryOrders;
+        private readonly DbSet<GarmentPurchaseRequest> garmentPurchaseRequests;
         private readonly PurchasingDbContext dbContext;
 
         public GarmentDOItemFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
@@ -57,6 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             garmentUnitExpenditureNoteItems = dbContext.Set<GarmentUnitExpenditureNoteItem>();
             garmentUnitDeliveryOrderItems = dbContext.Set<GarmentUnitDeliveryOrderItem>();
             garmentUnitDeliveryOrders = dbContext.Set<GarmentUnitDeliveryOrder>();
+            garmentPurchaseRequests = dbContext.Set<GarmentPurchaseRequest>();
             this.dbContext = dbContext;
         }
 
@@ -379,10 +384,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return Updated;
         }
 
-        public List<StellingEndViewModels> GetStellingQuery(int id,int offset)
+        private async Task<GarmentProductViewModel> GetProduct(long id)
         {
-            var QueryReceipt = (from a in dbSetGarmentDOItems
-                                where a.Id.Equals(id) && a.IsDeleted == false 
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var response = await httpClient.GetAsync($"{APIEndpoint.Core}master/garmentProducts/{id}");
+            var content = await response.Content.ReadAsStringAsync();
+
+            Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content) ?? new Dictionary<string, object>();
+            if (response.IsSuccessStatusCode)
+            {
+                GarmentProductViewModel data = JsonConvert.DeserializeObject<GarmentProductViewModel>(result.GetValueOrDefault("data").ToString());
+                return data;
+            }
+            else
+            {
+                throw new Exception(string.Concat("Failed Get Product : ", (string)result.GetValueOrDefault("error") ?? "- ", ". Message : ", (string)result.GetValueOrDefault("message") ?? "- ", ". Status : ", response.StatusCode, "."));
+            }
+        }
+
+        public async Task<List<StellingEndViewModels>> GetStellingQuery(int id,int offset)
+        {
+            var QueryReceipt = (from a in (from aa in dbSetGarmentDOItems
+                                    where aa.Id.Equals(id) && aa.IsDeleted == false 
+                                    select aa)
+                                join b in dbSetGarmentUnitReceiptNoteItem on a.URNItemId equals b.Id
+                                join c in dbSetGarmentUnitReceiptNote on b.URNId equals c.Id
+                                where a.IsDeleted== false && b.IsDeleted==false
                                 select new StellingViewModels
                                 {
                                     POSerialNumber = a.POSerialNumber,
@@ -400,7 +427,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     Remaining = null,
                                     Remark = null,
                                     User = a.CreatedBy,
-                                }).GroupBy(x => new { x.POSerialNumber, x.Uom, x.Colour, x.Rack, x.Level, x.Box, x.Area, x.ReceiptDate, x.ExpenditureDate, x.QtyExpenditure, x.Remaining, x.Remark, x.User }, (key, group) => new StellingViewModels
+                                    RoNo=a.RO,
+                                    Supplier=c.SupplierName,
+                                    DoNo=c.DONo,
+                                    ProductId= a.ProductId
+                                }).GroupBy(x => new { x.POSerialNumber, x.Uom, x.Colour, x.Rack, x.Level, x.Box, x.Area, x.ReceiptDate, x.ExpenditureDate, x.QtyExpenditure, x.Remaining, x.Remark, x.User,x.RoNo,x.Supplier,x.DoNo,x.ProductId }, (key, group) => new StellingViewModels
                                 {
                                     POSerialNumber = key.POSerialNumber,
                                     Quantity = group.Sum(x => x.Quantity),
@@ -417,8 +448,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     Remaining = key.Remaining,
                                     Remark = key.Remark,
                                     User = key.User,
+                                    RoNo = key.RoNo,
+                                    Supplier = key.Supplier,
+                                    DoNo = key.DoNo,
+                                    ProductId = key.ProductId
                                 });
-
 
             var QueryExpend = (from a in dbSetGarmentDOItems
                                join d in garmentUnitDeliveryOrderItems on a.Id equals d.DOItemsId
@@ -449,11 +483,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                    QtyExpenditure = b.Quantity,
                                    Remaining = null,
                                    Remark = e.RONo,
-                                   User = b.CreatedBy
+                                   User = b.CreatedBy,
+                                   Article=e.Article
                                });
 
             var data = QueryReceipt.Union(QueryExpend).ToList();
 
+            GarmentProductViewModel procuct = await GetProduct(QueryReceipt.Select(x=> x.ProductId).First());
+            var rono = QueryReceipt.Select(s => s.RoNo).First();
+            var Pr = garmentPurchaseRequests.Where(x => x.RONo == rono && x.IsDeleted==false).Select(s => new { s.Article, s.BuyerName, s.RONo }).FirstOrDefault();
             List<StellingEndViewModels> result = new List<StellingEndViewModels>();
             double TempQty = 0;
             foreach (var a in data)
@@ -476,6 +514,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         Remaining = a.Remaining,
                         Remark = a.Remark,
                         User = a.User,
+                        RoNo = a.RoNo,
+                        Supplier = a.Supplier,
+                        DoNo = a.DoNo,
+                        Buyer = Pr != null ? Pr.BuyerName : null,
+                        Article = Pr != null ?  Pr.Article : null,
+                        Construction = procuct.Composition
                     };
 
                     TempQty = (double)a.Quantity;
@@ -498,7 +542,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         QtyExpenditure = a.QtyExpenditure,
                         Remaining = TempQty - a.QtyExpenditure,
                         Remark = a.Remark,
-                        User = a.User
+                        User = a.User,
+                        Article=  a.Article
                     };
 
                     TempQty -= (double)a.QtyExpenditure;
