@@ -192,6 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
                 var result = facade.GetStellingQuery(id, offset);
 
                 if (indexAcceptPdf < 0)
@@ -205,9 +206,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 {
                     identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                    var stream = facade.GeneratePdf(result);
+                    var stream = facade.GeneratePdf(result.Result);
 
-                    var po = result.Select(x => x.POSerialNumber).Take(1).ToList();
+                    var po = result.Result.Select(x => x.POSerialNumber).Take(1).ToList();
 
                     var a = po[0];
 

@@ -14,7 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<DOItemsViewModels> GetByPO(string productcode, string po, string unitcode);
         GarmentDOItems ReadById(int id);
         Task<int> Update(int id, DOItemsRackingViewModels viewModels);
-        List<StellingEndViewModels> GetStellingQuery(int id, int offset);
+        Task<List<StellingEndViewModels>> GetStellingQuery(int id, int offset);
         MemoryStream GenerateExcel(string productcode, string po, string unitcode);
         MemoryStream GeneratePdf(List<StellingEndViewModels> stellingEndViewModels);
     }
