@@ -18,10 +18,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
         public static MemoryStream GeneratePdfTemplate(IServiceProvider serviceProvider, List<StellingEndViewModels> viewModel)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 15);
-            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
-            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 10);
+            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
 
-            Document document = new Document(PageSize.A4, 10, 10, 10, 10);
+            Document document = new Document(PageSize.A5, 10, 10, 10, 10);
             //Document document = new Document(PageSize.A4.Rotate(), 10, 10, 10, 10);
 
 
@@ -59,6 +59,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + data.Colour, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("RACK / BOX", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.Rack+" / "+data.Box, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("SUPPLIER", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + data.Supplier, normal_font);
@@ -83,59 +87,59 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
 
 
             PdfPTable tableContent2 = new PdfPTable(9);
-            tableContent2.SetWidths(new float[] { 3.5f, 2f, 3.5f, 2f, 2f, 3f, 4.5f, 3f, 2.5f });
+            tableContent2.SetWidths(new float[] { 3.5f, 3f, 3.5f, 3f, 3f, 3f, 4.5f, 3f, 2.5f });
 
-            var cell1 = new PdfPCell(new Phrase("MASUK", bold_font));
+            var cell1 = new PdfPCell(new Phrase("Masuk", bold_font));
             cell1.Colspan = 2;
             cell1.HorizontalAlignment = Element.ALIGN_CENTER;
             cell1.Padding = 3;
             tableContent2.AddCell(cell1);
 
-            var cell2 = new PdfPCell(new Phrase("KELUAR", bold_font));
+            var cell2 = new PdfPCell(new Phrase("Keluar", bold_font));
             cell2.Colspan = 2;
             cell2.HorizontalAlignment = Element.ALIGN_CENTER;
             cell2.Padding = 3;
             tableContent2.AddCell(cell2 );
 
-            var cell3 = new PdfPCell(new Phrase("SISA", bold_font));
+            var cell3 = new PdfPCell(new Phrase("Sisa", bold_font));
             cell3.Colspan = 1;
             cell3.HorizontalAlignment = Element.ALIGN_CENTER;
             cell3.Padding = 3;
             tableContent2.AddCell(cell3);
 
-            var cell4 = new PdfPCell(new Phrase("UNTUK", bold_font));
+            var cell4 = new PdfPCell(new Phrase("Untuk", bold_font));
             cell4.Colspan = 2;
             cell4.HorizontalAlignment = Element.ALIGN_CENTER;
             cell4.Padding = 3;
             tableContent2.AddCell(cell4);
 
-            var cell5 = new PdfPCell(new Phrase("USER", bold_font));
+            var cell5 = new PdfPCell(new Phrase("User", bold_font));
             cell5.Rowspan = 2;
             cell5.HorizontalAlignment = Element.ALIGN_CENTER;
             cell5.VerticalAlignment = Element.ALIGN_MIDDLE;
             cell5.Padding = 3;
             tableContent2.AddCell(cell5);
 
-            var cell6 = new PdfPCell(new Phrase("PARAF", bold_font));
+            var cell6 = new PdfPCell(new Phrase("Paraf", bold_font));
             cell6.Rowspan = 2;
             cell6.HorizontalAlignment = Element.ALIGN_CENTER;
             cell6.VerticalAlignment = Element.ALIGN_MIDDLE;
             cell6.Padding = 3;
             tableContent2.AddCell(cell6);
 
-            cellCenter.Phrase = new Phrase("TANGGAL", bold_font);
+            cellCenter.Phrase = new Phrase("Tanggal", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("QTY (Mtr)", bold_font);
+            cellCenter.Phrase = new Phrase("Qty (Mtr)", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("TANGGAL", bold_font);
+            cellCenter.Phrase = new Phrase("Tanggal", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("QTY (Mtr)", bold_font);
+            cellCenter.Phrase = new Phrase("Qty (Mtr)", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("QTY (Mtr)", bold_font);
+            cellCenter.Phrase = new Phrase("Qty (Mtr)", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("RO JOB", bold_font);
+            cellCenter.Phrase = new Phrase("Ro Job", bold_font);
             tableContent2.AddCell(cellCenter);
-            cellCenter.Phrase = new Phrase("ARTICLE", bold_font);
+            cellCenter.Phrase = new Phrase("Artikel", bold_font);
             tableContent2.AddCell(cellCenter);
 
             int indexItem = 0;
@@ -164,7 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
                 cellCenter.Phrase = new Phrase($"{item.Article}", normal_font);
                 tableContent2.AddCell(cellCenter);
 
-                cellCenter.Phrase = new Phrase(item.User, normal_font);
+                cellCenter.Phrase = new Phrase(item.User.ToLower(), normal_font);
                 tableContent2.AddCell(cellCenter);
 
                 cellCenter.Phrase = new Phrase("", normal_font);
