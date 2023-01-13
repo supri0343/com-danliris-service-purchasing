@@ -413,7 +413,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 select new StellingViewModels
                                 {
                                     POSerialNumber = a.POSerialNumber,
-                                    Quantity = a.SplitQuantity,
+                                    Quantity = a.SplitQuantity.HasValue ?  decimal.Round(a.SplitQuantity.Value,2):0,
                                     Uom = a.SmallUomUnit,
                                     Colour = a.Colour,
                                     Rack = a.Rack,
@@ -480,7 +480,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                    ReceiptDate = null,
                                    //QuantityReceipt = 
                                    ExpenditureDate = b.CreatedUtc,
-                                   QtyExpenditure = b.Quantity,
+                                   QtyExpenditure =  Math.Round(b.Quantity,2),
                                    Remaining = null,
                                    Remark = e.RONo,
                                    User = b.CreatedBy,
