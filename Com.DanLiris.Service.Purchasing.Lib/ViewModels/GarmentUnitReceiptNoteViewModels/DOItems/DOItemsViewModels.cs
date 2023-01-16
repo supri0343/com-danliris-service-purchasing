@@ -19,5 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public string Level { get; set; }
         public string Box { get; set; }
         public string Area { get; set; }
+        public string CreatedBy { get; set; }
+        public string ModyfiedBy { get; set; }
     }
 }

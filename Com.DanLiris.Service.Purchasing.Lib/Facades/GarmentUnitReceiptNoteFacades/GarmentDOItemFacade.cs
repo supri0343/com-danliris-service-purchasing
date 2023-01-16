@@ -283,6 +283,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 Level = x.Level,
                 Box = x.Box,
                 Area = x.Area,
+                CreatedBy = x.CreatedBy,
+                ModyfiedBy = x.Colour == "-" ? "-" : x.LastModifiedBy
             }).ToList();
             //List<object> ListData = new List<object>(data.OrderBy(o => o.POSerialNumber));
 
@@ -540,7 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         ReceiptDate = a.ReceiptDate == null ? "" : a.ReceiptDate.Value.AddHours(offset).ToString("dd MMM yyyy", new CultureInfo("id-ID")),
                         ExpenditureDate = a.ExpenditureDate == null ? "" : a.ExpenditureDate.Value.AddHours(offset).ToString("dd MMM yyyy", new CultureInfo("id-ID")),
                         QtyExpenditure = a.QtyExpenditure,
-                        Remaining = TempQty - a.QtyExpenditure,
+                        Remaining = Math.Round((double)TempQty - (double)a.QtyExpenditure,2),
                         Remark = a.Remark,
                         User = a.User,
                         Article=  a.Article
@@ -580,16 +582,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Level", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Box", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Area", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Pembuat BON", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Pembuat Racking", DataType = typeof(String) });
+
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("","","","","","",0,"","","","","",""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("","","","","","",0,"","","","","","","",""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 1;
                 foreach (var item in Query)
                 {
                     result.Rows.Add(index++, item.ProductCode, item.POSerialNumber, item.RO, item.UnitName, item.ProductName, item.RemainingQuantity,item.SmallUomUnit, item.Colour,
-                        item.Rack, item.Level, item.Box, item.Area);
+                        item.Rack, item.Level, item.Box, item.Area,item.CreatedBy,item.ModyfiedBy);
                 }
             }
 

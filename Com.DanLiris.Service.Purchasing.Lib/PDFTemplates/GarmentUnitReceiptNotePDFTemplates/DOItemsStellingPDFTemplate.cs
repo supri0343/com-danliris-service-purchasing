@@ -51,6 +51,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + data.Article, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("NOMOR PO", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.POSerialNumber, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("KOMPOSISI/KONSTRUKSI", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + data.Construction, normal_font);
