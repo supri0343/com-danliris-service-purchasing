@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.Moonlay.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,10 +105,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             return result;
         }
 
-        public List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword, GarmentInternalNoteFilterDto filter)
+        public List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword, GarmentInternalNoteFilterDto filter, string checkExist)
         {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(checkExist);
+            List<string> keyCollections = new List<string>();
+
+            foreach (var item in FilterDictionary)
+            {
+                keyCollections.Add(item.Key);
+            }
+
             //var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
             var internalNoteQuery = _dbContext.GarmentInternNotes.AsQueryable();
+
+            if (!checkExist.Contains("{}"))
+            {
+                internalNoteQuery = _dbContext.GarmentInternNotes.AsQueryable().Where(entity => !checkExist.Contains(entity.INNo));
+            }
+
             if (filter.PositionIds == null)
                 internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing);
             else
@@ -115,6 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 internalNoteQuery = internalNoteQuery.Where(entity => entity.INNo.Contains(keyword));
+
 
             var internalNotes = internalNoteQuery.Select(entity => new
             {

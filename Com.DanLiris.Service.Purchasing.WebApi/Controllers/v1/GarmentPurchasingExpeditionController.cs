@@ -46,11 +46,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         }
 
         [HttpGet("internal-notes")]
-        public IActionResult GetGarmentInternalNotes([FromQuery] string keyword, [FromQuery] GarmentInternalNoteFilterDto filter)
+        public IActionResult GetGarmentInternalNotes([FromQuery] string keyword, [FromQuery] GarmentInternalNoteFilterDto filter, [FromQuery] string checkExist)
         {
             try
             {
-                var result = _service.GetGarmentInternalNotes(keyword, filter);
+                var result = _service.GetGarmentInternalNotes(keyword, filter, checkExist);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
