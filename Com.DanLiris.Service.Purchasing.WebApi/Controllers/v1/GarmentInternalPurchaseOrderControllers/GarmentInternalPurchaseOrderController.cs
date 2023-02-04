@@ -89,7 +89,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
                         {
                             i.Product,
                             i.Quantity,
-                            i.Uom
+                            i.Uom,
+                            i.BudgetPrice
                         }).ToList(),
                         s.CreatedBy,
                         s.IsPosted,
