@@ -599,7 +599,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                      }).ToList();
 
-            var leftoverreceipt = GetReportLeftOverReceipt(DateFrom, DateTo, "FABRIC");
+            //var leftoverreceipt = GetReportLeftOverReceipt(DateFrom, DateTo, "FABRIC");
             var leftoverexpenditure = GetReportLeftOver(DateFrom, DateTo, "FABRIC");
 
             var EPOExpend = (from a in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters()
@@ -656,44 +656,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                    }).ToList();
 
-            var leftoverreceiptfiltered = (from a in leftoverreceipt
-                                    //       join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.POSerialNumber equals b.PO_SerialNumber
-                                    //join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
-                                    //where b.IsDeleted == false && c.IsDeleted == false
+            //Disable Penerimaan Gudang Sisa --> tgl Edit 06-02-2023
+            //var leftoverreceiptfiltered = (from a in leftoverreceipt
+            //                        //       join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.POSerialNumber equals b.PO_SerialNumber
+            //                        //join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
+            //                        //where b.IsDeleted == false && c.IsDeleted == false
 
-                                    join b in EPOExpend on a.POSerialNumber equals b.PO_SerialNumber
-                                           where a.Product.Code != null
+            //                        join b in EPOExpend on a.POSerialNumber equals b.PO_SerialNumber
+            //                               where a.Product.Code != null
                                            
-                                     select new MutationBBCentralViewModelTemp
-                                    {
-                                        AdjustmentQty = 0,
-                                        BeginQty = 0,
-                                        ExpenditureQty = 0,
-                                        ItemCode = a.Product.Code,
-                                        ItemName = a.Product.Name,
-                                        LastQty = 0,
-                                        OpnameQty = 0,
-                                        ReceiptQty = a.Quantity,
-                                        //SupplierType = c.SupplierImport == false ? "LOKAL" : "IMPORT",
-                                        SupplierType = b.SupplierType == false ? "LOKAL" : "IMPORT",
-                                        UnitQtyName = a.Uom.Unit
-                                    }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
-                                    {
-                                        AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
-                                        BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
-                                        ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
-                                        ItemCode = key.ItemCode,
-                                        ItemName = key.ItemName,
-                                        LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
-                                        OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
-                                        ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
-                                        SupplierType = key.SupplierType,
-                                        UnitQtyName = key.UnitQtyName
+            //                         select new MutationBBCentralViewModelTemp
+            //                        {
+            //                            AdjustmentQty = 0,
+            //                            BeginQty = 0,
+            //                            ExpenditureQty = 0,
+            //                            ItemCode = a.Product.Code,
+            //                            ItemName = a.Product.Name,
+            //                            LastQty = 0,
+            //                            OpnameQty = 0,
+            //                            ReceiptQty = a.Quantity,
+            //                            //SupplierType = c.SupplierImport == false ? "LOKAL" : "IMPORT",
+            //                            SupplierType = b.SupplierType == false ? "LOKAL" : "IMPORT",
+            //                            UnitQtyName = a.Uom.Unit
+            //                        }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
+            //                        {
+            //                            AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+            //                            BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+            //                            ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
+            //                            ItemCode = key.ItemCode,
+            //                            ItemName = key.ItemName,
+            //                            LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+            //                            OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+            //                            ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+            //                            SupplierType = key.SupplierType,
+            //                            UnitQtyName = key.UnitQtyName
 
-                                    }).ToList();
+            //                        }).ToList();
 
             //var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).AsEnumerable();
-            var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).Union(leftoverexpenditurefiltered).Union(leftoverreceiptfiltered).AsEnumerable(); 
+            var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).Union(leftoverexpenditurefiltered).AsEnumerable(); 
 
             //var SFiltered1 = Receipt.Union(Expenditure).Union(ReceiptCorrection).AsEnumerable();
             //var SFiltered2 = leftoverexpenditurefiltered.Union(leftoverreceiptfiltered).AsEnumerable();
