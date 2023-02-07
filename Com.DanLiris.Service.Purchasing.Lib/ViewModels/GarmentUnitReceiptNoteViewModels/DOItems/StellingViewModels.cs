@@ -6,6 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 {
     public class StellingViewModels
     {
+        public long id { get; set; }
         public string POSerialNumber { get; set; }
         public decimal? Quantity { get; set; }
         public string Uom { get; set; }
@@ -36,6 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 
     public class StellingEndViewModels
     {
+        public long id { get; set; }
         public string POSerialNumber { get; set; }
         public decimal? Quantity { get; set; }
         public string Uom { get; set; }

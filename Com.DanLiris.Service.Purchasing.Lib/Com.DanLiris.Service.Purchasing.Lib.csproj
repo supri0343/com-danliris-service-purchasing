@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.3" />
     <PackageReference Include="MlkPwgen" Version="0.3.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.9.2" />
+    <PackageReference Include="QRCoder" Version="1.4.3" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.10" />
   </ItemGroup>
 </Project>
