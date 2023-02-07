@@ -1,6 +1,7 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.draw;
+using QRCoder;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -10,11 +11,13 @@ using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels.DOItems;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNotePDFTemplates
 {
     public class DOItemsStellingPDFTemplate
     {
+    
         public static MemoryStream GeneratePdfTemplate(IServiceProvider serviceProvider, List<StellingEndViewModels> viewModel)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 15);
@@ -30,6 +33,64 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             document.Open();
 
             IdentityService identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+           
+
+            #region Identity
+            StellingEndViewModels data = viewModel.Where(x => x.QtyExpenditure == null).FirstOrDefault();
+            StellingEndViewModels lastData = viewModel.Where(x => x.QtyExpenditure != null).Last();
+            //PdfPTable tableMark1 = new PdfPTable(2);
+            //tableMark1.SetWidths(new float[] { 2f, 4f });
+            //tableMark1.WidthPercentage = 100;
+
+
+            PdfPTable tableMark1 = new PdfPTable(2);
+            tableMark1.SetWidths(new float[] { 3f, 4f, });
+            PdfPCell cellMark1 = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_MIDDLE };
+
+            string dataTOQr = string.Concat(data.Colour,"-",data.POSerialNumber,"-",lastData.Remaining.ToString(),lastData.Uom);
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(dataTOQr, QRCodeGenerator.ECCLevel.Q);
+
+            Base64QRCode qrCode = new Base64QRCode(qrCodeData);
+            var imgType = Base64QRCode.ImageType.Jpeg;
+            string qrCodeImageAsBase64 = qrCode.GetGraphic(20);
+            byte[] shippingMarkImage;
+            shippingMarkImage = Convert.FromBase64String(qrCodeImageAsBase64);
+            Image image = Image.GetInstance(imgb: shippingMarkImage);
+       
+            //if (image.Width > 60)
+            //{
+            //    float percentage = 0.0f;
+            //    percentage = 100 / image.Width;
+            //    image.ScalePercent(percentage * 100);
+            //}
+
+            image.Alignment = Element.ALIGN_RIGHT;
+            image.SpacingBefore = 1f;
+            image.SpacingAfter = 1f;
+            image.ScaleToFit(70f, 70f);
+
+            //PdfPCell _sideMarkImageCell = new PdfPCell();
+            ////_sideMarkImageCell.Border = Rectangle.NO_BORDER;
+
+            //_sideMarkImageCell.Image = image;
+            //tableMark1.AddCell(_sideMarkImageCell);
+
+            ////new PdfPCell(tableMark1);
+            //tableMark1.ExtendLastRow = false;
+            //tableMark1.SpacingAfter = 5f;
+            //document.Add(tableMark1);
+            document.Add(image);
+
+
+            //cellMark1.Phrase = new Phrase("KARTU STELLING BAHAN BAKU", normal_font);
+            //tableMark1.AddCell(cellMark1);
+            //cellMark1.Image = image;
+            //cellMark1.Image.ScaleToFit(70f, 70f);
+            //cellMark1.Image.Alignment = Element.ALIGN_RIGHT;
+            //tableMark1.AddCell(cellMark1);
+
+            //document.Add(tableMark1);
             #region Header
 
             string titleString = "KARTU STELLING BAHAN BAKU";
@@ -37,12 +98,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             document.Add(title);
 
             #endregion
-
-            #region Identity
             PdfPTable tableIdentity = new PdfPTable(2);
             tableIdentity.SetWidths(new float[] { 3f, 4f, });
             PdfPCell cellIdentityContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_MIDDLE };
-            StellingEndViewModels data = viewModel.Where(x => x.QtyExpenditure == null).FirstOrDefault();
+
+
+            //GeneratedBarcode generatedBarcode = QRCodeWriter.CreateQrCode(data.id.ToString(),500);
+
+            //Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+
+
             cellIdentityContentLeft.Phrase = new Phrase("BUYER", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " +data.Buyer , normal_font);

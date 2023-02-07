@@ -414,6 +414,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 where a.IsDeleted== false && b.IsDeleted==false
                                 select new StellingViewModels
                                 {
+                                    id = a.Id,
                                     POSerialNumber = a.POSerialNumber,
                                     Quantity = a.SplitQuantity.HasValue ?  decimal.Round(a.SplitQuantity.Value,2):0,
                                     Uom = a.SmallUomUnit,
@@ -433,8 +434,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     Supplier=c.SupplierName,
                                     DoNo=c.DONo,
                                     ProductId= a.ProductId
-                                }).GroupBy(x => new { x.POSerialNumber, x.Uom, x.Colour, x.Rack, x.Level, x.Box, x.Area, x.ReceiptDate, x.ExpenditureDate, x.QtyExpenditure, x.Remaining, x.Remark, x.User,x.RoNo,x.Supplier,x.DoNo,x.ProductId }, (key, group) => new StellingViewModels
+                                }).GroupBy(x => new { x.POSerialNumber, x.Uom, x.Colour, x.Rack, x.Level, x.Box, x.Area, x.ReceiptDate, x.ExpenditureDate, x.QtyExpenditure, x.Remaining, x.Remark, x.User,x.RoNo,x.Supplier,x.DoNo,x.ProductId,id }, (key, group) => new StellingViewModels
                                 {
+                                    id = key.id,
                                     POSerialNumber = key.POSerialNumber,
                                     Quantity = group.Sum(x => x.Quantity),
                                     Uom = key.Uom,
@@ -471,9 +473,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                //&& b.CreatedUtc >= QueryReceipt.Select(x=> x.UpdateDate).FirstOrDefault()
                                select new StellingViewModels
                                {
+                                  
                                    POSerialNumber = null,
                                    Quantity = null,
-                                   Uom = null,
+                                   Uom = b.UomUnit,
                                    Colour = null,
                                    Rack = null,
                                    Box = null,
@@ -502,6 +505,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 {
                     StellingEndViewModels stelling = new StellingEndViewModels
                     {
+                        id = a.id,
                         POSerialNumber = a.POSerialNumber,
                         Quantity = a.Quantity,
                         Uom = a.Uom,
