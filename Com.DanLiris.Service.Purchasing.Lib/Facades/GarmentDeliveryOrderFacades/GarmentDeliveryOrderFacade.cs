@@ -1482,7 +1482,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var garmentInternalPurchaseOrders = dbContext.GarmentInternalPurchaseOrders.Where(w => garmentPurchaseRequestIds.Contains(w.PRId)).Select(s => new { s.Id, s.CreatedUtc, s.PRId }).ToList();
 
             var garmentExternalPurchaseOrderIds = garmentDeliveryOrderItems.Select(s => s.EPOId).ToList();
-            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate }).ToList();
+            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate, s.CreatedBy }).ToList();
 
             var garmentExternalPurchaseOrderItemIds = garmentDeliveryOrderDetails.Select(s => s.EPOItemId).ToList();
             var garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => garmentExternalPurchaseOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Article }).ToList();
@@ -1517,7 +1517,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     ShipmentDate = garmentPurchaseRequest.ShipmentDate,
                     DODate = garmentDeliveryOrder.DODate,
                     OKStatus = "NOT OK",
-                    Staff = garmentDeliveryOrder.CreatedBy,
+                    Staff = garmentExternalPurchaseOrder.CreatedBy,
                     POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                     //Category = cat
                 };
@@ -1542,7 +1542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var garmentInternalPurchaseOrders = dbContext.GarmentInternalPurchaseOrders.Where(w => garmentPurchaseRequestIds.Contains(w.PRId)).Select(s => new { s.Id, s.CreatedUtc, s.PRId }).ToList();
 
             var garmentExternalPurchaseOrderIds = garmentDeliveryOrderItems.Select(s => s.EPOId).ToList();
-            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate }).ToList();
+            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate, s.CreatedBy }).ToList();
 
             var garmentExternalPurchaseOrderItemIds = garmentDeliveryOrderDetails.Select(s => s.EPOItemId).ToList();
             var garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => garmentExternalPurchaseOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Article }).ToList();
@@ -1577,7 +1577,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     ShipmentDate = garmentPurchaseRequest.ShipmentDate,
                     DODate = garmentDeliveryOrder.DODate,
                     OKStatus = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 21 ? "OK" : "NOT OK",
-                    Staff = garmentDeliveryOrder.CreatedBy,
+                    Staff = garmentExternalPurchaseOrder.CreatedBy,
                     POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                     //Category = cat
                 };
@@ -1603,7 +1603,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var garmentInternalPurchaseOrders = dbContext.GarmentInternalPurchaseOrders.Where(w => garmentPurchaseRequestIds.Contains(w.PRId)).Select(s => new { s.Id, s.CreatedUtc, s.PRId }).ToList();
 
             var garmentExternalPurchaseOrderIds = garmentDeliveryOrderItems.Select(s => s.EPOId).ToList();
-            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate }).ToList();
+            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate, s.CreatedBy }).ToList();
 
             var garmentExternalPurchaseOrderItemIds = garmentDeliveryOrderDetails.Select(s => s.EPOItemId).ToList();
             var garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => garmentExternalPurchaseOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Article }).ToList();
@@ -1638,7 +1638,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     ShipmentDate = garmentPurchaseRequest.ShipmentDate,
                     DODate = garmentDeliveryOrder.DODate,
                     OKStatus = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 30 ? "OK" : "NOT OK",
-                    Staff = garmentDeliveryOrder.CreatedBy,
+                    Staff = garmentExternalPurchaseOrder.CreatedBy,
                     POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                     //Category = cat
                 };
