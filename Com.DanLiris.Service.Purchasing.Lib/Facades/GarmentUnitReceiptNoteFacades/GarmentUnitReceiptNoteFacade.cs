@@ -216,9 +216,55 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         public GarmentDOItems ReadDOItemsByURNItemId(int id)
         {
             var model = dbSetGarmentDOItems.IgnoreQueryFilters().Where(i => i.URNItemId == id && ((i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)))
-                            .FirstOrDefault();
+                            ;
+            var query = model.GroupBy(s => new { s.URNItemId }).Select(r => new GarmentDOItems
+            {
+                Active = r.First().Active,
+                CreatedAgent = r.First().CreatedAgent,
+                CreatedBy = r.First().CreatedBy,
+                CreatedUtc = r.First().CreatedUtc,
+                DeletedBy = r.First().DeletedBy,
+                DeletedUtc = r.First().DeletedUtc,
+                DeletedAgent = r.First().DeletedAgent,
+                LastModifiedAgent = r.First().LastModifiedAgent,
+                LastModifiedBy = r.First().LastModifiedBy,
+                LastModifiedUtc = r.First().LastModifiedUtc,
+                Area = r.First().Area,
+                Box = r.First().Box,
+                Colour = r.First().Colour,
+                DOCurrencyRate = r.First().DOCurrencyRate,
+                DOItemNo = r.First().DOItemNo,
+                DesignColor = r.First().DesignColor,
+                DetailReferenceId = r.First().DetailReferenceId,
+                EPOItemId = r.First().EPOItemId,
+                Id = r.First().Id,
+                IsDeleted = r.First().IsDeleted,
+                Level = r.First().Level,
+                POId = r.First().POId,
+                POItemId = r.First().POItemId,
+                POSerialNumber = r.First().POSerialNumber,
+                PRItemId = r.First().PRItemId,
+                ProductCode = r.First().ProductCode,
+                ProductId = r.First().ProductId,
+                ProductName = r.First().ProductName,
+                RO = r.First().RO,
+                Rack = r.First().Rack,
+                RemainingQuantity = r.Sum( o => o.RemainingQuantity),
+                SmallQuantity = r.First().SmallQuantity,
+                SmallUomId = r.First().SmallUomId,
+                SmallUomUnit = r.First().SmallUomUnit,
+                SplitQuantity = r.First().SplitQuantity,
+                StorageCode = r.First().StorageCode,
+                StorageId = r.First().StorageId,
+                StorageName = r.First().StorageName,
+                UId = r.First().UId,
+                URNItemId = r.Key.URNItemId,
+                UnitCode = r.First().UnitCode,
+                UnitId = r.First().UnitId,
+                UnitName = r.First().UnitName
+            }).FirstOrDefault();
 
-            return model;
+            return query;
         }
 
         public MemoryStream GeneratePdf(GarmentUnitReceiptNoteViewModel garmentUnitReceiptNote)
