@@ -2552,6 +2552,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              Colour = s.Colour,
                              Rack = s.Rack,
                              Box = s.Box,
+                             Area =s.Area,
+                             Level = s.Level,
                              DOItemsId = s.Id
                          }).ToList();
 
@@ -2649,6 +2651,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     item.Colour,
                     item.Rack,
                     item.Box,
+                    item.Area,
+                    item.Level,
                     item.DOItemsId
                 });
             }
