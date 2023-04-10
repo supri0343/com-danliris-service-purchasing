@@ -2522,6 +2522,144 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return Updated;
         }
 
+        public List<object> ReadURNItemWithStock(string Keyword = null, string Filter = "{}")
+        {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            bool hasDONoFilter = FilterDictionary.ContainsKey("DONo");
+            bool hasUnitCodeFilter = FilterDictionary.ContainsKey("UnitCode");
+            bool hasStorageCodeFilter = FilterDictionary.ContainsKey("StorageCode");
+            string DONo = hasDONoFilter ? (FilterDictionary["DONo"] ?? "").Trim() : "";
+            string UnitCode = hasUnitCodeFilter ? (FilterDictionary["UnitCode"] ?? "").Trim() : "";
+            string StorageCode = hasStorageCodeFilter ? (FilterDictionary["StorageCode"] ?? "").Trim() : "";
+            var dataDO = (from a in dbContext.GarmentDeliveryOrders
+                          join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
+                          join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
+                          where a.DONo == DONo
+                          select new { DOId = a.Id, c.Id }).Distinct().ToList();
+            var doDetailIds = dataDO.Select(a => a.Id).Distinct().ToList();
+            var query = (from y in dbContext.GarmentUnitReceiptNoteItems
+                         join x in dbContext.GarmentUnitReceiptNotes on y.URNId equals x.Id
+                         //join m in dbContext.GarmentExternalPurchaseOrderItems on y.EPOItemId equals m.Id
+                         join s in dbContext.GarmentDOItems on y.Id equals s.URNItemId
+                         where x.UnitCode == UnitCode && x.StorageCode == StorageCode && doDetailIds.Contains(y.DODetailId)
+                         select new
+                         {
+                             URNId = x.Id,
+                             URNItemId = y.Id,
+                             y.EPOItemId,
+                             Quantity = s.RemainingQuantity,
+                             Colour = s.Colour,
+                             Rack = s.Rack,
+                             Box = s.Box,
+                             Area =s.Area,
+                             Level = s.Level,
+                             DOItemsId = s.Id
+                         }).ToList();
+
+            var epoItemIds = query.Select(s => s.EPOItemId).ToList().Distinct().ToList();
+            var epoItems = dbContext.GarmentExternalPurchaseOrderItems.Where(u => epoItemIds.Contains(u.Id))
+                .Select(s => new { s.Id, s.Article }).ToList();
+
+            var urnIds = query.Select(s => s.URNId).ToList().Distinct().ToList();
+            var URNs = dbContext.GarmentUnitReceiptNotes.Where(u => urnIds.Contains(u.Id))
+                .Select(s => new { s.Id, s.DOId, s.DONo, s.URNNo, s.DOCurrencyRate }).ToList();
+
+            var urnItemIds = query.Select(s => s.URNItemId).ToList().Distinct().ToList();
+            var urnItems = dbContext.GarmentUnitReceiptNoteItems.Where(u => urnItemIds.Contains(u.Id))
+                .Select(y => new
+                {
+                    y.URNId,
+                    y.Id,
+                    y.RONo,
+                    y.DODetailId,
+                    y.EPOItemId,
+                    y.POItemId,
+                    y.PRItemId,
+                    y.ProductId,
+                    y.ProductName,
+                    y.ProductCode,
+                    y.ProductRemark,
+                    y.OrderQuantity,
+                    y.SmallQuantity,
+                    y.DesignColor,
+                    y.SmallUomId,
+                    y.SmallUomUnit,
+                    y.POSerialNumber,
+                    y.PricePerDealUnit,
+                    y.Conversion,
+                    y.UomUnit,
+                    y.UomId,
+                    y.ReceiptCorrection,
+                    y.CorrectionConversion,
+                    y.DOCurrencyRate
+                }).ToList();
+
+            //var doItems = dbContext.GarmentDOItems.Where(x => urnItemIds.Contains(x.URNItemId)).Select(s => new
+            //{
+            //    s.
+            //});
+
+            List<object> ListData = new List<object>();
+            foreach (var item in query)
+            {
+                var urn = URNs.FirstOrDefault(f => f.Id.Equals(item.URNId));
+                var urnItem = urnItems.FirstOrDefault(f => f.Id.Equals(item.URNItemId));
+                var epoItem = epoItems.FirstOrDefault(f => f.Id.Equals(item.EPOItemId));
+                string doNo = "";
+                long doId = 0;
+                // double doCurrencyRate = 0;
+                if (urn.DOId == 0)
+                {
+                    var URN = URNs.FirstOrDefault(a => a.DONo == DONo);
+                    doNo = URN.DONo;
+                    doId = URN.DOId;
+                    //doCurrencyRate = (double)URN.DOCurrencyRate;
+                }
+                ListData.Add(new
+                {
+                    DOId = doId == 0 ? urn.DOId : doId,
+                    DONo = doNo == "" ? urn.DONo : doNo,
+                    urn.URNNo,
+                    urnItem.URNId,
+                    urnItem.Id,
+                    urnItem.RONo,
+                    urnItem.DODetailId,
+                    urnItem.EPOItemId,
+                    urnItem.POItemId,
+                    urnItem.PRItemId,
+                    urnItem.ProductId,
+                    urnItem.ProductName,
+                    urnItem.ProductCode,
+                    urnItem.ProductRemark,
+                    urnItem.OrderQuantity,
+                    urnItem.SmallQuantity,
+                    urnItem.DesignColor,
+                    urnItem.SmallUomId,
+                    urnItem.SmallUomUnit,
+                    urnItem.POSerialNumber,
+                    urnItem.PricePerDealUnit,
+                    // DOCurrencyRate = doCurrencyRate == 0 ? urn.DOCurrencyRate : doCurrencyRate,
+                    urnItem.Conversion,
+                    urnItem.UomUnit,
+                    urnItem.UomId,
+                    urnItem.ReceiptCorrection,
+                    urnItem.CorrectionConversion,
+                    epoItem.Article,
+                    urnItem.DOCurrencyRate,
+                    item.Quantity,
+                    item.Colour,
+                    item.Rack,
+                    item.Box,
+                    item.Area,
+                    item.Level,
+                    item.DOItemsId
+                });
+            }
+
+            return ListData;
+        }
+
 
 
 
