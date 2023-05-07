@@ -44,5 +44,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public DateTimeOffset? URNDate { get; set; }
         public string UserCreated { get; set; }
         public string PaymentMethod { get; set; }
+        public string PaymentDueDays { get; set; }
+        public string IncomeTaxBy { get; set; }
+
     }
 }

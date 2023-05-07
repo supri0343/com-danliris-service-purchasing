@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
@@ -9,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -219,6 +223,181 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             {
                 return null;
             }
+        }
+
+        //
+        public IQueryable<GarmentCorrectionNoteGenerateDataViewModel> GetReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var Query1 = (from a in dbContext.GarmentCorrectionNotes 
+                         join b in dbContext.GarmentCorrectionNoteItems on a.Id equals b.GCorrectionId
+                         join c in dbContext.GarmentDeliveryOrders on a.DOId equals c.Id
+                         join d in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals d.Id
+                         where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false &&
+                               (a.CorrectionType == "Harga Total" || a.CorrectionType == "Harga Satuan") &&
+                               a.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && a.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+
+                         select new GarmentCorrectionNoteGenerateDataViewModel
+                         {
+                             CorrectionNo = a.CorrectionNo,
+                             CorrectionDate = a.CorrectionDate,
+                             CorrectionType = a.CorrectionType,
+                             SupplierCode = a.SupplierCode,
+                             SupplierName = a.SupplierName,
+                             DONo = a.DONo,
+                             DODate = c.DODate,
+                             PaymentBill = c.PaymentBill,
+                             BillNo = c.BillNo,
+                             NKPN = a.NKPN == null ? "-" : a.NKPN,
+                             DueDate = c.ArrivalDate.AddDays(d.PaymentDueDays),
+                             PaymentDueDays = d.PaymentDueDays == 0 ? "D000" : (d.PaymentDueDays >= 1 && d.PaymentDueDays < 10 ? "D00" + d.PaymentDueDays.ToString() : (d.PaymentDueDays >= 10 && d.PaymentDueDays < 100 ? "D0" + d.PaymentDueDays.ToString() : "D" + d.PaymentDueDays.ToString())),                             
+                             UseVat = a.UseVat ? "YA " : "TIDAK",
+                             VatRate = a.VatRate,
+                             UseIncomeTax = a.UseIncomeTax ? "YA " : "TIDAK",
+                             IncomeTaxName = a.IncomeTaxName == null ? "-" : a.IncomeTaxName,
+                             IncomeTaxRate = a.IncomeTaxRate,
+                             CurrencyCode = c.DOCurrencyCode,
+                             CurrencyRate = c.DOCurrencyRate,
+                             Amount = b.PriceTotalAfter - b.PriceTotalBefore,
+                         }
+                         );
+
+            var Query2 = (from a in dbContext.GarmentCorrectionNotes
+                          join b in dbContext.GarmentCorrectionNoteItems on a.Id equals b.GCorrectionId
+                          join c in dbContext.GarmentDeliveryOrders on a.DOId equals c.Id
+                          join d in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals d.Id
+                          where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false &&
+                                (a.CorrectionType == "Retur" || a.CorrectionType == "Jumlah") &&
+                                a.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && a.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+
+                          select new GarmentCorrectionNoteGenerateDataViewModel
+                          {
+                              CorrectionNo = a.CorrectionNo,
+                              CorrectionDate = a.CorrectionDate,
+                              CorrectionType = a.CorrectionType,
+                              SupplierCode = a.SupplierCode,
+                              SupplierName = a.SupplierName,
+                              DONo = a.DONo,
+                              DODate = c.DODate,
+                              PaymentBill = c.PaymentBill,
+                              BillNo = c.BillNo,
+                              NKPN = a.NKPN == null ? "-" : a.NKPN,
+                              DueDate = c.ArrivalDate.AddDays(d.PaymentDueDays),
+                              PaymentDueDays = d.PaymentDueDays == 0 ? "D000" : (d.PaymentDueDays >= 1 && d.PaymentDueDays < 10 ? "D00" + d.PaymentDueDays.ToString() : (d.PaymentDueDays >= 10 && d.PaymentDueDays < 100 ? "D0" + d.PaymentDueDays.ToString() : "D" + d.PaymentDueDays.ToString())),
+                              UseVat = a.UseVat ? "YA " : "TIDAK",
+                              VatRate = a.VatRate,
+                              UseIncomeTax = a.UseIncomeTax ? "YA " : "TIDAK",
+                              IncomeTaxName = a.IncomeTaxName == null ? "-" : a.IncomeTaxName,
+                              IncomeTaxRate = a.IncomeTaxRate,
+                              CurrencyCode = c.DOCurrencyCode,
+                              CurrencyRate = c.DOCurrencyRate,
+                              Amount = b.Quantity * b.PricePerDealUnitAfter,
+                          }
+                         );
+
+            //
+
+            List<GarmentCorrectionNoteGenerateDataViewModel> CombineData = Query1.Union(Query2).ToList();
+
+            //
+            var Query = from a in CombineData
+
+                        group new { TotalAmount = a.Amount } by new
+                         {
+                             a.CorrectionNo,
+                             a.CorrectionDate,
+                             a.CorrectionType,
+                             a.SupplierCode,
+                             a.SupplierName,
+                             a.DONo,
+                             a.DODate,
+                             a.PaymentBill,
+                             a.BillNo,
+                             a.DueDate,
+                             a.PaymentDueDays,
+                             a.UseVat,
+                             a.VatRate,
+                             a.UseIncomeTax,
+                             a.IncomeTaxName,
+                             a.IncomeTaxRate,
+                             a.CurrencyCode,
+                             a.CurrencyRate,
+                         } into G
+
+                         select new GarmentCorrectionNoteGenerateDataViewModel
+                         {
+                             CorrectionNo = G.Key.CorrectionNo,
+                             CorrectionDate = G.Key.CorrectionDate,
+                             CorrectionType = G.Key.CorrectionType,
+                             SupplierCode = G.Key.SupplierCode,
+                             SupplierName = G.Key.SupplierName,
+                             DONo = G.Key.DONo,
+                             DODate = G.Key.DODate,
+                             PaymentBill = G.Key.PaymentBill,
+                             BillNo = G.Key.BillNo,
+                             DueDate = G.Key.DueDate,
+                             PaymentDueDays = G.Key.PaymentDueDays,
+                             UseVat = G.Key.UseVat,
+                             VatRate = G.Key.VatRate,
+                             UseIncomeTax = G.Key.UseIncomeTax,
+                             IncomeTaxName = G.Key.IncomeTaxName,
+                             IncomeTaxRate = G.Key.IncomeTaxRate,
+                             CurrencyCode = G.Key.CurrencyCode,
+                             CurrencyRate = G.Key.CurrencyRate,
+                             Amount = Math.Round(G.Sum(m => m.TotalAmount), 2),
+                         };
+            return Query.AsQueryable();
+        }
+
+        public MemoryStream GenerateDataExcel(DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportQuery(dateFrom, dateTo, offset);
+            Query = Query.OrderBy(b => b.CorrectionNo).ThenBy(b => b.DONo);
+            DataTable result = new DataTable();
+
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR NOTA KOREKSI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL NOTA KOREKSI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JENIS KOREKSI", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO SURAT JALAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL SURAT JALAN", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "NO BON KECIL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO BON PUSAT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL JATUH TEMPO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TEMPO", DataType = typeof(String) });
+          
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "% PPN", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JENIS PAJAK", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "% PPH", DataType = typeof(Double) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "MATA UANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RATE", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH NOMINAL", DataType = typeof(Double) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, 0); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                var index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string CDate = item.CorrectionDate == new DateTime(1970, 1, 1) ? "-" : item.CorrectionDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string DODate = item.DODate == null ? "-" : item.DODate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string DueDate = item.DueDate == new DateTime(1970, 1, 1) ? "-" : item.DueDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    
+                    result.Rows.Add(item.CorrectionNo, CDate, item.CorrectionType, item.SupplierCode, item.SupplierName, item.DONo, DODate, item.PaymentBill, item.BillNo, DueDate,
+                                    item.PaymentDueDays, item.UseVat, item.VatRate, item.UseIncomeTax, item.IncomeTaxName, item.IncomeTaxRate, item.CurrencyCode, item.CurrencyRate, item.Amount);
+                }
+            }
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
         }
     }
 }

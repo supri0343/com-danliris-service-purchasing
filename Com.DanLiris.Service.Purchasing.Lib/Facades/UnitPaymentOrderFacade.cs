@@ -918,8 +918,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                          join b in dbContext.UnitPaymentOrderItems on a.Id equals b.UPOId
                          join c in dbContext.UnitPaymentOrderDetails on b.Id equals c.UPOItemId
                          join d in dbContext.UnitReceiptNotes on b.URNId equals d.Id
+                         join e in dbContext.ExternalPurchaseOrders on c.EPONo equals e.EPONo
                          where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false &&
-                               a.Date.AddHours(offset).Date >= DateFrom.Date &&
+                               e.IsDeleted == false && a.Date.AddHours(offset).Date >= DateFrom.Date &&
                                a.Date.AddHours(offset).Date <= DateTo.Date
                          select new ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderGenerateDataViewModel
                          {
@@ -938,7 +939,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              VatRate = a.VatRate,
                              UseIncomeTax = a.UseIncomeTax ? "YA " : "TIDAK",
                              IncomeTaxName = a.IncomeTaxName,
-                             IncomeTaxRate = a.IncomeTaxRate,
+                             IncomeTaxRate = a.IncomeTaxBy == "Dan Liris" ? 0 :  a.IncomeTaxRate,
                              IncomeTaxNo = a.IncomeTaxNo,
                              IncomeTaxDate = a.IncomeTaxDate,
                              EPONO = c.EPONo,
@@ -957,7 +958,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              URNNo = b.URNNo,
                              URNDate = d.ReceiptDate,
                              UserCreated = a.CreatedBy,
-                             PaymentMethod = a.PaymentMethod,
+                             IncomeTaxBy = a.IncomeTaxBy,
+                             PaymentMethod = a.PaymentMethod,                                  
+                             PaymentDueDays = e.PaymentDueDays == null ? "D000": (e.PaymentDueDays.Length == 1 ? "D00" + e.PaymentDueDays : (e.PaymentDueDays.Length == 2 ? "D0" + e.PaymentDueDays : "D" + e.PaymentDueDays)),
                          }
                          );
             return Query;
@@ -978,6 +981,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL INVOICE", DataType = typeof(String) });
 
             result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL JATUH TEMPO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TEMPO", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "KETERANGAN", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "NOMOR FAKTUR PAJAK", DataType = typeof(String) });
@@ -1007,10 +1011,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "PRINTED_FLAG", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "USER INPUT", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "TERM", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "RATE PPN", DataType = typeof(double) });
-
+            result.Columns.Add(new DataColumn() { ColumnName = "RATE PPN", DataType = typeof(double) });          
+        
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", 0, "", "", 0, 0, "", "", "", "", "", 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", 0, "", "", 0, 0, "", "", "", "", "", 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -1025,7 +1029,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     string URNDate = item.URNDate == null ? "-" : item.URNDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
 
                     result.Rows.Add(item.UPONo, UPODate, item.SupplierCode, item.SupplierName, item.CategoryName, item.InvoiceNo, InvoiceDate,
-                                    DueDate, item.UPORemark, item.UseVat, item.VatNo, VatDate, item.UseIncomeTax, item.IncomeTaxName,
+                                    DueDate,item.PaymentDueDays,item.UPORemark, item.UseVat, item.VatNo, VatDate, item.UseIncomeTax, item.IncomeTaxName,
                                     item.IncomeTaxRate, item.IncomeTaxNo, IncomeTaxDate, item.EPONO, item.PRNo, item.AccountNo, item.ProductCode,
                                     item.ProductName, item.ReceiptQty, item.UOMUnit, item.PricePerDealUnit, item.IncludedPPN, item.CurrencyCode, item.CurrencyRate,
                                     item.PriceTotal, item.URNNo, URNDate, item.Printed, item.UserCreated, item.PaymentMethod, item.VatRate);

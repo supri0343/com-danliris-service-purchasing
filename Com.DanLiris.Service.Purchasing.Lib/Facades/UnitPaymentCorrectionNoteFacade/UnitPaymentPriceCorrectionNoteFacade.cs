@@ -1038,9 +1038,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             var Query = (from a in dbContext.UnitPaymentCorrectionNotes
                          join b in dbContext.UnitPaymentCorrectionNoteItems on a.Id equals b.UPCId
                          join c in dbContext.UnitReceiptNotes on b.URNNo equals c.URNNo
-                         join d in dbContext.UnitPaymentOrders on a.UPOId equals d.Id
+                         join d in dbContext.UnitPaymentOrders on a.UPOId equals d.Id                         
+                         join e in dbContext.UnitPaymentOrderItems on d.Id equals e.UPOId
+                         join f in dbContext.UnitPaymentOrderDetails on e.Id equals f.UPOItemId
+                         join g in dbContext.ExternalPurchaseOrders on f.EPONo equals g.EPONo
 
                          where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false &&
+                               d.IsDeleted == false && e.IsDeleted == false && f.IsDeleted == false && g.IsDeleted == false &&
                                a.CorrectionDate.AddHours(offset).Date >= DateFrom.Date &&
                                a.CorrectionDate.AddHours(offset).Date <= DateTo.Date
                          select new UnitPaymentCorrectionNoteGenerateDataViewModel
@@ -1077,6 +1081,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                              UseVat = a.useVat ? "YA " : "TIDAK",
                              UseIncomeTax = a.useIncomeTax ? "YA " : "TIDAK",
                              VatRate = d.VatRate,
+                             DueDate = d.DueDate,
+                             PaymentDueDays = g.PaymentDueDays == null ? "D000" : (g.PaymentDueDays.Length == 1 ? "D00" + g.PaymentDueDays : (g.PaymentDueDays.Length == 2 ? "D0" + g.PaymentDueDays : "D" + g.PaymentDueDays)),
                          }
                          );
             return Query;
@@ -1092,6 +1098,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL NOTA KOREKSI", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "JENIS RETUR", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "NOMOR NOTA KREDIT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL JATUH TEMPO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TEMPO", DataType = typeof(string) });
+
             result.Columns.Add(new DataColumn() { ColumnName = "NOMOR INVOICE KOREKSI", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL INVOICE KOREKSI", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "FAKTUR PAJAK KOREKSI PPN", DataType = typeof(String) });
@@ -1124,7 +1133,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             result.Columns.Add(new DataColumn() { ColumnName = "RATE PPN", DataType = typeof(double) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", "", 0, "", "", "", "", "", 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", "", 0, "", "", "", "", "", 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -1136,8 +1145,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     string VatTaxCorrectionDate = item.VatTaxCorrectionDate == DateTimeOffset.MinValue ? "-" : item.VatTaxCorrectionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
                     string IncomeTaxCorrectionDate = item.IncomeTaxCorrectionDate == DateTimeOffset.MinValue ? "-" : item.IncomeTaxCorrectionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
                     string URNDate = item.URNDate == null ? "-" : item.URNDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string DueDate = item.DueDate == new DateTime(1970, 1, 1) ? "-" : item.DueDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
 
-                    result.Rows.Add(item.UPCNo, UPCDate, item.CorrectionType, item.UPONo, item.InvoiceCorrectionNo, InvoiceCorrectionDate, item.VatTaxCorrectionNo, VatTaxCorrectionDate, item.IncomeTaxCorrectionNo,
+                    result.Rows.Add(item.UPCNo, UPCDate, item.CorrectionType, item.UPONo, DueDate, item.PaymentDueDays, item.InvoiceCorrectionNo, InvoiceCorrectionDate, item.VatTaxCorrectionNo, VatTaxCorrectionDate, item.IncomeTaxCorrectionNo,
                                     IncomeTaxCorrectionDate, item.SupplierCode, item.SupplierName, item.SupplierAddress, item.ReleaseOrderNoteNo, item.UPCRemark, item.EPONo, item.PRNo, item.AccountNo, item.ProductCode,
                                     item.ProductName, item.Quantity, item.UOMUnit, item.PricePerDealUnit, item.CurrencyCode, item.CurrencyRate, item.PriceTotal, item.URNNo, URNDate, item.UserCreated, item.UseVat, item.UseIncomeTax, item.VatRate);
                 }

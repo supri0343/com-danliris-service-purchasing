@@ -819,6 +819,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
 
             var query = from urnWithItem in dbContext.UnitReceiptNoteItems
+                        join urnHdr in dbContext.UnitReceiptNotes on urnWithItem.URNId equals urnHdr.Id
 
                         join pr in dbContext.PurchaseRequests on urnWithItem.PRId equals pr.Id into joinPurchaseRequest
                         from urnPR in joinPurchaseRequest.DefaultIfEmpty()
@@ -863,7 +864,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
                             // UPO Info
                             InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
-                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
+                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : urnHdr.URNNo,
                             VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
                             PibDate = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibDate : DateTimeOffset.MinValue,
                             //urnUPOItem.UnitPaymentOrder.PibDate,
