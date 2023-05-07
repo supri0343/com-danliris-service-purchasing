@@ -968,5 +968,172 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 return null;
             }
         }
+        //
+        public IQueryable<GarmentInternNoteGenerateDataViewModel> GetReportQuery(DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var Query = (from a in dbContext.GarmentDeliveryOrders
+                         join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
+                         join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
+                         join d in dbContext.GarmentBeacukais on a.CustomsId equals d.Id
+                         join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id
+                         join f in dbContext.GarmentInvoiceDetails on c.Id equals f.DODetailId into aa
+                         from DInv in aa.DefaultIfEmpty()
+                         join g in dbContext.GarmentInvoiceItems on DInv.InvoiceItemId equals g.Id into bb
+                         from IInv in bb.DefaultIfEmpty()
+                         join h in dbContext.GarmentInvoices on IInv.InvoiceId equals h.Id into cc
+                         from Inv in cc.DefaultIfEmpty()
+                         join i in dbContext.GarmentInternNotes on a.InternNo equals i.INNo into dd
+                         from IN in dd.DefaultIfEmpty()
+                         where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false && e.IsDeleted == false && 
+                               DInv.IsDeleted == false && IInv.IsDeleted == false && Inv.IsDeleted == false && IN.IsDeleted == false &&
+                               a.DODate.AddHours(offset).Date >= DateFrom.Date && a.DODate.AddHours(offset).Date <= DateTo.Date
+
+                         select new GarmentInternNoteGenerateDataViewModel
+                         {
+                             INNo = IN == null ? "-" : IN.INNo,
+                             INDate = IN == null ? new DateTime(1970, 1, 1) : IN.INDate,
+                             SupplierCode = a.SupplierCode,
+                             SupplierName = a.SupplierName,
+                             DONo = a.DONo,
+                             DODate = a.DODate,
+                             PaymentBill= a.PaymentBill,
+                             BillNo = a.BillNo,
+                             DueDate = a.ArrivalDate.AddDays(e.PaymentDueDays),
+                             PaymentDueDays = e.PaymentDueDays == 0 ? "D000" : (e.PaymentDueDays >= 1 && e.PaymentDueDays < 10 ? "D00" + e.PaymentDueDays.ToString() : (e.PaymentDueDays >= 10 && e.PaymentDueDays < 100 ? "D0" + e.PaymentDueDays.ToString() : "D" + e.PaymentDueDays.ToString())),
+                             InvoiceNo = Inv == null ? "-" : Inv.InvoiceNo,
+                             InvoiceDate = Inv == null ? new DateTime(1970, 1, 1) : Inv.InvoiceDate,
+                             UseVat = Inv == null ? "-"  : (Inv.UseVat ? "YA " : "TIDAK"),
+                             VatNo = Inv == null ? "-" : Inv.VatNo,
+                             VatDate = Inv == null ? new DateTime(1970, 1, 1) : Inv.VatDate,
+                             VatRate = Inv == null ? 0 : Inv.VatRate,
+                             UseIncomeTax = Inv == null ? "-" : (Inv.UseIncomeTax ? "YA " : "TIDAK"),
+                             IncomeTaxName = Inv == null ? "-" : Inv.IncomeTaxName,
+                             IncomeTaxRate = Inv == null ? 0 : Inv.IncomeTaxRate,
+                             IncomeTaxNo = Inv == null ? "-" : Inv.IncomeTaxNo,
+                             IncomeTaxDate = Inv == null ? new DateTime(1970, 1, 1) : Inv.IncomeTaxDate,
+                             CurrencyCode = a.DOCurrencyCode,
+                             CurrencyRate = a.DOCurrencyRate,
+                             Amount = c.DOQuantity * c.PricePerDealUnit,
+                         }
+                         );
+            //
+            var Query1 = from a in Query
+
+                         group new { TotalAmount = a.Amount } by new
+                         {
+                             a.INNo,
+                             a.INDate,
+                             a.SupplierCode,
+                             a.SupplierName,
+                             a.DONo,
+                             a.DODate,
+                             a.PaymentBill,
+                             a.BillNo,
+                             a.DueDate,
+                             a.PaymentDueDays,
+                             a.InvoiceNo,
+                             a.InvoiceDate,
+                             a.UseVat,
+                             a.VatNo,
+                             a.VatDate,
+                             a.VatRate,
+                             a.UseIncomeTax,
+                             a.IncomeTaxName,
+                             a.IncomeTaxRate,
+                             a.IncomeTaxNo,
+                             a.IncomeTaxDate,
+                             a.CurrencyCode,
+                             a.CurrencyRate,
+                         } into G
+
+                        select new GarmentInternNoteGenerateDataViewModel
+                        {
+                            INNo = G.Key.INNo,
+                            INDate = G.Key.INDate,
+                            SupplierCode = G.Key.SupplierCode,
+                            SupplierName = G.Key.SupplierName,
+                            DONo = G.Key.DONo,
+                            DODate = G.Key.DODate,
+                            PaymentBill = G.Key.PaymentBill,
+                            BillNo = G.Key.BillNo,
+                            DueDate = G.Key.DueDate,
+                            PaymentDueDays = G.Key.PaymentDueDays,
+                            InvoiceNo = G.Key.InvoiceNo,
+                            InvoiceDate = G.Key.InvoiceDate,
+                            UseVat = G.Key.UseVat,
+                            VatNo = G.Key.VatNo,
+                            VatDate = G.Key.VatDate,
+                            VatRate = G.Key.VatRate,
+                            UseIncomeTax = G.Key.UseIncomeTax,
+                            IncomeTaxName = G.Key.IncomeTaxName,
+                            IncomeTaxRate = G.Key.IncomeTaxRate,
+                            IncomeTaxNo = G.Key.IncomeTaxNo,
+                            IncomeTaxDate = G.Key.IncomeTaxDate,
+                            CurrencyCode = G.Key.CurrencyCode,
+                            CurrencyRate = G.Key.CurrencyRate,                          
+                            Amount = Math.Round(G.Sum(m => m.TotalAmount), 2),
+                        };
+            return Query1;
+        }
+
+        public MemoryStream GenerateDataExcel(DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportQuery(dateFrom, dateTo, offset);
+            Query = Query.OrderBy(b => b.INNo).ThenBy(b => b.DONo).ThenBy(b => b.InvoiceNo);
+            DataTable result = new DataTable();
+
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR NOTA INTERN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL NOTA INTERN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO SURAT JALAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL SURAT JALAN", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "NO BON KECIL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO BON PUSAT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL JATUH TEMPO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TEMPO", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR INVOICE", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL INVOICE", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR FAKTUR PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL FAKTUR PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "% PPN", DataType = typeof(double) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JENIS PAJAK", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NOMOR FAKTUR PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL FAKTUR PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "% PPH", DataType = typeof(double) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "MATA UANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RATE", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH NOMINAL", DataType = typeof(double) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", 0, "", 0, 0); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                var index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string INDate = item.INDate == new DateTime(1970, 1, 1) ? "-" : item.INDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string DODate = item.DODate == null ? "-" : item.DODate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string InvoiceDate = item.InvoiceDate == null ? "-" : item.InvoiceDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string DueDate = item.DueDate == new DateTime(1970, 1, 1) ? "-" : item.DueDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string VatDate = item.VatDate == DateTimeOffset.MinValue ? "-" : item.VatDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    string IncomeTaxDate = item.IncomeTaxDate == DateTimeOffset.MinValue ? "-" : item.IncomeTaxDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
+                    
+                    result.Rows.Add(item.INNo, INDate, item.SupplierCode, item.SupplierName, item.DONo, DODate, item.PaymentBill, item.BillNo, DueDate,
+                                    item.PaymentDueDays, item.InvoiceNo, InvoiceDate, item.UseVat, item.VatNo, VatDate, item.VatRate, item.UseIncomeTax,
+                                    item.IncomeTaxName, item.IncomeTaxNo, IncomeTaxDate, item.IncomeTaxRate, item.CurrencyCode, item.CurrencyRate, item.Amount);
+                }
+            }
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
+        }
     }
 }

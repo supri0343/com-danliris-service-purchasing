@@ -20,5 +20,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(string currencyCode, int supplierId);
         List<GarmentInternalNoteDto> BankExpenditureReadInternalNotesOptimized(int currencyId, int supplierId);
         Task<int> BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, int bankExpenditureNoteId, string bankExpenditureNoteNo, string internalNoteIds = "[]", string invoiceNoteIds = "[]");
+        MemoryStream GenerateDataExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
     }
 }
