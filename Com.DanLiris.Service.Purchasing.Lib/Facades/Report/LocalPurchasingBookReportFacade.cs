@@ -684,11 +684,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //        {
         //            if (isValas)
         //            {
-        //                reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.Total);
+        //                reportDataTable.Rows.Add(report.ReceiptDate.ToString("MM/dd/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.Total);
         //            }
         //            else
         //            {
-        //                reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.Total);
+        //                reportDataTable.Rows.Add(report.ReceiptDate.ToString("MM/dd/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.Total);
         //            }
         //        }
         //        foreach (var categorySummary in result.CategorySummaries)
@@ -704,7 +704,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //        var title = "BUKU PEMBELIAN LOKAL";
         //        if (isValas)
         //            title = "BUKU PEMBELIAN LOKAL VALAS";
-        //        var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
+        //        var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy}";
 
         //        var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
         //        worksheet.Cells["A1"].Value = company;
@@ -754,8 +754,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 foreach (var report in result.Reports)
                 {
-                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
-                    var dateCorrection = report.CorrectionDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
+                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
+                    var dateCorrection = report.CorrectionDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
                     if (isValas)
                     {
                         reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPP * report.CurrencyRate, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, (report.DPP + report.VAT - report.IncomeTax) * report.CurrencyRate);
@@ -778,7 +778,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 var title = "BUKU PEMBELIAN LOKAL";
                 if (isValas)
                     title = "BUKU PEMBELIAN LOKAL VALAS";
-                var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
+                var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy}";
 
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
                 worksheet.Cells["A1"].Value = company;
