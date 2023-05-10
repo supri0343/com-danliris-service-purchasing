@@ -51,6 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
+                                                                     DODate = a.DODate.ToString("MM/dd/yyyy"),
                                                                      SuplName = a.SupplierName,
                                                                      UnitName = f.UnitName,
                                                                      BCNo = d.BeacukaiNo,
@@ -85,6 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
+                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
                                                                      SuplName = gc.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -121,6 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
+                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
                                                                      SuplName = gc.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -157,6 +160,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
+                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
                                                                      SuplName = gc.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -195,6 +199,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
+                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
                                                                      SuplName = inv.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -231,6 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && inv.SupplierCode != "GDG"
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
+                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
                                                                      SuplName = inv.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -251,9 +257,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             List<GarmentDailyPurchasingTempViewModel> CombineData = d1.Union(d2).Union(d3).Union(d4).Union(d5).Union(d6).ToList();
 
             var Query = from data in CombineData
-                        group data by new { data.SuplName, data.BCNo, data.BCType, data.NoteNo, data.BonKecil, data.DONo, data.INNo, data.UnitName, data.ProductName, data.Satuan, data.JnsBrg, data.CurrencyCode, data.Kurs } into groupData
+                        group data by new { data.DODate,data.SuplName, data.BCNo, data.BCType, data.NoteNo, data.BonKecil, data.DONo, data.INNo, data.UnitName, data.ProductName, data.Satuan, data.JnsBrg, data.CurrencyCode, data.Kurs } into groupData
                         select new GarmentDailyPurchasingReportViewModel
                         {
+                            DODate = groupData.Key.DODate,
                             SupplierName = groupData.Key.SuplName,
                             UnitName = groupData.Key.UnitName,
                             BCNo = groupData.Key.BCNo,
@@ -545,6 +552,109 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 mergeCells.Add(($"A{rowPosition}:D{rowPosition}", OfficeOpenXml.Style.ExcelHorizontalAlignment.Right, OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom));
             }
 
+            ExcelPackage package = new ExcelPackage();
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            CultureInfo Id = new CultureInfo("id-ID");
+            string Month = Id.DateTimeFormat.GetMonthName(DateTo.Month);
+            var sheet = package.Workbook.Worksheets.Add("Report");
+
+            #region Kop Table
+            var col = (char)('A' + result.Columns.Count);
+            sheet.Cells[$"A1:{col}1"].Value = "PT. DAN LIRIS";
+            sheet.Cells[$"A1:{col}1"].Merge = true;
+            sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Value = "BUKU HARIAN PEMBELIAN GARMENT";
+            sheet.Cells[$"A2:{col}2"].Merge = true;
+            sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("BULAN {0} {1}", Month, DateTo.Year);
+            sheet.Cells[$"A3:{col}3"].Merge = true;
+            sheet.Cells[$"A3:{col}3"].Style.Font.Bold = true;
+            sheet.Cells[$"A3:{col}3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A3:{col}3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A4:{col}4"].Value = string.Format("SUPPLIER {0}", supplierType == true ? "IMPORT" : "LOCAL");
+            sheet.Cells[$"A4:{col}4"].Merge = true;
+            sheet.Cells[$"A4:{col}4"].Style.Font.Bold = true;
+            sheet.Cells[$"A4:{col}4"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A4:{col}4"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A5:{col}5"].Value = string.Format("KONFEKSI {0}", string.IsNullOrWhiteSpace(unitName) ? "ALL" : unitName);
+            sheet.Cells[$"A5:{col}5"].Merge = true;
+            sheet.Cells[$"A5:{col}5"].Style.Font.Bold = true;
+            sheet.Cells[$"A5:{col}5"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A5:{col}5"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+            #endregion
+
+            foreach (var i in Enumerable.Range(0, result.Columns.Count))
+            {
+                var colheader = (char)('A' + i);
+                sheet.Cells[$"{colheader}7"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+
+            }
+            sheet.Cells["A7"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+            foreach ((string cells, Enum hAlign, Enum vAlign) in mergeCells)
+            {
+                sheet.Cells[cells].Merge = true;
+                sheet.Cells[cells].Style.HorizontalAlignment = (OfficeOpenXml.Style.ExcelHorizontalAlignment)hAlign;
+                sheet.Cells[cells].Style.VerticalAlignment = (OfficeOpenXml.Style.ExcelVerticalAlignment)vAlign;
+            }
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
+
+        public MemoryStream GenerateExcelGDailyPurchasingReportMII(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
+        {
+            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Nota", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bon Kecil", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Bukti Bea Cukai", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bea Cukai", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DPP VLS", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DPP IDR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Embalase (Rp)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Pendukung (Rp)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Baku (Rp)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Proses (Rp)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN (Rp)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPH (Rp)", DataType = typeof(String) });
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+            if (Data.Item2 == 0)
+            {
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 1;
+                foreach (GarmentDailyPurchasingReportViewModel data in Data.Item1)
+                {   result.Rows.Add(data.DODate, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(data.Amount6, 2), Math.Round(data.Amount7, 2), data.CurrencyCode, data.Rate, Math.Round(data.Amount, 2), Math.Round(data.Amount1, 2), Math.Round(data.Amount2, 2), Math.Round(data.Amount3, 2), Math.Round(data.Amount4, 2), Math.Round(data.Amount5, 2));
+                    index++;
+                }
+
+            }
+           
             ExcelPackage package = new ExcelPackage();
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
