@@ -6,6 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDailyPurchasingR
 {
 	public class GarmentDailyPurchasingTempViewModel
     {
+        public string DODate { get; set; }
         public string SuplName { get; set; }
         public string UnitName { get; set; }
         public string BCNo { get; set; }
