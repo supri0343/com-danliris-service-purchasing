@@ -1467,7 +1467,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //    {
         //        foreach (var report in result.Reports)
         //        {
-        //            reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.AccountingUnitName, report.PIBDate.ToString("dd/MM/yyyy"), report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode,  report.DPP, report.CurrencyRate, report.Total);
+        //            reportDataTable.Rows.Add(report.ReceiptDate.ToString("MM/dd/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.AccountingUnitName, report.PIBDate.ToString("MM/dd/yyyy"), report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode,  report.DPP, report.CurrencyRate, report.Total);
         //        }
         //        foreach (var categorySummary in result.CategorySummaries)
         //            categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
@@ -1480,7 +1480,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //    {
         //        var company = "PT DAN LIRIS";
         //        var title = "BUKU PEMBELIAN Import";
-        //        var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
+        //        var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy}";
 
         //        var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
         //        worksheet.Cells["A1"].Value = company;
@@ -1541,9 +1541,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 foreach (var report in result.Reports)
                 {
-                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
-                    var dateCorrection = report.CorrectionDate.HasValue ? report.CorrectionDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
-                    var datePib = report.PIBDate.HasValue ? report.PIBDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
+                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
+                    var dateCorrection = report.CorrectionDate.HasValue ? report.CorrectionDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
+                    var datePib = report.PIBDate.HasValue ? report.PIBDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
                     reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, datePib, report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
                 }
                 foreach (var categorySummary in result.CategorySummaries)
@@ -1557,7 +1557,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 var company = "PT DAN LIRIS";
                 var title = "BUKU PEMBELIAN Import";
-                var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
+                var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy}";
 
                 var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
                 worksheet.Cells["A1"].Value = company;
