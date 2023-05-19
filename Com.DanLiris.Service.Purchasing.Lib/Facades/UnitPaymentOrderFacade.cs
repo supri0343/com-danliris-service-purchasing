@@ -771,7 +771,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         #endregion
 
         #region MonitoringAll
-        public IQueryable<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel> GetReportQueryAll(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IQueryable<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel> GetReportQueryAll(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string divisionId, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -795,6 +795,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 && e.UnitId == (string.IsNullOrWhiteSpace(unitId) ? e.UnitId : unitId)
                                 && a.Date.AddHours(offset).Date >= DateFrom.Date
                                 && a.Date.AddHours(offset).Date <= DateTo.Date
+                                && a.CreatedUtc.Date == (inputDate != null? inputDate.GetValueOrDefault().Date : a.CreatedUtc.Date)
+                                && a.DivisionId == (string.IsNullOrWhiteSpace(divisionId) ? e.DivisionId : divisionId)
 
                          select new ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel
                          {
@@ -833,9 +835,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Query;
         }
 
-        public Tuple<List<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel>, int> GetReportAll(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderReportViewModel>, int> GetReportAll(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string divisionId, int page, int size, string Order, int offset)
         {
-            var Query = GetReportQueryAll(unitId, supplierId, noSPB, dateFrom, dateTo, offset);
+            var Query = GetReportQueryAll(unitId, supplierId, noSPB, dateFrom, dateTo, inputDate, divisionId, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
@@ -850,9 +852,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcel(string unitId, string supplierId,string noSPB, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string divisionId, int offset)
         {
-            var Query = GetReportQueryAll(unitId, supplierId,noSPB, dateFrom, dateTo, offset);
+            var Query = GetReportQueryAll(unitId, supplierId,noSPB, dateFrom, dateTo, inputDate, divisionId, offset);
             Query = Query.OrderByDescending(b => b.tglspb);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
@@ -896,11 +898,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 foreach (var item in Query)
                 {
                     index++;
-                    string tglspb = item.tglspb == null ? "-" : item.tglspb.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
-                    string tglpr = item.tglpr == null ? "-" : item.tglpr.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
-                    string tglbon = item.tglbon == null ? "-" : item.tglbon.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
-                    string tglinv = item.tglinv == null ? "-" : item.tglinv.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
-                    string jt = item.jt == null ? "-" : item.jt.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string tglspb = item.tglspb == null ? "-" : item.tglspb.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM-dd-yyyy", new CultureInfo("id-ID"));//ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string tglpr = item.tglpr == null ? "-" : item.tglpr.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM-dd-yyyy", new CultureInfo("id-ID")); //ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string tglbon = item.tglbon == null ? "-" : item.tglbon.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM-dd-yyyy", new CultureInfo("id-ID")); //ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string tglinv = item.tglinv == null ? "-" : item.tglinv.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM-dd-yyyy", new CultureInfo("id-ID")); //ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string jt = item.jt == null ? "-" : item.jt.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM-dd-yyyy", new CultureInfo("id-ID")); //ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, tglspb, item.nospb, item.namabrg, item.satuan, item.jumlah, item.hrgsat, item.jumlahhrg, item.ppn, item.total, item.pph, tglpr, item.nopr, tglbon
                        , item.nobon, tglinv, item.noinv, jt, item.kodesupplier, item.supplier, item.unit, item.div, item.adm, item.term, item.matauang, item.kategori, item.qtycorrection, item.pricecorrection, item.totalpricecorrection);
                 }
