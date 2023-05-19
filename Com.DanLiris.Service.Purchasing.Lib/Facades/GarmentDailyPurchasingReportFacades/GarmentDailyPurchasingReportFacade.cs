@@ -30,45 +30,46 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             this.dbSet = dbContext.Set<GarmentDeliveryOrder>();
         }
         #region GarmentDailyPurchasingAll
-        public IEnumerable<GarmentDailyPurchasingReportViewModel> GetGarmentDailyPurchasingReportQuery(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
+        public IEnumerable<GarmentDailyPurchasingReportViewModel> GetGarmentDailyPurchasingReportQuery(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
-            IQueryable<GarmentDailyPurchasingTempViewModel> d1 = from a in dbContext.GarmentDeliveryOrders
-                                                                 join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
-                                                                 join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
-                                                                 join d in dbContext.GarmentBeacukais on a.CustomsId equals d.Id
-                                                                 join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id
-                                                                 join f in dbContext.GarmentInternalPurchaseOrders on c.POId equals f.Id
-                                                                 where c.DOQuantity != 0
-                                                                 && c.UnitId == (string.IsNullOrWhiteSpace(unitName) ? c.UnitId : unitName)
-                                                                 && e.SupplierImport == supplierType
-                                                                 && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? a.SupplierCode.Substring(0, 2) == "DL" : a.SupplierCode.Substring(0, 2) != "DL"))
-                                                                 && d.ArrivalDate >= DateFrom.Date && d.ArrivalDate <= DateTo.Date
-                                                                 && (string.IsNullOrWhiteSpace(jnsbc) ? true : (jnsbc == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
-                                                                 && a.SupplierCode != "GDG"
+            IQueryable < GarmentDailyPurchasingTempViewModel > d1 = from a in dbContext.GarmentDeliveryOrders
+                                                                    join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
+                                                                    join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
+                                                                    join d in dbContext.GarmentBeacukais on a.CustomsId equals d.Id
+                                                                    join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id
+                                                                    join f in dbContext.GarmentInternalPurchaseOrders on c.POId equals f.Id
+                                                                    where c.DOQuantity != 0
+                                                                    && c.UnitId == (string.IsNullOrWhiteSpace(unitName) ? c.UnitId : unitName)
+                                                                    && e.SupplierImport == supplierType
+                                                                    && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? a.SupplierCode.Substring(0, 2) == "DL" : a.SupplierCode.Substring(0, 2) != "DL"))
+                                                                    && d.ArrivalDate >= DateFrom.Date && d.ArrivalDate <= DateTo.Date
+                                                                    && (string.IsNullOrWhiteSpace(jnsbc) ? true : (jnsbc == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
+                                                                    && a.SupplierCode != "GDG"
+                                                                    && d.CreatedUtc.Date==(inputDate!=null ? inputDate.GetValueOrDefault().Date : d.CreatedUtc.Date)
 
-                                                                 select new GarmentDailyPurchasingTempViewModel
-                                                                 {
-                                                                     DODate = a.DODate.ToString("MM/dd/yyyy"),
-                                                                     SuplName = a.SupplierName,
-                                                                     UnitName = f.UnitName,
-                                                                     BCNo = d.BeacukaiNo,
-                                                                     BCType = d.CustomsType,
-                                                                     NoteNo = a.BillNo,
-                                                                     BonKecil = a.PaymentBill,
-                                                                     DONo = a.DONo,
-                                                                     INNo = a.InternNo,
-                                                                     ProductName = c.ProductName,
-                                                                     JnsBrg = c.CodeRequirment,
-                                                                     Quantity = (decimal)c.DOQuantity,
-                                                                     Satuan = c.UomUnit,
-                                                                     Kurs = (double)a.DOCurrencyRate,
-                                                                     Amount = c.DOQuantity * c.PricePerDealUnit,
-                                                                     CurrencyCode = a.DOCurrencyCode,
-                                                                     AmountIDR = c.DOQuantity * c.PricePerDealUnit * (double)a.DOCurrencyRate,
-                                                                 };
+                                                                    select new GarmentDailyPurchasingTempViewModel
+                                                                    {
+                                                                        DODate = a.DODate.ToString("MM/dd/yyyy"),
+                                                                        SuplName = a.SupplierName,
+                                                                        UnitName = f.UnitName,
+                                                                        BCNo = d.BeacukaiNo,
+                                                                        BCType = d.CustomsType,
+                                                                        NoteNo = a.BillNo,
+                                                                        BonKecil = a.PaymentBill,
+                                                                        DONo = a.DONo,
+                                                                        INNo = a.InternNo,
+                                                                        ProductName = c.ProductName,
+                                                                        JnsBrg = c.CodeRequirment,
+                                                                        Quantity = (decimal)c.DOQuantity,
+                                                                        Satuan = c.UomUnit,
+                                                                        Kurs = (double)a.DOCurrencyRate,
+                                                                        Amount = c.DOQuantity * c.PricePerDealUnit,
+                                                                        CurrencyCode = a.DOCurrencyCode,
+                                                                        AmountIDR = c.DOQuantity * c.PricePerDealUnit * (double)a.DOCurrencyRate,
+                                                                    };
 
             IQueryable<GarmentDailyPurchasingTempViewModel> d2 = from gc in dbContext.GarmentCorrectionNotes
                                                                  join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
@@ -281,15 +282,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             return Query.AsQueryable();
         }
 
-        public Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
+        public Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc, int offset)
         {
-            List<GarmentDailyPurchasingReportViewModel> result = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset).ToList();
+            List<GarmentDailyPurchasingReportViewModel> result = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo,inputDate, jnsbc, offset).ToList();
             return Tuple.Create(result, result.Count);
         }
 
-        public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
+        public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc, int offset)
         {
-            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset);
+            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, inputDate, jnsbc, offset);
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor", DataType = typeof(String) });
@@ -611,9 +612,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
         }
 
 
-        public MemoryStream GenerateExcelGDailyPurchasingReportMII(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, string jnsbc, int offset)
+        public MemoryStream GenerateExcelGDailyPurchasingReportMII(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc, int offset)
         {
-            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, jnsbc, offset);
+            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo,inputDate, jnsbc, offset);
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });

@@ -813,7 +813,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //}
         #endregion
 
-        public async Task<List<PurchasingReport>> GetReportDataImportPurchasing(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
+        public async Task<List<PurchasingReport>> GetReportDataImportPurchasing(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
         {
             var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
@@ -830,7 +830,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
                         from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
-                        where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && urnWithItem.UnitReceiptNote.SupplierIsImport
+                        where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 
+                            && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 
+                            && urnWithItem.UnitReceiptNote.SupplierIsImport
+                            && urnWithItem.CreatedUtc.Date==(inputDate!=null? inputDate.GetValueOrDefault().Date : urnWithItem.CreatedUtc.Date)
                         select new
                         {
                             // PR Info
@@ -1038,7 +1041,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return reportResult;
         }
 
-        public async Task<List<PurchasingReport>> GetReportDataImportPurchasingCorrection(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
+        public async Task<List<PurchasingReport>> GetReportDataImportPurchasingCorrection(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
         {
             var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
@@ -1068,7 +1071,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                             //where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && urnWithItem.UnitReceiptNote.SupplierIsImport
-                        where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && urnWithItem.UnitReceiptNote.SupplierIsImport
+                        where upcCorrection.CorrectionDate.Date >= d1.Date 
+                            && upcCorrection.CorrectionDate.Date <= d2.Date 
+                            && urnWithItem.UnitReceiptNote.SupplierIsImport
+                            && upcCorrection.CreatedUtc.Date == (inputDate != null ? inputDate.GetValueOrDefault().Date : upcCorrection.CreatedUtc.Date)
 
                         select new
                         {
@@ -1380,10 +1386,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             }
         }
 
-        public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
+        public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
         {
-            var dataReceiptNote = Task.Run(() => GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, divisionId)).Result;
-            var dataReceiptNoteCorrection = Task.Run(() => GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, divisionId)).Result;
+            var dataReceiptNote = Task.Run(() => GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId)).Result;
+            var dataReceiptNoteCorrection = Task.Run(() => GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId)).Result;
 
             var reportReceipt = new List<PurchasingReport>();
             reportReceipt.AddRange(dataReceiptNote);
@@ -1422,9 +1428,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //{
         //    return GetReportData(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, divisionId);
         //}
-        public Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
+        public Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
         {
-            return GetReportDataV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, divisionId);
+            return GetReportDataV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId);
         }
 
         //public async Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
@@ -1497,9 +1503,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //    }
         //}
 
-        public async Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
+        public async Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
         {
-            var result = await GetReportV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, divisionId);
+            var result = await GetReportV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId);
             //var Data = reportResult.Reports;
             var reportDataTable = new DataTable();
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
@@ -1655,8 +1661,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
     {
         //Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo);
         //Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId);
-        Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId);
+        Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId);
         //Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo);
-        Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId);
+        Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId);
     }
 }
