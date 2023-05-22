@@ -84,6 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
                                                                  && gc.SupplierCode != "GDG"
+                                                                 && gc.CreatedUtc.Date == (inputDate != null ? inputDate.GetValueOrDefault().Date : gc.CreatedUtc.Date)
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
@@ -121,6 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
                                                                  && gc.SupplierCode != "GDG"
+                                                                 && gc.CreatedUtc.Date == (inputDate != null ? inputDate.GetValueOrDefault().Date : gc.CreatedUtc.Date)
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
@@ -158,6 +160,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? gc.SupplierCode.Substring(0, 2) == "DL" : gc.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
                                                                  && gc.SupplierCode != "GDG"
+                                                                 && gc.CreatedUtc.Date == (inputDate != null ? inputDate.GetValueOrDefault().Date : gc.CreatedUtc.Date)
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
@@ -197,6 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? inv.SupplierCode.Substring(0, 2) == "DL" : inv.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && inv.InvoiceDate.AddHours(offset).Date >= DateFrom.Date && inv.InvoiceDate.AddHours(offset).Date <= DateTo.Date
                                                                  && inv.SupplierCode != "GDG"
+                                                                 && inv.CreatedUtc.Date == (inputDate != null ? inputDate.GetValueOrDefault().Date : inv.CreatedUtc.Date)
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
@@ -235,6 +239,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                  && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? inv.SupplierCode.Substring(0, 2) == "DL" : inv.SupplierCode.Substring(0, 2) != "DL"))
                                                                  && inv.InvoiceDate.AddHours(offset).Date >= DateFrom.Date && inv.InvoiceDate.AddHours(offset).Date <= DateTo.Date
                                                                  && inv.SupplierCode != "GDG"
+                                                                 && inv.CreatedUtc.Date == (inputDate != null ? inputDate.GetValueOrDefault().Date : inv.CreatedUtc.Date)
+
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
                                                                      DODate = gdo.DODate.ToString("MM/dd/yyyy"),
