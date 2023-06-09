@@ -25,6 +25,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel
         public string ImportValue { get; set; }
         public int ImportValueId { get; set; }
         public DateTimeOffset? ArrivalDate { get; set; }
-        public virtual ICollection<GarmentBeacukaiItem> Items { get; set; }
+		public Guid SubconContractId { get; set; }
+		public string SubconContractNo { get; set; }
+		public string FinishedGoodType { get; set; }
+		public double QuantityContract { get; set; }
+		public virtual ICollection<GarmentBeacukaiItem> Items { get; set; }
 	}
 }

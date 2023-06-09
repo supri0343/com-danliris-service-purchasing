@@ -25,7 +25,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
         public DateTimeOffset? arrivalDate { get; set; }
         public List<GarmentBeacukaiItemViewModel> items { get; set; }
         public string importValue { get; set; }
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public Guid SubconContractId { get; set; }
+		public string SubconContractNo { get; set; }
+		public string FinishedGoodType { get; set; }
+		public double QuantityContract { get; set; }
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if (string.IsNullOrWhiteSpace(beacukaiNo))
 			{
