@@ -33,6 +33,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUenUrnChangeDateHistory;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels.DOItems;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -45,6 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentUnitReceiptNote> dbSet;
+        private readonly DbSet<GarmentUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItem;
         private readonly DbSet<GarmentDeliveryOrderDetail> dbSetGarmentDeliveryOrderDetail;
         private readonly DbSet<GarmentExternalPurchaseOrder> dbSetGarmentExternalPurchaseOrder;
         private readonly DbSet<GarmentExternalPurchaseOrderItem> dbSetGarmentExternalPurchaseOrderItems;
@@ -69,6 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentUnitReceiptNote>();
+            dbSetGarmentUnitReceiptNoteItem = dbContext.Set<GarmentUnitReceiptNoteItem>();
             dbSetGarmentDeliveryOrderDetail = dbContext.Set<GarmentDeliveryOrderDetail>();
             dbSetGarmentExternalPurchaseOrder = dbContext.Set<GarmentExternalPurchaseOrder>();
             dbSetGarmentExternalPurchaseOrderItems = dbContext.Set<GarmentExternalPurchaseOrderItem>();
@@ -1661,6 +1664,61 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             List<object> ListData = new List<object>(data);
             return ListData;
         }
+
+        public object ReadByIdForCorrection(int id)
+        {
+            var QueryURN = dbSet.Where(m => m.Id == id)
+               .Include(m => m.Items)
+               .Select(x => new  
+               { itemsUrn = x.Items, })
+               .FirstOrDefault();
+
+            var listUrnItemId = QueryURN.itemsUrn.Select(x => x.Id).ToList();
+
+            var QueryUrnItem = (from a in dbSetGarmentUnitReceiptNoteItem
+                                join b in dbSetGarmentDOItems on a.Id equals b.URNItemId
+                                where a.IsDeleted == false && b.IsDeleted == false && listUrnItemId.Contains(a.Id)
+                                select new 
+                                {
+                                    Id=  a.Id,
+                                    Product = new GarmentProductViewModel {Id= a.ProductId,Code=a.ProductCode,Name=a.ProductName,Remark=a.ProductRemark },
+                                    RONo = a.RONo,
+                                    OrderQuantity = a.OrderQuantity,
+                                    ReceiptCorrection = a.ReceiptCorrection,
+                                    SmallQuantity = a.SmallQuantity,
+                                    Uom = new UomViewModel {Id= a.UomId.ToString(),Unit=a.UomUnit } ,
+                                    CorrectionConversion = a.CorrectionConversion,
+                                    DODetailId = a.DODetailId,
+                                    EPOItemId = a.EPOItemId,
+                                    POItemId = a.POItemId,
+                                    PRItemId = a.PRItemId,
+                                    a.DesignColor,
+                                    POSerialNumber = a.POSerialNumber,
+                                    SmallUom = new UomViewModel { Id = a.SmallUomId.ToString(), Unit = a.SmallUomUnit },
+                                    PricePerDealUnit = a.PricePerDealUnit,
+                                    DOItemsId = b.Id,
+                                    RemainingQuantity = b.RemainingQuantity,
+                                    Colour = b.Colour,
+                                    Rack = b.Rack,
+                                    Level = b.Level,
+                                    Box = b.Box,
+                                    Area = b.Area,
+                                }).ToList();
+
+            var result = (from x in dbSet
+                          where x.Id == id
+                          select new
+                          {
+                              Id = x.Id,
+                              URNNo = x.URNNo,
+                              Unit = new { Id = x.UnitId, Code = x.UnitCode, Name = x.UnitName },
+                              Storage = new StorageViewModel { Id = x.StorageId, Code = x.StorageCode, Name = x.StorageCode },
+                              Items = QueryUrnItem
+                          }).FirstOrDefault();
+
+            return result;
+        }
+
         //
         #region Flow Detail Penerimaan
 

@@ -579,7 +579,36 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
         }
 
-       
+        [HttpGet("for-correction/{id}")]
+        public IActionResult ReadByIdForCorrection(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                var data = facade.ReadByIdForCorrection(id);
+                GarmentUnitReceiptNoteViewModel datas = new GarmentUnitReceiptNoteViewModel { };
+                if (data == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(data);
+                return Ok(Result);
+               
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+
 
 
     }

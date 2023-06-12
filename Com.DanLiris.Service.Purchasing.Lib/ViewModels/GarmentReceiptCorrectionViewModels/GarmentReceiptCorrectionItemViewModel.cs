@@ -32,5 +32,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReceiptCorrectio
         public string DesignColor { get; set; }
         public double QuantityCheck { get; set; }
         public double OrderQuantity { get; set; }
+        public long DOItemsId { get; set; }
     }
 }

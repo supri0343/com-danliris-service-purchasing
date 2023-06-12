@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels.DOItems;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,5 +32,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         int UrnDateRevise(List<long> ids, string user, DateTime reviseDate);
         List<object> ReadDataByDO(string Keyword = null, string Filter = "{}");
         List<object> ReadURNItemWithStock(string Keyword = null, string Filter = "{}");
+        object ReadByIdForCorrection(int id);
     }
 }
