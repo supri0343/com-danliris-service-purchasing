@@ -35,6 +35,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
+            DateTime date1 = new DateTime(DateFrom.Year, DateFrom.Month, DateFrom.Day, 0, 0, 0);
+            DateTime date2 = new DateTime(DateTo.Year, DateTo.Month, DateTo.Day, 23,59,59);
+
             IQueryable < GarmentDailyPurchasingTempViewModel > d1 = from a in dbContext.GarmentDeliveryOrders
                                                                     join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
                                                                     join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
@@ -45,14 +48,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                     && c.UnitId == (string.IsNullOrWhiteSpace(unitName) ? c.UnitId : unitName)
                                                                     && e.SupplierImport == supplierType
                                                                     && (string.IsNullOrWhiteSpace(supplierName) ? true : (supplierName == "DAN LIRIS" ? a.SupplierCode.Substring(0, 2) == "DL" : a.SupplierCode.Substring(0, 2) != "DL"))
-                                                                    && d.ArrivalDate >= DateFrom.Date && d.ArrivalDate <= DateTo.Date
+                                                                    && d.ArrivalDate >= date1 && d.ArrivalDate <= date2
                                                                     && (string.IsNullOrWhiteSpace(jnsbc) ? true : (jnsbc == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
                                                                     && a.SupplierCode != "GDG"
-                                                                    && d.CreatedUtc.Date==(inputDate!=null ? inputDate.GetValueOrDefault().Date : d.CreatedUtc.Date)
+                                                                    && d.CreatedUtc.Date == (inputDate != null ? inputDate.GetValueOrDefault().Date : d.CreatedUtc.Date)
 
                                                                     select new GarmentDailyPurchasingTempViewModel
                                                                     {
-                                                                        DODate = a.DODate.ToString("MM/dd/yyyy"),
+                                                                        ArrivalDate = d.ArrivalDate.GetValueOrDefault(),
                                                                         SuplName = a.SupplierName,
                                                                         UnitName = f.UnitName,
                                                                         BCNo = d.BeacukaiNo,
@@ -88,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
-                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
+                                                                     ArrivalDate = gc.CorrectionDate,
                                                                      SuplName = gc.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -126,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
-                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
+                                                                     ArrivalDate = gc.CorrectionDate,
                                                                      SuplName = gc.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -164,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
-                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
+                                                                     ArrivalDate = gc.CorrectionDate,
                                                                      SuplName = gc.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -204,7 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
-                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
+                                                                     ArrivalDate = inv.InvoiceDate,
                                                                      SuplName = inv.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -243,7 +246,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
                                                                  select new GarmentDailyPurchasingTempViewModel
                                                                  {
-                                                                     DODate = gdo.DODate.ToString("MM/dd/yyyy"),
+                                                                     ArrivalDate = inv.InvoiceDate,
                                                                      SuplName = inv.SupplierName,
                                                                      UnitName = ipo.UnitName,
                                                                      BCNo = "-",
@@ -261,13 +264,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                                                                      CurrencyCode = gdo.DOCurrencyCode,
                                                                      AmountIDR = (invd.DOQuantity * invd.PricePerDealUnit * inv.IncomeTaxRate / 100) * (double)gdo.DOCurrencyRate * 10 / 100,
                                                                  };
-            List<GarmentDailyPurchasingTempViewModel> CombineData = d1.Union(d2).Union(d3).Union(d4).Union(d5).Union(d6).ToList();
+            var CombineData = d1.Union(d2).Union(d3).Union(d4).Union(d5).Union(d6).AsEnumerable();
 
             var Query = from data in CombineData
-                        group data by new { data.DODate,data.SuplName, data.BCNo, data.BCType, data.NoteNo, data.BonKecil, data.DONo, data.INNo, data.UnitName, data.ProductName, data.Satuan, data.JnsBrg, data.CurrencyCode, data.Kurs } into groupData
+                        group data by new { data.ArrivalDate, data.SuplName, data.BCNo, data.BCType, data.NoteNo, data.BonKecil, data.DONo, data.INNo, data.UnitName, data.ProductName, data.Satuan, data.JnsBrg, data.CurrencyCode, data.Kurs } into groupData
                         select new GarmentDailyPurchasingReportViewModel
                         {
-                            DODate = groupData.Key.DODate,
+                            ArrivalDate = groupData.Key.ArrivalDate,
                             SupplierName = groupData.Key.SuplName,
                             UnitName = groupData.Key.UnitName,
                             BCNo = groupData.Key.BCNo,
@@ -656,7 +659,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             {
                 int index = 1;
                 foreach (GarmentDailyPurchasingReportViewModel data in Data.Item1)
-                {   result.Rows.Add(data.DODate, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(data.Amount6, 2), Math.Round(data.Amount7, 2), data.CurrencyCode, data.Rate, Math.Round(data.Amount, 2), Math.Round(data.Amount1, 2), Math.Round(data.Amount2, 2), Math.Round(data.Amount3, 2), Math.Round(data.Amount4, 2), Math.Round(data.Amount5, 2));
+                {
+                    var arrivalDate = data.ArrivalDate.AddHours(7).ToString("MM/dd/yyyy");
+                    result.Rows.Add(arrivalDate, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(data.Amount6, 2), Math.Round(data.Amount7, 2), data.CurrencyCode, data.Rate, Math.Round(data.Amount, 2), Math.Round(data.Amount1, 2), Math.Round(data.Amount2, 2), Math.Round(data.Amount3, 2), Math.Round(data.Amount4, 2), Math.Round(data.Amount5, 2));
                     index++;
                 }
 
