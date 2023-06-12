@@ -1509,7 +1509,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             //var Data = reportResult.Reports;
             var reportDataTable = new DataTable();
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
-            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(string) });
             reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
@@ -1550,7 +1551,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
                     var dateCorrection = report.CorrectionDate.HasValue ? report.CorrectionDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
                     var datePib = report.PIBDate.HasValue ? report.PIBDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
-                    reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, datePib, report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
+                    var supplierCode = report.SupplierCode;
+                    var supplierName = report.SupplierName.Substring(report.SupplierName.IndexOf("-")+2);
+                    reportDataTable.Rows.Add(dateReceipt, supplierCode, supplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, datePib, report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
                 }
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
