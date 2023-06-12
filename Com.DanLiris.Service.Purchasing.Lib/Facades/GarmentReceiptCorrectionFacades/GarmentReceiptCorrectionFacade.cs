@@ -189,7 +189,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                     {
                         
                         GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.FirstOrDefault(a => a.Id == item.URNItemId);
-                        GarmentDOItems garmentDOItems = dbContext.GarmentDOItems.SingleOrDefault(x => x.URNItemId == item.URNItemId);
+                        //GarmentDOItems garmentDOItems = dbContext.GarmentDOItems.SingleOrDefault(x => x.URNItemId == item.URNItemId);
+                        GarmentDOItems garmentDOItems = dbContext.GarmentDOItems.SingleOrDefault(x => x.Id == item.DOItemsId);
 
                         if (item.CorrectionQuantity < 0)
                         {

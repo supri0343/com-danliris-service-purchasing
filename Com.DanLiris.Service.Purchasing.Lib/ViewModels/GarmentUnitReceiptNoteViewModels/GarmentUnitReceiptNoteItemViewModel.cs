@@ -60,5 +60,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public string Level { get; set; }
         public string Box { get; set; }
         public string Area { get; set; }
+
+        public long DOItemsId { get; set; }
+        public decimal RemainingQuantity { get; set; }
     }
 }

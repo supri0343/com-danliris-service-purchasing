@@ -38,6 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionMod
         public double PricePerDealUnit { get; set; }
         [MaxLength(500)]
         public string DesignColor { get; set; }
+        public long DOItemsId { get; set; }
 
     }
 }
