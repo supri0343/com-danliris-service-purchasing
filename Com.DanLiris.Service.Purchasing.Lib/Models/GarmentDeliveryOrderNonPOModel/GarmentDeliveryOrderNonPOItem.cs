@@ -13,7 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOMo
 
         public virtual long GarmentDeliveryOrderNonPOId { get; set; }
         [ForeignKey("GarmentDeliveryOrderNonPOId")]
-        public double PricePerDealUnit { get; set; }
+        public double Price{ get; set; }
         public double Quantity { get; set; }
         public long UomId { get; set; }
         [MaxLength(100)]

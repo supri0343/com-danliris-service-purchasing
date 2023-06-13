@@ -8,7 +8,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderNon
     {
         public CurrencyViewModel currency { get; set; }
         public UomViewModel uom { get; set; }
-        public double PricePerDealUnit { get; set; }
+        public double Price { get; set; }
         public double Quantity { get; set; }
         public string ProductRemark { get; set; }
     }

@@ -2267,7 +2267,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("LastModifiedUtc");
 
-                    b.Property<double>("PricePerDealUnit");
+                    b.Property<double>("Price");
 
                     b.Property<string>("ProductRemark");
 
