@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
                         Id = y.Id,
                         CurrencyId = y.CurrencyId,
                         CurrencyCode = y.CurrencyCode,
-                        Price = y.Price,
+                        PricePerDealUnit = y.PricePerDealUnit,
                         Quantity = y.Quantity,
                         UomId =y.UomId,
                         UomUnit=y.UomUnit,
@@ -206,7 +206,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
                                     CurrencyId = newItem.CurrencyId,
                                     CurrencyCode = newItem.CurrencyCode,
                                     GarmentDeliveryOrderNonPOId = oldM.Id,
-                                    Price = newItem.Price,
+                                    PricePerDealUnit = newItem.PricePerDealUnit,
                                     Quantity = newItem.Quantity,
                                     UomId = newItem.UomId,
                                     UomUnit = newItem.UomUnit,
@@ -219,7 +219,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
                             {
                                 existItem.CurrencyId = newItem.CurrencyId;
                                 existItem.CurrencyCode = newItem.CurrencyCode;
-                                existItem.Price = newItem.Price;
+                                existItem.PricePerDealUnit = newItem.PricePerDealUnit;
                                 existItem.Quantity = newItem.Quantity;
                                 existItem.UomId = newItem.UomId;
                                 existItem.UomUnit = newItem.UomUnit;
