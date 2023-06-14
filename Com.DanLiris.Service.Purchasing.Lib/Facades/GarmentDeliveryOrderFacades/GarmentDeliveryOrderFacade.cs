@@ -78,6 +78,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         {
                             Id = z.Id,
                             DOQuantity = z.DOQuantity,
+                            ProductCode = z.ProductCode,
+                            ProductId =z.ProductId,
+                            ProductName = z.ProductName,
+                            ProductRemark = z.ProductRemark,
+                            SmallQuantity = z.SmallQuantity,
+                            SmallUomId = z.SmallUomId,
+                            SmallUomUnit = z.SmallUomUnit,
+                            PricePerDealUnit = z.PricePerDealUnit,
+                            PriceTotal = z.PriceTotal
                         }),
                     }),
 
