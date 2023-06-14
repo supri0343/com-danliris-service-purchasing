@@ -144,6 +144,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                         {
                             d.Id,
                             doQuantity = d.DOQuantity,
+                            product = new GarmentProductViewModel
+                            {
+                                Id = d.ProductId,
+                                Code = d.ProductCode,
+                                Name = d.ProductName,
+                                Remark = d.ProductRemark
+                            },
+                            uom = new UomViewModel 
+                            {
+                                Id = d.SmallUomId,
+                                Unit = d.SmallUomUnit
+                            },
+                            pricePerDealUnit = d.PricePerDealUnit,
+                            priceTotal = d.PriceTotal,
+                            smallQuantity = d.SmallQuantity
+
                         }),
                     }),
                     x.CreatedBy,
