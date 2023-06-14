@@ -138,15 +138,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                     billNo = x.BillNo,
                     paymentBill = x.PaymentBill,
                     supplier = new { Id = x.SupplierId, Code = x.SupplierCode, Name = x.SupplierName },
-                    items = x.Items.Select(i => new
-                    {
-
-                    }),
                     x.CreatedBy,
                     isClosed = x.IsClosed,
                     isCustoms = x.IsCustoms,
                     isInvoice = x.IsInvoice,
-                    x.LastModifiedUtc
+                    x.LastModifiedUtc,
+                    items = x.Items.Select(i => new 
+                    {
+                        productRemark = i.ProductRemark,
+                        uom = new UomViewModel
+                        {
+                            Id = i.UomId.ToString(),
+                            Unit = i.UomUnit
+                        },
+                        pricePerDealUnit = i.PricePerDealUnit,
+                        quantity = i.Quantity,
+                        priceTotal = i.Quantity * i.PricePerDealUnit
+                    }),
                 }).ToList();
 
                 var info = new Dictionary<string, object>
