@@ -333,7 +333,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         public List<TraceableInBeacukaiViewModel> GetTraceableInQuery(string filter, string tipe, string tipebc)
         {
             var Query = (from a in (from aa in dbContext.GarmentBeacukais
-                                    where aa.BeacukaiNo == filter && aa.CustomsType == tipebc
+                                    where filter.Contains(aa.BeacukaiNo) && aa.CustomsType == tipebc
                                     select aa)
                          join t in dbContext.GarmentDeliveryOrders on a.Id equals t.CustomsId
                          join c in dbContext.GarmentDeliveryOrderItems on t.Id equals c.GarmentDOId
@@ -1910,129 +1910,129 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         sheet.Cells["E" + index + ":E" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         index += c.Value;
                     }
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in itemcodespan)
-                    {
-                        sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        index += c.Value;
-                    }
-                    ////index = 2;
-                    ////foreach (KeyValuePair<string, int> c in pospan)
-                    ////{
-                    ////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
-                    ////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in itemcodespan)
+                    //{
+                    //    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += c.Value;
+                    //}
+                    //////index = 2;
+                    //////foreach (KeyValuePair<string, int> c in pospan)
+                    //////{
+                    //////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
+                    //////    sheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    ////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
-                    ////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                    //////    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    ////    index += c.Value;
-                    ////}
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in itemnamespan)
-                    {
-                        sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //////    index += c.Value;
+                    //////}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in itemnamespan)
+                    //{
+                    //    sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["G" + index + ":G" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in qtyreceiptspan)
-                    {
-                        sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += c.Value;
+                    //}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in qtyreceiptspan)
+                    //{
+                    //    sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["H" + index + ":H" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in qtybukspan)
-                    {
-                        sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += c.Value;
+                    //}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in qtybukspan)
+                    //{
+                    //    sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["I" + index + ":I" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
-                        //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                    //    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in qtysampleoutspan)
-                    {
-                        sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += c.Value;
+                    //}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in qtysampleoutspan)
+                    //{
+                    //    sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["J" + index + ":J" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in sisaspan)
-                    {
-                        sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
-                        //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += c.Value;
+                    //}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in sisaspan)
+                    //{
+                    //    sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["K" + index + ":K" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                    //    //sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
+                    //    index += c.Value;
+                    //}
 
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in satuanbukspan)
-                    {
-                        sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        index += c.Value;
-                    }
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in satuanbukspan)
+                    //{
+                    //    sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["L" + index + ":L" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += c.Value;
+                    //}
 
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in wipspan)
-                    {
-                        sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in wipspan)
+                    //{
+                    //    sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["M" + index + ":M" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
+                    //    index += c.Value;
+                    //}
 
 
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in bjquantityspan)
-                    {
-                        sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in bjquantityspan)
+                    //{
+                    //    sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["N" + index + ":N" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
-                    ////////index = 2;
-                    ////////foreach (KeyValuePair<string, int> c in satuanbukspan)
-                    ////////{
-                    ////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
-                    ////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += c.Value;
+                    //}
+                    //////////index = 2;
+                    //////////foreach (KeyValuePair<string, int> c in satuanbukspan)
+                    //////////{
+                    //////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
+                    //////////    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                    ////////    index += c.Value;
-                    ////////}
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in pebnospan)
-                    {
-                        sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //////////    index += c.Value;
+                    //////////}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in pebnospan)
+                    //{
+                    //    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["O" + index + ":O" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
+                    //    index += c.Value;
+                    //}
 
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in eksporqtyspan)
-                    {
-                        sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in eksporqtyspan)
+                    //{
+                    //    sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["P" + index + ":P" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
-                    index = 2;
-                    foreach (KeyValuePair<string, int> c in samppleqtyspan)
-                    {
-                        sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += c.Value;
+                    //}
+                    //index = 2;
+                    //foreach (KeyValuePair<string, int> c in samppleqtyspan)
+                    //{
+                    //    sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Merge = true;
+                    //    sheet.Cells["Q" + index + ":Q" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
 
-                        index += c.Value;
-                    }
+                    //    index += c.Value;
+                    //}
                     //index = 2;
                     //foreach (KeyValuePair<string, int> c in satuanreceiptspan)
                     //{
