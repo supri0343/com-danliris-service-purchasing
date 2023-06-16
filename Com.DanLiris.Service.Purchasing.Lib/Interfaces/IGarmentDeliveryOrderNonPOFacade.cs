@@ -13,5 +13,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Create(GarmentDeliveryOrderNonPO m, string user, int clientTimeZoneOffset = 7);
         Task<int> Delete(int id, string user);
         Task<int> Update(int id, GarmentDeliveryOrderNonPO m, string user, int clientTimeZoneOffset = 7);
+        Task<int> SetIsSubconInvoice(string doNos, bool isSubconInvoice);
     }
 }

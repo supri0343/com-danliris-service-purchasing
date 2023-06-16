@@ -58,8 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOMo
         public long? DOCurrencyId { get; set; }
         public string DOCurrencyCode { get; set; }
         public double? DOCurrencyRate { get; set; }
-
-
+        public bool IsSubconInvoice { get; set; }
         public virtual IEnumerable<GarmentDeliveryOrderNonPOItem> Items { get; set; }
         public bool SupplierIsImport { get; set; }
     }

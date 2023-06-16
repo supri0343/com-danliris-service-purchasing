@@ -327,6 +327,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
             }
         }
 
+        [HttpGet("isSubconInvoice")]
+        public async Task<IActionResult> GetIsReceived(string DONos, bool isSubconInvoice)
+        {
+            try
+            {
+                await facade.SetIsSubconInvoice(DONos, isSubconInvoice);
+                Dictionary<string, object> Result =
+                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                       .Ok();
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         //[HttpGet("unit-receipt-note")]
         //public IActionResult GetForUnitReceiptNote(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
         //{
