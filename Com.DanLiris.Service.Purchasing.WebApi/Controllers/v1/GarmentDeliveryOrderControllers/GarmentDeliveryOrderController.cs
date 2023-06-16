@@ -442,6 +442,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("isSubconInvoice")]
+        public async Task<IActionResult> GetIsReceived(List<string> DONos, bool isSubconInvoice)
+        {
+            try
+            {
+                await facade.SetIsSubconInvoice(DONos, isSubconInvoice);
+                Dictionary<string, object> Result =
+                       new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                       .Ok();
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
         //
         #region MONITORING ARRIVAL
         [HttpGet("arrivalReport")]
