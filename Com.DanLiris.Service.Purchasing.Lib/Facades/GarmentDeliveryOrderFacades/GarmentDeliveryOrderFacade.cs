@@ -65,6 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     IsClosed = x.IsClosed,
                     IsCustoms = x.IsCustoms,
                     IsInvoice = x.IsInvoice,
+                    IsSubconInvoice = x.IsSubconInvoice,
                     LastModifiedUtc = x.LastModifiedUtc,
                     Items = x.Items.Select(y => new GarmentDeliveryOrderItem
                     {
@@ -606,6 +607,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             }
 
             return isReceived;
+        }
+
+        public async Task<int> SetIsSubconInvoice(List<string> DONos, bool isSubconInvoice)
+        {
+            int isUpdate = 0;
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var doNo in DONos)
+                    {
+                        var model = dbSet.Where(m => m.DONo == doNo).FirstOrDefault();
+                        model.IsSubconInvoice = isSubconInvoice;
+                    }
+                    isUpdate = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch(Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+            return isUpdate;
         }
 
         private CurrencyViewModel GetCurrency(string currencyCode, DateTimeOffset doDate)
