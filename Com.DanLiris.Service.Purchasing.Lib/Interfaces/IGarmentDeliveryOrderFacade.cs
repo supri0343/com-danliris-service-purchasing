@@ -46,5 +46,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<AccuracyOfArrivalReportDetail> GetAccuracyOfArrivalDetail(string supplierCode, string category, DateTime? dateFrom, DateTime? dateTo, int offset);
         List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds);
         List<GarmentDOUrnViewModel> GetDataDO(int id);
+        Task<int> SetIsSubconInvoice(List<string> DONos, bool isSubconInvoice);
     }
 }
