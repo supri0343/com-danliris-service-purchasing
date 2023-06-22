@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
 using Com.Moonlay.Models;
@@ -23,6 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
         private readonly DbSet<GarmentBeacukai> dbSet;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSetDeliveryOrder;
+        private readonly DbSet<GarmentDeliveryOrderNonPO> dbSetDeliveryOrderNonPOs;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
         public GarmentBeacukaiFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
@@ -30,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<GarmentBeacukai>();
             this.dbSetDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
+            this.dbSetDeliveryOrderNonPOs = dbContext.Set<GarmentDeliveryOrderNonPO>();
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
             this.serviceProvider = serviceProvider;
         }
@@ -153,85 +156,135 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
                     foreach (GarmentBeacukaiItem item in model.Items)
                     {
-                        GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
-                                                            .ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
-                        if (deliveryOrder != null)
+                        if (item.IsPO)
                         {
+                            GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
+                                                            .ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
+                            if (deliveryOrder != null)
+                            {
 
-                            if (model.BillNo == "" | model.BillNo == null)
-                            {
-                                deliveryOrder.BillNo = GenerateBillNo();
-
-                            }
-                            else
-                            {
-                                deliveryOrder.BillNo = model.BillNo;
-                            }
-                            deliveryOrder.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
-                            //deliveryOrder.CustomsId = model.Id;
-                            double qty = 0;
-                            foreach (var deliveryOrderItem in deliveryOrder.Items)
-                            {
-                                foreach (var detail in deliveryOrderItem.Details)
+                                if (model.BillNo == "" | model.BillNo == null)
                                 {
-                                    qty += detail.DOQuantity;
+                                    deliveryOrder.BillNo = GenerateBillNo();
+
                                 }
+                                else
+                                {
+                                    deliveryOrder.BillNo = model.BillNo;
+                                }
+                                deliveryOrder.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
+                                //deliveryOrder.CustomsId = model.Id;
+                                double qty = 0;
+                                foreach (var deliveryOrderItem in deliveryOrder.Items)
+                                {
+                                    foreach (var detail in deliveryOrderItem.Details)
+                                    {
+                                        qty += detail.DOQuantity;
+                                    }
+                                }
+                                item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
+                                item.TotalQty = qty;
+                                EntityExtension.FlagForCreate(item, username, USER_AGENT);
                             }
-                            item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
-                            item.TotalQty = qty;
-                            EntityExtension.FlagForCreate(item, username, USER_AGENT);
                         }
+                        else
+                        {
+                            GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
+                            if (deliveryOrderNonPO != null)
+                            {
+
+                                if (model.BillNo == "" | model.BillNo == null)
+                                {
+                                    deliveryOrderNonPO.BillNo = GenerateBillNo();
+
+                                }
+                                else
+                                {
+                                    deliveryOrderNonPO.BillNo = model.BillNo;
+                                }
+                                deliveryOrderNonPO.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
+                                //deliveryOrderNonPO.CustomsId = model.Id;
+                                double qty = 0;
+                                double totalAmount = 0;
+                                foreach (var deliveryOrderItem in deliveryOrderNonPO.Items)
+                                {
+                                    {
+                                        qty += deliveryOrderItem.Quantity;
+                                        totalAmount += deliveryOrderItem.Quantity * deliveryOrderItem.PricePerDealUnit;
+                                    }
+                                }
+                                item.TotalAmount = Convert.ToDecimal(totalAmount);
+                                item.TotalQty = qty;
+                                EntityExtension.FlagForCreate(item, username, USER_AGENT);
+                            }
+                        }
+                        
                     }
 
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
-                    transaction.Commit();
+                    
                     foreach (GarmentBeacukaiItem item in model.Items)
                     {
-                        GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
-                                                            .ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
-                        if (deliveryOrder != null)
+                        if (item.IsPO)
                         {
-                            deliveryOrder.CustomsId = model.Id;
+                            GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
+                                                           .ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
+                            if (deliveryOrder != null)
+                            {
+                                deliveryOrder.CustomsId = model.Id;
+                            }
                         }
-
-
+                        else
+                        {
+                            GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(m => m.Items)
+                                                           .FirstOrDefault(s => s.Id == item.GarmentDOId);
+                            if (deliveryOrderNonPO != null)
+                            {
+                                deliveryOrderNonPO.CustomsId = model.Id;
+                            }
+                        } 
                     }
                     Created = await dbContext.SaveChangesAsync();
 
                     foreach (var item in model.Items)
                     {
-                        var deliveryOrder = dbSetDeliveryOrder
-                            .Include(m => m.Items)
-                            .ThenInclude(i => i.Details)
-                            .FirstOrDefault(s => s.Id == item.GarmentDOId);
-
-                        var deliveryOrderEPOIds = deliveryOrder.Items.Select(s => s.EPOId);
-                        var garmentExternalOrder = dbContext.GarmentExternalPurchaseOrders.Where(s => deliveryOrderEPOIds.Contains(s.Id));
-
-                        if (deliveryOrder != null)
+                        if (item.IsPO)
                         {
-                            var dppAmount = 0.0;
-                            var currencyDPPAmount = 0.0;
+                            var deliveryOrder = dbSetDeliveryOrder
+                           .Include(m => m.Items)
+                           .ThenInclude(i => i.Details)
+                           .FirstOrDefault(s => s.Id == item.GarmentDOId);
 
-                            if (deliveryOrder.DOCurrencyCode == "IDR")
+                            var deliveryOrderEPOIds = deliveryOrder.Items.Select(s => s.EPOId);
+                            var garmentExternalOrder = dbContext.GarmentExternalPurchaseOrders.Where(s => deliveryOrderEPOIds.Contains(s.Id));
+
+                            if (deliveryOrder != null)
                             {
-                                dppAmount = deliveryOrder.TotalAmount;
-                            }
-                            else
-                            {
-                                currencyDPPAmount = deliveryOrder.TotalAmount;
-                                dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
-                            }
+                                var dppAmount = 0.0;
+                                var currencyDPPAmount = 0.0;
 
-                            //var categories = deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(detail => detail.CodeRequirment);
-                            var categories = string.Join(',',garmentExternalOrder.Select(s=> s.Category).ToList().GroupBy(s=> s).Select(s=> s.Key));
-                            var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentType;
-                            var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
+                                if (deliveryOrder.DOCurrencyCode == "IDR")
+                                {
+                                    dppAmount = deliveryOrder.TotalAmount;
+                                }
+                                else
+                                {
+                                    currencyDPPAmount = deliveryOrder.TotalAmount;
+                                    dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                                }
 
-                            await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
-                        }
+                                //var categories = deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(detail => detail.CodeRequirment);
+                                var categories = string.Join(',', garmentExternalOrder.Select(s => s.Category).ToList().GroupBy(s => s).Select(s => s.Key));
+                                var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentType;
+                                var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
+
+                                //await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
+                            }
+                        }   
                     }
+
+                    transaction.Commit();
                 }
                 catch (Exception e)
                 {
@@ -258,16 +311,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
                     foreach (var item in model.Items)
                     {
-                        GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.GarmentDOId);
-                        if (deliveryOrder != null)
+                        if (item.IsPO)
                         {
-                            deliveryOrder.BillNo = null;
-                            deliveryOrder.PaymentBill = null;
-                            deliveryOrder.CustomsId = 0;
-                            EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                            GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.GarmentDOId);
+                            if (deliveryOrder != null)
+                            {
+                                deliveryOrder.BillNo = null;
+                                deliveryOrder.PaymentBill = null;
+                                deliveryOrder.CustomsId = 0;
+                                EntityExtension.FlagForDelete(item, username, USER_AGENT);
 
-                            var deleted = _garmentDebtBalanceService.RemoveCustoms((int)deliveryOrder.Id).Result;
+                                var deleted = _garmentDebtBalanceService.RemoveCustoms((int)deliveryOrder.Id).Result;
+                            }
                         }
+                        else
+                        {
+                            GarmentDeliveryOrderNonPO deliveryOrder = dbSetDeliveryOrderNonPOs.FirstOrDefault(s => s.Id == item.GarmentDOId);
+                            if (deliveryOrder != null)
+                            {
+                                deliveryOrder.BillNo = null;
+                                deliveryOrder.PaymentBill = null;
+                                deliveryOrder.CustomsId = 0;
+                                EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                            }
+                        }
+                       
 
                     }
 
@@ -311,56 +379,94 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                         {
                             if (oldItem == null)
                             {
-                                GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
-                                                            .ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
-                                if (deliveryOrder != null)
+                                if (item.IsPO)
                                 {
-                                    var deliveryOrderEPOIds = deliveryOrder.Items.Select(s => s.EPOId);
-                                    var garmentExternalOrder = dbContext.GarmentExternalPurchaseOrders.Where(s => deliveryOrderEPOIds.Contains(s.Id));
+                                    GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.Include(m => m.Items)
+                                                            .ThenInclude(i => i.Details).FirstOrDefault(s => s.Id == item.GarmentDOId);
+                                    if (deliveryOrder != null)
+                                    {
 
-                                    if (model.BillNo == "" | model.BillNo == null)
-                                    {
-                                        deliveryOrder.BillNo = GenerateBillNo();
+                                        var deliveryOrderEPOIds = deliveryOrder.Items.Select(s => s.EPOId);
+                                        var garmentExternalOrder = dbContext.GarmentExternalPurchaseOrders.Where(s => deliveryOrderEPOIds.Contains(s.Id));
 
-                                    }
-                                    else
-                                    {
-                                        deliveryOrder.BillNo = model.BillNo;
-                                    }
-                                    deliveryOrder.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
-                                    //deliveryOrder.CustomsId = model.Id;
-                                    double qty = 0;
-                                    foreach (var deliveryOrderItem in deliveryOrder.Items)
-                                    {
-                                        foreach (var detail in deliveryOrderItem.Details)
+                                        if (model.BillNo == "" | model.BillNo == null)
                                         {
-                                            qty += detail.DOQuantity;
+                                            deliveryOrder.BillNo = GenerateBillNo();
+
                                         }
+                                        else
+                                        {
+                                            deliveryOrder.BillNo = model.BillNo;
+                                        }
+                                        deliveryOrder.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
+                                        //deliveryOrder.CustomsId = model.Id;
+                                        double qty = 0;
+                                        foreach (var deliveryOrderItem in deliveryOrder.Items)
+                                        {
+                                            foreach (var detail in deliveryOrderItem.Details)
+                                            {
+                                                qty += detail.DOQuantity;
+                                            }
+                                        }
+                                        item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
+                                        item.TotalQty = qty;
+                                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+
+                                        deliveryOrder.CustomsId = model.Id;
+
+                                        var dppAmount = 0.0;
+                                        var currencyDPPAmount = 0.0;
+
+                                        if (deliveryOrder.DOCurrencyCode == "IDR")
+                                        {
+                                            dppAmount = deliveryOrder.TotalAmount;
+                                        }
+                                        else
+                                        {
+                                            currencyDPPAmount = deliveryOrder.TotalAmount;
+                                            dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                                        }
+
+                                        var categories = string.Join(',', garmentExternalOrder.Select(s => s.Category).ToList().GroupBy(s => s).Select(s => s.Key));
+                                        var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentType;
+                                        var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
+
+                                        //await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
+
+
                                     }
-                                    item.TotalAmount = Convert.ToDecimal(deliveryOrder.TotalAmount);
-                                    item.TotalQty = qty;
-                                    EntityExtension.FlagForCreate(item, user, USER_AGENT);
-
-                                    deliveryOrder.CustomsId = model.Id;
-
-                                    var dppAmount = 0.0;
-                                    var currencyDPPAmount = 0.0;
-
-                                    if (deliveryOrder.DOCurrencyCode == "IDR")
+                                }
+                                else
+                                {
+                                    GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
+                                    if (deliveryOrderNonPO != null)
                                     {
-                                        dppAmount = deliveryOrder.TotalAmount;
-                                    }
-                                    else
-                                    {
-                                        currencyDPPAmount = deliveryOrder.TotalAmount;
-                                        dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
-                                    }
 
-                                    var categories = string.Join(',', garmentExternalOrder.Select(s => s.Category).ToList().GroupBy(s => s).Select(s => s.Key));
-                                    var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentType;
-                                    var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
+                                        if (model.BillNo == "" | model.BillNo == null)
+                                        {
+                                            deliveryOrderNonPO.BillNo = GenerateBillNo();
 
-                                    await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
+                                        }
+                                        else
+                                        {
+                                            deliveryOrderNonPO.BillNo = model.BillNo;
+                                        }
+                                        deliveryOrderNonPO.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
+                                        //deliveryOrderNonPO.CustomsId = model.Id;
+                                        double qty = 0;
+                                        double totalAmount = 0;
+                                        foreach (var deliveryOrderItem in deliveryOrderNonPO.Items)
+                                        {
+                                            {
+                                                qty += deliveryOrderItem.Quantity;
+                                                totalAmount += deliveryOrderItem.Quantity * deliveryOrderItem.PricePerDealUnit;
+                                            }
+                                        }
+                                        item.TotalAmount = Convert.ToDecimal(totalAmount);
+                                        item.TotalQty = qty;
+                                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                                        deliveryOrderNonPO.CustomsId = model.Id;
+                                    }
                                 }
                             }
                             else if (oldItem != null)
@@ -374,13 +480,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                         }
                         else
                         {
-                            EntityExtension.FlagForDelete(item, user, USER_AGENT);
-                            GarmentDeliveryOrder deleteDO = dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == item.GarmentDOId);
-                            deleteDO.BillNo = null;
-                            deleteDO.PaymentBill = null;
-                            deleteDO.CustomsId = 0;
+                            if (item.IsPO)
+                            {
+                                EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                                GarmentDeliveryOrder deleteDO = dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == item.GarmentDOId);
+                                deleteDO.BillNo = null;
+                                deleteDO.PaymentBill = null;
+                                deleteDO.CustomsId = 0;
 
-                            await _garmentDebtBalanceService.RemoveCustoms((int)deleteDO.Id);
+                                //await _garmentDebtBalanceService.RemoveCustoms((int)deleteDO.Id);
+                            }
+                            else
+                            {
+                                EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                                GarmentDeliveryOrderNonPO deleteDO = dbSetDeliveryOrderNonPOs.FirstOrDefault(s => s.Id == item.GarmentDOId);
+                                deleteDO.BillNo = null;
+                                deleteDO.PaymentBill = null;
+                                deleteDO.CustomsId = 0;
+                            }
+                            
                         }
                     }
 
