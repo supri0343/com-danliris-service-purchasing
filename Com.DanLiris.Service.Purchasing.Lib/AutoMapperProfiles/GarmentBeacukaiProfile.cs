@@ -41,6 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 			   .ForPath(d => d.deliveryOrder.doDate, opt => opt.MapFrom(s => s.DODate))
 			   .ForPath(d => d.deliveryOrder.arrivalDate, opt => opt.MapFrom(s => s.ArrivalDate))
 			   .ForPath(d => d.deliveryOrder.totalAmount, opt => opt.MapFrom(s => s.TotalAmount))
+			   .ForPath(d => d.deliveryOrder.IsPO, opt => opt.MapFrom(s => s.IsPO))
 			   .ForMember(d => d.quantity, opt => opt.MapFrom(s => s.TotalQty ))
 			  .ReverseMap();
 		}
