@@ -275,6 +275,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
             return isUpdate;
         }
 
+        public IQueryable<GarmentDeliveryOrderNonPO> DOForCustoms(string Keyword, string Filter, string BillNo = null)
+        {
+            IQueryable<GarmentDeliveryOrderNonPO> Query = this.dbSet.Include(s => s.Items);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentDeliveryOrderNonPO>.ConfigureFilter(Query, FilterDictionary);
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
+
+            var itemList = Query.Where(x => x.BillNo == BillNo).SelectMany(x => x.Items);
+            var DOCurrencyCodes = itemList.Select(s => s.CurrencyCode);
+
+            var SupplierIds = Query.Where(w => w.BillNo == BillNo).Select(s => s.SupplierId);
+
+            Query = QueryHelper<GarmentDeliveryOrderNonPO>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+                .Where(s => s.CustomsId == 0
+                    && (DOCurrencyCodes.Count() == 0 || DOCurrencyCodes.Contains(s.DOCurrencyCode))
+                    && (SupplierIds.Count() == 0 || SupplierIds.Contains(s.SupplierId))
+                    );
+
+            return Query;
+        }
+
         private CurrencyViewModel GetCurrency(string currencyCode, DateTimeOffset doDate)
         {
             string currencyUri = "master/garment-currencies/byCode";

@@ -6,8 +6,10 @@ using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderNonPOViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -28,14 +30,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 		private readonly IMapper mapper;
 		private readonly IGarmentBeacukaiFacade facade;
 		private readonly IGarmentDeliveryOrderFacade DOfacade;
+		private readonly IGarmentDeliveryOrderNonPOFacade DONonPOfacade;
 		private readonly IdentityService identityService;
 
-		public GarmentBeacukaiController(IServiceProvider serviceProvider, IMapper mapper, IGarmentBeacukaiFacade facade, IGarmentDeliveryOrderFacade DOfacade)
+		public GarmentBeacukaiController(IServiceProvider serviceProvider, IMapper mapper, IGarmentBeacukaiFacade facade, IGarmentDeliveryOrderFacade DOfacade, IGarmentDeliveryOrderNonPOFacade nonPOFacade)
 		{
 			this.serviceProvider = serviceProvider;
 			this.mapper = mapper;
 			this.facade = facade;
 			this.DOfacade = DOfacade;
+			this.DONonPOfacade = nonPOFacade;
 			this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 		}
 
@@ -157,12 +161,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 				}
 				foreach (var item in viewModel.items)
 				{
-					GarmentDeliveryOrder deliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
-					if (deliveryOrder != null)
-					{
-						GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
-						item.deliveryOrder.isInvoice = deliveryOrderViewModel.isInvoice;
-						item.deliveryOrder.items = deliveryOrderViewModel.items;
+                    if (item.deliveryOrder.IsPO)
+                    {
+						GarmentDeliveryOrder deliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
+						if (deliveryOrder != null)
+						{
+							GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
+							item.deliveryOrder.isInvoice = deliveryOrderViewModel.isInvoice;
+							item.deliveryOrder.items = deliveryOrderViewModel.items;
+						}
+                    }
+                    else
+                    {
+						GarmentDeliveryOrderNonPO deliveryOrderNonPO = DONonPOfacade.ReadById((int)item.deliveryOrder.Id);
+						if (deliveryOrderNonPO != null)
+						{
+							GarmentDeliveryOrderNonPOViewModel deliveryOrderNonPOViewModel = mapper.Map<GarmentDeliveryOrderNonPOViewModel>(deliveryOrderNonPO);
+							//item.deliveryOrder.isInvoice = deliveryOrderNonPOViewModel.isInvoice;
+							item.deliveryOrderNonPO = deliveryOrderNonPOViewModel;
+							item.deliveryOrderNonPO.totalAmount = item.deliveryOrder.totalAmount;
+						}
+						//item.deliveryOrder = null;
 					}
 				}
 				Dictionary<string, object> Result =
