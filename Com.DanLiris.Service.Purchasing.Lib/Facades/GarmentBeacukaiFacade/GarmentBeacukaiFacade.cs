@@ -279,7 +279,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                 var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentType;
                                 var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
 
-                                //await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
+                                await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
                             }
                         }   
                     }
@@ -431,7 +431,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                         var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentType;
                                         var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
 
-                                        //await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
+                                        await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
 
 
                                     }
@@ -488,7 +488,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                 deleteDO.PaymentBill = null;
                                 deleteDO.CustomsId = 0;
 
-                                //await _garmentDebtBalanceService.RemoveCustoms((int)deleteDO.Id);
+                                await _garmentDebtBalanceService.RemoveCustoms((int)deleteDO.Id);
                             }
                             else
                             {

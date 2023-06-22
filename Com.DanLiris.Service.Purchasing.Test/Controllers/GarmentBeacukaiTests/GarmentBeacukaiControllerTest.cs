@@ -156,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
         //	System.ComponentModel.DataAnnotations.ValidationContext validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(ViewModel, serviceProvider.Object, null);
         //	return new ServiceValidationExeption(validationContext, validationResults);
         //}
-        private GarmentBeacukaiController GetController(Mock<IGarmentBeacukaiFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper, Mock<IGarmentDeliveryOrderFacade> facadeDO)
+        private GarmentBeacukaiController GetController(Mock<IGarmentBeacukaiFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper, Mock<IGarmentDeliveryOrderFacade> facadeDO, Mock<IGarmentDeliveryOrderNonPOFacade> facadeDONonPO)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -173,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
                     .Returns(validateM.Object);
             }
 
-            var controller = new GarmentBeacukaiController(servicePMock.Object, mapper.Object, facadeM.Object, facadeDO.Object)
+            var controller = new GarmentBeacukaiController(servicePMock.Object, mapper.Object, facadeM.Object, facadeDO.Object, facadeDONonPO.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -395,13 +395,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
             var list = new List<object>();
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            var IPOmockFacadeNonPO = new Mock<IGarmentDeliveryOrderNonPOFacade>();
 
             var mockFacade = new Mock<IGarmentBeacukaiFacade>();
             mockFacade.Setup(x => x.ReadBCByPOSerialNumbers(It.IsAny<string>()))
                 .Returns(list);
 
 
-            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade, IPOmockFacadeNonPO);
 
             var response = controller.BCByPo(It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
@@ -416,13 +417,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentBeacukaiTests
             var list = new List<object>();
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            var IPOmockFacadeNonPO = new Mock<IGarmentDeliveryOrderNonPOFacade>();
 
             var mockFacade = new Mock<IGarmentBeacukaiFacade>();
             mockFacade.Setup(x => x.ReadBCByPOSerialNumbers(It.IsAny<string>()))
                 .Throws(new Exception());
 
 
-            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade, IPOmockFacadeNonPO);
 
             var response = controller.BCByPo(It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
