@@ -3,6 +3,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
 using Com.Moonlay.Models;
@@ -27,6 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSetDeliveryOrder;
         private readonly DbSet<GarmentDeliveryOrderNonPO> dbSetDeliveryOrderNonPOs;
+        private readonly DbSet<GarmentSubconDeliveryOrder> dbSetSubconDeliveryOrders ;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
         private readonly ILogHistoryFacades logHistoryFacades;
@@ -36,6 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
             this.dbSet = dbContext.Set<GarmentBeacukai>();
             this.dbSetDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
             this.dbSetDeliveryOrderNonPOs = dbContext.Set<GarmentDeliveryOrderNonPO>();
+            this.dbSetSubconDeliveryOrders = dbContext.Set<GarmentSubconDeliveryOrder>();
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
             this.serviceProvider = serviceProvider;
             logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
@@ -193,33 +196,55 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                         }
                         else
                         {
-                            GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
-                            if (deliveryOrderNonPO != null)
+                            if (model.CustomsType == "BC 262")
                             {
+                                GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
+                                if (deliveryOrderNonPO != null)
+                                {
 
-                                if (model.BillNo == "" | model.BillNo == null)
-                                {
-                                    deliveryOrderNonPO.BillNo = GenerateBillNo();
-
-                                }
-                                else
-                                {
-                                    deliveryOrderNonPO.BillNo = model.BillNo;
-                                }
-                                deliveryOrderNonPO.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
-                                //deliveryOrderNonPO.CustomsId = model.Id;
-                                double qty = 0;
-                                double totalAmount = 0;
-                                foreach (var deliveryOrderItem in deliveryOrderNonPO.Items)
-                                {
+                                    if (model.BillNo == "" | model.BillNo == null)
                                     {
-                                        qty += deliveryOrderItem.Quantity;
-                                        totalAmount += deliveryOrderItem.Quantity * deliveryOrderItem.PricePerDealUnit;
+                                        deliveryOrderNonPO.BillNo = GenerateBillNo();
+
                                     }
+                                    else
+                                    {
+                                        deliveryOrderNonPO.BillNo = model.BillNo;
+                                    }
+                                    deliveryOrderNonPO.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
+                                    //deliveryOrderNonPO.CustomsId = model.Id;
+                                    double qty = 0;
+                                    double totalAmount = 0;
+                                    foreach (var deliveryOrderItem in deliveryOrderNonPO.Items)
+                                    {
+                                        {
+                                            qty += deliveryOrderItem.Quantity;
+                                            totalAmount += deliveryOrderItem.Quantity * deliveryOrderItem.PricePerDealUnit;
+                                        }
+                                    }
+                                    item.TotalAmount = Convert.ToDecimal(totalAmount);
+                                    item.TotalQty = qty;
+                                    EntityExtension.FlagForCreate(item, username, USER_AGENT);
                                 }
-                                item.TotalAmount = Convert.ToDecimal(totalAmount);
-                                item.TotalQty = qty;
-                                EntityExtension.FlagForCreate(item, username, USER_AGENT);
+                            }
+                            else if (model.CustomsType == "BC 40" || model.CustomsType == "BC 27")
+                            {
+                                GarmentSubconDeliveryOrder deliveryOrderNonPO = dbSetSubconDeliveryOrders.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
+                                if (deliveryOrderNonPO != null)
+                                {
+                                    double qty = 0;
+                                    double totalAmount = 0;
+                                    foreach (var deliveryOrderItem in deliveryOrderNonPO.Items)
+                                    {
+                                        {
+                                            qty += deliveryOrderItem.DOQuantity;
+                                            totalAmount += deliveryOrderItem.DOQuantity * deliveryOrderItem.PricePerDealUnit;
+                                        }
+                                    }
+                                    item.TotalAmount = Convert.ToDecimal(totalAmount);
+                                    item.TotalQty = qty;
+                                    EntityExtension.FlagForCreate(item, username, USER_AGENT);
+                                }
                             }
                         }
                         
@@ -227,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
-                    
+
                     foreach (GarmentBeacukaiItem item in model.Items)
                     {
                         if (item.IsPO)
@@ -241,13 +266,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                         }
                         else
                         {
-                            GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(m => m.Items)
-                                                           .FirstOrDefault(s => s.Id == item.GarmentDOId);
-                            if (deliveryOrderNonPO != null)
+                            if (model.CustomsType == "BC 262")
                             {
-                                deliveryOrderNonPO.CustomsId = model.Id;
+                                GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(m => m.Items)
+                                                          .FirstOrDefault(s => s.Id == item.GarmentDOId);
+                                if (deliveryOrderNonPO != null)
+                                {
+                                    deliveryOrderNonPO.CustomsId = model.Id;
+                                }
                             }
-                        } 
+                            else if (model.CustomsType == "BC 40" || model.CustomsType == "BC 27")
+                            {
+                                GarmentSubconDeliveryOrder deliveryOrderNonPO = dbSetSubconDeliveryOrders.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
+                                if (deliveryOrderNonPO != null)
+                                {
+                                    deliveryOrderNonPO.CustomsId = model.Id;
+                                }
+                            }
+                        }
                     }
 
                     //Create Log History
@@ -334,17 +370,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                         }
                         else
                         {
-                            GarmentDeliveryOrderNonPO deliveryOrder = dbSetDeliveryOrderNonPOs.FirstOrDefault(s => s.Id == item.GarmentDOId);
-                            if (deliveryOrder != null)
+                            if (model.CustomsType == "BC 262")
                             {
-                                deliveryOrder.BillNo = null;
-                                deliveryOrder.PaymentBill = null;
-                                deliveryOrder.CustomsId = 0;
-                                EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                                GarmentDeliveryOrderNonPO deliveryOrder = dbSetDeliveryOrderNonPOs.FirstOrDefault(s => s.Id == item.GarmentDOId);
+                                if (deliveryOrder != null)
+                                {
+                                    deliveryOrder.BillNo = null;
+                                    deliveryOrder.PaymentBill = null;
+                                    deliveryOrder.CustomsId = 0;
+                                    EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                                }
                             }
+                            else if (model.CustomsType == "BC 40" || model.CustomsType == "BC 27")
+                            {
+                                GarmentSubconDeliveryOrder deliveryOrder = dbSetSubconDeliveryOrders.FirstOrDefault(x => x.Id == item.GarmentDOId);
+                                if (deliveryOrder != null)
+                                {
+                                    deliveryOrder.CustomsId = 0;
+                                    EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                                }
+                            }
+                               
                         }
-                       
-
                     }
 
                     //Create Log History
@@ -449,28 +496,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                 }
                                 else
                                 {
-                                    GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
-                                    if (deliveryOrderNonPO != null)
+                                    if(model.CustomsType == "BC 262")
                                     {
-
-                                        if (model.BillNo == "" | model.BillNo == null)
+                                        GarmentDeliveryOrderNonPO deliveryOrderNonPO = dbSetDeliveryOrderNonPOs.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
+                                        if (deliveryOrderNonPO != null)
                                         {
-                                            deliveryOrderNonPO.BillNo = GenerateBillNo();
 
+                                            if (model.BillNo == "" | model.BillNo == null)
+                                            {
+                                                deliveryOrderNonPO.BillNo = GenerateBillNo();
+
+                                            }
+                                            else
+                                            {
+                                                deliveryOrderNonPO.BillNo = model.BillNo;
+                                            }
+                                            deliveryOrderNonPO.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
+                                            //deliveryOrderNonPO.CustomsId = model.Id;
+                                            double qty = 0;
+                                            double totalAmount = 0;
+                                            foreach (var deliveryOrderItem in deliveryOrderNonPO.Items)
+                                            {
+                                                {
+                                                    qty += deliveryOrderItem.Quantity;
+                                                    totalAmount += deliveryOrderItem.Quantity * deliveryOrderItem.PricePerDealUnit;
+                                                }
+                                            }
+                                            item.TotalAmount = Convert.ToDecimal(totalAmount);
+                                            item.TotalQty = qty;
+                                            EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                                            deliveryOrderNonPO.CustomsId = model.Id;
                                         }
-                                        else
-                                        {
-                                            deliveryOrderNonPO.BillNo = model.BillNo;
-                                        }
-                                        deliveryOrderNonPO.PaymentBill = string.Concat(lastPaymentBill.format, (lastPaymentBill.counterId++).ToString("D3"));
-                                        //deliveryOrderNonPO.CustomsId = model.Id;
+                                    }else if (model.CustomsType == "BC 40" || model.CustomsType == "BC 27")
+                                    {
+                                        GarmentSubconDeliveryOrder deliveryOrderNonPO = dbSetSubconDeliveryOrders.Include(x => x.Items).FirstOrDefault(x => x.Id == item.GarmentDOId);
                                         double qty = 0;
                                         double totalAmount = 0;
                                         foreach (var deliveryOrderItem in deliveryOrderNonPO.Items)
                                         {
                                             {
-                                                qty += deliveryOrderItem.Quantity;
-                                                totalAmount += deliveryOrderItem.Quantity * deliveryOrderItem.PricePerDealUnit;
+                                                qty += deliveryOrderItem.DOQuantity;
+                                                totalAmount += deliveryOrderItem.DOQuantity * deliveryOrderItem.PricePerDealUnit;
                                             }
                                         }
                                         item.TotalAmount = Convert.ToDecimal(totalAmount);
@@ -478,6 +544,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                                         deliveryOrderNonPO.CustomsId = model.Id;
                                     }
+                                    
                                 }
                             }
                             else if (oldItem != null)
@@ -503,16 +570,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             }
                             else
                             {
-                                EntityExtension.FlagForDelete(item, user, USER_AGENT);
-                                GarmentDeliveryOrderNonPO deleteDO = dbSetDeliveryOrderNonPOs.FirstOrDefault(s => s.Id == item.GarmentDOId);
-                                deleteDO.BillNo = null;
-                                deleteDO.PaymentBill = null;
-                                deleteDO.CustomsId = 0;
+                                if (model.CustomsType == "BC 262")
+                                {
+                                    EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                                    GarmentDeliveryOrderNonPO deleteDO = dbSetDeliveryOrderNonPOs.FirstOrDefault(s => s.Id == item.GarmentDOId);
+                                    deleteDO.BillNo = null;
+                                    deleteDO.PaymentBill = null;
+                                    deleteDO.CustomsId = 0;
+                                }
+                                else if (model.CustomsType == "BC 40" || model.CustomsType == "BC 27")
+                                {
+                                    EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                                    GarmentSubconDeliveryOrder deleteDO = dbSetSubconDeliveryOrders.FirstOrDefault(x => x.Id == item.GarmentDOId);
+                                    deleteDO.CustomsId = 0;
+                                }
                             }
                             
                         }
                     }
-
 
                     this.dbSet.Update(model);
 
