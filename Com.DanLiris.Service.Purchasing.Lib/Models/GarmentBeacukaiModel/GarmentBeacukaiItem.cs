@@ -17,5 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel
 		public virtual long BeacukaiId { get; set; }
 		[ForeignKey("BeacukaiId")]
 		public virtual GarmentBeacukai GarmentBeacukai { get; set; }
+
+		public bool IsPO { get; set; }
 	}
 }
