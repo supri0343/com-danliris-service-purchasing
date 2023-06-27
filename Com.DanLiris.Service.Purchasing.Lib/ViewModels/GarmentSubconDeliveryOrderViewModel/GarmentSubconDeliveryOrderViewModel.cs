@@ -10,54 +10,54 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubconDeliveryOr
 {
     public class GarmentSubconDeliveryOrderViewModel : BaseViewModel, IValidatableObject
     {
-        public long CustomsId { get; set; }
-        public string DONo { get; set; }
-        public DateTimeOffset DODate { get; set; }
-        public DateTimeOffset? ArrivalDate { get; set; }
-        public SupplierViewModel Supplier { get; set; }
-        public string Remark { get; set; }
-        public long CostCalculationId { get; set; }
-        public string RONo { get; set; }
-        public List<GarmentSubconDeliveryOrderItemViewModel> Items { get; set; }
+        public long customsId { get; set; }
+        public string doNo { get; set; }
+        public DateTimeOffset doDate { get; set; }
+        public DateTimeOffset? arrivalDate { get; set; }
+        public SupplierViewModel supplier { get; set; }
+        public string remark { get; set; }
+        public long costCalculationId { get; set; }
+        public string roNo { get; set; }
+        public List<GarmentSubconDeliveryOrderItemViewModel> items { get; set; }
 
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (string.IsNullOrWhiteSpace(DONo))
+            if (string.IsNullOrWhiteSpace(doNo))
             {
                 yield return new ValidationResult("DONo is required", new List<string> { "DONo" });
             }
             else
             {
                 PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                if (purchasingDbContext.GarmentSubconDeliveryOrders.Where(DO => DO.DONo.Equals(DONo) && DO.Id != Id && DO.DODate.ToOffset((new TimeSpan(7, 0, 0))) == DODate && DO.SupplierId == Supplier.Id && DO.ArrivalDate.ToOffset((new TimeSpan(7, 0, 0))) == ArrivalDate).Count() > 0)
+                if (purchasingDbContext.GarmentSubconDeliveryOrders.Where(DO => DO.DONo.Equals(doNo) && DO.Id != Id && DO.DODate.ToOffset((new TimeSpan(7, 0, 0))) == doDate && DO.SupplierId == supplier.Id && DO.ArrivalDate.ToOffset((new TimeSpan(7, 0, 0))) == arrivalDate).Count() > 0)
                 {
                     yield return new ValidationResult("DONo is already exist", new List<string> { "DONo" });
                 }
             }
-            if (ArrivalDate.Equals(DateTimeOffset.MinValue) || ArrivalDate == null)
+            if (arrivalDate.Equals(DateTimeOffset.MinValue) || arrivalDate == null)
             {
                 yield return new ValidationResult("ArrivalDate is required", new List<string> { "ArrivalDate" });
             }
-            if (DODate.Equals(DateTimeOffset.MinValue) || DODate == null)
+            if (doDate.Equals(DateTimeOffset.MinValue) || doDate == null)
             {
                 yield return new ValidationResult("DODate is required", new List<string> { "DODate" });
             }
-            if (ArrivalDate != null && DODate > ArrivalDate)
+            if (arrivalDate != null && doDate > arrivalDate)
             {
                 yield return new ValidationResult("DODate is greater than ArrivalDate", new List<string> { "DODate" });
             }
-            if (Supplier == null)
+            if (supplier == null)
             {
                 yield return new ValidationResult("Supplier is required", new List<string> { "Supplier" });
             }
-            if (string.IsNullOrEmpty(RONo))
+            if (string.IsNullOrEmpty(roNo))
             {
                 yield return new ValidationResult("RONo is required", new List<string> { "RONo" });
             }
             int itemErrorCount = 0;
 
-            if (this.Items == null || Items.Count <= 0)
+            if (this.items == null || items.Count <= 0)
             {
                 yield return new ValidationResult("Item is required", new List<string> { "itemscount" });
             }
@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubconDeliveryOr
             {
                 string itemError = "[";
 
-                foreach (var item in Items)
+                foreach (var item in items)
                 {
                     itemError += "{";
 
