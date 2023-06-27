@@ -12,9 +12,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
         public GarmentSubconDeliveryOrderProfile()
         {
             CreateMap<GarmentSubconDeliveryOrder, GarmentSubconDeliveryOrderViewModel>()
-                .ForPath(d => d.Supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
-                .ForPath(d => d.Supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))
-                .ForPath(d => d.Supplier.Name, opt => opt.MapFrom(s => s.SupplierName))
+                .ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
+                .ForPath(d => d.supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))
+                .ForPath(d => d.supplier.Name, opt => opt.MapFrom(s => s.SupplierName))
+
+                .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
+                .ForMember(d => d.doNo, opt => opt.MapFrom(s => s.DONo))
+                .ForMember(d => d.doDate, opt => opt.MapFrom(s => s.DODate))
+                .ForMember(d => d.arrivalDate, opt => opt.MapFrom(s => s.ArrivalDate))
+
+                .ForPath(d => d.remark, opt => opt.MapFrom(s => s.Remark))
+                .ForPath(d => d.roNo, opt => opt.MapFrom(s => s.RONo))
+
+                .ForPath(d => d.costCalculationId, opt => opt.MapFrom(s => s.CostCalculationId))
+                .ForPath(d => d.customsId, opt => opt.MapFrom(s => s.CustomsId))
                 .ReverseMap();
 
             CreateMap<GarmentSubconDeliveryOrderItem, GarmentSubconDeliveryOrderItemViewModel>()

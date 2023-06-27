@@ -223,5 +223,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
 
             return Deleted;
         }
+
+        public IQueryable<GarmentSubconDeliveryOrder> DOForCustoms(string Keyword, string Filter, string currencycode = null)
+        {
+            IQueryable<GarmentSubconDeliveryOrder> Query = this.dbSet.Include(s => s.Items);
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DONo"
+            };
+
+            Query = QueryHelper<GarmentSubconDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentSubconDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>("{}");
+
+            Query = QueryHelper<GarmentSubconDeliveryOrder>.ConfigureOrder(Query, OrderDictionary).Include(m => m.Items)
+                .Where(s => s.CustomsId == 0 && s.Items.Any(x => x.CurrencyCode == currencycode));
+
+            return Query;
+        }
     }
 }

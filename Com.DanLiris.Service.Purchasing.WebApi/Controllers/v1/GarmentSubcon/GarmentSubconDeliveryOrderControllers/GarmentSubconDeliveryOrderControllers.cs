@@ -60,6 +60,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentSubconDel
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("forCustoms")]
+        public IActionResult GetForCustoms(string Keyword = "", string Filter = "{}", string currencycode = null)
+        {
+            var Data = facade.DOForCustoms(Keyword, Filter, currencycode);
+            var newData = mapper.Map<List<GarmentSubconDeliveryOrderViewModel>>(Data);
+            Dictionary<string, object> Result =
+                   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                   .Ok(newData);
+            return Ok(Result);
+        }
+
         [HttpGet]
         public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
