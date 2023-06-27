@@ -80,6 +80,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentRepor
 using Microsoft.ApplicationInsights.AspNetCore;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentClosingDateFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrderFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -224,7 +225,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBeacukaiNoFeature, BeacukaiNoFeature>()
                 .AddTransient<IRealizationBOMFacade, RealizationBOMFacade>()
                 .AddTransient<IBCForAval, BCForAvalFacade>()
-                .AddTransient<IGarmentDeliveryOrderNonPOFacade, GarmentDeliveryOrderNonPOFacades>();
+                .AddTransient<IGarmentDeliveryOrderNonPOFacade, GarmentDeliveryOrderNonPOFacades>()
+                .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>();
+
 
         }
 
