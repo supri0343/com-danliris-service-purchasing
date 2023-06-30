@@ -17,6 +17,14 @@
     <Compile Remove="Migrations\20230627021419_add-table-GarmentSubconDeliveryOrder.Designer.cs" />
     <Compile Remove="Migrations\20230627022450_add-table-GarmentSubconDeliveryOrder.cs" />
     <Compile Remove="Migrations\20230627022450_add-table-GarmentSubconDeliveryOrder.Designer.cs" />
+    <Compile Remove="Migrations\20230628021749_Add-table-URNSubcon &amp; modified DOSubcon.cs" />
+    <Compile Remove="Migrations\20230628021749_Add-table-URNSubcon &amp; modified DOSubcon.Designer.cs" />
+    <Compile Remove="Migrations\20230628072538_modified-GSubconReceiptNote.cs" />
+    <Compile Remove="Migrations\20230628072538_modified-GSubconReceiptNote.Designer.cs" />
+    <Compile Remove="Migrations\20230630021817_modified-SubconURNItem.cs" />
+    <Compile Remove="Migrations\20230630021817_modified-SubconURNItem.Designer.cs" />
+    <Compile Remove="Migrations\20230630022952_modified-SubconURNItem.cs" />
+    <Compile Remove="Migrations\20230630022952_modified-SubconURNItem.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

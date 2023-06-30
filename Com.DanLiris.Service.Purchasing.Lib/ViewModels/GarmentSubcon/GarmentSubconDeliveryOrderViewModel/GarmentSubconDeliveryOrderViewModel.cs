@@ -18,6 +18,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubconDeliveryOr
         public string remark { get; set; }
         public long costCalculationId { get; set; }
         public string roNo { get; set; }
+        public string article { get; set; }
+        public string beacukaiNo { get; set; }
+        public DateTimeOffset beacukaiDate { get; set; }
+        public string beacukaiType { get; set; }
         public List<GarmentSubconDeliveryOrderItemViewModel> items { get; set; }
 
 
@@ -30,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubconDeliveryOr
             else
             {
                 PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                if (purchasingDbContext.GarmentSubconDeliveryOrders.Where(DO => DO.DONo.Equals(doNo) && DO.Id != Id && DO.DODate.ToOffset((new TimeSpan(7, 0, 0))) == doDate && DO.SupplierId == supplier.Id && DO.ArrivalDate.ToOffset((new TimeSpan(7, 0, 0))) == arrivalDate).Count() > 0)
+                if (purchasingDbContext.GarmentSubconDeliveryOrders.Where(DO => DO.DONo.Equals(doNo) && DO.Id != Id && DO.DODate.ToOffset((new TimeSpan(7, 0, 0))) == doDate && DO.ProductOwnerId == supplier.Id && DO.ArrivalDate.ToOffset((new TimeSpan(7, 0, 0))) == arrivalDate).Count() > 0)
                 {
                     yield return new ValidationResult("DONo is already exist", new List<string> { "DONo" });
                 }
