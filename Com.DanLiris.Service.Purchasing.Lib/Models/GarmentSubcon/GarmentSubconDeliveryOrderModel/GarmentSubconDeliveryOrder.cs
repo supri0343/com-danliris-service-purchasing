@@ -16,16 +16,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderM
 
         /* Supplier */
         [MaxLength(255)]
-        public long SupplierId { get; set; }
+        public long ProductOwnerId { get; set; }
         [MaxLength(255)]
-        public string SupplierCode { get; set; }
+        public string ProductOwnerCode { get; set; }
         [MaxLength(1000)]
-        public string SupplierName { get; set; }
+        public string ProductOwnerName { get; set; }
 
         public string Remark { get; set; }
 
+        //Enhance Subcon
+        //CC
         public long CostCalculationId { get; set; }
         public string RONo { get; set; }
+        public string Article { get; set; }
+        //BC
+        public string BeacukaiNo { get; set; }
+        public DateTimeOffset BeacukaiDate { get; set; }
+        public string BeacukaiType { get; set; }
+        //
+        public bool IsReceived { get; set; }
         public virtual IEnumerable<GarmentSubconDeliveryOrderItem> Items { get; set; }
     }
 }

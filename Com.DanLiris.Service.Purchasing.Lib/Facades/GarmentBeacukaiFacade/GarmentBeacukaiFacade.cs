@@ -281,6 +281,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                 if (deliveryOrderNonPO != null)
                                 {
                                     deliveryOrderNonPO.CustomsId = model.Id;
+                                    deliveryOrderNonPO.BeacukaiNo = model.BeacukaiNo;
+                                    deliveryOrderNonPO.BeacukaiType = model.CustomsType;
+                                    deliveryOrderNonPO.BeacukaiDate = model.BeacukaiDate;
                                 }
                             }
                         }
@@ -387,6 +390,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                 if (deliveryOrder != null)
                                 {
                                     deliveryOrder.CustomsId = 0;
+                                    deliveryOrder.BeacukaiNo = null;
+                                    deliveryOrder.BeacukaiType = null;
+                                    deliveryOrder.BeacukaiDate = DateTimeOffset.MinValue;
                                     EntityExtension.FlagForDelete(item, username, USER_AGENT);
                                 }
                             }
@@ -543,6 +549,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                         item.TotalQty = qty;
                                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                                         deliveryOrderNonPO.CustomsId = model.Id;
+                                        deliveryOrderNonPO.BeacukaiNo = model.BeacukaiNo;
+                                        deliveryOrderNonPO.BeacukaiType = model.CustomsType;
+                                        deliveryOrderNonPO.BeacukaiDate = model.BeacukaiDate;
                                     }
                                     
                                 }
@@ -583,6 +592,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                     EntityExtension.FlagForDelete(item, user, USER_AGENT);
                                     GarmentSubconDeliveryOrder deleteDO = dbSetSubconDeliveryOrders.FirstOrDefault(x => x.Id == item.GarmentDOId);
                                     deleteDO.CustomsId = 0;
+                                    deleteDO.BeacukaiNo = null;
+                                    deleteDO.BeacukaiType = null;
+                                    deleteDO.BeacukaiDate = DateTimeOffset.MinValue;
+
                                 }
                             }
                             

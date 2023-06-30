@@ -86,10 +86,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentSubconDel
                     x.Id,
                     x.DONo,
                     x.DODate,
-                    Supplier = new { Id = x.SupplierId, Code = x.SupplierCode, Name = x.SupplierName },
+                    Supplier = new { Id = x.ProductOwnerId, Code = x.ProductOwnerCode, Name = x.ProductOwnerCode },
                     x.CreatedBy,
                     x.LastModifiedUtc,
                     x.RONo,
+                    x.BeacukaiNo,
+                    x.BeacukaiDate,
+                    x.BeacukaiType,
                     items = x.Items.Select(i => new
                     {
                         i.POSerialNumber,
@@ -231,6 +234,38 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentSubconDel
             {
                 await facade.Delete(id, identityService.Username);
                 return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("unit-receipt-note")]
+        public IActionResult GetForUnitReceiptNote(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var result = facade.ReadForUnitReceiptNote(page, size, order, keyword, filter);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", result.Data.Count },
+                        { "total", result.TotalData },
+                        { "order", result.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result.Data, info);
+                return Ok(Result);
             }
             catch (Exception e)
             {
