@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubconDeliveryOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -42,12 +45,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                     DONo = x.DONo,
                     DODate = x.DODate,
                     ArrivalDate = x.ArrivalDate,
-                    SupplierId = x.SupplierId,
-                    SupplierCode = x.SupplierCode,
-                    SupplierName = x.SupplierName,
+                    ProductOwnerId = x.ProductOwnerId,
+                    ProductOwnerCode = x.ProductOwnerCode,
+                    ProductOwnerName = x.ProductOwnerName,
                     CreatedBy = x.CreatedBy,
                     LastModifiedUtc = x.LastModifiedUtc,
                     RONo = x.RONo,
+                    BeacukaiNo = x.BeacukaiNo,
+                    BeacukaiType =x.BeacukaiType,
+                    BeacukaiDate =x.BeacukaiDate ,
                     Items = x.Items.Select(y => new GarmentSubconDeliveryOrderItem
                     {
                         Id = y.Id,
@@ -242,6 +248,82 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                 .Where(s => s.CustomsId == 0 && s.Items.Any(x => x.CurrencyCode == currencycode));
 
             return Query;
+        }
+
+        public ReadResponse<object> ReadForUnitReceiptNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            long filterSupplierId = FilterDictionary.ContainsKey("SupplierId") ? long.Parse(FilterDictionary["SupplierId"]) : 0;
+            FilterDictionary.Remove("SupplierId");
+
+            IQueryable<GarmentSubconDeliveryOrder> Query = dbSet
+                .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.ProductOwnerId == filterSupplierId) && m.CustomsId != 0 && m.IsReceived == false)
+                .Select(m => new GarmentSubconDeliveryOrder
+                {
+                    Id = m.Id,
+                    DONo = m.DONo,
+                    RONo =m.RONo,
+                    ProductOwnerId = m.ProductOwnerId,
+                    ProductOwnerName = m.ProductOwnerName,
+                    ProductOwnerCode = m.ProductOwnerCode,
+                    BeacukaiNo = m.BeacukaiNo,
+                    BeacukaiType = m.BeacukaiType,
+                    BeacukaiDate = m.BeacukaiDate,
+                    LastModifiedUtc = m.LastModifiedUtc,
+                    Article = m.Article,
+                    Items = m.Items.Select(i => new GarmentSubconDeliveryOrderItem
+                    {
+                        Id = i.Id,
+                        POSerialNumber =i.POSerialNumber,
+                        DOQuantity = i.DOQuantity,
+                        PricePerDealUnit = i.PricePerDealUnit,
+                        ProductId = i.ProductId,
+                        ProductCode = i.ProductCode,
+                        ProductName = i.ProductName,
+                        ProductRemark = i.ProductRemark,
+                        UomId = i.UomId,
+                        UomUnit =i.UomUnit,
+                    }).ToList()
+                });
+
+            Query = QueryHelper<GarmentSubconDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentSubconDeliveryOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentSubconDeliveryOrder> pageable = new Pageable<GarmentSubconDeliveryOrder>(Query, Page - 1, Size);
+            List<GarmentSubconDeliveryOrder> DataModel = pageable.Data.ToList();
+            int Total = pageable.TotalCount;
+
+            List<GarmentSubconDeliveryOrderViewModel> DataViewModel = mapper.Map<List<GarmentSubconDeliveryOrderViewModel>>(DataModel);
+
+            List<dynamic> listData = new List<dynamic>();
+            listData.AddRange(
+                DataViewModel.Select(s => new
+                {
+                    s.Id,
+                    s.doNo,
+                    s.roNo,
+                    s.article,
+                    s.supplier,
+                    s.LastModifiedUtc,
+                    s.beacukaiDate,
+                    s.beacukaiNo,
+                    s.beacukaiType,
+                    items = s.items.Select(i => new
+                    {
+                        i.Id,
+                        i.POSerialNumber,
+                        i.Product,
+                        i.DOQuantity,
+                        i.PricePerDealUnit,
+                        i.Uom,
+                    }).ToList()
+                }).ToList()
+            );
+
+            return new ReadResponse<object>(listData, Total, OrderDictionary);
         }
     }
 }
