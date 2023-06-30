@@ -12,9 +12,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
         public GarmentSubconDeliveryOrderProfile()
         {
             CreateMap<GarmentSubconDeliveryOrder, GarmentSubconDeliveryOrderViewModel>()
-                .ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
-                .ForPath(d => d.supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))
-                .ForPath(d => d.supplier.Name, opt => opt.MapFrom(s => s.SupplierName))
+                .ForPath(d => d.supplier.Id, opt => opt.MapFrom(s => s.ProductOwnerId))
+                .ForPath(d => d.supplier.Code, opt => opt.MapFrom(s => s.ProductOwnerCode))
+                .ForPath(d => d.supplier.Name, opt => opt.MapFrom(s => s.ProductOwnerName))
 
                 .ForMember(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForMember(d => d.doNo, opt => opt.MapFrom(s => s.DONo))
@@ -26,6 +26,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
 
                 .ForPath(d => d.costCalculationId, opt => opt.MapFrom(s => s.CostCalculationId))
                 .ForPath(d => d.customsId, opt => opt.MapFrom(s => s.CustomsId))
+
+                .ForPath(d => d.beacukaiNo, opt => opt.MapFrom(s => s.BeacukaiNo))
+                .ForPath(d => d.beacukaiDate, opt => opt.MapFrom(s => s.BeacukaiDate))
+                .ForPath(d => d.beacukaiType, opt => opt.MapFrom(s => s.BeacukaiType))
+
                 .ReverseMap();
 
             CreateMap<GarmentSubconDeliveryOrderItem, GarmentSubconDeliveryOrderItemViewModel>()

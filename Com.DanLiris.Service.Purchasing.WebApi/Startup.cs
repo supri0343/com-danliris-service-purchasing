@@ -81,6 +81,8 @@ using Microsoft.ApplicationInsights.AspNetCore;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentClosingDateFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitReceiptNoteFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -226,7 +228,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IRealizationBOMFacade, RealizationBOMFacade>()
                 .AddTransient<IBCForAval, BCForAvalFacade>()
                 .AddTransient<IGarmentDeliveryOrderNonPOFacade, GarmentDeliveryOrderNonPOFacades>()
-                .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>();
+                .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>()
+                .AddTransient<IGarmentSubconUnitReceiptNoteFacade, GarmentSubconUnitReceiptNoteFacade>();
 
 
         }
