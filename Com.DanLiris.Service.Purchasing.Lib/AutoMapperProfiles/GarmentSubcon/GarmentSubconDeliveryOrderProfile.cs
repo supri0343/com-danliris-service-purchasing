@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubconDeliveryOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSubconDeliveryOrderViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;

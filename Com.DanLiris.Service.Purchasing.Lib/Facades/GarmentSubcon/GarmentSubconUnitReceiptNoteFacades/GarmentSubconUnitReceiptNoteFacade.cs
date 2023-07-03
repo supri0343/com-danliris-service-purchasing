@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUnitReceiptNoteViewModels;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -93,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
 
             List<string> searchAttributes = new List<string>()
             {
-                "URNNo", "UnitName", "SupplierName", "DONo","URNType", "DRNo", "UENNo"
+                "URNNo", "UnitName", "ProductOwnerName", "DONo","URNType", "DRNo","RONo"
             };
 
             Query = QueryHelper<GarmentSubconUnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -729,5 +730,142 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
         //        return null;
         //    }
         //}
+
+        #region Function for Unit DO
+        public List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}")
+        {
+            var Query = dbSet.Where(x => x.IsDeleted == false);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            long unitId = 0;
+            long storageId = 0;
+            long UrnItemsId = 0;
+            bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
+            bool hasStorageFilter = FilterDictionary.ContainsKey("StorageId") && long.TryParse(FilterDictionary["StorageId"], out storageId);
+            bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
+            bool hasPOSerialNumberFilter = FilterDictionary.ContainsKey("POSerialNumber");
+            string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
+            string POSerialNumber = hasPOSerialNumberFilter ? (FilterDictionary["POSerialNumber"] ?? "").Trim() : "";
+            bool hasUrnItemIdFilter = FilterDictionary.ContainsKey("URNItemId") && long.TryParse(FilterDictionary["URNItemId"], out UrnItemsId);
+
+
+            if (hasUnitFilter)
+            {
+                Query = Query.Where(x => x.UnitId == unitId);
+            }
+            if (hasRONoFilter)
+            {
+                Query = Query.Where(x => x.RONo == RONo);
+            }
+            
+            //if (hasPOSerialNumberFilter)
+            //{
+            //    Query = Query.Where(x => x.Items.Any(s => s.POSerialNumber == POSerialNumber));
+            //}
+
+            var data = hasUrnItemIdFilter ? from a in Query
+                                           join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
+                                           where b.RemainingQuantity > 0 && b.IsDeleted == false && b.Id == UrnItemsId
+                                            select new
+                                           {
+                                               URNId = a.Id,
+                                               URNItemId = b.Id,
+                                               a.URNNo,
+                                               b.ProductId,
+                                               b.ProductCode,
+                                               b.ProductName,
+                                               b.SmallQuantity,
+                                               b.SmallUomId,
+                                               b.SmallUomUnit,
+                                               b.DesignColor,
+                                               b.POSerialNumber,
+                                               b.RemainingQuantity,
+                                               a.RONo,
+                                               a.Article,
+                                               b.ProductRemark,
+                                               b.PricePerDealUnit,
+                                               b.ReceiptCorrection,
+                                               b.CorrectionConversion,
+                                               a.BeacukaiNo,
+                                               a.BeacukaiType,
+                                               a.BeacukaiDate,
+                                               b.DOItemId,
+                                            } : from a in Query
+                       join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
+                       where b.RemainingQuantity > 0 && b.StorageId == (hasStorageFilter != null ? storageId : b.StorageId) && b.IsDeleted== false
+                       select new
+                       {
+                           URNId = a.Id,
+                           URNItemId = b.Id,
+                           a.URNNo,
+                           b.ProductId,
+                           b.ProductCode,
+                           b.ProductName,
+                           b.SmallQuantity,
+                           b.SmallUomId,
+                           b.SmallUomUnit,
+                           b.DesignColor,
+                           b.POSerialNumber,
+                           b.RemainingQuantity,
+                           a.RONo,
+                           a.Article,
+                           b.ProductRemark,
+                           b.PricePerDealUnit,
+                           b.ReceiptCorrection,
+                           b.CorrectionConversion,
+                           a.BeacukaiNo,
+                           a.BeacukaiType,
+                           a.BeacukaiDate,
+                           b.DOItemId,
+                       };
+            List<object> ListData = new List<object>(data);
+            return ListData;
+        }
+
+        public List<object> ReadForUnitDOMore(string Keyword = null, string Filter = "{}", int size = 50)
+        {
+            var Query = dbSet.Where(x => x.IsDeleted == false);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            long unitId = 0;
+            long storageId = 0;
+            bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
+            bool hasStorageFilter = FilterDictionary.ContainsKey("StorageId") && long.TryParse(FilterDictionary["StorageId"], out storageId);
+            bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
+            bool hasPOSerialNumberFilter = FilterDictionary.ContainsKey("POSerialNumber");
+            string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
+            string POSerialNumber = hasPOSerialNumberFilter ? (FilterDictionary["POSerialNumber"] ?? "").Trim() : "";
+
+            if (hasUnitFilter)
+            {
+                Query = Query.Where(x => x.UnitId == unitId);
+            }
+            if (hasRONoFilter)
+            {
+                Query = Query.Where(x => x.RONo != RONo);
+            }
+
+            Keyword = (Keyword ?? "").Trim();
+            var data = from a in Query
+                       join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
+                       where b.RemainingQuantity > 0 && b.StorageId == (hasStorageFilter != null ? storageId : b.StorageId) && b.IsDeleted == false
+                       && (a.RONo.Contains(Keyword) || b.POSerialNumber.Contains(Keyword))
+                       select new
+                       {
+                           URNItemId = b.Id,
+                           a.RONo,
+                           b.ProductName,
+                           b.ProductCode,
+                           b.POSerialNumber,
+                           b.RemainingQuantity,
+                       };
+    
+            List<object> ListData = new List<object>(data.OrderBy(o => o.RONo).Take(size));
+            return ListData;
+        }
+
+        #endregion
     }
 }

@@ -38,6 +38,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.LogHistory;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDeliveryOrderModel;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -159,6 +160,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentSubconDeliveryOrderItem> GarmentSubconDeliveryOrderItems { get; set; }
         public DbSet<GarmentSubconUnitReceiptNote> GarmentSubconUnitReceiptNotes { get; set; }
         public DbSet<GarmentSubconUnitReceiptNoteItem> GarmentSubconUnitReceiptNoteItems { get; set; }
+        public DbSet<GarmentSubconUnitDeliveryOrder> GarmentSubconUnitDeliveryOrders { get; set; }
+        public DbSet<GarmentSubconUnitDeliveryOrderItem> GarmentSubconUnitDeliveryOrderItems { get; set; }
 
         public DbSet<LogHistory> LogHistories { get; set; }
         //public DbSet<ImportValue> ImportValues { get; set; }
@@ -272,6 +275,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
             modelBuilder.Entity<GarmentSubconUnitReceiptNote>()
                 .HasIndex(i => i.URNNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentSubconUnitDeliveryOrder>()
+                .HasIndex(i => i.UnitDONo)
                 .IsUnique()
                 .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
             #endregion
