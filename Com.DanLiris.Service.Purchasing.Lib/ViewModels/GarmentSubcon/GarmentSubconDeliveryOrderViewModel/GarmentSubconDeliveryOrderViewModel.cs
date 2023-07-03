@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubconDeliveryOrderViewModel
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSubconDeliveryOrderViewModel
 {
     public class GarmentSubconDeliveryOrderViewModel : BaseViewModel, IValidatableObject
     {

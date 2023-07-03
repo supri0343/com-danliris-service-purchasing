@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubconDeliveryOrderViewModel
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSubconDeliveryOrderViewModel
 {
     public class GarmentSubconDeliveryOrderItemViewModel : BaseViewModel
     {
