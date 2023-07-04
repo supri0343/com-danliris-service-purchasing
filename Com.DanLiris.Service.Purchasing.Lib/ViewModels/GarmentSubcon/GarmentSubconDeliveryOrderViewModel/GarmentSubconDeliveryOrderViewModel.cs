@@ -22,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
         public string beacukaiNo { get; set; }
         public DateTimeOffset beacukaiDate { get; set; }
         public string beacukaiType { get; set; }
+        public bool IsReceived { get; set; }
         public List<GarmentSubconDeliveryOrderItemViewModel> items { get; set; }
 
 
