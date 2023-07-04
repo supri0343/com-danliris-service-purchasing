@@ -202,6 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 									arrivalDate = deliveryOrderSubconViewModel.arrivalDate,
 									totalAmount = item.deliveryOrder.totalAmount,
 									IsPO = false,
+									IsReceived = deliveryOrderSubconViewModel.IsReceived,
 								};
 
 								item.deliveryOrderNonPO = garmentDeliveryOrderNonPOViewModel;
