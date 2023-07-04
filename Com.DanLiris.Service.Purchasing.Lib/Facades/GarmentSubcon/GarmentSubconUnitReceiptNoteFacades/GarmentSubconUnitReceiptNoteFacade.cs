@@ -538,6 +538,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                         garmentDeliveryOrder.IsReceived = false;
                     }
 
+                    foreach(var item in garmentUnitReceiptNote.Items)
+                    {
+                        EntityExtension.FlagForDelete(item, identityService.Username, USER_AGENT);
+                    }
+
                     #region Proses dari DR
                     //if (garmentUnitReceiptNote.URNType == "PROSES")
                     //{
