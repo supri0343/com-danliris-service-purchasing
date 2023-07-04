@@ -549,6 +549,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             {
                                 item.TotalAmount = oldItem.TotalAmount;
                                 item.TotalQty = oldItem.TotalQty;
+
+                                //Update BC NO
+                                GarmentSubconDeliveryOrder deliveryOrder = dbSetSubconDeliveryOrders.FirstOrDefault(s => s.Id == item.GarmentDOId);
+                                if(deliveryOrder != null)
+                                {
+                                    if (deliveryOrder.BeacukaiNo != model.BeacukaiNo)
+                                    {
+                                        deliveryOrder.BeacukaiNo = model.BeacukaiNo;
+                                    }
+                                    if (deliveryOrder.BeacukaiType != model.CustomsType)
+                                    {
+                                        deliveryOrder.BeacukaiType = model.CustomsType;
+                                    }
+                                    if (deliveryOrder.BeacukaiDate != model.BeacukaiDate)
+                                    {
+                                        deliveryOrder.BeacukaiDate = model.BeacukaiDate;
+                                    }
+                                    EntityExtension.FlagForUpdate(deliveryOrder, user, USER_AGENT);
+                                }
+
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                             }
 

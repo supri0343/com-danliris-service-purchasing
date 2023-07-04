@@ -43,6 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderNon
         public string paymentMethod { get; set; }
         public CurrencyViewModel docurrency { get; set; }
         public bool IsPO { get; set; }
+        public bool IsReceived { get; set; }
         public List<GarmentDeliveryOrderNonPOItemViewModel> items { get; set; }
 
         //public List<long> unitReceiptNoteIds { get; set; }
