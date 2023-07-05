@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
+namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon
 {
     public interface IGarmentSubconDeliveryOrderFacades
     {
