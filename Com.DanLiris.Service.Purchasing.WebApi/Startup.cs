@@ -85,6 +85,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrderFaca
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitDeliveryOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitExpenditureNoteFacade;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -238,7 +239,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>();
                 .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>()
                 .AddTransient<IGarmentSubconUnitReceiptNoteFacade, GarmentSubconUnitReceiptNoteFacade>()
-                .AddTransient<IGarmentSubconUnitDeliveryOrderFacade, GarmentSubconUnitDeliveryOrderFacades>();
+                .AddTransient<IGarmentSubconUnitDeliveryOrderFacade, GarmentSubconUnitDeliveryOrderFacades>()
+                .AddTransient<IGarmentSubconUnitExpenditureNoteFacade, GarmentSubconUnitExpenditureNoteFacade>();
 
 
         }
