@@ -278,5 +278,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-    }
+
+		[HttpGet("by-contractNo")]
+		public IActionResult BCByContractNo(string contractNo)
+		{
+			try
+			{
+					identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+				var result = facade.ReadBCByContractNo(contractNo);
+
+				Dictionary<string, object> Result =
+					   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+					   .Ok(result);
+				return Ok(Result);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+	}
 }
