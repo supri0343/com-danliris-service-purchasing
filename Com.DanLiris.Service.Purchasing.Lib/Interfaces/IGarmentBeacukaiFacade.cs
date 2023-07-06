@@ -17,6 +17,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 		int Delete(int id, string username);
         List<object> ReadBCByPOSerialNumber(string Keyword = null, string Filter = "{}");
         List<object> ReadBCByPOSerialNumbers(string Keyword);
+		List<object> ReadBCByContractNo(string contractNo);
 
-    }
+
+	}
 }
