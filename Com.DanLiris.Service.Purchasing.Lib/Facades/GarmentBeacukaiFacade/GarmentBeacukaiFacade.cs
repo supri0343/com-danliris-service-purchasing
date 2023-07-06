@@ -721,5 +721,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
         //	})
         //	.ToListAsync();
         //     }
+
+        public List<object> ReadBCByContractNo(string contractNo)
+        {
+            var data = (from a in dbContext.GarmentBeacukais
+                        join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
+                        where a.IsDeleted == false && b.IsDeleted == false && a.SubconContractNo == contractNo
+                        select new
+                        {
+                            bcNoIn = a.BeacukaiNo,
+                            bcDateIn = a.BeacukaiDate,
+                            quantityIn = b.TotalQty,
+                            fintype = a.FinishedGoodType,
+                        }).GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.fintype }, (key, group) => new
+                        {
+                            bcNoIn = key.bcNoIn,
+                            bcDateIn = key.bcDateIn,
+                            quantityIn = group.Sum(x => x.quantityIn),
+                            fintype = key.fintype
+                        });
+
+            List<object> ListData = new List<object>(data);
+
+            return ListData;
+
+        }
     }
 }
