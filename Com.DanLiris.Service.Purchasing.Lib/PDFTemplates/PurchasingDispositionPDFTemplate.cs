@@ -606,8 +606,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 _cb.BeginText();
                 _cb.SetFontAndSize(_baseFont, 11);
                 _cb.SetTextMatrix(document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(20));
-                _cb.ShowTextAligned(Element.ALIGN_CENTER, "DISPOSISI PEMBAYARAN", document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(50), 0);
-                _cb.ShowTextAligned(Element.ALIGN_CENTER, $"NO : {_documentNo}", document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(62), 0);
+                _cb.ShowTextAligned(Element.ALIGN_CENTER, "DISPOSISI PEMBAYARAN", document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(30), 0);
+                _cb.ShowTextAligned(Element.ALIGN_CENTER, $"NO : {_documentNo}", document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(42), 0);
                 //_cb.ShowText(p1Header);
                 _cb.EndText();
                 var len = _baseFont.GetWidthPoint(p1Header, 12);
