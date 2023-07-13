@@ -11,6 +11,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
@@ -1590,8 +1591,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             return new ReadResponse<UnitReceiptNote>(Data, TotalData, OrderDictionary);
         }
+        private async Task<GarmentCurrency> GetBICurrency(string codeCurrency, DateTimeOffset date)
+        {
+            string stringDate = date.ToString("yyyy/MM/dd HH:mm:ss");
+            string queryString = $"code={codeCurrency}&stringDate={stringDate}";
 
-        public IQueryable<UnitReceiptNoteReportViewModel> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int offset)
+            var http = serviceProvider.GetService<IHttpClientService>();
+            var response = await http.GetAsync(APIEndpoint.Core + $"master/garment-currencies/single-by-code-date?{queryString}");
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+
+            var result = JsonConvert.DeserializeObject<APIDefaultResponse<GarmentCurrency>>(responseString, jsonSerializationSetting);
+
+            return result.data;
+        }
+
+        public async Task<IQueryable<UnitReceiptNoteReportViewModel>> GetReportQuery(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -1600,6 +1616,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                          join b in dbContext.UnitReceiptNoteItems on a.Id equals b.URNId
                          //EPO
                          join k in dbContext.ExternalPurchaseOrderDetails on b.EPODetailId equals k.Id
+                         join l in dbContext.ExternalPurchaseOrderItems on k.EPOItemId equals l.Id
+                         join m in dbContext.ExternalPurchaseOrders on l.EPOId equals m.Id
                          //PO
                          join c in dbContext.InternalPurchaseOrderItems on k.POItemId equals c.Id
                          join d in dbContext.InternalPurchaseOrders on c.POId equals d.Id
@@ -1637,13 +1655,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                              quantity = k.DealQuantity,
                              CreatedUtc = b.CreatedUtc,
                              pricePerDealUnit = b.PricePerDealUnit,
-                             totalPrice = b.PricePerDealUnit * b.ReceiptQuantity
+                             totalPrice = b.PricePerDealUnit * b.ReceiptQuantity,
+                             currencyCode = m.CurrencyCode
+                            
 
                          });
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<UnitReceiptNoteReportViewModel> urn = new List<UnitReceiptNoteReportViewModel>();
             foreach (UnitReceiptNoteReportViewModel data in Query.ToList())
             {
+                if (data.currencyCode != "IDR")
+                {
+                    var currency = await GetBICurrency(data.currencyCode, data.receiptDate);
+                    data.totalPriceIDR = Convert.ToDouble(currency.Rate) * data.totalPrice;
+                }else
+                {
+                    data.totalPriceIDR = data.totalPrice;
+                }
                 double value;
                 if (q.TryGetValue(data.productCode + data.prNo + data.epoDetailId.ToString(), out value))
                 {
@@ -1662,14 +1690,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Query = urn.AsQueryable();
         }
 
-        public ReadResponse<UnitReceiptNoteReportViewModel> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public async Task<ReadResponse<UnitReceiptNoteReportViewModel>> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
         {
-            var Query = GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId, divisionId, dateFrom, dateTo, offset);
+            var Query = await GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId, divisionId, dateFrom, dateTo, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a => a.CreatedUtc);
+                Query = Query.AsQueryable().OrderByDescending(b => b.receiptDate).ThenByDescending(a => a.CreatedUtc);
             }
 
             Pageable<UnitReceiptNoteReportViewModel> pageable = new Pageable<UnitReceiptNoteReportViewModel>(Query, page - 1, size);
@@ -1679,9 +1707,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return new ReadResponse<UnitReceiptNoteReportViewModel>(Data, TotalData, OrderDictionary);
         }
 
-        public MemoryStream GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public async Task <MemoryStream> GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId, divisionId, dateFrom, dateTo, offset);
+            var Query = await GetReportQuery(urnNo, prNo, unitId, categoryId, supplierId, divisionId, dateFrom, dateTo, offset);
             Query = Query.OrderByDescending(b => b.receiptDate).ThenByDescending(a => a.CreatedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
@@ -1703,8 +1731,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah (+/-/0)", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuan", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Total", DataType = typeof(double) });
-            if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0,0,0); // to allow column name to be generated properly for empty data as template
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Total(IDR)", DataType = typeof(double) });
+            if (Query.Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, "", 0, "", 0,0,0,"",0); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -1712,7 +1742,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 {
                     index++;
                     string date = item.receiptDate == null ? "-" : item.receiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM-dd-yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, item.unit, item.category, item.prNo, item.productName, item.productCode, item.supplier, date, item.urnNo, item.dealQuantity, item.DealUom, item.receiptQuantity, item.receiptUom, item.quantity, item.pricePerDealUnit, item.totalPrice);
+                    result.Rows.Add(index, item.unit, item.category, item.prNo, item.productName, item.productCode, item.supplier, date, item.urnNo, item.dealQuantity, item.DealUom, item.receiptQuantity, item.receiptUom, item.quantity, item.pricePerDealUnit, item.totalPrice,item.currencyCode,item.totalPriceIDR);
                 }
             }
 
