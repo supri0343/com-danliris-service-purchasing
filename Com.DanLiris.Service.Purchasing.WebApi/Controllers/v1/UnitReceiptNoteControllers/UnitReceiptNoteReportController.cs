@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         }
 
         [HttpGet]
-        public IActionResult GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+        public  IActionResult GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -41,8 +41,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
-                    data = data.Data,
-                    info = new { total = data.TotalData },
+                    data = data.Result,
+                    info = new { total = data.Result.TotalData },
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });
@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
 
                 string filename = String.Format("Bon Terima Unit - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
-                xlsInBytes = xls.ToArray();
+                xlsInBytes = xls.Result.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
                 return file;
 
