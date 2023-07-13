@@ -24,5 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
 
         public double pricePerDealUnit { get; set; }
         public double totalPrice  { get; set; }
+        public double totalPriceIDR { get; set; }
+        public string currencyCode { get; set; }
     }
 }
