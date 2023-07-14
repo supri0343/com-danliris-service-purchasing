@@ -224,7 +224,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBeacukaiNoFeature, BeacukaiNoFeature>()
                 .AddTransient<IRealizationBOMFacade, RealizationBOMFacade>()
                 .AddTransient<IBCForAval, BCForAvalFacade>()
-                .AddTransient<IGarmentDeliveryOrderNonPOFacade, GarmentDeliveryOrderNonPOFacades>();
+                .AddTransient<IGarmentDeliveryOrderNonPOFacade, GarmentDeliveryOrderNonPOFacades>()
+                .AddTransient<IGarmentImportPurchasingJournalReportFacade, GarmentImportPurchasingJournalReportFacade>()
+                .AddTransient<IGarmentLocalPurchasingJournalReportFacade, GarmentLocalPurchasingJournalReportFacade>(); 
 
         }
 
