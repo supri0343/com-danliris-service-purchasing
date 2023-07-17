@@ -198,5 +198,64 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReports
 			var response = controller.GetXlsByUser(null, null, null, null, 1, 25, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 		}
+
+		[Fact]
+		public void Should_Error_Get_Report_XlsMII_Data()
+		{
+			var mockFacade = new Mock<IMonitoringCentralBillExpenditureFacade>();
+			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatReport(null, null, null, 1, 25, "{}", 7))
+				.Returns(Tuple.Create(new List<MonitoringCentralBillExpenditureViewModel> { ViewModel }, 25));
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<MonitoringCentralBillExpenditureViewModel>>(It.IsAny<List<MonitoringCentralBillExpenditureViewModel>>()))
+				.Returns(new List<MonitoringCentralBillExpenditureViewModel> { ViewModel });
+
+			var user = new Mock<ClaimsPrincipal>();
+			var claims = new Claim[]
+			{
+				new Claim("username", "unittestusername")
+			};
+			user.Setup(u => u.Claims).Returns(claims);
+			MonitoringCentralBillExpenditureController controller = new MonitoringCentralBillExpenditureController(GetServiceProvider().Object, mockFacade.Object);
+			controller.ControllerContext = new ControllerContext()
+			{
+				HttpContext = new DefaultHttpContext()
+				{
+					User = user.Object
+				}
+			};
+			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+			var response = controller.GetXlsMII(null, null, null, 1, 25, "{}");
+			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+		}
+		[Fact]
+		public void Should_succes_Get_Report_XlsMII_Data()
+		{
+			var mockFacade = new Mock<IMonitoringCentralBillExpenditureFacade>();
+			mockFacade.Setup(x => x.GetMonitoringKeluarBonPusatReport(null, null, null, 1, 25, "{}", 7))
+				.Returns(Tuple.Create(new List<MonitoringCentralBillExpenditureViewModel> { ViewModel }, 25));
+
+			var mockMapper = new Mock<IMapper>();
+			mockMapper.Setup(x => x.Map<List<MonitoringCentralBillExpenditureViewModel>>(It.IsAny<List<MonitoringCentralBillExpenditureViewModel>>()))
+				.Returns(new List<MonitoringCentralBillExpenditureViewModel> { ViewModel });
+
+			var user = new Mock<ClaimsPrincipal>();
+			var claims = new Claim[]
+			{
+				new Claim("username", "unittestusername")
+			};
+			user.Setup(u => u.Claims).Returns(claims);
+			MonitoringCentralBillExpenditureController controller = new MonitoringCentralBillExpenditureController(GetServiceProvider().Object, mockFacade.Object);
+			controller.ControllerContext = new ControllerContext()
+			{
+				HttpContext = new DefaultHttpContext()
+				{
+					User = user.Object
+				}
+			};
+			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+			var response = controller.GetXlsMII(null, null, null, 1, 25, "{}");
+			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+		}
 	}
 }

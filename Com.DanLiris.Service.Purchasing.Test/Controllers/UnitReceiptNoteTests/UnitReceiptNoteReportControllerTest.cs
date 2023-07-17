@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Xunit;
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 {
@@ -110,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         //    var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
         //    mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
-        //        .Returns(new MemoryStream());
+        //        .Returns(new  Task<MemoryStream>());
 
         //    var mockMapper = new Mock<IMapper>();
 
