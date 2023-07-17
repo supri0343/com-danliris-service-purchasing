@@ -128,7 +128,98 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
         }
+        public MemoryStream GenerateExcelMonitoringKeluarBonPusatMII(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset)
+        {
+            var Query = GetMonitoringKeluarBonPusatByUserReportQuery(dateFrom, dateTo, jnsBC, offset, 1, int.MaxValue);
+            DataTable result = new DataTable();
 
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No. Bon Pusat", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Bon Pusat", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No. Bon Kecil", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bea Cukai", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Bukti BC", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Bea Cukai", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Klasifikasi", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "Term Of Payment", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Buyer", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Barang / Jasa", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Asal Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Article No", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No. Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Datang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Faktur", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Faktur", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PO Pembelian", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | QTY Sbl Konv", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Satuan Sbl Konv", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Harga", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Jumlah Harga", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Konversi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Qty Stl Konv", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PUSAT | Sat Stl Konv", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No BUM", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl BUM", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "Konfeksi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | QTY Sbl Konv", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Satuan Sbl Konv", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "KONF | Harga", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "KONF | Jumlah Harga", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Konversi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Qty Stl Konv", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KONF | Sat Stl Konv", DataType = typeof(String) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add( "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    string BillDate = item.BillDate == new DateTime(1970, 1, 1) ? "-" : item.BillDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string BCDate = item.BeaCukaiDate == new DateTime(1970, 1, 1) ? "-" : item.BeaCukaiDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string ArrivalDate = item.ArrivalDate == new DateTime(1970, 1, 1) ? "-" : item.ArrivalDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string IncomeTaxDate = item.IncomeTaxDate == new DateTime(1970, 1, 1) ? "-" : item.IncomeTaxDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string INDate = item.INDate == new DateTime(1970, 1, 1) ? "-" : item.INDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string ReceiptDate = item.ReceiptDate == new DateTime(1970, 1, 1) ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
+                    string DOQuantity = string.Format("{0:N2}", item.DOQuantity);
+                    //string PricePerDealUnit = string.Format("{0:N2}", item.PricePerDealUnit);
+                    //string PriceTotal = string.Format("{0:N2}", item.PriceTotal);
+                    string Conversion = string.Format("{0:N2}", item.Conversion);
+                    string SmallQuantity = string.Format("{0:N2}", item.SmallQuantity);
+
+                    string ReceiptQuantity = string.Format("{0:N2}", item.ReceiptQuantity);
+                    //string URNPricePerDealUnit = string.Format("{0:N2}", item.URNPricePerDealUnit);
+                    //string URNPriceTotal = string.Format("{0:N2}", item.URNPriceTotal);
+                    string URNConversion = string.Format("{0:N2}", item.URNConversion);
+                    string URNSmallQuantity = string.Format("{0:N2}", item.URNSmallQuantity);
+
+                    result.Rows.Add(
+                        index, item.BillNo, BillDate, item.PaymentBill, item.CustomsType, item.BeaCukaiNo, BCDate, item.CodeRequirement, item.PaymentType, item.BuyerName, item.ProductType, item.ProductFrom,
+                        item.SupplierCode, item.SupplierName, item.Article, item.RONo, item.DONo, ArrivalDate, item.InvoiceNo, item.IncomeTaxNo, IncomeTaxDate, item.EPONo, item.ProductCode,
+                        item.ProductName, item.ProductRemark, DOQuantity, item.UOMUnit, Conversion, SmallQuantity, item.SmallUOMUnit,
+                        item.InternNo, INDate, item.URNNo, ReceiptDate, item.UnitName, ReceiptQuantity, item.URNUOMUnit, URNConversion, URNSmallQuantity, item.URNSmallUOMUnit);
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
+        }
         #endregion
         #region MonitoringCentralBillExpenditureByUser
         public int TotalCountReport { get; set; } = 0;
