@@ -147,5 +147,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 			}
 
 		}
+
+		[HttpGet("downloadMII")]
+		public IActionResult GetXlsMII(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order = "{}")
+		{
+			try
+			{
+				byte[] xlsInBytes;
+
+				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+				var xls = facade.GenerateExcelMonitoringKeluarBonPusatMII(dateFrom, dateTo, jnsBC, page, size, Order, offset);
+
+				string filename = "Monitoring Pengeluaran Bon Pusat";
+				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+				if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+				filename += ".xlsx";
+
+				xlsInBytes = xls.ToArray();
+				var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+				return file;
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+
+		}
 	}
 }
