@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReport
                 //if (year != null) filename += "-" + year.ToString();
                 //filename += ".xlsx";
 
-                string filename = String.Format("Laporan Jurnal Pembelian Lokal - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+                string filename = String.Format("Laporan Jurnal Pembelian Import - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);

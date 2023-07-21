@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
                          join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id                         
                          where a.URNType == "PEMBELIAN" && c.SupplierIsImport == false
-                               && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")
+                               && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")                   
                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date 
                          group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new 
                          { a.URNNo, a.ReceiptDate, a.SupplierCode, a.SupplierName, a.Remark, c.InternNo, c.BillNo, e.CodeRequirment, c.PaymentType, c.DOCurrencyCode, c.DOCurrencyRate, c.UseVat, c.VatRate, c.UseIncomeTax, c.IncomeTaxRate } into G
@@ -108,39 +108,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     istax = x.istax,
                     taxrate = x.taxrate,
                     amount = x.amount,
-                    coaname = x.code == "BB" ? "PERSEDIAAN BAHAN BAKU(AG2)" : (x.code == "BP" ? "PERSEDIAAN PEMBANTU(AG2)" : "PERSEDIAAN EMBALANCE(AG2)"),
+                    coaname = x.code == "BB" ? "BPP PEMBELIAN BAHAN BAKU" : (x.code == "BP" ? "BPP PEMBELIAN BAHAN PEMBANTU" : "BPP PEMBELIAN BAHAN EMBALASE"),
                     credit = 0,
                     debit = x.amount,
-                    account = x.code == "BB" ? "114.03.2.000" : (x.code == "BP" ? "114.04.2.000" : "114.05.2.000")                
+                    account = x.code == "BB" ? "590100" : (x.code == "BP" ? "590300" : "590400")
                 };
+
                 data.Add(debit1);
 
-                var debit2 = new GarmentDetailLocalPurchasingJournalReportViewModel
-                {
-                    urnno = x.urnno,
-                    urndate = x.urndate,
-                    supplier = x.supplier,
-                    remark = x.remark,
-                    inno = x.inno,
-                    billno = x.billno,
-                    code = x.code,
-                    paymentyype = x.paymentyype,
-                    currencycode = x.currencycode,
-                    rate = x.rate,
-                    isvat = x.isvat,
-                    vatrate = x.vatrate,
-                    istax = x.istax,
-                    taxrate = x.taxrate,
-                    amount = x.amount,
-                    coaname = "PPN MASUKAN (AG2)",
-                    debit =  x.amount * Convert.ToDecimal((x.vatrate / 100)),
-                    credit = 0,
-                    account = "117.01.2.000"
-                };
-                if (debit2.debit > 0)
-                {
-                    data.Add(debit2);
-                }
+                //var debit2 = new GarmentDetailLocalPurchasingJournalReportViewModel
+                //{
+                //    urnno = x.urnno,
+                //    urndate = x.urndate,
+                //    supplier = x.supplier,
+                //    remark = x.remark,
+                //    inno = x.inno,
+                //    billno = x.billno,
+                //    code = x.code,
+                //    paymentyype = x.paymentyype,
+                //    currencycode = x.currencycode,
+                //    rate = x.rate,
+                //    isvat = x.isvat,
+                //    vatrate = x.vatrate,
+                //    istax = x.istax,
+                //    taxrate = x.taxrate,
+                //    amount = x.amount,
+                //    coaname = "PPN MASUKAN",
+                //    debit =  x.amount * Convert.ToDecimal((x.vatrate / 100)),
+                //    credit = 0,
+                //    account = "155300"
+                //};
+                //if (debit2.debit > 0)
+                //{
+                //    data.Add(debit2);
+                //}
 
                 var kredit = new GarmentDetailLocalPurchasingJournalReportViewModel
                 {
@@ -159,20 +160,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     istax = x.istax,
                     taxrate = x.taxrate,
                     amount = x.amount,
-                    coaname = "       HUTANG USAHA LOKAL(AG2)",
+                    coaname = "       HUTANG USAHA LOKAL GARMENT",
                     debit = 0,
-                    credit = debit2.debit > 0 ? x.amount + debit2.debit : x.amount,                   
-                    account = "211.00.2.000"
+                    //credit = debit2.debit > 0 ? x.amount + debit2.debit : x.amount,                   
+                    credit = x.amount,                   
+                    account = "300300"
                 };
-
+                
                 data.Add(kredit);                
             }
 
             var total = new GarmentDetailLocalPurchasingJournalReportViewModel
             {
                 remark = "",                
-                debit = Query.Sum(a => a.amount) + (Query.Sum(a => a.amount * Convert.ToDecimal((a.vatrate / 100)))),
-                credit = Query.Sum(a => a.amount) + (Query.Sum(a => a.amount * Convert.ToDecimal((a.vatrate / 100)))),
+                //debit = Query.Sum(a => a.amount) + (Query.Sum(a => a.amount * Convert.ToDecimal((a.vatrate / 100)))),
+                //credit = Query.Sum(a => a.amount) + (Query.Sum(a => a.amount * Convert.ToDecimal((a.vatrate / 100)))),
+                debit = Query.Sum(a => a.amount),
+                credit = Query.Sum(a => a.amount),
                 account = "J U M L A H"
             };
             if (total.debit > 0)
