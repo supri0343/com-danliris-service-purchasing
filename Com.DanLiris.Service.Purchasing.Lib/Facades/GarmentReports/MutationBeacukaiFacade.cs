@@ -626,8 +626,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    //&& a.ExpenditureDestination == "JUAL LOKAL"
 
                                    join b in EPOExpend on a.PONo equals b.PO_SerialNumber
-                                   where  a.ExpenditureDestination == "JUAL LOKAL"
-                                   
+                                   where  a.ExpenditureDestination == "JUAL LOKAL"  || a.ExpenditureDestination == "EXPORT"
                                    select new MutationBBCentralViewModelTemp
                                    {
                                        AdjustmentQty = 0,
