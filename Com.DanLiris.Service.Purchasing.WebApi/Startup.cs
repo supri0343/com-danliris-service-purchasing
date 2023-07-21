@@ -226,8 +226,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBCForAval, BCForAvalFacade>()
                 .AddTransient<IGarmentDeliveryOrderNonPOFacade, GarmentDeliveryOrderNonPOFacades>()
                 .AddTransient<IGarmentImportPurchasingJournalReportFacade, GarmentImportPurchasingJournalReportFacade>()
-                .AddTransient<IGarmentLocalPurchasingJournalReportFacade, GarmentLocalPurchasingJournalReportFacade>(); 
-
+                .AddTransient<IGarmentLocalPurchasingJournalReportFacade, GarmentLocalPurchasingJournalReportFacade>()
+                .AddTransient<IGarmentDetailImportPurchasingJournalReportFacade, GarmentDetailImportPurchasingJournalReportFacade>()
+                .AddTransient<IGarmentDetailLocalPurchasingJournalReportFacade, GarmentDetailLocalPurchasingJournalReportFacade>(); 
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
