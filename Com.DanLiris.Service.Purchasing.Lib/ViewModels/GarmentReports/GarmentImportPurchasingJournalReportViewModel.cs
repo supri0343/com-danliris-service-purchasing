@@ -19,7 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
 
     public class GarmentImportPurchasingJournalReportTemp1ViewModel
     {
-        public string UnitCode { get; set; }
+        public string Code { get; set; }
         public decimal Amount { get; set; }
     }
 
