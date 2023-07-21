@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     {
         Tuple<List<MonitoringCorrectionNoteReceptionViewModel>, int> GetMonitoringTerimaNKReport(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset);
         MemoryStream GenerateExcelMonitoringTerimaNK(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcelMonitoringTerimaNKMII(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset);
 
         Tuple<List<MonitoringCorrectionNoteReceptionViewModel>, int> GetMonitoringTerimaNKByUserReport(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset);
         MemoryStream GenerateExcelMonitoringTerimaNKByUser(DateTime? dateFrom, DateTime? dateTo, string jnsBC, int page, int size, string Order, int offset);
