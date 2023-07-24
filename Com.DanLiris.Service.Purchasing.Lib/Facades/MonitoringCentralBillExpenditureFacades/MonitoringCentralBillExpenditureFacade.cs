@@ -267,7 +267,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpen
                          URN != null && URN.URNType == "PEMBELIAN"
                          && (string.IsNullOrWhiteSpace(jnsBC) ? true : (jnsBC == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
                          &&
-                         ((d1 != new DateTime(1970, 1, 1) && URN != null) ? (URN.ReceiptDate >= d1 && URN.ReceiptDate <= d2) : true)
+                         ((d1 != new DateTime(1970, 1, 1) && URN != null) ? (URN.ReceiptDate.AddHours(7).Date >= d1.Date && URN.ReceiptDate.AddHours(7).Date <= d2.Date) : true)
                                                                              
                          select new SelectedId
                          {
