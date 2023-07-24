@@ -298,7 +298,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                          && URN.URNType == (URN.URNType == null ? URN.URNType : "PEMBELIAN")
                          && (string.IsNullOrWhiteSpace(jnsBC) ? true : (jnsBC == "BCDL" ? d.BeacukaiNo.Substring(0, 4) == "BCDL" : d.BeacukaiNo.Substring(0, 4) != "BCDL"))
                          //&& d.BeacukaiNo.Substring(0, 4) == jnsBC  
-                         && ((d1 != new DateTime(1970, 1, 1)) ? (n.CorrectionDate.Date >= d1.Date && n.CorrectionDate.Date <= d2.Date) : true)
+                         && ((d1 != new DateTime(1970, 1, 1)) ? (n.CorrectionDate.AddHours(offset).Date >= d1.Date && n.CorrectionDate.AddHours(offset).Date <= d2.Date) : true)
                          && a.SupplierCode != "GDG"
 
                          select new SelectedId
