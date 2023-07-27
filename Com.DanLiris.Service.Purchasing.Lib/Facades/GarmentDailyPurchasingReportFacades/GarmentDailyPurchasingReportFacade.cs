@@ -661,7 +661,71 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 foreach (GarmentDailyPurchasingReportViewModel data in Data.Item1)
                 {
                     var arrivalDate = data.ArrivalDate.AddHours(7).ToString("MM/dd/yyyy");
-                    result.Rows.Add(arrivalDate, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(data.Amount6, 2), Math.Round(data.Amount7, 2), data.CurrencyCode, data.Rate, Math.Round(data.Amount, 2), Math.Round(data.Amount1, 2), Math.Round(data.Amount2, 2), Math.Round(data.Amount3, 2), Math.Round(data.Amount4, 2), Math.Round(data.Amount5, 2));
+                    double Amount1 = 0, Amount2 = 0, Amount3 = 0, Amount4 = 0, Amount5 = 0, Amount6 = 0, Amount7 = 0, Amount8 = 0;
+                    switch (data.CodeRequirement)
+                    {
+                        case "BE":
+                            Amount1 = data.Amount6;
+                            Amount2 = 0;
+                            Amount3 = 0;
+                            Amount4 = 0;
+                            Amount5 = 0;
+                            Amount6 = 0;
+                            Amount7 = data.Amount;
+                            Amount8 = data.Amount6;
+                            break;
+                        case "BP":
+                            Amount1 = 0;
+                            Amount2 = data.Amount6;
+                            Amount3 = 0;
+                            Amount4 = 0;
+                            Amount5 = 0;
+                            Amount6 = 0;
+                            Amount7 = data.Amount;
+                            Amount8 = data.Amount6;
+                            break;
+                        case "BB":
+                            Amount1 = 0;
+                            Amount2 = 0;
+                            Amount3 = data.Amount6;
+                            Amount4 = 0;
+                            Amount5 = 0;
+                            Amount6 = 0;
+                            Amount7 = data.Amount;
+                            Amount8 = data.Amount6;
+                            break;
+                        case "PPN":
+                            Amount1 = 0;
+                            Amount2 = 0;
+                            Amount3 = 0;
+                            Amount4 = 0;
+                            Amount5 = data.Amount6;
+                            Amount6 = 0;
+                            Amount7 = data.Amount;
+                            Amount8 = data.Amount6;
+                            break;
+                        case "PPH":
+                            Amount1 = 0;
+                            Amount2 = 0;
+                            Amount3 = 0;
+                            Amount4 = 0;
+                            Amount5 = 0;
+                            Amount6 = data.Amount6;
+                            Amount7 = data.Amount;
+                            Amount8 = data.Amount6;
+                            break;
+                        default:
+                            Amount1 = 0;
+                            Amount2 = 0;
+                            Amount3 = 0;
+                            Amount4 = data.Amount6;
+                            Amount5 = 0;
+                            Amount6 = 0;
+                            Amount7 = data.Amount;
+                            Amount8 = data.Amount6;
+                            break;
+                    }
+                    result.Rows.Add(arrivalDate, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(Amount7, 2), Math.Round(Amount8, 2), data.CurrencyCode, data.Rate, Math.Round(Amount1, 2), Math.Round(Amount2, 2), Math.Round(Amount3, 2), Math.Round(Amount4, 2), Math.Round(Amount5, 2), Math.Round(Amount6, 2));
                     index++;
                 }
 
