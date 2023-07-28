@@ -260,91 +260,91 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentSubcon.Ga
             }
         }
 
-        //[HttpGet("unit-expenditure-note")]
-        //public IActionResult GetForGarmentPreparing(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
-        //{
-        //    try
-        //    {
-        //        identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+        [HttpGet("unit-expenditure-note")]
+        public IActionResult GetForGarmentPreparing(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-        //        var result = facade.ReadForGPreparing(page, size, order, keyword, filter);
+                var result = facade.ReadForGPreparing(page, size, order, keyword, filter);
 
-        //        var info = new Dictionary<string, object>
-        //            {
-        //                { "count", result.Data.Count },
-        //                { "total", result.TotalData },
-        //                { "order", result.Order },
-        //                { "page", page },
-        //                { "size", size }
-        //            };
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", result.Data.Count },
+                        { "total", result.TotalData },
+                        { "order", result.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
 
-        //        Dictionary<string, object> Result =
-        //            new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-        //            .Ok(result.Data, info);
-        //        return Ok(Result);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Dictionary<string, object> Result =
-        //            new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-        //            .Fail();
-        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-        //    }
-        //}
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
 
-        //[HttpPut("isPreparingTrue/{id}")]
-        //public async Task<IActionResult> PutIsPreparingTrue(int id, [FromBody]GarmentSubconUnitExpenditureNoteViewModel ViewModel)
-        //{
-        //    try
-        //    {
-        //        identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+        [HttpPut("isPreparingTrue/{id}")]
+        public async Task<IActionResult> PutIsPreparingTrue(int id, [FromBody] GarmentSubconUnitExpenditureNoteViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-        //        ViewModel.IsPreparing = true;
+                ViewModel.IsPreparing = true;
 
-        //        var model = mapper.Map<GarmentSubconUnitExpenditureNote>(ViewModel);
+                var model = mapper.Map<GarmentSubconUnitExpenditureNote>(ViewModel);
 
-        //        await facade.UpdateIsPreparing(id, model);
+                await facade.UpdateIsPreparing(id, model);
 
-        //        return NoContent();
-        //    }
-           
-        //    catch (Exception e)
-        //    {
-        //        Dictionary<string, object> Result =
-        //            new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-        //            .Fail();
-        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-        //    }
-        //}
+                return NoContent();
+            }
 
-        //[HttpPut("isPreparingFalse/{id}")]
-        //public async Task<IActionResult> PutIsPreparingFalse(int id, [FromBody]GarmentSubconUnitExpenditureNoteViewModel ViewModel)
-        //{
-        //    try
-        //    {
-        //        identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
 
-        //        ViewModel.IsPreparing = false;
+        [HttpPut("isPreparingFalse/{id}")]
+        public async Task<IActionResult> PutIsPreparingFalse(int id, [FromBody] GarmentSubconUnitExpenditureNoteViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-        //        var model = mapper.Map<GarmentSubconUnitExpenditureNote>(ViewModel);
+                ViewModel.IsPreparing = false;
 
-        //        await facade.UpdateIsPreparing(id, model);
+                var model = mapper.Map<GarmentSubconUnitExpenditureNote>(ViewModel);
 
-        //        return NoContent();
-        //    }
-            
-        //    catch (Exception e)
-        //    {
-        //        Dictionary<string, object> Result =
-        //            new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-        //            .Fail();
-        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-        //    }
-        //}
+                await facade.UpdateIsPreparing(id, model);
 
- 
+                return NoContent();
+            }
 
-       
-       
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+
+
+
+
     }
 }
