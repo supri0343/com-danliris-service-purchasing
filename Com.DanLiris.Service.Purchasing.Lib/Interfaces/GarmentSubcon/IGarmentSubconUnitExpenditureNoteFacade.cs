@@ -18,6 +18,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon
 		Task<int> Create(GarmentSubconUnitExpenditureNote GarmentSubconUnitExpenditureNote);
         Task<int> Update(int id, GarmentSubconUnitExpenditureNote GarmentSubconUnitExpenditureNote);
         Task<int> Delete(int id);
-       
+        ReadResponse<object> ReadForGPreparing(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
+        Task<int> UpdateIsPreparing(int id, GarmentSubconUnitExpenditureNote garmentSubconUnitExpenditureNote);
+
     }
 }
