@@ -642,12 +642,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             result.Columns.Add(new DataColumn() { ColumnName = "DPP IDR", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Embalase (Rp)", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Pendukung (Rp)", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Baku (Rp)", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Proses (Rp)", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PPN (Rp)", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "PPH (Rp)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Embalase", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Pendukung", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Bahan Baku", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Proses", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(String) });
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
@@ -725,7 +725,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                             Amount8 = data.Amount6;
                             break;
                     }
-                    result.Rows.Add(arrivalDate, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(Amount7, 2), Math.Round(Amount8, 2), data.CurrencyCode, data.Rate, Math.Round(Amount1, 2), Math.Round(Amount2, 2), Math.Round(Amount3, 2), Math.Round(Amount4, 2), Math.Round(Amount5, 2), Math.Round(Amount6, 2));
+                    result.Rows.Add(arrivalDate, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(Amount7, 2), Math.Round(Amount8, 2), data.CurrencyCode, data.Rate, Math.Round(Amount1 / data.Rate, 2), Math.Round(Amount2 / data.Rate, 2), Math.Round(Amount3 / data.Rate, 2) , Math.Round(Amount4 / data.Rate, 2), Math.Round(Amount5 / data.Rate, 2), Math.Round(Amount6 / data.Rate, 2));
                     index++;
                 }
 
