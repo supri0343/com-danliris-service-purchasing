@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
-            Document document = new Document(PageSize.A5.Rotate(), 15, 15, 15, 15);
+            Document document = new Document(PageSize.A4, 10, 10, 10, 10);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
@@ -398,7 +398,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             }
 
 
-            List<DateTimeOffset> createdDate = new List<DateTimeOffset> { model.CreatedUtc };
+            List<DateTimeOffset> createdDate = new List<DateTimeOffset> { model.Date };
             DateTimeOffset getDate = createdDate.Min(p => p);
 
             PdfPTable tableConfirm = new PdfPTable(2);
@@ -428,17 +428,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             if (model.PaymentMethod == "CASH")
             {
-                if ((getDate > getUrnDate && totalDays >= 14) || getDate > model.DueDate)
-                {
-                    
-                        document.Add(tableConfirm);
-                    
+                //if ((getDate > getUrnDate && totalDays > 14) || model.Date > model.DueDate)
+                if (getDate > getUrnDate && totalDays > 14)
+                {                    
+                    document.Add(tableConfirm);                    
                 }
             }
 
             if (model.PaymentMethod == "KREDIT")
             {
-                if (getUrnDate > getDate)
+                if (model.Date > model.DueDate)
                 {
                     document.Add(tableConfirm);
                 }
