@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -36,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            IGarmentUnitDeliveryOrderFacade unitDeliveryOrderFacade = validationContext == null ? null : (IGarmentUnitDeliveryOrderFacade)validationContext.GetService(typeof(IGarmentUnitDeliveryOrderFacade));
+            IGarmentSubconUnitDeliveryOrderFacade unitDeliveryOrderFacade = validationContext == null ? null : (IGarmentSubconUnitDeliveryOrderFacade)validationContext.GetService(typeof(IGarmentSubconUnitDeliveryOrderFacade));
 
             if (ExpenditureDate.Equals(DateTimeOffset.MinValue) || ExpenditureDate == null)
             {
