@@ -113,5 +113,35 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("download/mii")]
+        public async Task<IActionResult> GetXlsMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
+        {
+            try
+            {
+                byte[] xlsInBytes;
+
+                var xls = await importPurchasingBookReportFacade.GenerateExcelMII(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId);
+                //var xls = await importpurchasingbookreportfacade.generateexcel(no, unit, category, datefrom, dateto);
+
+                string filename = "Laporan Buku Pembelian Impor MII";
+
+                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+
+                if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+                filename += ".xlsx";
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }
