@@ -297,6 +297,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
             return Tuple.Create(result, result.Count);
         }
 
+
+        public Tuple<List<GarmentDailyPurchasingReportViewModel>, int> GetGDailyPurchasingReportbyDO(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc, int offset)
+        {
+            List<GarmentDailyPurchasingReportViewModel> query = GetGarmentDailyPurchasingReportQuery(unitName, supplierType, supplierName, dateFrom, dateTo, inputDate, jnsbc, offset).ToList();
+
+            var result = (from data in query
+                     group data by new {  data.DONo, data.CodeRequirement} into groupData
+                     select new GarmentDailyPurchasingReportViewModel
+                     {
+                         ArrivalDate = groupData.First().ArrivalDate,
+                         SupplierName = groupData.First().SupplierName,
+                         UnitName = groupData.First().UnitName,
+                         BCNo = groupData.First().BCNo,
+                         BCType = groupData.First().BCType,
+                         BillNo = groupData.First().BillNo,
+                         PaymentBill = groupData.First().PaymentBill,
+                         DONo = groupData.Key.DONo,
+                         InternNo = groupData.First().InternNo,
+                         ProductName = groupData.First().ProductName,
+                         CodeRequirement = groupData.Key.CodeRequirement,
+                         UOMUnit = groupData.First().UOMUnit,
+                         Quantity = groupData.Sum(s => (double)s.Quantity),
+                         Amount = Math.Round(groupData.Sum(s => Math.Round(s.Amount, 2)), 2),
+                         CurrencyCode = groupData.First().CurrencyCode,
+                         Rate = groupData.First().Rate,
+                         Amount6 = Math.Round(groupData.Sum(s => Math.Round((s.Amount * s.Rate), 2)), 2)
+                     }).ToList();
+            return Tuple.Create(result, result.Count);
+        }
+
+
         public MemoryStream GenerateExcelGDailyPurchasingReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc, int offset)
         {
             Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, inputDate, jnsbc, offset);
@@ -623,12 +654,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
         public MemoryStream GenerateExcelGDailyPurchasingReportMII(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc, int offset)
         {
-            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo,inputDate, jnsbc, offset);
+            Tuple<List<GarmentDailyPurchasingReportViewModel>, int> Data = this.GetGDailyPurchasingReportbyDO(unitName, supplierType, supplierName, dateFrom, dateTo,inputDate, jnsbc, offset);
 
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nama Unit", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Nama Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Nota", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bon Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bukti Bea Cukai", DataType = typeof(String) });
@@ -653,7 +684,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
 
             if (Data.Item2 == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", /*"",*/ "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -725,7 +756,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                             Amount8 = data.Amount6;
                             break;
                     }
-                    result.Rows.Add(arrivalDate, data.SupplierName, data.UnitName, data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(Amount7, 2), Math.Round(Amount8, 2), data.CurrencyCode, data.Rate, Math.Round(Amount1 / data.Rate, 2), Math.Round(Amount2 / data.Rate, 2), Math.Round(Amount3 / data.Rate, 2) , Math.Round(Amount4 / data.Rate, 2), Math.Round(Amount5 / data.Rate, 2), Math.Round(Amount6 / data.Rate, 2));
+                    result.Rows.Add(arrivalDate, data.SupplierName, /*data.UnitName,*/ data.BillNo, data.PaymentBill, data.BCNo, data.BCType, data.DONo, data.InternNo, data.ProductName, data.Quantity, data.UOMUnit, Math.Round(Amount7, 2), Math.Round(Amount8, 2), data.CurrencyCode, data.Rate, Math.Round(Amount1 / data.Rate, 2), Math.Round(Amount2 / data.Rate, 2), Math.Round(Amount3 / data.Rate, 2) , Math.Round(Amount4 / data.Rate, 2), Math.Round(Amount5 / data.Rate, 2), Math.Round(Amount6 / data.Rate, 2));
                     index++;
                 }
 
