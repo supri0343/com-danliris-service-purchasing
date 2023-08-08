@@ -696,6 +696,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var dt = new DataTable();
             dt.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
             dt.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "No Bon Penerimaan", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "No Faktur Pajak", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "No SPB/NI", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "No. Nota Koreksi", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Tanggal Nota Koreksi", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Kategori Pembelian", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Kategori Pembukuan", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Unit Pembelian", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Unit Pembukuan", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(decimal) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+
+            if (isValas)
+            {
+                dt.Columns.Add(new DataColumn() { ColumnName = "Kurs", DataType = typeof(string) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "DPP Valas", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "DPP (IDR)", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "PPN (IDR)", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "PPH (IDR)", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
+            }
+            else
+            {
+                dt.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
+            }
+
+            return dt;
+        }
+        private DataTable GetFormatReportExcelMII(bool isValas)
+        {
+            var dt = new DataTable();
+            dt.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
+            dt.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
             //dt.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
             //dt.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(string) });
             dt.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
@@ -951,7 +992,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         {
             var result = await GetReportDataV2byDO(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, isValas, divisionId);
             //var Data = reportResult.Reports;
-            var reportDataTable = GetFormatReportExcel(isValas);
+            var reportDataTable = GetFormatReportExcelMII(isValas);
             //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
             //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
             //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
