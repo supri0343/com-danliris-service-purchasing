@@ -225,7 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
             //var result = await facade.GetReport("Invalid URNNo", urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
-            var result = await facade.GetReportV2(string.Empty, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), It.IsAny<DateTime>(), 0);
+            var result = await facade.GetReportV2(string.Empty, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), It.IsAny<DateTime>(), It.IsAny<DateTime>(), 0);
 
             Assert.NotNull(result.Reports);
         }
@@ -247,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
             //var result = await facade.GetReportV2("Invalid URNNo", int.Parse(urn.UnitCode), int.Parse(pr.CategoryCode), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), int.Parse(urn.DivisionId));
-            var result = await facade.GetReportV2("Invalid URNNo", 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), It.IsAny<DateTime>(), 0);
+            var result = await facade.GetReportV2("Invalid URNNo", 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), It.IsAny<DateTime>(), It.IsAny<DateTime>(), 0);
 
             Assert.NotNull(result.Reports);
         }
@@ -268,7 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GenerateExcel(urn.URNNo, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), It.IsAny<DateTime>(), 0);
+            var result = await facade.GenerateExcel(urn.URNNo, 0, 0, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), It.IsAny<DateTime>(), It.IsAny<DateTime>(), 0);
             Assert.NotNull(result);
         }
 
@@ -289,7 +289,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
             //var result = await facade.GetReport("Invalid URNNo", urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
-            var result = await facade.GetReportDataImportPurchasing("", 1, 1, DateTime.Now.AddDays(-7), It.IsAny<DateTime>(), null, 1);
+            var result = await facade.GetReportDataImportPurchasing("", 1, 1, DateTime.Now.AddDays(-7), It.IsAny<DateTime>(), It.IsAny<DateTime>(), null, 1);
 
             Assert.NotNull(result);
         }
@@ -311,7 +311,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new ImportPurchasingBookReportFacade(serviceProvider, dbContext);
 
             //var result = await facade.GetReport("Invalid URNNo", urn.UnitCode, pr.CategoryCode, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
-            var result = await facade.GetReportDataImportPurchasingCorrection("", 1, 1, DateTime.Now.AddDays(-7), It.IsAny<DateTime>(), null, 1);
+            var result = await facade.GetReportDataImportPurchasingCorrection("", 1, 1, DateTime.Now.AddDays(-7), It.IsAny<DateTime>(), It.IsAny<DateTime>(), null, 1);
 
             Assert.NotNull(result);
         }
