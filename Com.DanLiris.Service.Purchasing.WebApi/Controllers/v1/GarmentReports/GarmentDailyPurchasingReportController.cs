@@ -29,13 +29,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             this.serviceProvider = serviceProvider;
         }
         [HttpGet]
-        public IActionResult GetReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc)
+        public IActionResult GetReport(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, string jnsbc)
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
             try
             {
-                var data = _facade.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, inputDate, jnsbc, offset);
+                var data = _facade.GetGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, inputDateFrom, inputDateTo, jnsbc, offset);
 
                 return Ok(new
                 {
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc,int offset)
+        public IActionResult GetXls(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, string jnsbc,int offset)
         {
 
             try
@@ -69,7 +69,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = _facade.GenerateExcelGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo,inputDate, jnsbc, offset);
+                var xls = _facade.GenerateExcelGDailyPurchasingReport(unitName, supplierType, supplierName, dateFrom, dateTo, inputDateFrom, inputDateTo, jnsbc, offset);
 
                 string filename = String.Format("Buku Harian Pembelian Garment - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("downloadMII")]
-        public IActionResult GetXlsMII(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, string jnsbc, int offset)
+        public IActionResult GetXlsMII(string unitName, bool supplierType, string supplierName, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, string jnsbc, int offset)
         {
 
             try
@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = _facade.GenerateExcelGDailyPurchasingReportMII(unitName, supplierType, supplierName, dateFrom, dateTo, inputDate, jnsbc, offset);
+                var xls = _facade.GenerateExcelGDailyPurchasingReportMII(unitName, supplierType, supplierName, dateFrom, dateTo, inputDateFrom, inputDateTo, jnsbc, offset);
 
                 string filename = String.Format("Buku Harian Pembelian Garment - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
