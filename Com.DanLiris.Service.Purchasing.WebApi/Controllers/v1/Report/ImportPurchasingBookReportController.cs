@@ -26,12 +26,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 
         //public async Task<IActionResult> Get(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         [HttpGet]
-        public async Task<IActionResult> Get(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
+        public async Task<IActionResult> Get(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, int divisionId)
         {
             try
             {
                 //var data = await importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
-                var data = await importPurchasingBookReportFacade.GetReportV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId);
+                var data = await importPurchasingBookReportFacade.GetReportV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, divisionId);
                 //var data = importPurchasingBookReportService.GetReport();
 
                 return Ok(new
@@ -55,13 +55,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 
         //public async Task<IActionResult> GetPdf(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         [HttpGet("pdf")]
-        public async Task<IActionResult> GetPdf(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
+        public async Task<IActionResult> GetPdf(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, int divisionId)
         {
             try
             {
                 var clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                var data = await importPurchasingBookReportFacade.GetReportV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,inputDate, divisionId);
+                var data = await importPurchasingBookReportFacade.GetReportV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,inputDateFrom, inputDateTo, divisionId);
                 //var data = await importPurchasingBookReportFacade.GetReport(no, unit, category, dateFrom, dateTo);
                 //var data = importPurchasingBookReportService.GetReport();
 
@@ -85,13 +85,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
 
         //public async Task<IActionResult> GetXls(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         [HttpGet("download")]
-        public async Task<IActionResult> GetXls(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
+        public async Task<IActionResult> GetXls(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, int divisionId)
         {
             try
             {
                 byte[] xlsInBytes;
 
-                var xls = await importPurchasingBookReportFacade.GenerateExcel(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,inputDate, divisionId);
+                var xls = await importPurchasingBookReportFacade.GenerateExcel(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, divisionId);
                 //var xls = await importpurchasingbookreportfacade.generateexcel(no, unit, category, datefrom, dateto);
 
                 string filename = "Laporan Buku Pembelian Impor";
@@ -115,13 +115,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report
         }
 
         [HttpGet("download/mii")]
-        public async Task<IActionResult> GetXlsMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
+        public async Task<IActionResult> GetXlsMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, int divisionId)
         {
             try
             {
                 byte[] xlsInBytes;
 
-                var xls = await importPurchasingBookReportFacade.GenerateExcelMII(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId);
+                var xls = await importPurchasingBookReportFacade.GenerateExcelMII(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, divisionId);
                 //var xls = await importpurchasingbookreportfacade.generateexcel(no, unit, category, datefrom, dateto);
 
                 string filename = "Laporan Buku Pembelian Impor MII";
