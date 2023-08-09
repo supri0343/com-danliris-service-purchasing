@@ -27,11 +27,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
         {
             var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
             //mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
-            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
+            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
 
 
             var controller = new LocalPurchasingBookReportController(mockFacade.Object);
-            var response = await controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>());
+            var response = await controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>());
 
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -40,10 +40,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
         public async Task Should_Failed_GetLocalPurchasingBookReport_WithException()
         {
             var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
-            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ThrowsAsync(new Exception());
+            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ThrowsAsync(new Exception());
 
             var controller = new LocalPurchasingBookReportController(mockFacade.Object);
-            var response = await controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>());
+            var response = await controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(),  It.IsAny<int>());
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -52,14 +52,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
         public async Task Should_Success_GetLocalPurchasingBookReportXls()
         {
             var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
-            mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(),  It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new MemoryStream());
+            mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new MemoryStream());
 
             var controller = new LocalPurchasingBookReportController(mockFacade.Object);
-            var response = await controller.GetXls(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), false, It.IsAny<int>());
+            var response = await controller.GetXls(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), false, It.IsAny<int>());
 
             Assert.NotNull(response);
 
-            response = await controller.GetXls(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), true, It.IsAny<int>());
+            response = await controller.GetXls(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), true, It.IsAny<int>());
 
             Assert.NotNull(response);
         }
@@ -68,10 +68,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
         public async Task Should_Failed_GetLocalPurchasingBookReportXls_WithException()
         {
             var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
-            mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ThrowsAsync(new Exception());
+            mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ThrowsAsync(new Exception());
 
             var controller = new LocalPurchasingBookReportController(mockFacade.Object);
-            var response = await controller.GetXls(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>());
+            var response = await controller.GetXls(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>());
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -80,7 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
         public async Task Should_Success_GetLocalPurchasingBookReport_Pdf()
         {
             var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
-            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new LocalPurchasingBookReportViewModel()
+            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new LocalPurchasingBookReportViewModel()
             {
                 CategorySummaries = new List<Summary>() { new Summary { AccountingLayoutIndex = 0, Category = "test", CurrencyCode = "test", SubTotal = 10, SubTotalCurrency = 10 } },
                 CategorySummaryTotal = 1,
@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
                 }
             };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
-            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), false, It.IsAny<int>());
+            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), false, It.IsAny<int>());
 
             Assert.NotNull(response);
         }
@@ -119,7 +119,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
             //    Reports = new List<PurchasingReport>() { new PurchasingReport() }
             //});
 
-            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new LocalPurchasingBookReportViewModel()
+            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ReturnsAsync(new LocalPurchasingBookReportViewModel()
             {
                 CategorySummaries = new List<Summary>() { new Summary { AccountingLayoutIndex = 0, Category = "test", CurrencyCode = "test", SubTotal = 10, SubTotalCurrency = 10 } },
                 CategorySummaryTotal = 1,
@@ -139,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
                 }
             };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
-            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), true, It.IsAny<int>());
+            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), true, It.IsAny<int>());
 
             Assert.NotNull(response);
         }
@@ -148,7 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
         public async Task Should_Failed_GetLocalPurchasingBookReport_Pdf_WithException()
         {
             var mockFacade = new Mock<ILocalPurchasingBookReportFacade>();
-            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ThrowsAsync(new Exception());
+            mockFacade.Setup(facade => facade.GetReportV2(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>())).ThrowsAsync(new Exception());
 
             var controller = new LocalPurchasingBookReportController(mockFacade.Object)
             {
@@ -161,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
                 }
             };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
-            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>());
+            var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<bool>(), It.IsAny<int>());
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
