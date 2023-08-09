@@ -108,10 +108,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     istax = x.istax,
                     taxrate = x.taxrate,
                     amount = x.amount,
-                    coaname = x.code == "BB" ? "PERSEDIAAN BAHAN BAKU(AG2)" : (x.code == "BP" ? "PERSEDIAAN PEMBANTU(AG2)" : "PERSEDIAAN EMBALANCE(AG2)"),
+                    coaname = x.code == "BB" ? "BPP PEMBELIAN BAHAN BAKU" : (x.code == "BP" ? "BPP PEMBELIAN BAHAN PEMBANTU" : "BPP PEMBELIAN BAHAN EMBALASE"),
                     credit = 0,
                     debit = x.amount,
-                    account = x.code == "BB" ? "114.03.2.000" : (x.code == "BP" ? "114.04.2.000" : "114.05.2.000")                
+                    account = x.code == "BB" ? "590100" : (x.code == "BP" ? "590300" : "590400")
                 };
                 data.Add(debit1);
 
@@ -132,10 +132,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     istax = x.istax,
                     taxrate = x.taxrate,
                     amount = x.amount,
-                    coaname = "       HUTANG USAHA IMPORT(AG2)",
+                    coaname = "       HUTANG USAHA IMPOR - OPERASIONAL",
                     debit = 0,
                     credit = x.amount,                   
-                    account = "211.00.3.000"
+                    account = "301301"
                 };
 
                 data.Add(kredit);                

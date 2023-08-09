@@ -62,15 +62,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
                          join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id
                          where a.URNType == "PEMBELIAN" && c.SupplierIsImport == true
-                               && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")
-                               && c.DOCurrencyCode != "IDR" && a.UnitCode != "SMP1" && e.CodeRequirment == "BB"
+                               && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")                             
                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
-                         group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new { a.UnitCode, c.UseVat, c.VatRate } into G
+                         group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new { e.CodeRequirment, c.UseVat, c.VatRate } into G
 
                          select new GarmentImportPurchasingJournalReportTempViewModel
                          {
-                             UnitCode = G.Key.UnitCode,
-                             //Code = G.Key.CodeRequirment,
+                             //UnitCode = G.Key.UnitCode,
+                             Code = G.Key.CodeRequirment,
                              //PaymentType = G.Key.PaymentType,
                              IsVat = G.Key.UseVat == true ? "Y" : "N",
                              VatRate = (double)G.Key.VatRate,
@@ -80,112 +79,114 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          });
 
             var Query1 = (from x in Querya
-                          group new { Amt = x.Amount } by new { x.UnitCode } into G
+                          group new { Amt = x.Amount } by new { x.Code } into G
 
                           select new GarmentImportPurchasingJournalReportTemp1ViewModel
                           {
-                              UnitCode = G.Key.UnitCode,
+                              Code = G.Key.Code,
                               Amount = Math.Round(G.Sum(c => c.Amt), 2)
                           });
 
             var NewQuery1 = from a in Query1
                            select new GarmentImportPurchasingJournalReportViewModel
                            {
-
-                               //remark = a.Code == "BB" && a.UnitCode == "C1A" ? "PERSEDIAAN BHN BAKU - K1A" : (a.Code == "BB" && a.UnitCode == "C1B" ? "PERSEDIAAN BHN BAKU - K1B" : (a.Code == "BB" && a.UnitCode == "C2A" ? "PERSEDIAAN BHN BAKU - K2A" : (a.Code == "BB" && a.UnitCode == "C2B" ? "PERSEDIAAN BHN BAKU - K2B" : "PERSEDIAAN BHN BAKU - K2C"))),
-                               remark = a.UnitCode == "C1A" ? "PERSEDIAAN BHN BAKU - K1A" : (a.UnitCode == "C1B" ? "PERSEDIAAN BHN BAKU - K1B" : (a.UnitCode == "C2A" ? "PERSEDIAAN BHN BAKU - K2A" : (a.UnitCode == "C2B" ? "PERSEDIAAN BHN BAKU - K2B" : "PERSEDIAAN BHN BAKU - K2C"))),
+                               //remark = a.UnitCode == "C1A" ? "PERSEDIAAN BHN BAKU - K1A" : (a.UnitCode == "C1B" ? "PERSEDIAAN BHN BAKU - K1B" : (a.UnitCode == "C2A" ? "PERSEDIAAN BHN BAKU - K2A" : (a.UnitCode == "C2B" ? "PERSEDIAAN BHN BAKU - K2B" : "PERSEDIAAN BHN BAKU - K2C"))),
+                               remark = a.Code == "BB" ? "BPP PEMBELIAN BAHAN BAKU" : (a.Code == "BP" ? "BPP PEMBELIAN BAHAN PEMBANTU" : "BPP PEMBELIAN BAHAN EMBALASE"),
                                credit = 0,
                                debit = a.Amount,
-                               account = a.UnitCode == "C1A" ? "11507.41" : (a.UnitCode == "C1B" ? "11507.42" : (a.UnitCode == "C2A" ? "11507.43" : (a.UnitCode == "C2B" ? "11507.44" : "11507.45")))
+                               //account = a.UnitCode == "C1A" ? "11507.41" : (a.UnitCode == "C1B" ? "11507.42" : (a.UnitCode == "C2A" ? "11507.43" : (a.UnitCode == "C2B" ? "11507.44" : "11507.45")))
+                               account = a.Code == "BB" ? "590100" : (a.Code == "BP" ? "590300" : "590400")
                            };
-            //
-            var Queryb = (from a in dbContext.GarmentUnitReceiptNotes
-                          join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                          join e in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals e.Id
-                          join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
-                          join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id
-                          where a.URNType == "PEMBELIAN" && c.SupplierIsImport == true
-                                && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")
-                                && c.DOCurrencyCode != "IDR" && a.UnitCode != "SMP1" && e.CodeRequirment == "BP"
-                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
-                          group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new { a.UnitCode, c.UseVat, c.VatRate } into G
-
-                          select new GarmentImportPurchasingJournalReportTempViewModel
-                          {
-                              UnitCode = G.Key.UnitCode,
-                              //Code = G.Key.CodeRequirment,
-                              //PaymentType = G.Key.PaymentType,
-                              IsVat = G.Key.UseVat == true ? "Y" : "N",
-                              VatRate = (double)G.Key.VatRate,
-                              //IsTax = G.Key.UseIncomeTax == true ? "Y" : "N",
-                              //TaxRate = (double)G.Key.IncomeTaxRate,
-                              Amount = Math.Round(G.Sum(c => c.Price * c.Qty * (decimal)c.Rate), 2)
-                          });
-
-            var Query2 = (from x in Queryb
-                          group new { Amt = x.Amount } by new { x.UnitCode } into G
-
-                          select new GarmentImportPurchasingJournalReportTemp1ViewModel
-                          {
-                              UnitCode = G.Key.UnitCode,
-                              Amount = Math.Round(G.Sum(c => c.Amt), 2)
-                          });
-
-            var NewQuery2 = from a in Query2
-                            select new GarmentImportPurchasingJournalReportViewModel
-                            {
-                                remark = a.UnitCode == "C1A" ? "PERSEDIAAN B PBT  - K1A" : (a.UnitCode == "C1B" ? "PERSEDIAAN B PBT  - K1B" : (a.UnitCode == "C2A" ? "PERSEDIAAN B PBT  - K2A" : (a.UnitCode == "C2B" ? "PERSEDIAAN B PBT  - K2B" : "PERSEDIAAN B PBT  - K2C"))),
-                                credit = 0,
-                                debit = a.Amount,
-                                account = a.UnitCode == "C1A" ? "11521.41" : (a.UnitCode == "C1B" ? "11521.42" : (a.UnitCode == "C2A" ? "11521.43" : (a.UnitCode == "C2B" ? "11521.44" : "11521.45")))
-                            };
-            //
 
             //
-            var Queryc = (from a in dbContext.GarmentUnitReceiptNotes
-                          join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                          join e in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals e.Id
-                          join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
-                          join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id
-                          where a.URNType == "PEMBELIAN" && c.SupplierIsImport == true
-                                && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")
-                                && c.DOCurrencyCode != "IDR" && a.UnitCode != "SMP1" && e.CodeRequirment == "BE"
-                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
-                          group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new { a.UnitCode, c.UseVat, c.VatRate } into G
+            //var Queryb = (from a in dbContext.GarmentUnitReceiptNotes
+            //              join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //              join e in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals e.Id
+            //              join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
+            //              join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id
+            //              where a.URNType == "PEMBELIAN" && c.SupplierIsImport == true
+            //                    && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")
+            //                    && c.DOCurrencyCode != "IDR" && a.UnitCode != "SMP1" && e.CodeRequirment == "BP"
+            //                    && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+            //              group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new { a.UnitCode, c.UseVat, c.VatRate } into G
 
-                          select new GarmentImportPurchasingJournalReportTempViewModel
-                          {
-                              UnitCode = G.Key.UnitCode,
-                              //Code = G.Key.CodeRequirment,
-                              //PaymentType = G.Key.PaymentType,
-                              IsVat = G.Key.UseVat == true ? "Y" : "N",
-                              VatRate = (double)G.Key.VatRate,
-                              //IsTax = G.Key.UseIncomeTax == true ? "Y" : "N",
-                              //TaxRate = (double)G.Key.IncomeTaxRate,
-                              Amount = Math.Round(G.Sum(c => c.Price * c.Qty * (decimal)c.Rate), 2)
-                          });
+            //              select new GarmentImportPurchasingJournalReportTempViewModel
+            //              {
+            //                  UnitCode = G.Key.UnitCode,
+            //                  //Code = G.Key.CodeRequirment,
+            //                  //PaymentType = G.Key.PaymentType,
+            //                  IsVat = G.Key.UseVat == true ? "Y" : "N",
+            //                  VatRate = (double)G.Key.VatRate,
+            //                  //IsTax = G.Key.UseIncomeTax == true ? "Y" : "N",
+            //                  //TaxRate = (double)G.Key.IncomeTaxRate,
+            //                  Amount = Math.Round(G.Sum(c => c.Price * c.Qty * (decimal)c.Rate), 2)
+            //              });
 
-            var Query3 = (from x in Queryc
-                          group new { Amt = x.Amount } by new { x.UnitCode } into G
+            //var Query2 = (from x in Queryb
+            //              group new { Amt = x.Amount } by new { x.UnitCode } into G
 
-                          select new GarmentImportPurchasingJournalReportTemp1ViewModel
-                          {
-                              UnitCode = G.Key.UnitCode,
-                              Amount = Math.Round(G.Sum(c => c.Amt), 2)
-                          });
+            //              select new GarmentImportPurchasingJournalReportTemp1ViewModel
+            //              {
+            //                  UnitCode = G.Key.UnitCode,
+            //                  Amount = Math.Round(G.Sum(c => c.Amt), 2)
+            //              });
 
-            var NewQuery3 = from a in Query3
-                            select new GarmentImportPurchasingJournalReportViewModel
-                            {
-                                remark = a.UnitCode == "C1A" ? "PERSEDIAAN PEMBUNGKUS -K1A" : (a.UnitCode == "C1B" ? "PERSEDIAAN PEMBUNGKUS -K1B" : (a.UnitCode == "C2A" ? "PERSEDIAAN PEMBUNGKUS -K2A" : (a.UnitCode == "C2B" ? "PERSEDIAAN PEMBUNGKUS -K2B" : "PERSEDIAAN PEMBUNGKUS -K2C"))),
-                                credit = 0,
-                                debit = a.Amount,
-                                account = a.UnitCode == "C1A" ? "11519.41" : (a.UnitCode == "C1B" ? "11519.42" : (a.UnitCode == "C2A" ? "11519.43" : (a.UnitCode == "C2B" ? "11519.44" : "11519.45")))
-                            };
+            //var NewQuery2 = from a in Query2
+            //                select new GarmentImportPurchasingJournalReportViewModel
+            //                {
+            //                    remark = a.UnitCode == "C1A" ? "PERSEDIAAN B PBT  - K1A" : (a.UnitCode == "C1B" ? "PERSEDIAAN B PBT  - K1B" : (a.UnitCode == "C2A" ? "PERSEDIAAN B PBT  - K2A" : (a.UnitCode == "C2B" ? "PERSEDIAAN B PBT  - K2B" : "PERSEDIAAN B PBT  - K2C"))),
+            //                    credit = 0,
+            //                    debit = a.Amount,
+            //                    account = a.UnitCode == "C1A" ? "11521.41" : (a.UnitCode == "C1B" ? "11521.42" : (a.UnitCode == "C2A" ? "11521.43" : (a.UnitCode == "C2B" ? "11521.44" : "11521.45")))
+            //                };
+            ////
+
+            ////
+            //var Queryc = (from a in dbContext.GarmentUnitReceiptNotes
+            //              join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //              join e in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals e.Id
+            //              join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
+            //              join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id
+            //              where a.URNType == "PEMBELIAN" && c.SupplierIsImport == true
+            //                    && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")
+            //                    && c.DOCurrencyCode != "IDR" && a.UnitCode != "SMP1" && e.CodeRequirment == "BE"
+            //                    && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+            //              group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new { a.UnitCode, c.UseVat, c.VatRate } into G
+
+            //              select new GarmentImportPurchasingJournalReportTempViewModel
+            //              {
+            //                  UnitCode = G.Key.UnitCode,
+            //                  //Code = G.Key.CodeRequirment,
+            //                  //PaymentType = G.Key.PaymentType,
+            //                  IsVat = G.Key.UseVat == true ? "Y" : "N",
+            //                  VatRate = (double)G.Key.VatRate,
+            //                  //IsTax = G.Key.UseIncomeTax == true ? "Y" : "N",
+            //                  //TaxRate = (double)G.Key.IncomeTaxRate,
+            //                  Amount = Math.Round(G.Sum(c => c.Price * c.Qty * (decimal)c.Rate), 2)
+            //              });
+
+            //var Query3 = (from x in Queryc
+            //              group new { Amt = x.Amount } by new { x.UnitCode } into G
+
+            //              select new GarmentImportPurchasingJournalReportTemp1ViewModel
+            //              {
+            //                  UnitCode = G.Key.UnitCode,
+            //                  Amount = Math.Round(G.Sum(c => c.Amt), 2)
+            //              });
+
+            //var NewQuery3 = from a in Query3
+            //                select new GarmentImportPurchasingJournalReportViewModel
+            //                {
+            //                    remark = a.UnitCode == "C1A" ? "PERSEDIAAN PEMBUNGKUS -K1A" : (a.UnitCode == "C1B" ? "PERSEDIAAN PEMBUNGKUS -K1B" : (a.UnitCode == "C2A" ? "PERSEDIAAN PEMBUNGKUS -K2A" : (a.UnitCode == "C2B" ? "PERSEDIAAN PEMBUNGKUS -K2B" : "PERSEDIAAN PEMBUNGKUS -K2C"))),
+            //                    credit = 0,
+            //                    debit = a.Amount,
+            //                    account = a.UnitCode == "C1A" ? "11519.41" : (a.UnitCode == "C1B" ? "11519.42" : (a.UnitCode == "C2A" ? "11519.43" : (a.UnitCode == "C2B" ? "11519.44" : "11519.45")))
+            //                };
             //         
-            List<GarmentImportPurchasingJournalReportViewModel> CombineData = NewQuery1.Union(NewQuery2).Union(NewQuery3).ToList();
 
-            var sumquery = CombineData.ToList()
+            //List<GarmentImportPurchasingJournalReportViewModel> CombineData = NewQuery1.Union(NewQuery2).Union(NewQuery3).ToList();
+
+            var sumquery = NewQuery1.ToList()
                    .GroupBy(x => new { x.remark, x.account }, (key, group) => new
                    {
                        Remark = key.remark,
@@ -205,35 +206,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 data.Add(result);
             }
 
-            //if (NewQuery1.ToList().Count == 0)
-            //{
-            //    var stock1 = new GarmentImportPurchasingJournalReportViewModel
-            //    {
-            //        remark = "PERSEDIAAN BAHAN BAKU(AG2)",
-            //        debit = 0,
-            //        credit = 0,
-            //        account = "114.03.2.000"
-            //    };
-            //    data.Add(stock1);
+            if (NewQuery1.ToList().Count == 0)
+            {
+                var stock1 = new GarmentImportPurchasingJournalReportViewModel
+                {
+                    remark = "BPP PEMBELIAN BAHAN BAKU",
+                    debit = 0,
+                    credit = 0,
+                    account = "590100"
+                };
+                data.Add(stock1);
 
-            //    var stock2 = new GarmentImportPurchasingJournalReportViewModel
-            //    {
-            //        remark = "PERSEDIAAN PEMBANTU(AG2)",
-            //        debit = 0,
-            //        credit = 0,
-            //        account = "114.04.2.000"
-            //    };
-            //    data.Add(stock2);
+                var stock2 = new GarmentImportPurchasingJournalReportViewModel
+                {
+                    remark = "BPP PEMBELIAN BAHAN PEMBANTU",
+                    debit = 0,
+                    credit = 0,
+                    account = "590300"
+                };
+                data.Add(stock2);
 
-            //    var stock3 = new GarmentImportPurchasingJournalReportViewModel
-            //    {
-            //        remark = "PERSEDIAAN EMBALANCE(AG2)",
-            //        debit = 0,
-            //        credit = 0,
-            //        account = "114.05.2.000"
-            //    };
-            //    data.Add(stock3);
-            //}
+                var stock3 = new GarmentImportPurchasingJournalReportViewModel
+                {
+                    remark = "BPP PEMBELIAN BAHAN EMBALASE",
+                    debit = 0,
+                    credit = 0,
+                    account = "590400"
+                };
+                data.Add(stock3);
+            }
 
             //var PPNMsk = new GarmentImportPurchasingJournalReportViewModel
             //{
@@ -272,34 +273,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             ////if (Credit1.credit > 0)
             ////{
             //data.Add(Credit1);
-            ////}
-
+            ////} 	          
+                
             var Credit = new GarmentImportPurchasingJournalReportViewModel
             {
-                remark = "        UTANG USAHA IMPOR - OPERASIONAL",
+                remark = "        HUTANG USAHA IMPOR - OPERASIONAL",
                 debit = 0,
                 //credit = Query1.Sum(a => a.Amount) + PPNMsk.debit - (PPH.credit + Credit1.credit),
                 credit = Query1.Sum(a => a.Amount),
                 //credit = Query.Where(a => a.PaymentType == "T/T AFTER" || a.PaymentType == "T/T BEFORE").Sum(a => a.Amount),
-                account = "21203.01"
+                account = "301301"
             };    
-
 
             if (Credit.credit > 0)
             {
                 data.Add(Credit);
             }
-            //else
-            //{
-            //    var hutang = new GarmentImportPurchasingJournalReportViewModel
-            //    {
-            //        remark = "       HUTANG USAHA IMPOR(AG2)",
-            //        debit = 0,
-            //        credit = 0,
-            //        account = "211.00.3.000"
-            //    };
-            //    data.Add(hutang);
-            //}
+            else
+            {
+                var hutang = new GarmentImportPurchasingJournalReportViewModel
+                {
+                    remark = "       HUTANG USAHA IMPOR - OPERASIONAL",
+                    debit = 0,
+                    credit = 0,
+                    account = "301301"
+                };
+                data.Add(hutang);
+            }
 
             var total = new GarmentImportPurchasingJournalReportViewModel
             {
@@ -314,17 +314,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             {
                 data.Add(total);
             }
-            //else
-            //{
-            //    var jumlah = new GarmentImportPurchasingJournalReportViewModel
-            //    {
-            //        remark = "",
-            //        debit = 0,
-            //        credit = 0,
-            //        account = "J U M L A H"
-            //    };
-            //    data.Add(jumlah);
-            //}
+            else
+            {
+                var jumlah = new GarmentImportPurchasingJournalReportViewModel
+                {
+                    remark = "",
+                    debit = 0,
+                    credit = 0,
+                    account = "J U M L A H"
+                };
+                data.Add(jumlah);
+            }
 
             return data;
         }

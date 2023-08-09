@@ -1419,6 +1419,78 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         }
 
+        public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2ReceiptNote(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
+        {
+            var dataReceiptNote = Task.Run(() => GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId)).Result;
+            var dataReceiptNoteCorrection = Task.Run(() => GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId)).Result;
+
+            var reportReceipt = new List<PurchasingReport>();
+            reportReceipt.AddRange(dataReceiptNote);
+            reportReceipt.AddRange(dataReceiptNoteCorrection);
+
+            var reportResult = new LocalPurchasingBookReportViewModel();
+
+            //reportResult.Reports = reportReceipt.OrderBy(data => data.URNId).OrderBy(data => data.UPONo).ThenBy(data => data.DataSourceSort).ToList();
+
+            reportResult.Reports = reportReceipt.GroupBy(x => new { x.DONo }).Select(s => new PurchasingReport()
+            {
+                DataSourceSort = 1,
+                CategoryName = s.First().CategoryName,
+                CategoryCode = s.First().CategoryCode,
+                AccountingCategoryName = s.First().AccountingCategoryName,
+                AccountingCategoryCode = s.First().AccountingCategoryCode,
+                AccountingLayoutIndex = s.First().AccountingLayoutIndex,
+                CurrencyRate = (decimal)s.First().CurrencyRate,
+                DONo = s.Key.DONo,
+                DPP = s.Sum(z => z.DPP),
+                DPPCurrency = s.First().DPPCurrency,
+                InvoiceNo = s.First().InvoiceNo,
+                VATNo = s.First().VATNo,
+                IPONo = s.First().IPONo,
+                VAT = s.Sum(z => z.VAT),
+                Total = s.Sum(z => z.Total),
+                TotalCurrency = s.Sum(z => z.TotalCurrency),
+                ProductName = s.First().ProductName,
+                ReceiptDate = s.First().ReceiptDate,
+                SupplierCode = s.First().SupplierCode,
+                SupplierName = s.First().SupplierName,
+                UnitName = s.First().UnitName,
+                UnitCode = s.First().UnitCode,
+                AccountingUnitName = s.First().AccountingUnitName,
+                AccountingUnitCode = s.First().AccountingUnitCode,
+                UPONo = s.First().UPONo,
+                URNNo = s.First().URNNo,
+                IsUseVat = s.First().IsUseVat,
+                CurrencyCode = s.First().CurrencyCode,
+                Quantity = s.Sum(z => z.Quantity),
+                Uom = s.First().Uom,
+                Remark = s.First().Remark,
+                IncomeTax = s.First().IncomeTax,
+                IncomeTaxBy = s.First().IncomeTaxBy,
+                URNId = s.First().URNId,
+                CorrectionDate = s.First().CorrectionDate
+            }).ToList().OrderBy(data => data.URNId).OrderBy(data => data.UPONo).ThenBy(data => data.DataSourceSort).ToList();
+
+            reportResult.CategorySummaries = reportResult.Reports
+                        .GroupBy(report => new { report.AccountingCategoryName })
+                        .Select(report => new Summary()
+                        {
+                            Category = report.Key.AccountingCategoryName,
+                            SubTotal = report.Sum(sum => sum.TotalCurrency),
+                            AccountingLayoutIndex = report.Select(item => item.AccountingLayoutIndex).FirstOrDefault()
+                        }).OrderBy(order => order.AccountingLayoutIndex).ToList();
+            reportResult.CurrencySummaries = reportResult.Reports
+                .GroupBy(report => new { report.CurrencyCode })
+                .Select(report => new Summary()
+                {
+                    CurrencyCode = report.Key.CurrencyCode,
+                    SubTotal = report.Sum(sum => sum.Total),
+                    SubTotalCurrency = report.Sum(sum => sum.TotalCurrency)
+                }).OrderBy(order => order.CurrencyCode).ToList();
+            return reportResult;
+
+        }
+
         //public Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
         //{
         //    return GetReportData(no, unit, category, dateFrom, dateTo);
@@ -1431,6 +1503,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         public Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
         {
             return GetReportDataV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId);
+        }
+
+        public Task<LocalPurchasingBookReportViewModel> GetReportV2ReceiptNote(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
+        {
+            return GetReportDataV2ReceiptNote(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId);
         }
 
         //public async Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo)
@@ -1658,6 +1735,162 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 return stream;
             }
         }
+
+        public async Task<MemoryStream> GenerateExcelMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId)
+        {
+            var result = await GetReportV2ReceiptNote(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, divisionId);
+            //var Data = reportResult.Reports;
+            var reportDataTable = new DataTable();
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(string) });
+            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
+            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Bon Penerimaan", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Faktur Pajak", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No SPB/NI", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No. Nota Koreksi", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal Nota Koreksi", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori Pembelian", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori Pembukuan", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Unit Pembelian", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Unit Pembukuan", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB Tanggal", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB No", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PIB BM", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PPH Impor", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PPN Impor", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Ket. Nilai Import", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP Valas", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(decimal) });
+            reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
+
+            var categoryDataTable = new DataTable();
+            categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
+            categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
+
+            var currencyDataTable = new DataTable();
+            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
+            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
+
+            if (result.Reports.Count > 0)
+            {
+                foreach (var report in result.Reports)
+                {
+                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
+                    var dateCorrection = report.CorrectionDate.HasValue ? report.CorrectionDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
+                    var datePib = report.PIBDate.HasValue ? report.PIBDate.GetValueOrDefault().ToString("MM/dd/yyyy") : string.Empty;
+                    var supplierCode = report.SupplierCode;
+                    var supplierName = report.SupplierName.Substring(report.SupplierName.IndexOf("-") + 2);
+                    reportDataTable.Rows.Add(dateReceipt, supplierCode, supplierName, /*report.ProductName, report.IPONo,*/ report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, datePib, report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
+                }
+                foreach (var categorySummary in result.CategorySummaries)
+                    categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
+
+                foreach (var currencySummary in result.CurrencySummaries)
+                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.SubTotal, currencySummary.SubTotalCurrency);
+            }
+
+            using (var package = new ExcelPackage())
+            {
+                var company = "PT DAN LIRIS";
+                var title = "BUKU PEMBELIAN Import";
+                var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):MM/dd/yyyy}";
+
+                var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
+                worksheet.Cells["A1"].Value = company;
+                worksheet.Cells["A2"].Value = title;
+                worksheet.Cells["A3"].Value = period;
+
+                #region PrintHeader
+                var rowStartHeader = 4;
+                var colStartHeader = 1;
+
+                foreach (var columns in reportDataTable.Columns)
+                {
+                    DataColumn column = (DataColumn)columns;
+                    if (column.ColumnName.Contains("PIB Tanggal"))
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = "Tanggal";
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Font.Bold = true;
+
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = "PIB";
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 5].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 5].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 5].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 5].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 5].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                    }
+                    else if (column.ColumnName == "Mata Uang")
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Font.Bold = true;
+
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = "Pembelian";
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 1].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 1].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+
+                    }
+                    else if (column.ColumnName == "PIB No" ||
+                        column.ColumnName == "PIB BM" ||
+                        column.ColumnName == "PPH (IDR)" ||
+                        column.ColumnName == "PIB BM" ||
+                        column.ColumnName == "PPH Impor" ||
+                        column.ColumnName == "PPN Impor" ||
+                        column.ColumnName == "Ket. Nilai Import" ||
+                        column.ColumnName == "DPP Valas")
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName.Replace("PIB ", "");
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                    }
+                    else
+                    {
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+
+
+
+                    }
+                    colStartHeader += 1;
+                }
+                #endregion
+
+                worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false);
+                for (int i = 6; i < result.Reports.Count + 6; i++)
+                {
+                    for (int j = 1; j <= reportDataTable.Columns.Count; j++)
+                    {
+                        worksheet.Cells[i, j].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                    }
+                }
+                worksheet.Cells[$"A{6 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells[$"A{6 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+
+                return stream;
+            }
+        }
     }
 
     public interface IImportPurchasingBookReportFacade
@@ -1667,5 +1900,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId);
         //Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo);
         Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId);
+        Task<MemoryStream> GenerateExcelMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, int divisionId);
     }
 }
