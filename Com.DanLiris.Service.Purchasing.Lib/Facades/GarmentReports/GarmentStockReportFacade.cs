@@ -115,8 +115,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             a.IsDeleted == false && b.IsDeleted == false
                                 //&& c.IsDeleted == false && d.IsDeleted == false
                               &&
-                              b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
-                              && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                              b.ReceiptDate.AddHours(offset).Date >= lastdate.Date
+                              && b.ReceiptDate.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
                             select new GarmentStockReportViewModelTemp
@@ -172,8 +172,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 //&& urnitem.IsDeleted == false 
 
                                &&
-                               b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
-                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                               b.ExpenditureDate.AddHours(offset).Date >= lastdate.Date
+                               && b.ExpenditureDate.AddHours(offset).Date < DateFrom.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                && categories1.Contains(a.ProductName)
                             select new GarmentStockReportViewModelTemp
@@ -228,8 +228,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 //&& c.IsDeleted == false && d.IsDeleted == false
                                 && e.IsDeleted == false && g.IsDeleted == false
                              &&
-                             g.CreatedUtc.AddHours(offset).Date >= lastdate.Date
-                             && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                             g.CorrectionDate.AddHours(offset).Date >= lastdate.Date
+                             && g.CorrectionDate.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
                              select new GarmentStockReportViewModelTemp
@@ -301,8 +301,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 //&& c.IsDeleted == false && d.IsDeleted == false &&
                           
 
-                              b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-                              && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                              b.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
+                              && b.ReceiptDate.AddHours(offset).Date <= DateTo.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
                           select new GarmentStockReportViewModelTemp
@@ -354,8 +354,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           where a.IsDeleted == false && b.IsDeleted == false &&
                                 //&& c.IsDeleted == false && d.IsDeleted == false
                                 //&& urnitem.IsDeleted == false &&
-                               b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-                               && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                               b.ExpenditureDate.AddHours(offset).Date >= DateFrom.Date
+                               && b.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                && categories1.Contains(a.ProductName)
                           select new GarmentStockReportViewModelTemp
@@ -408,8 +408,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              a.IsDeleted == false && b.IsDeleted == false
                                 //&& c.IsDeleted == false && d.IsDeleted == false
                                 && e.IsDeleted == false && g.IsDeleted == false &&
-                             g.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-                             && g.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                             g.CorrectionDate.AddHours(offset).Date >= DateFrom.Date
+                             && g.CorrectionDate.AddHours(offset).Date <= DateTo.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
                            select new GarmentStockReportViewModelTemp
