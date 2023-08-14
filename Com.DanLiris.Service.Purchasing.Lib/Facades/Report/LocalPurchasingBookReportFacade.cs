@@ -43,10 +43,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         #region oldQuery
 
         #endregion
-        public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId)
+        public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId)
         {
-            var dataReceiptNote = await GetReportUnitReceiptNote(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,inputDate, isValas, divisionId);
-            var dataReceiptNoteCorrection = await GetReportUnitReceiptNoteCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, isValas, divisionId);
+            var dataReceiptNote = await GetReportUnitReceiptNote(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, isValas, divisionId);
+            var dataReceiptNoteCorrection = await GetReportUnitReceiptNoteCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, isValas, divisionId);
 
             var reportReceipt = new List<PurchasingReport>();
             reportReceipt.AddRange(dataReceiptNote);
@@ -76,10 +76,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         }
 
-        public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2byDO(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId)
+        public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2byDO(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId)
         {
-            var dataReceiptNote = await GetReportUnitReceiptNote(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, isValas, divisionId);
-            var dataReceiptNoteCorrection = await GetReportUnitReceiptNoteCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, isValas, divisionId);
+            var dataReceiptNote = await GetReportUnitReceiptNote(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, isValas, divisionId);
+            var dataReceiptNoteCorrection = await GetReportUnitReceiptNoteCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, isValas, divisionId);
 
             var reportReceipt = new List<PurchasingReport>();
             reportReceipt.AddRange(dataReceiptNote);
@@ -147,10 +147,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         }
 
-        public async Task<List<PurchasingReport>> GetReportUnitReceiptNote(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId)
+        public async Task<List<PurchasingReport>> GetReportUnitReceiptNote(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId)
         {
             var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
+            var inputFrom = (inputDateFrom.HasValue ? inputDateFrom.Value : DateTime.MinValue);
+            var inputTo = (inputDateTo.HasValue ? inputDateTo.Value : DateTime.Now);
 
             var query = from urnWithItem in dbContext.UnitReceiptNoteItems
                         join urnHdr in dbContext.UnitReceiptNotes on urnWithItem.URNId equals urnHdr.Id
@@ -167,7 +169,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         where urnWithItem.UnitReceiptNote.ReceiptDate.ToUniversalTime().Date >= d1.Date
                             && urnWithItem.UnitReceiptNote.ReceiptDate.ToUniversalTime().Date <= d2.Date
                             && !urnWithItem.UnitReceiptNote.SupplierIsImport
-                            && urnWithItem.CreatedUtc.Date == (inputDate != null ? inputDate.GetValueOrDefault().Date : urnWithItem.CreatedUtc.Date)
+                            && urnWithItem.CreatedUtc.Date >= inputFrom.Date
+                            && urnWithItem.CreatedUtc.Date <= inputTo.Date
+
                         select new
                         {
                             // PR Info
@@ -362,10 +366,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return reportResult;
         }
 
-        public async Task<List<PurchasingReport>> GetReportUnitReceiptNoteCorrection(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId)
+        public async Task<List<PurchasingReport>> GetReportUnitReceiptNoteCorrection(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId)
         {
             var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
+            var inputFrom = (inputDateFrom.HasValue ? inputDateFrom.Value : DateTime.MinValue);
+            var inputTo = (inputDateTo.HasValue ? inputDateTo.Value : DateTime.Now);
 
             var query = from upcCorrectionNoteItem in dbContext.UnitPaymentCorrectionNoteItems
 
@@ -393,7 +399,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         where upcCorrection.CorrectionDate.ToUniversalTime().Date >= d1.Date 
                             && upcCorrection.CorrectionDate.ToUniversalTime().Date <= d2.Date 
                             && !urnWithItem.UnitReceiptNote.SupplierIsImport
-                            && upcCorrection.CreatedUtc.Date == (inputDate!= null ? inputDate.GetValueOrDefault().Date : upcCorrection.CreatedUtc.Date)
+                            && upcCorrection.CreatedUtc.Date >= inputFrom.Date
+                            && upcCorrection.CreatedUtc.Date <= inputTo.Date
                         select new
                         {
                             // PR Info
@@ -622,14 +629,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return reportResult;
         }
 
-        public Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId)
+        public Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId)
         {
-            return GetReportDataV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, isValas, divisionId);
+            return GetReportDataV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, isValas, divisionId);
         }
 
-        public Task<LocalPurchasingBookReportViewModel> GetReportV2byDO(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId)
+        public Task<LocalPurchasingBookReportViewModel> GetReportV2byDO(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId)
         {
-            return GetReportDataV2byDO(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, isValas, divisionId);
+            return GetReportDataV2byDO(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, isValas, divisionId);
 
 
         }
@@ -846,9 +853,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         //    }
         //}
 
-        public async Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId)
+        public async Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId)
         {
-            var result = await GetReportV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,inputDate, isValas, divisionId);
+            var result = await GetReportV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, isValas, divisionId);
             //var Data = reportResult.Reports;
             var reportDataTable = GetFormatReportExcel(isValas);
             //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
@@ -988,9 +995,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         }
 
 
-        public async Task<MemoryStream> GenerateExcelMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId)
+        public async Task<MemoryStream> GenerateExcelMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId)
         {
-            var result = await GetReportDataV2byDO(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDate, isValas, divisionId);
+            var result = await GetReportDataV2byDO(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, inputDateFrom, inputDateTo, isValas, divisionId);
             //var Data = reportResult.Reports;
             var reportDataTable = GetFormatReportExcelMII(isValas);
             //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
@@ -1134,12 +1141,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
     {
         //Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
         //Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId);
-        Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId);
+        Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId);
 
         //Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
-        Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId);
+        Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId);
 
-        Task<MemoryStream> GenerateExcelMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDate, bool isValas, int divisionId);
+        Task<MemoryStream> GenerateExcelMII(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, DateTime? inputDateFrom, DateTime? inputDateTo, bool isValas, int divisionId);
     }
 
     public class PreviousCorrection
