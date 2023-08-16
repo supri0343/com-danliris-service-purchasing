@@ -95,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
 				{
 					index++;
 					Total = item.total;
-						result.Rows.Add(index, item.supplierName, item.divisionName,item.unitName,item.categoryName, (Decimal)Math.Round((item.amount), 2), (Decimal)Math.Round((item.amount / item.total),2));
+						result.Rows.Add(index, item.supplierName, item.divisionName,item.unitName,item.categoryName, (Decimal)Math.Round((item.amount), 2), (Decimal)Math.Round((item.amount * 100/ item.total),2));
 				}
 				result.Rows.Add("", "Total Pembelian", "", "","", Total, 100);
 			}
