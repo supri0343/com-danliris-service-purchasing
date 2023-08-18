@@ -434,6 +434,31 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             }
         }
 
+        [HttpGet("isPreparingByNo")]
+        public async Task<IActionResult> PutIsPreparingTrue(string UENNo,bool IsPreparing, GarmentUnitExpenditureNoteViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                ViewModel.IsPreparing = IsPreparing;
+
+                var model = mapper.Map<GarmentUnitExpenditureNote>(ViewModel);
+
+                await facade.UpdateIsPreparingByNo(UENNo, model);
+
+                return NoContent();
+            }
+
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpPut("returQuantity/{id}")]
         public async Task<IActionResult> PutReturQuantity(int id, [FromBody]Dictionary<string, double> ViewModel)
         {
