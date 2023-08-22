@@ -214,13 +214,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteRe
                 foreach (var item in Query)
                 {
                     index++;
-                    string CorrectionDate = item.CorrectionDate == new DateTime(1970, 1, 1) ? "-" : item.CorrectionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string BillDate = item.BillDate == new DateTime(1970, 1, 1) ? "-" : item.BillDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string BCDate = item.BeaCukaiDate == new DateTime(1970, 1, 1) ? "-" : item.BeaCukaiDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string ArrivalDate = item.ArrivalDate == new DateTime(1970, 1, 1) ? "-" : item.ArrivalDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string IncomeTaxDate = item.IncomeTaxDate == new DateTime(1970, 1, 1) ? "-" : item.IncomeTaxDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string INDate = item.INDate == new DateTime(1970, 1, 1) ? "-" : item.INDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string ReceiptDate = item.ReceiptDate == new DateTime(1970, 1, 1) ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string CorrectionDate = item.CorrectionDate == new DateTime(1970, 1, 1) ? "-" : item.CorrectionDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
+                    string BillDate = item.BillDate == new DateTime(1970, 1, 1) ? "-" : item.BillDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
+                    string BCDate = item.BeaCukaiDate == new DateTime(1970, 1, 1) ? "-" : item.BeaCukaiDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
+                    string ArrivalDate = item.ArrivalDate == new DateTime(1970, 1, 1) ? "-" : item.ArrivalDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
+                    string IncomeTaxDate = item.IncomeTaxDate == new DateTime(1970, 1, 1) ? "-" : item.IncomeTaxDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
+                    string INDate = item.INDate == new DateTime(1970, 1, 1) ? "-" : item.INDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
+                    string ReceiptDate = item.ReceiptDate == new DateTime(1970, 1, 1) ? "-" : item.ReceiptDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
 
                     string CorrectionQuantity = string.Format("{0:N2}", item.CorrectionQuantity);
                     string CorrectionAmount = string.Format("{0:N2}", item.CorrectionAmount);
