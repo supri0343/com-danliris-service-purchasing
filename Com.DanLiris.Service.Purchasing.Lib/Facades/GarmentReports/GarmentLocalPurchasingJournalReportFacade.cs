@@ -56,29 +56,168 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             List<GarmentLocalPurchasingJournalReportViewModel> data = new List<GarmentLocalPurchasingJournalReportViewModel>();
 
-            var Querya = (from a in dbContext.GarmentUnitReceiptNotes
-                          join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                          join e in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals e.Id
-                          join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
-                          join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id
-                          where a.URNType == "PEMBELIAN" && c.SupplierIsImport == false
-                                && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")
-                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
-                          group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new { e.CodeRequirment, c.UseVat, c.VatRate } into G
+            //var Querya = (from a in dbContext.GarmentUnitReceiptNotes
+            //              join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //              join e in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals e.Id
+            //              join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
+            //              join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id
+            //              where a.URNType == "PEMBELIAN" && c.SupplierIsImport == false
+            //                    && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")
+            //                    && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+            //              group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new { e.CodeRequirment, c.UseVat, c.VatRate } into G
+
+            //              select new GarmentLocalPurchasingJournalReportTemp1ViewModel
+            //              {
+            //                  //UnitCode = G.Key.UnitCode,
+            //                  Code = G.Key.CodeRequirment,
+            //                  //PaymentType = G.Key.PaymentType,
+            //                  //IsVat = G.Key.UseVat == true ? "Y" : "N",
+            //                  //VatRate = (double)G.Key.VatRate,
+            //                  //IsTax = G.Key.UseIncomeTax == true ? "Y" : "N",
+            //                  //TaxRate = (double)G.Key.IncomeTaxRate,
+            //                  Amount = Math.Round(G.Sum(c => c.Price * c.Qty * (decimal)c.Rate), 2)
+            //              });
+
+            var Querya = (from a in dbContext.GarmentDeliveryOrders
+                         join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
+                         join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
+                         join d in dbContext.GarmentBeacukais on a.CustomsId equals d.Id
+                         join e in dbContext.GarmentExternalPurchaseOrders on b.EPOId equals e.Id
+                         join f in dbContext.GarmentInternalPurchaseOrders on c.POId equals f.Id
+                         where c.DOQuantity != 0
+                         && e.SupplierImport == false
+                         && a.SupplierCode != "GDG"
+                         && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                         group new { Price = c.PricePerDealUnit, Qty = c.DOQuantity, Rate = a.DOCurrencyRate } by new { c.CodeRequirment } into G
+                        
+                          select new GarmentLocalPurchasingJournalReportTemp1ViewModel
+                         {
+                             Code = G.Key.CodeRequirment,
+                             Amount = (Double)G.Sum(x => x.Price * x.Qty * x.Rate)
+                         });
+
+
+            var Queryb = (from gc in dbContext.GarmentCorrectionNotes
+                         join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
+                         join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
+                         join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
+                         join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                         join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                         join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
+                         where gci.Quantity != 0
+                         && epo.SupplierImport == false
+                         && gc.CorrectionDate.AddHours(offset).Date >= DateFrom.Date && gc.CorrectionDate.AddHours(offset).Date <= DateTo.Date
+                         && gc.SupplierCode != "GDG"
+                         && gc.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && gc.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                         group new { PriceAfter = gci.PriceTotalAfter, PriceBefore = gci.PriceTotalBefore, Rate = gdo.DOCurrencyRate } by new { gdd.CodeRequirment, gc.CorrectionType } into G
+
+                         select new GarmentLocalPurchasingJournalReportTemp1ViewModel
+                         {
+                             Code = G.Key.CodeRequirment,
+                             Amount = (double)(G.Key.CorrectionType == "Jumlah" || G.Key.CorrectionType == "Retur" ? (double)G.Sum(x => (double)x.PriceAfter * x.Rate) : (double)G.Sum(x => ((double)x.PriceAfter - (double)x.PriceBefore) * x.Rate)),
+                         });
+
+
+
+            var Queryc = (from gc in dbContext.GarmentCorrectionNotes
+                          join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
+                          join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
+                          join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
+                          join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                          join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                          join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
+                          where gci.Quantity != 0
+                          && epo.SupplierImport == false
+                          && gc.UseVat == true
+                          && gc.NKPN != null
+                          && gc.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && gc.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                          && gc.SupplierCode != "GDG"
+     
+                          group new { PriceAfter = gci.PriceTotalAfter, PriceBefore = gci.PriceTotalBefore, Rate = gdo.DOCurrencyRate, VatRate = gdo.VatRate } by new { gdd.CodeRequirment } into G
 
                           select new GarmentLocalPurchasingJournalReportTemp1ViewModel
                           {
-                              //UnitCode = G.Key.UnitCode,
                               Code = G.Key.CodeRequirment,
-                              //PaymentType = G.Key.PaymentType,
-                              //IsVat = G.Key.UseVat == true ? "Y" : "N",
-                              //VatRate = (double)G.Key.VatRate,
-                              //IsTax = G.Key.UseIncomeTax == true ? "Y" : "N",
-                              //TaxRate = (double)G.Key.IncomeTaxRate,
-                              Amount = Math.Round(G.Sum(c => c.Price * c.Qty * (decimal)c.Rate), 2)
+                              Amount = (double)G.Sum(x => ((double)x.PriceAfter - (double)x.PriceBefore) * x.Rate * (x.VatRate / 100))
                           });
 
-            var Query1 = (from x in Querya
+
+            var Queryd = (from gc in dbContext.GarmentCorrectionNotes
+                          join gci in dbContext.GarmentCorrectionNoteItems on gc.Id equals gci.GCorrectionId
+                          join ipo in dbContext.GarmentInternalPurchaseOrders on gci.POId equals ipo.Id
+                          join gdd in dbContext.GarmentDeliveryOrderDetails on gci.DODetailId equals gdd.Id
+                          join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                          join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                          join epo in dbContext.GarmentExternalPurchaseOrders on gci.EPOId equals epo.Id
+                          where gci.Quantity != 0
+                          && epo.SupplierImport == false
+                          && gc.UseIncomeTax == true
+                          && gc.NKPH != null
+                          && gc.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && gc.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                          && gc.SupplierCode != "GDG"
+
+                          group new { PriceAfter = gci.PriceTotalAfter, PriceBefore = gci.PriceTotalBefore, Rate = gdo.DOCurrencyRate, PPHRate = gc.IncomeTaxRate } by new { gdd.CodeRequirment } into G
+
+                          select new GarmentLocalPurchasingJournalReportTemp1ViewModel
+                          {
+                              Code = G.Key.CodeRequirment,
+                              Amount = (double)G.Sum(x => ((double)x.PriceAfter - (double)x.PriceBefore) * x.Rate * (double)(x.PPHRate / 100))
+                          });
+
+            var Querye = (from inv in dbContext.GarmentInvoices
+                          join invi in dbContext.GarmentInvoiceItems on inv.Id equals invi.InvoiceId
+                          join invd in dbContext.GarmentInvoiceDetails on invi.Id equals invd.InvoiceItemId
+                          join gdd in dbContext.GarmentDeliveryOrderDetails on invd.DODetailId equals gdd.Id
+                          join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                          join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                          join epo in dbContext.GarmentExternalPurchaseOrders on invd.EPOId equals epo.Id
+                          join ipo in dbContext.GarmentInternalPurchaseOrders on invd.IPOId equals ipo.Id
+                          where invd.DOQuantity != 0
+                          && epo.SupplierImport == false
+                          && inv.IsPayTax == true
+                          && inv.UseVat == true
+                          && inv.NPN != null
+                          && inv.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && inv.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                          && inv.SupplierCode != "GDG"
+ 
+                          group new { Qty = invd.DOQuantity, Price = invd.PricePerDealUnit, Rate = gdo.DOCurrencyRate, PPNRate = gdo.VatRate } by new { gdd.CodeRequirment } into G
+
+                          select new GarmentLocalPurchasingJournalReportTemp1ViewModel
+                          {
+                              Code = G.Key.CodeRequirment,
+                              Amount = (double)G.Sum(x => ((double)x.Qty - (double)x.Price) * x.Rate * (double)(x.PPNRate / 100))
+                          });
+
+
+            var Queryf = (from inv in dbContext.GarmentInvoices
+                          join invi in dbContext.GarmentInvoiceItems on inv.Id equals invi.InvoiceId
+                          join invd in dbContext.GarmentInvoiceDetails on invi.Id equals invd.InvoiceItemId
+                          join gdd in dbContext.GarmentDeliveryOrderDetails on invd.DODetailId equals gdd.Id
+                          join gdi in dbContext.GarmentDeliveryOrderItems on gdd.GarmentDOItemId equals gdi.Id
+                          join gdo in dbContext.GarmentDeliveryOrders on gdi.GarmentDOId equals gdo.Id
+                          join epo in dbContext.GarmentExternalPurchaseOrders on invd.EPOId equals epo.Id
+                          join ipo in dbContext.GarmentInternalPurchaseOrders on invd.IPOId equals ipo.Id
+                          where invd.DOQuantity != 0
+                          && epo.SupplierImport == false
+                          && inv.IsPayTax == true
+                          && inv.UseIncomeTax == true
+                          && inv.NPH != null
+                          && inv.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && inv.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                          && inv.SupplierCode != "GDG"
+                    
+                          group new { Qty = invd.DOQuantity, Price = invd.PricePerDealUnit, Rate = gdo.DOCurrencyRate, PPHRate = inv.IncomeTaxRate } by new { gdd.CodeRequirment } into G
+
+                          select new GarmentLocalPurchasingJournalReportTemp1ViewModel
+                          {
+                              Code = G.Key.CodeRequirment,
+                              Amount = (double)G.Sum(x => ((double)x.Qty - (double)x.Price) * x.Rate * (double)(x.PPHRate / 100))
+                          });
+
+            var CombineData = Querya.Union(Queryb).Union(Queryc).Union(Queryd).Union(Querye).Union(Queryf).AsEnumerable();
+           
+            //
+
+            var Query1 = (from x in CombineData
                           group new { Amt = x.Amount } by new { x.Code } into G
 
                           select new GarmentLocalPurchasingJournalReportTemp1ViewModel
@@ -94,7 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 //remark = a.UnitCode == "C1A" ? "PERSEDIAAN BHN BAKU - K1A" : (a.UnitCode == "C1B" ? "PERSEDIAAN BHN BAKU - K1B" : (a.UnitCode == "C2A" ? "PERSEDIAAN BHN BAKU - K2A" : (a.UnitCode == "C2B" ? "PERSEDIAAN BHN BAKU - K2B" : "PERSEDIAAN BHN BAKU - K2C"))),
                                 remark = a.Code == "BB" ? "BPP PEMBELIAN BAHAN BAKU" : (a.Code == "BP" ? "BPP PEMBELIAN BAHAN PEMBANTU" : "BPP PEMBELIAN BAHAN EMBALASE"),
                                 credit = 0,
-                                debit = a.Amount,
+                                debit = Convert.ToDecimal(a.Amount),
                                 //account = a.UnitCode == "C1A" ? "11507.41" : (a.UnitCode == "C1B" ? "11507.42" : (a.UnitCode == "C2A" ? "11507.43" : (a.UnitCode == "C2B" ? "11507.44" : "11507.45")))
                                 account = a.Code == "BB" ? "590100" : (a.Code == "BP" ? "590300" : "590400")
                             };
@@ -308,7 +447,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 //credit = Query1.Sum(a => a.Amount) + PPNMsk.debit - (PPH.credit + Credit1.credit + Credit2.credit),
                 //credit = Query1.Sum(a => a.Amount) + PPNMsk.debit - (Credit1.credit + Credit2.credit),
                 //credit = Query1.Sum(a => a.Amount) + PPNMsk.debit,
-                credit = Query1.Sum(a => a.Amount),
+                credit = Query1.Sum(a => Convert.ToDecimal(a.Amount)),
                 //credit = Query.Where(a => a.PaymentType == "T/T AFTER" || a.PaymentType == "T/T BEFORE").Sum(a => a.Amount),
                 account = "300300"
 
@@ -334,10 +473,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             {
                 remark = "",
                 //debit = Querya.Sum(a => a.Amount) + PPNMsk.debit,
-                debit = Querya.Sum(a => a.Amount),
+                debit = Querya.Sum(a => Convert.ToDecimal(a.Amount)),
                 //credit = Credit.credit + Credit1.credit + Credit2.credit + PPH.credit,
                 //credit = Querya.Sum(a => a.Amount) + PPNMsk.debit,
-                credit = Querya.Sum(a => a.Amount),
+                credit = Querya.Sum(a => Convert.ToDecimal(a.Amount)),
                 account = "J U M L A H"
             };
 

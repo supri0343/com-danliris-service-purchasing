@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.NetCore.Lib;
@@ -20,6 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrder> dbSet;
+        private readonly DbSet<GarmentUnitReceiptNoteItem> dbSetURN;
 
         public MutationBeacukaiFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -241,7 +243,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    BeginQty = Math.Round((double)b.Quantity,2),
                                    ExpenditureQty = 0,
                                    ItemCode = b.ProductCode,
-                                   ItemName = b.ProductName,
+                                   ItemName = "-",
                                    LastQty = 0,
                                    OpnameQty = 0,
                                    ReceiptQty = 0,
@@ -282,7 +284,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       BeginQty = Math.Round((double)(a.ReceiptQuantity * a.Conversion), 2),
                                       ExpenditureQty = 0,
                                       ItemCode = a.ProductCode,
-                                      ItemName = a.ProductName,
+                                      ItemName = "-",
                                       LastQty = 0,
                                       OpnameQty = 0,
                                       ReceiptQty = 0,
@@ -326,7 +328,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                           BeginQty = a.UomUnit == "YARD" ? (double)a.Quantity * -1 * 0.9144 : -1 * (double)a.Quantity,
                                           ExpenditureQty = 0,
                                           ItemCode = a.ProductCode,
-                                          ItemName = a.ProductName,
+                                          ItemName = "-",
                                           LastQty = 0,
                                           OpnameQty = 0,
                                           ReceiptQty = 0,
@@ -372,7 +374,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                 BeginQty = (double)e.SmallQuantity,
                                                 ExpenditureQty = 0,
                                                 ItemCode = b.ProductCode,
-                                                ItemName = b.ProductName,
+                                                ItemName = "-",
                                                 LastQty = 0,
                                                 OpnameQty = 0,
                                                 ReceiptQty = 0,
@@ -429,7 +431,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            BeginQty = (double)a.BeginingbalanceQty,
                                            ExpenditureQty = 0,
                                            ItemCode = a.ProductCode,
-                                           ItemName = a.ProductName,
+                                           ItemName = "-",
                                            LastQty = 0,
                                            OpnameQty = 0,
                                            ReceiptQty = 0,
@@ -492,7 +494,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                BeginQty = 0,
                                ExpenditureQty = 0,
                                ItemCode = a.ProductCode,
-                               ItemName = a.ProductName,
+                               ItemName = "-",
                                LastQty = 0,
                                OpnameQty = 0,
                                ReceiptQty = (double)(a.ReceiptQuantity * a.Conversion),
@@ -534,7 +536,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    BeginQty = 0,
                                    ExpenditureQty = a.UomUnit == "YARD" ? (double)a.Quantity * 0.9144 : (double)a.Quantity,
                                    ItemCode = a.ProductCode,
-                                   ItemName = a.ProductName,
+                                   ItemName = "-",
                                    LastQty = 0,
                                    OpnameQty = 0,
                                    ReceiptQty = 0,
@@ -578,7 +580,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                          BeginQty = 0,
                                          ExpenditureQty = 0,
                                          ItemCode = b.ProductCode,
-                                         ItemName = b.ProductName,
+                                         ItemName = "-",
                                          LastQty = 0,
                                          OpnameQty = 0,
                                          ReceiptQty = 0,
@@ -633,7 +635,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        BeginQty = 0,
                                        ExpenditureQty = a.Quantity,
                                        ItemCode = a.Product.Code,
-                                       ItemName = a.Product.Name,
+                                       ItemName = "-",
                                        LastQty = 0,
                                        OpnameQty = 0,
                                        ReceiptQty = 0,
@@ -815,6 +817,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //    });
             //}
 
+            //IQueryable<GarmentUnitReceiptNoteItem> QueryURN = dbSetURN;
+
+           var QueryURN = (from a in dbContext.GarmentUnitReceiptNoteItems
+                           where a.IsDeleted == false
+                           select new GUNRMTemp
+                           {
+                              ProductCode = a.ProductCode,
+                              ProductName = a.DeletedAgent
+                            }).Distinct();
+
+            string DtlProduct;
+
+            foreach (var data in mutation)
+            {
+                DtlProduct = QueryURN.Where(q => q.ProductCode == data.ItemCode).Select(s => s.ProductName).FirstOrDefault();
+
+                data.ItemName = DtlProduct;
+            }
 
             mutation = mutation.Where(x => (x.ItemCode != "EMB001") && (x.ItemCode != "WSH001") && (x.ItemCode != "PRC001") && (x.ItemCode != "APL001") && (x.ItemCode != "QLT001") && (x.ItemCode != "SMT001") && (x.ItemCode != "GMT001") && (x.ItemCode != "PRN001") && (x.ItemCode != "SMP001")).ToList(); ;
             mutation = mutation.Where(x => (x.BeginQty != 0) || (x.LastQty != 0) || (x.ReceiptQty != 0) || (x.ExpenditureQty != 0 || (x.AdjustmentQty != 0))).ToList();
