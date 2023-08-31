@@ -74,8 +74,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 							 where
 							 a.IsDeleted == false && b.IsDeleted == false &&
 							 categories1.Contains(a.ProductName) &&
-							 b.CreatedUtc.Date >= DateFrom
-                             && b.CreatedUtc.Date <= DateTo
+							 b.ExpenditureDate.AddHours(7).Date >= DateFrom.Value.Date
+                             && b.ExpenditureDate.AddHours(7).Date <= DateTo.Value.Date
                              && b.UnitSenderCode == "SMP1"
 
 							 orderby a.CreatedUtc descending
@@ -127,8 +127,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 							 //f.CodeRequirement == (string.IsNullOrWhiteSpace(category) ? f.CodeRequirement : category)
 							 //(string.IsNullOrWhiteSpace(category) ? a.ProductCode == a.ProductCode : categories1.Contains(a.ProductCode))
 							 //&& f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
-							 b.CreatedUtc.Date >= DateFrom
-                             && b.CreatedUtc.Date <= DateTo
+							 b.ExpenditureDate.AddHours(7).Date >= DateFrom.Value.Date
+                             && b.ExpenditureDate.AddHours(7).Date <= DateTo.Value.Date
                              && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
 
 							 orderby a.CreatedUtc descending
