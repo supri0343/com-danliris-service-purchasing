@@ -92,8 +92,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 								 ArticleDO = d.Article,
 								 UnitDOType = d.UnitDOType,
 								 UENNo = b.UENNo,
-								 ExpenditureDate = b.CreatedUtc,
-								 Quantity = a.Quantity,
+								 ExpenditureDate = b.ExpenditureDate.AddHours(7).Date,
+                                 Quantity = a.Quantity,
 								 UomUnit = a.UomUnit,
                                  //Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
                                  //Total = Convert.ToDecimal((a.PricePerDealUnit * a.DOCurrencyRate) * a.Quantity),
@@ -145,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 								 ArticleDO = d.Article,
 								 UnitDOType = d.UnitDOType,
 								 UENNo = b.UENNo,
-								 ExpenditureDate = b.CreatedUtc,
+								 ExpenditureDate = b.ExpenditureDate.AddHours(7).Date,
 								 Quantity = a.Quantity,
 								 UomUnit = a.UomUnit,
                                  //Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
@@ -230,7 +230,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ExpendQtyTotal += item.Quantity;
                     ExpendPriceTotal += item.Total;
                     index++;
-                    string tanggal = item.ExpenditureDate.Value.AddHours(offset).ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
+                    string tanggal = item.ExpenditureDate.Value.ToString("MM/dd/yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, item.ProductCode, item.ProductName, item.POSerialNumber, item.ProductRemark, item.RONo,
                         item.Article, item.BuyerCode, item.RONoDO, item.ArticleDO, item.UENNo, item.UnitDestination, tanggal , item.Colour, item.Rack, item.Box, item.Level, item.Area, NumberFormat(item.Quantity),
                         item.UomUnit, NumberFormat((double)item.Total));
