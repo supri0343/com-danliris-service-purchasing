@@ -86,13 +86,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 			{
 				yield return new ValidationResult("DeliveryOrder is required", new List<string> { "itemscount" });
 			}
-			if(customType == "BC 262")
-            {
-				if(totalQtyDO > QuantityContract)
-                {
-					yield return new ValidationResult("Qty Item tidak boleh lebih dari Qty Sisa di Supplier", new List<string> { "QuantityContract" });
-				}
-			}
+			//if(customType == "BC 262" && !string.IsNullOrWhiteSpace(SubconContractNo))
+   //         {
+			//	if(totalQtyDO > QuantityContract)
+   //             {
+			//		yield return new ValidationResult("Qty Item tidak boleh lebih dari Qty Sisa di Supplier", new List<string> { "QuantityContract" });
+			//	}
+			//}
             //else
             //{
             //    int itemErrorCount = 0;
