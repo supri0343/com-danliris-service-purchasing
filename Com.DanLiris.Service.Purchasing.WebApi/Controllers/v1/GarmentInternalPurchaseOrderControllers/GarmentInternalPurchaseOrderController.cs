@@ -247,8 +247,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                DateTimeOffset shipmentFrom;
-                DateTimeOffset shipmentTo;
+                DateTimeOffset shipmentFrom = new DateTimeOffset();
+                DateTimeOffset shipmentTo = new  DateTimeOffset();
                 if (!string.IsNullOrWhiteSpace(shipmentDateFrom) && !string.IsNullOrWhiteSpace(shipmentDateTo))
                 {
                     if (!DateTimeOffset.TryParseExact(shipmentDateFrom, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out shipmentFrom) ||
