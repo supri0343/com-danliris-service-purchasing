@@ -107,10 +107,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 			//Act
-			IActionResult response = controller.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
+			Task<IActionResult> response = controller.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
 
 			//Assert
-			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response.Result));
 		}
 
 		[Fact]
@@ -141,6 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 			var response = controller.GetXls(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 23, "{}");
 			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response.Result));
 		}
+
 		[Fact]
 		public async Task Should_OK_Get_Report_By_User_Data()
 		{
