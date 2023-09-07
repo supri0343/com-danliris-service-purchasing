@@ -320,5 +320,86 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
 			}
 		}
+
+		[HttpGet("subcon-monitoring-by-contractNo")]
+		public IActionResult BCByContractNoSusbconMonitoring(string contractNo, string subconContractType,string subconCategory)
+		{
+			try
+			{
+				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+				var result = facade.ReadBCByContractNoforSubcon(contractNo, subconContractType, subconCategory);
+
+				Dictionary<string, object> Result =
+					   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+					   .Ok(result);
+				return Ok(Result);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+
+		[HttpGet("get-bon-fin-in-subcon")]
+		public IActionResult getBonFinInSubcon(string contractNo)
+		{
+			try
+			{
+				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+				var result = facade.GetFinInSubcon(contractNo);
+
+				Dictionary<string, object> Result =
+					   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+					   .Ok(result);
+				return Ok(Result);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+
+		[HttpGet("get-bc-do-urn-subcon")]
+		public IActionResult getBcDoUrnSubcon(string contractNo, string subconContractType, string subconCategory)
+		{
+			try
+			{
+				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+				List<object> result;
+
+				//if (subconContractType == "SUBCON GARMENT" && subconCategory == "SUBCON CUTTING SEWING")
+				//{
+				//	result = facade.GetBCDOUrn(contractNo, subconContractType, subconCategory);
+				//}
+				//else 
+				//{
+				//	result = facade.GetBCDOUrnFilter(contractNo);
+				//}
+				result = facade.GetBCDOUrn(contractNo, subconContractType, subconCategory);
+
+				Dictionary<string, object> Result =
+					   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+					   .Ok(result);
+				return Ok(Result);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+
+
 	}
 }
