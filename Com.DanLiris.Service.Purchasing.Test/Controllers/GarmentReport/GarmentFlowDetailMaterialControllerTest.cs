@@ -128,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             var mockMapper = new Mock<IMapper>();
 
             GarmentFlowDetailMaterialController controller = GetController(mockFacade, null, null);
-            var response = controller.GetReport(null, null, null, null, null, 0, 0, "");
+            var response = controller.GetReport(null, null, null, null, null, null, null, 0, 0, "");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -174,7 +174,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
 
             GarmentFlowDetailMaterialController controller = GetController(mockFacade, null, null);
 
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 
         }

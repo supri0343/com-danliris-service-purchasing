@@ -2561,7 +2561,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
 			var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 			var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var Response = facade.GetReport("BB","", "",DateTime.Now,DateTime.Now, 7, "{}",25,1);
+			var Response = facade.GetReport("BB","", "",DateTime.Now,DateTime.Now, DateTime.Now, DateTime.Now, 7, "{}",25,1);
 			Assert.NotNull(Response.Item1);
 		}
 		[Fact]
@@ -2572,7 +2572,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
 			var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 			var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var Response = facade.GetReport("BB", "", "SMP1", DateTime.Now, DateTime.Now, 7, "{}", 25, 1);
+			var Response = facade.GetReport("BB", "", "SMP1", DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, 7,  "{}", 25, 1);
 			Assert.NotNull(Response.Item1);
 		}
 		[Fact]
@@ -2583,7 +2583,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
 			var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 			var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var Response = facade.GenerateExcel("BB", "","FABRIC", "SMP1","SAMPLE", DateTime.Now, DateTime.Now, 7);
+			var Response = facade.GenerateExcel("BB", "","FABRIC", "SMP1","SAMPLE", DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, 7);
 			Assert.NotNull(Response);
 		}
 		[Fact]
@@ -2594,7 +2594,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
 			var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 			var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var Response = facade.GenerateExcelForUnit("BB", "", "FABRIC", "SMP1", "SAMPLE", DateTime.Now, DateTime.Now, 7);
+			var Response = facade.GenerateExcelForUnit("BB", "", "FABRIC", "SMP1", "SAMPLE", DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now, 7);
 			Assert.NotNull(Response);
 		}
 
