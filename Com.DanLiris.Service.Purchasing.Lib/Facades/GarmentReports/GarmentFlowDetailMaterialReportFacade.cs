@@ -53,7 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 			}
 		}
 
-		public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset)
+		public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, DateTimeOffset? DateFromCreate, DateTimeOffset? DateToCreate, int offset)
 		{
             //DateTimeOffset dateFrom = DateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFrom.Value.AddHours(offset);
             //DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo.Value.AddHours(offset);
@@ -77,6 +77,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 							 b.ExpenditureDate.AddHours(7).Date >= DateFrom.Value.Date
                              && b.ExpenditureDate.AddHours(7).Date <= DateTo.Value.Date
                              && b.UnitSenderCode == "SMP1"
+                             && b.CreatedUtc.AddHours(7).Date >= DateFromCreate.Value.Date
+                             && b.CreatedUtc.AddHours(7).Date <= DateToCreate.Value.Date
 
 							 orderby a.CreatedUtc descending
 							 select new GarmentFlowDetailMaterialViewModel
@@ -130,8 +132,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 							 b.ExpenditureDate.AddHours(7).Date >= DateFrom.Value.Date
                              && b.ExpenditureDate.AddHours(7).Date <= DateTo.Value.Date
                              && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
-
-							 orderby a.CreatedUtc descending
+                             && b.CreatedUtc.AddHours(7).Date >= DateFromCreate.Value.Date
+                             && b.CreatedUtc.AddHours(7).Date <= DateToCreate.Value.Date
+                             orderby a.CreatedUtc descending
 							 select new GarmentFlowDetailMaterialViewModel
 							 {
 								 ProductCode = a.ProductCode,
@@ -171,9 +174,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             
         }
 
-        public Tuple<List<GarmentFlowDetailMaterialViewModel>, int> GetReport(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset, string order, int page, int size)
+        public Tuple<List<GarmentFlowDetailMaterialViewModel>, int> GetReport(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, DateTimeOffset? DateFromCreate, DateTimeOffset? DateToCreate, int offset, string order, int page, int size)
         {
-            var Query = GetQuery(category, productcode, unit, DateFrom, DateTo, offset);
+            var Query = GetQuery(category, productcode, unit, DateFrom, DateTo, DateFromCreate, DateToCreate, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
             //if (OrderDictionary.Count.Equals(0))
@@ -189,9 +192,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         }
 
 
-        public MemoryStream GenerateExcel(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
+        public MemoryStream GenerateExcel(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, DateTimeOffset? dateFromCreate, DateTimeOffset? dateToCreate, int offset)
         {
-            var Query = GetQuery(category, productcode, unit, dateFrom, dateTo, offset);
+            var Query = GetQuery(category, productcode, unit, dateFrom, dateTo, dateFromCreate, dateToCreate, offset);
             Query = Query.OrderByDescending(b => b.CreatedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
@@ -284,9 +287,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
-        public MemoryStream GenerateExcelForUnit(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int offset)
+        public MemoryStream GenerateExcelForUnit(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, DateTimeOffset? dateFromCreate, DateTimeOffset? dateToCreate, int offset)
         {
-            var Query = GetQuery(category, productcode, unit, dateFrom, dateTo, offset);
+            var Query = GetQuery(category, productcode, unit, dateFrom, dateTo, dateFromCreate, dateToCreate, offset);
             Query = Query.OrderByDescending(b => b.CreatedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
