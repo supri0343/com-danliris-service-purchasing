@@ -169,5 +169,47 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
         }
 
+        [HttpGet("download-for-mii")]
+        public IActionResult GetXlsForMII(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, DateTimeOffset? dateFromCreate, DateTimeOffset? dateToCreate, int size = 25, int page = 1, string Order = "{}")
+        {
+
+            if (dateTo == null)
+                dateTo = DateTimeOffset.UtcNow;
+
+            if (dateFrom == null)
+                dateFrom = DateTimeOffset.MinValue;
+            if (dateToCreate == null)
+                dateToCreate = DateTimeOffset.UtcNow;
+
+            if (dateFromCreate == null)
+                dateFromCreate = DateTimeOffset.MinValue;
+
+            try
+            {
+                byte[] xlsInBytes;
+
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                var xls = facade.GenerateExcelForMII(category, productcode, categoryname, unit, unitname, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), dateFromCreate.GetValueOrDefault(), dateToCreate.GetValueOrDefault(), offset);
+
+                string filename = "Laporan Rekap BUK";
+                if (dateFrom != null) filename += " " + ((DateTime)dateFromCreate.Value.DateTime).ToString("dd-MM-yyyy");
+                if (dateTo != null) filename += "_" + ((DateTime)dateToCreate.Value.DateTime).ToString("dd-MM-yyyy");
+                filename += ".xlsx";
+
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+
+        }
+
     }
 }
