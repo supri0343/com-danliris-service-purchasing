@@ -507,12 +507,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             bcDateIn = a.BeacukaiDate,
                             quantityIn = b.TotalQty,
                             fintype = a.FinishedGoodType,
-                        }).GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.fintype }, (key, group) => new
+                            garmentDONo = b.GarmentDONo
+                        }).GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.fintype, x.garmentDONo }, (key, group) => new
                         {
                             bcNoIn = key.bcNoIn,
                             bcDateIn = key.bcDateIn,
                             quantityIn = group.Sum(x => x.quantityIn),
-                            fintype = key.fintype
+                            fintype = key.fintype,
+                            gamentDONo = key.garmentDONo
                         });
 
             List<object> ListData = new List<object>(data);
@@ -520,5 +522,164 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
             return ListData;
 
         }
+
+        public List<object> ReadBCByContractNoforSubcon(string contractNo, string subconContractType, string subconCategory)
+        {
+            var data = (from a in dbContext.GarmentBeacukais
+                        join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
+                        join c in dbContext.GarmentDeliveryOrders on a.Id equals c.CustomsId
+                        join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
+                        join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
+                        where a.IsDeleted == false && b.IsDeleted == false && a.SubconContractNo == contractNo
+                        select new
+                        {
+                            bcNoIn = a.BeacukaiNo,
+                            bcDateIn = a.BeacukaiDate,
+                            quantityIn = b.TotalQty,
+                            fintype = a.FinishedGoodType,
+                            garmentDONo = b.GarmentDONo,
+                            roNo = e.RONo
+                        }).GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.fintype, x.garmentDONo, x.roNo }, (key, group) => new
+                        {
+                            bcNoIn = key.bcNoIn,
+                            bcDateIn = key.bcDateIn,
+                            quantityIn = group.Sum(x => x.quantityIn),
+                            fintype = key.fintype,
+                            gamentDONo = key.garmentDONo,
+                            roNo = key.roNo
+                        });
+
+            List<object> ListData = new List<object>(data);
+
+            return ListData;
+
+        }
+
+        public List<object> GetFinInSubcon(string contractNo)
+        {
+            var data = (from a in dbContext.GarmentBeacukais
+                        join b in dbContext.GarmentDeliveryOrders on a.Id equals b.CustomsId
+                        where a.IsDeleted == false && b.IsDeleted == false && a.SubconContractNo == contractNo
+                        select new
+                        {
+                            bcNoIn = a.BeacukaiNo,
+                            bcDateIn = a.BeacukaiDate,
+                            garmentDOId = b.Id,
+                            subconContractId = a.SubconContractId
+                            //quantityIn = b.TotalQty,
+                            //fintype = a.FinishedGoodType,
+                            //garmentDONo = b.GarmentDONo
+                        }).GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.garmentDOId, x.subconContractId}, (key, group) => new
+                        {
+                            bcNoIn = key.bcNoIn,
+                            bcDateIn = key.bcDateIn,
+                            garmentDOId = key.garmentDOId,
+                            subconContractId = key.subconContractId
+                        });
+
+            List<object> ListData = new List<object>(data);
+
+            return ListData;
+
+        }
+
+        public List<object> GetBCDOUrn(string contractNo, string subconContractType, string subconCategory)
+        {
+
+            var data = (from a in dbContext.GarmentBeacukais
+                        join b in dbContext.GarmentDeliveryOrders on a.Id equals b.CustomsId
+                        join c in dbContext.GarmentUnitReceiptNotes on b.Id equals c.DOId
+                        join d in dbContext.GarmentUnitReceiptNoteItems on c.Id equals d.URNId
+                        where a.IsDeleted == false && b.IsDeleted == false && a.SubconContractNo == contractNo
+                        //d.ProductName != "PROCESS"
+                        //&& d.ProductName.ToLower() != "fabric" && d.ProductName.ToLower() != "process"
+                        && (subconContractType == "SUBCON GARMENT" && subconCategory == "SUBCON CUTTING SEWING" ?
+                          d.ProductName.ToLower() != "process" :
+
+                          subconContractType == "SUBCON JASA" && subconCategory == "SUBCON JASA KOMPONEN" ?
+                          d.ProductName.ToLower() != "fabric"
+
+                          : d.ProductName.ToLower() != "fabric" && d.ProductName.ToLower() != "process")
+
+
+                        select new
+                        {
+                            bcNoIn = a.BeacukaiNo,
+                            bcDateIn = a.BeacukaiDate,
+                            garmentDOId = b.Id,
+                            subconContractId = a.SubconContractId,
+                            subconConrtacNo = a.SubconContractNo,
+                            urnNo = c.URNNo,
+                            productName = d.ProductName,
+                            quantityIn = d.SmallQuantity,
+                            uomUnitIn = d.SmallUomUnit
+                            //quantityIn = b.TotalQty,
+                            //fintype = a.FinishedGoodType,
+                            //garmentDONo = b.GarmentDONo
+                        }).GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.garmentDOId, x.subconContractId, x.urnNo, x.productName }, (key, group) => new
+                        {
+                            bcNoIn = key.bcNoIn,
+                            bcDateIn = key.bcDateIn,
+                            garmentDOId = key.garmentDOId,
+                            subconContractId = key.subconContractId,
+                            subconConrtacNo = group.First().subconConrtacNo,
+                            urnNo = key.urnNo,
+                            productName = key.productName,
+                            quantityIn = group.Sum(x => x.quantityIn) ,
+                            uomUnitIn = group.First().uomUnitIn
+                        });
+
+            List<object> ListData = new List<object>(data);
+
+            return ListData;
+
+        }
+
+        //public List<object> GetBCDOUrnSewing(string contractNo)
+        //{
+
+        //    var data = (from a in dbContext.GarmentBeacukais
+        //                join b in dbContext.GarmentDeliveryOrders on a.Id equals b.CustomsId
+        //                join c in dbContext.GarmentUnitReceiptNotes on b.Id equals c.DOId
+        //                join d in dbContext.GarmentUnitReceiptNoteItems on c.Id equals d.URNId
+        //                where a.IsDeleted == false && b.IsDeleted == false && a.SubconContractNo == contractNo &&
+        //                d.ProductName.ToLower() != "fabric" && d.ProductName.ToLower() != "process"
+        //                //&& d.ProductName.ToLower() != "fabric" && d.ProductName.ToLower() != "process"
+        //                //subconContractType == "SUBCON GARMENT" && subconCategory == "SUBCON CUTTING SEWING" ?
+        //                //d.ProductName != "PROCESS" : d.ProductName.ToLower() != "fabric" && d.ProductName.ToLower() != "process"
+
+
+        //                select new
+        //                {
+        //                    bcNoIn = a.BeacukaiNo,
+        //                    bcDateIn = a.BeacukaiDate,
+        //                    garmentDOId = b.Id,
+        //                    subconContractId = a.SubconContractId,
+        //                    subconConrtacNo = a.SubconContractNo,
+        //                    urnNo = c.URNNo,
+        //                    productName = d.ProductName,
+        //                    quantityIn = d.SmallQuantity,
+        //                    uomUnitIn = d.SmallUomUnit
+        //                    //quantityIn = b.TotalQty,
+        //                    //fintype = a.FinishedGoodType,
+        //                    //garmentDONo = b.GarmentDONo
+        //                }).GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.garmentDOId, x.subconContractId, x.urnNo, x.productName }, (key, group) => new
+        //                {
+        //                    bcNoIn = key.bcNoIn,
+        //                    bcDateIn = key.bcDateIn,
+        //                    garmentDOId = key.garmentDOId,
+        //                    subconContractId = key.subconContractId,
+        //                    subconConrtacNo = group.First().subconConrtacNo,
+        //                    urnNo = key.urnNo,
+        //                    productName = key.productName,
+        //                    quantityIn = group.Sum(x => x.quantityIn),
+        //                    uomUnitIn = group.First().uomUnitIn
+        //                });
+
+        //    List<object> ListData = new List<object>(data);
+
+        //    return ListData;
+
+        //}
     }
 }
