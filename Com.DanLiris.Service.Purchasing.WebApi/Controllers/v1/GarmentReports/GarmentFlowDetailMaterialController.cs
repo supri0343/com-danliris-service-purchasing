@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet]
-        public IActionResult GetReport(string category, string productcode, string unit, DateTimeOffset? dateFrom, DateTimeOffset? dateTo,  int size = 25, int page = 1, string Order = "{}")
+        public IActionResult GetReport(string category, string productcode, string unit, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, DateTimeOffset? dateFromCreate, DateTimeOffset? dateToCreate, int size = 25, int page = 1, string Order = "{}")
         {
 
             if (dateTo == null)
@@ -43,6 +43,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
             if (dateFrom == null)
                 dateFrom = DateTimeOffset.MinValue;
+
+            if (dateToCreate == null)
+                dateToCreate = DateTimeOffset.UtcNow;
+
+            if (dateFromCreate == null)
+                dateFromCreate = DateTimeOffset.MinValue;
 
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -54,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             try
             {
 
-                var data = facade.GetReport(category, productcode, unit, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset, Order, 1, int.MaxValue);
+                var data = facade.GetReport(category, productcode, unit, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), dateFromCreate.GetValueOrDefault(), dateToCreate.GetValueOrDefault(), offset, Order, 1, int.MaxValue);
 
                 return Ok(new
                 {
@@ -75,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int size = 25, int page = 1, string Order = "{}")
+        public IActionResult GetXls(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, DateTimeOffset? dateFromCreate, DateTimeOffset? dateToCreate, int size = 25, int page = 1, string Order = "{}")
         {
 
             if (dateTo == null)
@@ -83,6 +89,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
             if (dateFrom == null)
                 dateFrom = DateTimeOffset.MinValue;
+
+            if (dateToCreate == null)
+                dateToCreate = DateTimeOffset.UtcNow;
+
+            if (dateFromCreate == null)
+                dateFromCreate = DateTimeOffset.MinValue;
 
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
             identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
@@ -93,7 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 byte[] xlsInBytes;
 
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-                var xls = facade.GenerateExcel(category, productcode, categoryname, unit, unitname, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset);
+                var xls = facade.GenerateExcel(category, productcode, categoryname, unit, unitname, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), dateFromCreate.GetValueOrDefault(), dateToCreate.GetValueOrDefault(), offset);
 
                 string filename = "Laporan Rekap BUK";
                 if (dateFrom != null) filename += " " + ((DateTime)dateFrom.Value.DateTime).ToString("dd-MM-yyyy");
@@ -116,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("download-for-unit")]
-        public IActionResult GetXlsForUnit(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int size = 25, int page = 1, string Order = "{}")
+        public IActionResult GetXlsForUnit(string category, string productcode, string categoryname, string unit, string unitname, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, DateTimeOffset? dateFromCreate, DateTimeOffset? dateToCreate, int size = 25, int page = 1, string Order = "{}")
         {
 
             if (dateTo == null)
@@ -124,13 +136,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
             if (dateFrom == null)
                 dateFrom = DateTimeOffset.MinValue;
+            if (dateToCreate == null)
+                dateToCreate = DateTimeOffset.UtcNow;
+
+            if (dateFromCreate == null)
+                dateFromCreate = DateTimeOffset.MinValue;
 
             try
             {
                 byte[] xlsInBytes;
 
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-                var xls = facade.GenerateExcelForUnit(category, productcode, categoryname, unit, unitname, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), offset);
+                var xls = facade.GenerateExcelForUnit(category, productcode, categoryname, unit, unitname, dateFrom.GetValueOrDefault(), dateTo.GetValueOrDefault(), dateFromCreate.GetValueOrDefault(), dateToCreate.GetValueOrDefault(), offset);
 
                 string filename = "Laporan Rekap BUK";
                 if (dateFrom != null) filename += " " + ((DateTime)dateFrom.Value.DateTime).ToString("dd-MM-yyyy");
