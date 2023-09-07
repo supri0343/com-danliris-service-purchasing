@@ -78,16 +78,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         //           .Ok(newData);
         //    return Ok(Result);
         //}
-        //[HttpGet("forCustoms")]
-        //public IActionResult GetForCustoms(string Keyword = "", string Filter = "{}", string BillNo = null)
-        //{
-        //    var Data = facade.DOForCustoms(Keyword, Filter, BillNo);
-        //    var newData = mapper.Map<List<GarmentDeliveryOrderViewModel>>(Data);
-        //    Dictionary<string, object> Result =
-        //           new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-        //           .Ok(newData);
-        //    return Ok(Result);
-        //}
+        [HttpGet("forCustoms")]
+        public IActionResult GetForCustoms(string Keyword = "", string Filter = "{}", string BillNo = null)
+        {
+            var Data = facade.DOForCustoms(Keyword, Filter, BillNo);
+            var newData = mapper.Map<List<GarmentDeliveryOrderNonPOViewModel>>(Data);
+            Dictionary<string, object> Result =
+                   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                   .Ok(newData);
+            return Ok(Result);
+        }
         //[HttpGet("isReceived")]
         //public IActionResult GetIsReceived(List<int> Id)
         //{

@@ -1817,6 +1817,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return Updated;
         }
 
+        public async Task<int> UpdateIsPreparingByNo(string uenNo, GarmentUnitExpenditureNote garmentUnitExpenditureNote)
+        {
+            int Updated = 0;
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    List<string> ListUenNo = uenNo.Split(",").ToList();
+                    foreach(var UENNo in ListUenNo)
+                    {
+                        var oldGarmentUnitExpenditureNote = dbSet
+                        .Include(d => d.Items)
+                        .Single(m => m.UENNo == UENNo);
+
+                        oldGarmentUnitExpenditureNote.IsPreparing = garmentUnitExpenditureNote.IsPreparing;
+
+                        EntityExtension.FlagForUpdate(oldGarmentUnitExpenditureNote, identityService.Username, USER_AGENT);
+
+                        foreach (var oldGarmentUnitExpenditureNoteItem in oldGarmentUnitExpenditureNote.Items)
+                        {
+                            EntityExtension.FlagForUpdate(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
+                        }
+
+                        Updated = await dbContext.SaveChangesAsync();
+                    }
+                    //dbSet.Update(garmentUnitExpenditureNote);
+                  
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
+        }
+
+
         public async Task<int> UpdateReturQuantity(int id, double quantity, double quantityBefore)
         {
             int Updated = 0;

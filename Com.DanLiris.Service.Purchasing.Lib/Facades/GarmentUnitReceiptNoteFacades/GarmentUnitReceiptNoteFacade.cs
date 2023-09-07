@@ -1799,8 +1799,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 							 where a.IsDeleted == false
 								&& b.IsDeleted == false
 								&& categories1.Contains(b.ProductName)
-								&& a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-								&& a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+								&& a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
+								&& a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
 								&& a.UnitCode == "SMP1"
 							 select new FlowDetailPenerimaanViewModels
 							 {
@@ -1812,7 +1812,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								 artikel = e.Article,
 								 kdbuyer = cc != null ? cc.BuyerCode : "-",
 								 nobukti = a.URNNo,
-								 tanggal = a.CreatedUtc,
+								 tanggal = a.ReceiptDate,
 								 jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
 								 satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
 								 jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
@@ -1885,8 +1885,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 							 where a.IsDeleted == false
 								&& b.IsDeleted == false
 								&& categories1.Contains(b.ProductName)
-								&& a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-								&& a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+								&& a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
+								&& a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
 								&& a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
 							 select new FlowDetailPenerimaanViewModels
 							 {
@@ -1898,7 +1898,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								 artikel = e.Article,
 								 kdbuyer = cc != null ? cc.BuyerCode : "-",
 								 nobukti = a.URNNo,
-								 tanggal = a.CreatedUtc,
+								 tanggal = a.ReceiptDate,
 								 jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
 								 satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
 								 jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),

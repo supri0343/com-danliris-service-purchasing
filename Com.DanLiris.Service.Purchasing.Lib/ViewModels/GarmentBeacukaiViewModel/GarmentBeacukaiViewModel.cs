@@ -29,6 +29,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 		public string SubconContractNo { get; set; }
 		public string FinishedGoodType { get; set; }
 		public double QuantityContract { get; set; }
+		public double totalQtyDO { get; set; }
+		
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if (string.IsNullOrWhiteSpace(beacukaiNo))
@@ -84,6 +86,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 			{
 				yield return new ValidationResult("DeliveryOrder is required", new List<string> { "itemscount" });
 			}
+			//if(customType == "BC 262" && !string.IsNullOrWhiteSpace(SubconContractNo))
+   //         {
+			//	if(totalQtyDO > QuantityContract)
+   //             {
+			//		yield return new ValidationResult("Qty Item tidak boleh lebih dari Qty Sisa di Supplier", new List<string> { "QuantityContract" });
+			//	}
+			//}
             //else
             //{
             //    int itemErrorCount = 0;
@@ -107,5 +116,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
             //        yield return new ValidationResult(itemError, new List<string> { "items" });
             //}
         }
-	}
+    }
 }

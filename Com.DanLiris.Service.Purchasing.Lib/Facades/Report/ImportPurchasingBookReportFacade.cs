@@ -1498,7 +1498,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 IncomeTax = s.First().IncomeTax,
                 IncomeTaxBy = s.First().IncomeTaxBy,
                 URNId = s.First().URNId,
-                CorrectionDate = s.First().CorrectionDate
+                CorrectionDate = s.First().CorrectionDate,
+                CorrectionNo = s.First().CorrectionNo
             }).ToList().OrderBy(data => data.URNId).OrderBy(data => data.UPONo).ThenBy(data => data.DataSourceSort).ToList();
 
             reportResult.CategorySummaries = reportResult.Reports

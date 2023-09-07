@@ -8,9 +8,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewMode
 	public class GarmentBeacukaiItemViewModel : BaseViewModel
 	{
 		public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel deliveryOrder { get; set; }
+		public Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderNonPOViewModel.GarmentDeliveryOrderNonPOViewModel deliveryOrderNonPO { get; set; }
 		public string billNo { get; set; }
 		public double quantity { get; set; }
 		public bool selected { get; set; }
+		
+
 
 
 
