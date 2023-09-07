@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string Level { get; set; }
         public string Box { get; set; }
         public string Area { get; set; }
+        public DateTime? ExpenditureCreateDate { get; set; }
 
 
     }
