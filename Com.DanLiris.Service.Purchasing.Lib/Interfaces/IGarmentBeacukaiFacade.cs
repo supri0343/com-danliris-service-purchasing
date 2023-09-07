@@ -19,6 +19,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<object> ReadBCByPOSerialNumbers(string Keyword);
 		List<object> ReadBCByContractNo(string contractNo);
 
+		List<object> ReadBCByContractNoforSubcon(string contractNo, string subconContractType, string subconCategory);
+
+		List<object> GetFinInSubcon(string contractNo);
+
+		List<object> GetBCDOUrn(string contractNo, string subconContractType, string subconCategory);
+		//List<object> GetBCDOUrnFilter(string contractNo);
+
 
 	}
 }
