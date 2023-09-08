@@ -228,7 +228,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
                     #region KopTable
-                    sheet.Cells[$"A1:D1"].Value = "PT DanLiris GARMINDO";
+                    sheet.Cells[$"A1:D1"].Value = "PT. DAN LIRIS";
                     sheet.Cells[$"A1:D1"].Merge = true;
                     sheet.Cells[$"A1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                     sheet.Cells[$"A1:D1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
@@ -294,7 +294,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     sheet.Column(12).Width = 20;
 
                     #region KopTable
-                    sheet.Cells[$"A1:D1"].Value = "PT DanLiris GARMINDO";
+                    sheet.Cells[$"A1:D1"].Value = "PT. DAN LIRIS";
                     sheet.Cells[$"A1:D1"].Merge = true;
                     sheet.Cells[$"A1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                     sheet.Cells[$"A1:D1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
