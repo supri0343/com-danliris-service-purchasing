@@ -1084,7 +1084,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                              DueDate = d.DueDate,
                              PaymentDueDays = g.PaymentDueDays == null ? "D000" : (g.PaymentDueDays.Length == 1 ? "D00" + g.PaymentDueDays : (g.PaymentDueDays.Length == 2 ? "D0" + g.PaymentDueDays : "D" + g.PaymentDueDays)),
                          }
-                         );
+                         ).Distinct();
             return Query;
         }
 
