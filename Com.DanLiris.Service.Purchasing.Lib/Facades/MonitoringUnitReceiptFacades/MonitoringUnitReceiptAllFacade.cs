@@ -170,8 +170,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 		}
 
 		//---tambah delet history MDP--//
-		public IEnumerable<MonitoringUnitReceiptAll> GetDeleteReportQuery(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo, int offset)
+		public IEnumerable<MonitoringUnitReceiptAll> GetDeleteReportQuery(string bonType, DateTime? dateFrom, DateTime? dateTo)
 		{
+			var offset = 7;
 			DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
 			DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
@@ -183,12 +184,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 						join e in dbContext.GarmentExternalPurchaseOrders on d.GarmentEPOId equals e.Id
 						where a.IsDeleted == false
 						   && ((d1 != new DateTime(1970, 1, 1)) ? (a.CreatedUtc.Date >= d1 && a.CreatedUtc.Date <= d2) : true)
-						   && ((supplier != null) ? (a.SupplierCode == supplier) : true)
-						   && ((unit != null) ? (a.UnitCode == unit) : true)
-						   && ((no != null) ? (a.URNNo == no) : true)
-						   && ((doNo != null) ? (a.DONo == doNo) : true)
-						   && ((roNo != null) ? (b.RONo == roNo) : true)
-						   && ((refNo != null) ? (b.POSerialNumber == refNo) : true)
+						   //&& ((supplier != null) ? (a.SupplierCode == supplier) : true)
+						   //&& ((unit != null) ? (a.UnitCode == unit) : true)
+						   //&& ((no != null) ? (a.URNNo == no) : true)
+						   //&& ((doNo != null) ? (a.DONo == doNo) : true)
+						   //&& ((roNo != null) ? (b.RONo == roNo) : true)
+						   //&& ((refNo != null) ? (b.POSerialNumber == refNo) : true)
 						select new
 						{
 							id = a.Id,
@@ -276,16 +277,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 			return list.AsQueryable();
 		}
 
-		public Tuple<List<MonitoringUnitReceiptAll>, int> GetDeleteReport(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+		public Tuple<List<MonitoringUnitReceiptAll>, int> GetDeleteReport(string bonType, DateTime? dateFrom, DateTime? dateTo)
 		{
-			List<MonitoringUnitReceiptAll> Query = GetDeleteReportQuery(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo, offset).ToList();
-			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+			List<MonitoringUnitReceiptAll> Query = GetDeleteReportQuery(bonType,  dateFrom,  dateTo).ToList();
+			//Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
 
-			Pageable<MonitoringUnitReceiptAll> pageable = new Pageable<MonitoringUnitReceiptAll>(Query, page - 1, size);
-			List<MonitoringUnitReceiptAll> Data = pageable.Data.ToList<MonitoringUnitReceiptAll>();
-			int TotalData = pageable.TotalCount;
+			//Pageable<MonitoringUnitReceiptAll> pageable = new Pageable<MonitoringUnitReceiptAll>(Query, page - 1, size);
+			//List<MonitoringUnitReceiptAll> Data = pageable.Data.ToList<MonitoringUnitReceiptAll>();
+			//int TotalData = pageable.TotalCount;
 
-			return Tuple.Create(Data, TotalData);
+			return Tuple.Create(Query, Query.Count());
 		}
 
 	}
