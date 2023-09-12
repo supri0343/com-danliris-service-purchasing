@@ -14,7 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/bcno-feature")]
-    [Route("v{version:apiVersion}/monitoring-history-delete")]
+   // [Route("v{version:apiVersion}/monitoring-history-delete")]
     [Authorize]
     public class BeacukaiNoFeatureController : Controller
     {

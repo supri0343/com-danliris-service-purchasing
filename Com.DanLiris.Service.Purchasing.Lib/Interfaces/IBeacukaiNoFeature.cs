@@ -8,8 +8,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     public interface IBeacukaiNoFeature
     {
         List<BeacukaiNoFeatureViewModel> GetBeacukaiNo(string filter, string keyword);
-
-        //--Tambahan monitoring-history-delete MDP-//
-        //--List<BeacukaiNoFeatureViewModel> GetDeletHistory(string filter, string keyword);
     }
 }
