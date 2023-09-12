@@ -45,11 +45,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
                 var data = _facade.GetBeacukaiNo(filter, keyword);
 
-                //--Tambahan monitoring-history-delete MDP-//
-              //  var data = _facade.GetDeletHistory(filter, keyword);
-
-
-
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
