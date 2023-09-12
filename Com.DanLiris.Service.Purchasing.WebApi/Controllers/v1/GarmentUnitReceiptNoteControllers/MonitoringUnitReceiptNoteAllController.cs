@@ -81,12 +81,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
 
 		//-Menu baru history Delet-MDP--//
 		[HttpGet("Deleted")]
-		public IActionResult GetDelete(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+		public IActionResult GetDelete( string bonType, DateTime? dateFrom, DateTime? dateTo)
 		{
 			try
 			{
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var data = monitoringUnitReceiptAllFacade.GetDeleteReport(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo, page, size, Order, offset);
+				var data = monitoringUnitReceiptAllFacade.GetDeleteReport(bonType,dateFrom,dateTo);
 
 				return Ok(new
 				{
