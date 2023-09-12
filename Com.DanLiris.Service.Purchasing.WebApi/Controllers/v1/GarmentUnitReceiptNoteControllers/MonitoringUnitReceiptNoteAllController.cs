@@ -78,5 +78,33 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
 			}
 		}
+
+		//-Menu baru history Delet-MDP--//
+		[HttpGet("Deleted")]
+		public IActionResult GetDelete(string no, string refNo, string roNo, string doNo, string unit, string supplier, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+		{
+			try
+			{
+				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+				var data = monitoringUnitReceiptAllFacade.GetDeleteReport(no, refNo, roNo, doNo, unit, supplier, dateFrom, dateTo, page, size, Order, offset);
+
+				return Ok(new
+				{
+					apiVersion = ApiVersion,
+					data = data.Item1,
+					info = new { total = data.Item2 },
+					message = General.OK_MESSAGE,
+					statusCode = General.OK_STATUS_CODE
+
+				});
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
 	}
 }
