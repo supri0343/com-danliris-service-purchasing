@@ -391,7 +391,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region TableSignature
 
-            DateTimeOffset getUrnDate;
+            DateTimeOffset getUrnDate = new DateTimeOffset();
             foreach (var i in model.Items)
             {
                 getUrnDate = i.URNDate;
