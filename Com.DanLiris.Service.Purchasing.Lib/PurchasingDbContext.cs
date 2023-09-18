@@ -35,6 +35,10 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentClosingDateModels;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUenUrnChangeDateHistory;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconUnitReceiptNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitExpenditureNoteModel;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -148,8 +152,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentDispositionPurchaseDetail> GarmentDispositionPurchaseDetailss { get; set; }
 
         public DbSet<GarmentUenUrnChangeDateHistory> GarmentUenUrnChangeDateHistories { get; set; }
+
+        //Subcon
         public DbSet<GarmentDeliveryOrderNonPO> GarmentDeliveryOrderNonPOs { get; set; }
         public DbSet<GarmentDeliveryOrderNonPOItem> GarmentDeliveryOrderNonPOItems { get; set; }
+        public DbSet<GarmentSubconDeliveryOrder> GarmentSubconDeliveryOrders { get; set; }
+        public DbSet<GarmentSubconDeliveryOrderItem> GarmentSubconDeliveryOrderItems { get; set; }
+        public DbSet<GarmentSubconUnitReceiptNote> GarmentSubconUnitReceiptNotes { get; set; }
+        public DbSet<GarmentSubconUnitReceiptNoteItem> GarmentSubconUnitReceiptNoteItems { get; set; }
+        public DbSet<GarmentSubconUnitDeliveryOrder> GarmentSubconUnitDeliveryOrders { get; set; }
+        public DbSet<GarmentSubconUnitDeliveryOrderItem> GarmentSubconUnitDeliveryOrderItems { get; set; }
+        public DbSet<GarmentSubconUnitExpenditureNote> GarmentSubconUnitExpenditureNotes { get; set; }
+        public DbSet<GarmentSubconUnitExpenditureNoteItem> GarmentSubconUnitExpenditureNoteItems { get; set; }
 
         //public DbSet<ImportValue> ImportValues { get; set; }
 
@@ -244,10 +258,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib
                 .IsUnique()
                 .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
 
+            //Subcon
             modelBuilder.Entity<GarmentDeliveryOrderNonPO>()
                .HasIndex(i => i.DONo)
                .IsUnique()
                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentSubconDeliveryOrder>()
+                .HasIndex(i => i.DONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentSubconUnitReceiptNote>()
+                .HasIndex(i => i.URNNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentSubconUnitDeliveryOrder>()
+                .HasIndex(i => i.UnitDONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentSubconUnitExpenditureNote>()
+                .HasIndex(i => i.UENNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
             #endregion
 
             #region indexes

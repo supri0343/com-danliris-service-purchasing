@@ -10,6 +10,24 @@
     <Compile Remove="Migrations\20210721095753_add_GLWExpenditure_Type_GarmentURN.cs" />
     <Compile Remove="Migrations\20230613084528_add-table-GarmentDeliveryOrder-Non-PO.cs" />
     <Compile Remove="Migrations\20230613084528_add-table-GarmentDeliveryOrder-Non-PO.Designer.cs" />
+    <Compile Remove="Migrations\20230620012625_add-table-GarmentSubconDeliveryOrder.cs" />
+    <Compile Remove="Migrations\20230620012625_add-table-GarmentSubconDeliveryOrder.Designer.cs" />
+    <Compile Remove="Migrations\20230620012936_add-table-GarmentSubconDeliveryOrder.cs" />
+    <Compile Remove="Migrations\20230620012936_add-table-GarmentSubconDeliveryOrder.Designer.cs" />
+    <Compile Remove="Migrations\20230627021419_add-table-GarmentSubconDeliveryOrder.cs" />
+    <Compile Remove="Migrations\20230627021419_add-table-GarmentSubconDeliveryOrder.Designer.cs" />
+    <Compile Remove="Migrations\20230627022450_add-table-GarmentSubconDeliveryOrder.cs" />
+    <Compile Remove="Migrations\20230627022450_add-table-GarmentSubconDeliveryOrder.Designer.cs" />
+    <Compile Remove="Migrations\20230628021749_Add-table-URNSubcon &amp; modified DOSubcon.cs" />
+    <Compile Remove="Migrations\20230628021749_Add-table-URNSubcon &amp; modified DOSubcon.Designer.cs" />
+    <Compile Remove="Migrations\20230628072538_modified-GSubconReceiptNote.cs" />
+    <Compile Remove="Migrations\20230628072538_modified-GSubconReceiptNote.Designer.cs" />
+    <Compile Remove="Migrations\20230630021817_modified-SubconURNItem.cs" />
+    <Compile Remove="Migrations\20230630021817_modified-SubconURNItem.Designer.cs" />
+    <Compile Remove="Migrations\20230630022952_modified-SubconURNItem.cs" />
+    <Compile Remove="Migrations\20230630022952_modified-SubconURNItem.Designer.cs" />
+    <Compile Remove="Migrations\20230705033507_add-table-Subcon-BUK.cs" />
+    <Compile Remove="Migrations\20230705033507_add-table-Subcon-BUK.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
