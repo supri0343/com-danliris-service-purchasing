@@ -28,6 +28,10 @@
     <Compile Remove="Migrations\20230630022952_modified-SubconURNItem.Designer.cs" />
     <Compile Remove="Migrations\20230705033507_add-table-Subcon-BUK.cs" />
     <Compile Remove="Migrations\20230705033507_add-table-Subcon-BUK.Designer.cs" />
+    <Compile Remove="Migrations\20230914025333_remove-IsDelete-Filter-From-GUnitReceiptNote.cs" />
+    <Compile Remove="Migrations\20230914025333_remove-IsDelete-Filter-From-GUnitReceiptNote.Designer.cs" />
+    <Compile Remove="Migrations\20230914030146_remove-IsDelete-Filter-From-GUnitReceiptNote.cs" />
+    <Compile Remove="Migrations\20230914030146_remove-IsDelete-Filter-From-GUnitReceiptNote.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -31,6 +31,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //var Query = GetStockQuery(tipebarang, unitcode, dateFrom, dateTo, offset);
             //Query = Query.OrderByDescending(x => x.SupplierName).ThenBy(x => x.Dono);
             List<BeacukaiNoFeatureViewModel> Data = GetBeacukaiNo(filter, keyword);
+
+           // List<BeacukaiNoFeatureViewModel> Data= GetDeletHistory(string filter, string keyword);
+
             //Data = Data.OrderByDescending(x => x.KodeBarang).ToList();
             //int TotalData = Data.Count();
             return Tuple.Create(Data.OrderByDescending(x=>x.PO).ToList(), Data.OrderByDescending(x => x.PO).Count());
