@@ -79,14 +79,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
 			}
 		}
 
-		//-Menu baru history Delet-MDP--//
+		//------------------Menu baru history Delet-MDP BUM CONTROLLER----------------------------------------//
 		[HttpGet("Deleted")]
 		public IActionResult GetDelete( string bonType, DateTime? dateFrom, DateTime? dateTo)
 		{
 			try
 			{
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var data = monitoringUnitReceiptAllFacade.GetDeleteReport(bonType,dateFrom,dateTo);
+
+
+				var data = monitoringUnitReceiptAllFacade.GetDeleteReport(bonType, dateFrom,dateTo);
 
 				return Ok(new
 				{
@@ -106,5 +108,33 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
 			}
 		}
+
+		[HttpGet("Deleted/download")]
+		public IActionResult GetDeletedXls(string bonType, DateTime? dateFrom, DateTime? dateTo)
+		{
+			try
+			{
+				byte[] xlsInBytes;
+				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+				var xls = monitoringUnitReceiptAllFacade.GenerateDeletedExcel(bonType, dateFrom, dateTo);
+
+				string filename = "Laporan Bon Terima Unit ALL";
+				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+				if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+				filename += ".xlsx";
+
+				xlsInBytes = xls.ToArray();
+				var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+				return file;
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+
 	}
 }
