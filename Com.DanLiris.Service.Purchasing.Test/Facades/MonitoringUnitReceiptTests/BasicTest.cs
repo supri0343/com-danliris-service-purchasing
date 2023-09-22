@@ -128,5 +128,63 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.MonitoringUnitReceiptTest
 			Assert.NotNull(Response);
 		}
 
+		//------------Menu Baru Monitoring History Delet Data BUM Facede------//
+		[Fact]
+		public async Task Should_Success_Get_Deleted_Monitoring()
+		{
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facadeReceipt = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var facade = new MonitoringUnitReceiptAllFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await garmentUnitReceiptNoteDataUtil(facadeReceipt, GetCurrentMethod()).GetTestData4();
+			await facadeReceipt.Delete((int)data.Id, (string)data.DeletedReason);
+			///	data.IsDeleted = true;
+			var Response = facade.GetDeleteReportQuery(null, DateTime.MinValue, DateTime.Now.AddDays(1));
+			//var Response = facade.GetDeleteReportQuery(null, );
+			Assert.NotNull(Response);
+		}
+
+		[Fact]
+		public async Task Should_Success_Get_Delete_Report_Data()
+		{
+			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response1 = Facade.GetDeleteReport(null, null, null);
+			Assert.NotNull(Response1.Item1);
+		}
+
+		[Fact]
+		//public async Task Should_Success_Get_Deleted_Report_Excel()
+		public async Task Should_Success_Get_Deleted_Excel()
+		{
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facadeReceipt = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var facadeExpend = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+			var facade = new MonitoringUnitReceiptAllFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await garmentUnitReceiptNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			await facadeReceipt.Delete((int)data.Id, (string)data.DeletedReason);
+			//var Response = facade.GenerateDeletedExcel(null,null,null);
+			var Response = facade.GenerateDeletedExcel(null, DateTime.MinValue, DateTime.Now.AddDays(1));
+			Assert.NotNull(Response);
+
+		}
+
+		[Fact]
+		public async Task Should_Success_Get_Deleted_Report_Excel()
+		{
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facadeReceipt = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var facadeExpend = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+			var facade = new MonitoringUnitReceiptAllFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await garmentUnitReceiptNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			await facadeReceipt.Delete((int)data.Id, (string)data.DeletedReason);
+			//var Response = facade.GenerateDeletedExcel(null,null,null);
+			var Response = facade.GenerateDeletedExcel(null, DateTime.MinValue, DateTime.Now.AddDays(1));
+			Assert.NotNull(Response);
+
+			var Facade = new MonitoringUnitReceiptAllFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+			var Response1 = Facade.GetDeleteReport(null, null, null);
+			Assert.NotNull(Response1.Item1);
+		}
 	}
 }

@@ -15,6 +15,8 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Xunit;
+using System.IO;
+
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.MonitoringUnitReceiptControllerTests
 {
@@ -204,6 +206,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.MonitoringUnitReceipt
         //	Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         //}
 
+//------------Menu Baru Monitoring History Delet Data BUM Controller------//
         [Fact]
        public void Should_Sucess_Get_Deleted_Report_Data()
         {
@@ -257,5 +260,94 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.MonitoringUnitReceipt
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
+        [Fact]
+        public void Should_Success_Get_Deleted_Report_Xls_Data()
+        {
+
+            var mockFacade = new Mock<IMonitoringUnitReceiptAllFacade>();
+            //mockFacade.Setup(x => x.GenerateDeletedExcel(null, null, null))
+            //    .Returns(Tuple.Create(new List<MonitoringUnitReceiptAllDeleted> { ViewModel }, 25));
+
+            mockFacade.Setup(x => x.GenerateDeletedExcel(null, null, null))
+            .Returns(new MemoryStream()); // Mengembalikan objek MemoryStream kosong
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            MonitoringUnitReceiptNoteAllController controller = new MonitoringUnitReceiptNoteAllController(GetServiceProvider().Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetDeletedXls(null, null, null);
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public void Should_Error_Get_Deleted_Report_Xls_Data()
+        {
+            var mockFacade = new Mock<IMonitoringUnitReceiptAllFacade>();
+            mockFacade.Setup(x => x.GenerateDeletedExcel("b", DateTime.Now, DateTime.Now))
+                .Returns(new MemoryStream());
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            MonitoringUnitReceiptNoteAllController controller = new MonitoringUnitReceiptNoteAllController(GetServiceProvider().Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetDeletedXls(null, null, null);
+            Assert.Null(response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Deleted_Report_Xls_Date()
+        {
+
+            var mockFacade = new Mock<IMonitoringUnitReceiptAllFacade>();
+            //mockFacade.Setup(x => x.GenerateDeletedExcel(null, null, null))
+            //    .Returns(Tuple.Create(new List<MonitoringUnitReceiptAllDeleted> { ViewModel }, 25));
+
+            mockFacade.Setup(x => x.GenerateDeletedExcel(null, null, null))
+            .Returns(new MemoryStream()); // Mengembalikan objek MemoryStream kosong
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            MonitoringUnitReceiptNoteAllController controller = new MonitoringUnitReceiptNoteAllController(GetServiceProvider().Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetDeletedXls(null, DateTime.MinValue, DateTime.Now);
+            Assert.NotNull(response);
+        }
+
+        //------------Menu Baru Monitoring History Delet Data BUM Controller------//
     }
 }
