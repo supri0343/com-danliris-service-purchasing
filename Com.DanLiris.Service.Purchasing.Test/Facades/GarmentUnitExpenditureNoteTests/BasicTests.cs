@@ -2613,7 +2613,45 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
 
         //------------MDP-Menu Baru Monitoring History Delet Data BUK Facede------//
+        [Fact]
+        public async Task Should_Success_Get_Deleted_Monitoring_BUK()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestData4();
+            await facadeExpend.Delete((int)data.Id);
+            var Response = facadeExpend.ReadDeletedQuery(null, DateTime.MinValue, DateTime.Now.AddDays(1));
+          
+            Assert.NotNull(Response);
+        }
 
+        [Fact]
+        public async Task Should_Success_Get_Delete_Report_Data_BUK()
+        {
+            // var Facade = new GarmentUnitExpenditureNoteFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var Response1 = Facade.ReadDeleted(null, null, null);
+            Assert.NotNull(Response1.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Deleted_Report_Excel()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facadeReceipt = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
+            await facadeReceipt.Delete((int)data.Id);
+            //var Response = facade.GenerateDeletedExcel(null,null,null);
+            var Response = facade.GenerateDeletedExcel(null, DateTime.MinValue, DateTime.Now.AddDays(1));
+            Assert.NotNull(Response);
+
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var Response1 = Facade.ReadDeleted(null, null, null);
+            Assert.NotNull(Response1.Item1);
+        }
 
         //------------MDP-END-Menu Baru Monitoring History Delet Data BUK Facede-----///
     }

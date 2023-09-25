@@ -1022,6 +1022,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 {
                     var garmentUnitExpenditureNote = dbSet.Include(m => m.Items).Single(m => m.Id == id);
 
+                    
                     EntityExtension.FlagForDelete(garmentUnitExpenditureNote, identityService.Username, USER_AGENT);
 
                     var garmentUnitDeliveryOrder = dbSetGarmentUnitDeliveryOrder.FirstOrDefault(d => d.Id == garmentUnitExpenditureNote.UnitDOId);
