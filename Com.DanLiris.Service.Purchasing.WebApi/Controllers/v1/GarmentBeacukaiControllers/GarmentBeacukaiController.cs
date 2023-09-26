@@ -429,6 +429,32 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			}
 		}
 
+		[HttpGet("get-ro")]
+		public IActionResult BCByContractNoSusbconMonitoring(string uenNo)
+		{
+			try
+			{
+				//uenId = uenId == null ? "0" : uenId;   
+				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				//var uenIds = uenId.Contains(",") ? uenId.Split(",").ToList() :  new List<string> { uenId };
+				//var uenNos = uenId.Contains(",") ? uenNo.Split(",").ToList() : new List<string> { uenNo };
+				//var result = facade.GetROByUen(uenIds, uenNos);
+				var result = facade.GetROByUenNo(uenNo);
 
+				Dictionary<string, object> Result =
+					   new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+					   .Ok(result);
+				return Ok(Result);
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
 	}
+
+
 }
