@@ -648,6 +648,63 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                        .Ok(result);
                 return Ok(Result);
             }
+            catch (Exception e) // Menangkap setiap pengecualian yang mungkin terjadi selama eksekusi fungsi
+            {
+                Dictionary<string, object> Result = // Membuat hasil dalam bentuk dictionary
+                     new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                     .Fail(); // Menggunakan formatter hasil untuk menghasilkan respons gagal dengan pesan kesalahan
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result); // Mengembalikan hasil sebagai respons status kode kesalahan internal HTTP
+            }
+        }
+
+        //------------------Menu baru history Delet-MDP BUK CONTROLLER----------------------------------------//
+        [HttpGet("deleted")] // Mendeklarasikan endpoint HTTP GET dengan path "deleted"
+        public IActionResult GetDeleted(string bonType, DateTime? dateFrom, DateTime? dateTo) // Fungsi untuk mendapatkan data yang telah dihapus berdasarkan tipe bon, tanggal mulai, dan tanggal akhir
+        {
+            try
+            {
+
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
+
+                var data = facade.ReadDeleted(bonType, dateFrom, dateTo);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e) // Menangkap setiap pengecualian yang mungkin terjadi selama eksekusi fungsi
+            {
+                Dictionary<string, object> Result = // Membuat hasil dalam bentuk dictionary
+                     new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                     .Fail(); // Menggunakan formatter hasil untuk menghasilkan respons gagal dengan pesan kesalahan
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result); // Mengembalikan hasil sebagai respons status kode kesalahan internal HTTP
+            }
+        }
+        
+        [HttpGet("Deleted/download")]
+        public IActionResult GetDeletedXls(string bonType, DateTime? dateFrom, DateTime? dateTo)
+        {
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                var xls = facade.GenerateDeletedExcel(bonType, dateFrom, dateTo);
+
+                string filename = "Laporan Bon Terima Unit ALL";
+                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+                if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+                filename += ".xlsx";
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+            }
             catch (Exception e)
             {
                 Dictionary<string, object> Result =
@@ -656,5 +713,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
     }
 }

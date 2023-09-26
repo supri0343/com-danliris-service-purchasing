@@ -23,6 +23,7 @@ using System.Data;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using System.Globalization;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades
 {
@@ -33,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentPurchaseRequest> dbSet;
         private readonly IServiceProvider serviceProvider;
-
+        private readonly LogHistoryFacades logHistoryFacades;
         private readonly string GarmentPreSalesContractUri = "merchandiser/garment-pre-sales-contracts/";
 
         public GarmentPurchaseRequestFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
@@ -41,6 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<GarmentPurchaseRequest>();
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
 
         public Tuple<List<GarmentPurchaseRequest>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -220,6 +222,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     }
 
                     this.dbSet.Add(m);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create PR Master - " + m.PRNo);
 
                     Created = await dbContext.SaveChangesAsync();
 
@@ -401,6 +406,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             oldM.Items.Add(item);
                         }
 
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Update PR Master - " + m.PRNo);
+
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
                     }
@@ -562,6 +570,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         }
                     }
 
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete PR Master - " + data.PRNo);
+
                     Deleted = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -591,6 +602,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     {
                         EntityExtension.FlagForUpdate(data, user, USER_AGENT);
                         data.IsPosted = true;
+
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Post PR Master - " + data.PRNo);
 
                         foreach (var item in data.Items)
                         {
@@ -650,6 +664,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                     }
 
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "UnPost PR Master - " + data.PRNo);
+
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -684,6 +701,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         {
                             EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                         }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Approve PR Master - " + data.PRNo);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -756,6 +776,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     {
                         EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "UnApprove PR Master - " + data.PRNo);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();

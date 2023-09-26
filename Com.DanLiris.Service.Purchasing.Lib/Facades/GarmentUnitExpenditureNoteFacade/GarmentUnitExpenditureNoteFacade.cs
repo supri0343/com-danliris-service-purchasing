@@ -75,10 +75,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             dbSetGarmentUnitDeliveryOrder = dbContext.Set<GarmentUnitDeliveryOrder>();
             dbSetGarmentUnitDeliveryOrderItem = dbContext.Set<GarmentUnitDeliveryOrderItem>();
             dbSetGarmentUnitReceiptNoteItem = dbContext.Set<GarmentUnitReceiptNoteItem>();
-            dbSetGarmentCorrectionNote= dbContext.Set<GarmentCorrectionNote>();
-            dbSetGarmentExternalPurchaseOrder= dbContext.Set<GarmentExternalPurchaseOrder>();
-            dbSetGarmentUnitReceiptNote= dbContext.Set<GarmentUnitReceiptNote>();
-            dbSetGarmentDOItems= dbContext.Set<GarmentDOItems>();
+            dbSetGarmentCorrectionNote = dbContext.Set<GarmentCorrectionNote>();
+            dbSetGarmentExternalPurchaseOrder = dbContext.Set<GarmentExternalPurchaseOrder>();
+            dbSetGarmentUnitReceiptNote = dbContext.Set<GarmentUnitReceiptNote>();
+            dbSetGarmentDOItems = dbContext.Set<GarmentDOItems>();
             dbSetUenUrnChangeDate = dbContext.Set<GarmentUenUrnChangeDateHistory>();
 
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     EntityExtension.FlagForUpdate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
                     garmentUnitDeliveryOrder.IsUsed = true;
 
-                    var UnitDO = dbContext.GarmentUnitDeliveryOrders.Include(d=>d.Items).FirstOrDefault(d => d.Id.Equals(garmentUnitExpenditureNote.UnitDOId));
+                    var UnitDO = dbContext.GarmentUnitDeliveryOrders.Include(d => d.Items).FirstOrDefault(d => d.Id.Equals(garmentUnitExpenditureNote.UnitDOId));
                     foreach (var unitDOItem in UnitDO.Items)
                     {
                         var unitExSaved = garmentUnitExpenditureNote.Items.FirstOrDefault(d => d.UnitDOItemId == unitDOItem.Id);
@@ -112,7 +112,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)unitDOItem.Quantity;
                             unitDOItem.Quantity = 0;
 
-                            GarmentDOItems garmentDOItems= dbSetGarmentDOItems.FirstOrDefault(u => u.URNItemId == unitDOItem.URNItemId);
+                            GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(u => u.URNItemId == unitDOItem.URNItemId);
                             garmentDOItems.RemainingQuantity += (decimal)unitDOItem.Quantity;
                         }
                     }
@@ -161,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     //        garmentUnitDeliveryOrderItem.Quantity = 0;
                     //    }
                     //}
-                    
+
 
                     if (garmentUnitExpenditureNote.ExpenditureType != "TRANSFER")
                     {
@@ -197,12 +197,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     Created = await dbContext.SaveChangesAsync();
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" && garmentUnitExpenditureNote.ExpenditureTo== "PEMBELIAN")
+                    if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" && garmentUnitExpenditureNote.ExpenditureTo == "PEMBELIAN")
                     {
                         List<long> epoItemIds = new List<long>();
                         List<long> epoIds = new List<long>();
                         GarmentDeliveryOrder garmentDeliveryOrder = dbContext.GarmentDeliveryOrders.FirstOrDefault(d => d.Id.Equals(garmentUnitDeliveryOrder.DOId));
-                        
+
                         List<GarmentCorrectionNoteItem> correctionNoteItems = new List<GarmentCorrectionNoteItem>();
                         decimal totalPrice = 0;
                         foreach (var item in garmentUnitExpenditureNote.Items)
@@ -211,7 +211,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             GarmentDeliveryOrderDetail garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.FirstOrDefault(d => d.Id.Equals(item.DODetailId));
                             GarmentDeliveryOrderItem garmentDeliveryOrderItem = dbContext.GarmentDeliveryOrderItems.FirstOrDefault(d => d.Id.Equals(garmentDeliveryOrderDetail.GarmentDOItemId));
 
-                            double priceTotalAfter = Math.Round((Math.Round(garmentUnitDeliveryOrderItem.ReturQuantity,2) *(double) garmentDeliveryOrderDetail.PricePerDealUnitCorrection),2);
+                            double priceTotalAfter = Math.Round((Math.Round(garmentUnitDeliveryOrderItem.ReturQuantity, 2) * (double)garmentDeliveryOrderDetail.PricePerDealUnitCorrection), 2);
                             garmentDeliveryOrderDetail.PriceTotalCorrection = (garmentDeliveryOrderDetail.QuantityCorrection - garmentDeliveryOrderDetail.ReturQuantity) * garmentDeliveryOrderDetail.PricePerDealUnitCorrection;
 
                             GarmentCorrectionNoteItem correctionNoteItem = new GarmentCorrectionNoteItem
@@ -250,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         foreach (var epoId in epoIds)
                         {
                             GarmentExternalPurchaseOrder garmentExternalPurchaseOrder = dbContext.GarmentExternalPurchaseOrders.FirstOrDefault(p => p.Id.Equals(epoId));
-                            
+
                             List<long> garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(p => p.GarmentEPOId.Equals(epoId)).Select(p => p.Id).ToList();
                             List<GarmentExternalPurchaseOrderItem> epoItems = new List<GarmentExternalPurchaseOrderItem>();
                             foreach (var garmentExternalPurchaseOrderItemId in garmentExternalPurchaseOrderItems)
@@ -263,7 +263,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                     {
                                         BudgetPrice = garmentExternalPurchaseOrderItem.BudgetPrice,
                                         Conversion = garmentExternalPurchaseOrderItem.Conversion,
-                                        DealQuantity = BUKItem.Quantity/(double) BUKItem.Conversion,
+                                        DealQuantity = BUKItem.Quantity / (double)BUKItem.Conversion,
                                         DealUomId = garmentExternalPurchaseOrderItem.DealUomId,
                                         DealUomUnit = garmentExternalPurchaseOrderItem.DealUomUnit,
                                         DefaultQuantity = BUKItem.Quantity / (double)BUKItem.Conversion,
@@ -303,15 +303,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             }
                             var EPONo = garmentExternalPurchaseOrder.EPONo + "-R";
                             GarmentExternalPurchaseOrder existEPO = dbContext.GarmentExternalPurchaseOrders.Where(p => p.EPONo.StartsWith(EPONo)).OrderByDescending(o => o.EPONo).FirstOrDefault();
-                            if(listEpoNo.Count > 0)
+                            if (listEpoNo.Count > 0)
                             {
                                 string lastEpo = listEpoNo.Last();
-                                var LastEPONo= lastEpo.Substring(lastEpo.IndexOf("R")+1);
-                                int lastNo= Int32.Parse(LastEPONo) + 1;
+                                var LastEPONo = lastEpo.Substring(lastEpo.IndexOf("R") + 1);
+                                int lastNo = Int32.Parse(LastEPONo) + 1;
                                 EPONo = EPONo + lastNo.ToString();
                                 listEpoNo.Add(EPONo);
                             }
-                            else if (existEPO != null )
+                            else if (existEPO != null)
                             {
                                 var LastEPONo = existEPO.EPONo.Substring(existEPO.EPONo.IndexOf("R") + 1);
                                 int lastNo = Int32.Parse(LastEPONo) + 1;
@@ -421,7 +421,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         foreach (var item in correctionNoteItems)
                         {
                             item.Quantity = item.Quantity * (-1);
-                            item.PriceTotalAfter = item.PriceTotalAfter *(-1);
+                            item.PriceTotalAfter = item.PriceTotalAfter * (-1);
                             EntityExtension.FlagForCreate(item, identityService.Username, USER_AGENT);
 
                             //var garmentDeliveryOrderDetail = dbContext.GarmentDeliveryOrderDetails.First(d => d.Id == item.DODetailId);
@@ -507,7 +507,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 CorrectionConversion = item.Conversion,
                                 UENItemId = item.Id,
                                 DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0,
-                                Colour =item.Colour,
+                                Colour = item.Colour,
                                 Rack = item.Rack,
                                 Box = item.Box,
                                 Level = item.Level,
@@ -1010,7 +1010,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return Created;
         }
 
-        
+
 
         public async Task<int> Delete(int id)
         {
@@ -1029,7 +1029,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     {
                         EntityExtension.FlagForUpdate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
                         garmentUnitDeliveryOrder.IsUsed = false;
-                        
+
 
                     }
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
@@ -1050,7 +1050,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
                     {
                         var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.FirstOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
-                        
+
                         var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "IN");
                         dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
 
@@ -1064,22 +1064,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || (garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" && garmentUnitExpenditureNote.UnitSenderCode != "SMP1"))
                     {
-                        var urn = dbSetGarmentUnitReceiptNote.Include(a=>a.Items).FirstOrDefault(a => a.UENId == id);
+                        var urn = dbSetGarmentUnitReceiptNote.Include(a => a.Items).FirstOrDefault(a => a.UENId == id);
                         EntityExtension.FlagForDelete(urn, identityService.Username, USER_AGENT);
-                        foreach(var urnItem in urn.Items)
+                        foreach (var urnItem in urn.Items)
                         {
                             EntityExtension.FlagForDelete(urnItem, identityService.Username, USER_AGENT);
                         }
                         var unitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(a => a.URNId == urn.Id);
-                        var unitDO = dbSetGarmentUnitDeliveryOrder.Include(a=>a.Items).FirstOrDefault(a => a.Id == unitDOItem.UnitDOId);
+                        var unitDO = dbSetGarmentUnitDeliveryOrder.Include(a => a.Items).FirstOrDefault(a => a.Id == unitDOItem.UnitDOId);
                         EntityExtension.FlagForDelete(unitDO, identityService.Username, USER_AGENT);
 
-                        foreach(var uDOItem in unitDO.Items)
+                        foreach (var uDOItem in unitDO.Items)
                         {
                             EntityExtension.FlagForDelete(uDOItem, identityService.Username, USER_AGENT);
                         }
 
-                        var uen = dbSet.Include(a=>a.Items).FirstOrDefault(a => a.UnitDOId == unitDO.Id);
+                        var uen = dbSet.Include(a => a.Items).FirstOrDefault(a => a.UnitDOId == unitDO.Id);
                         EntityExtension.FlagForDelete(uen, identityService.Username, USER_AGENT);
 
                         foreach (var uenItem in uen.Items)
@@ -1185,7 +1185,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
         }
 
-        public ReadResponse<object> ReadLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}",ConditionType conditionType=ConditionType.ENUM_INT)
+        public ReadResponse<object> ReadLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", ConditionType conditionType = ConditionType.ENUM_INT)
         {
             IQueryable<GarmentUnitExpenditureNote> Query = dbSet;
 
@@ -1261,18 +1261,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
             string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
-            
+
             Keyword = (Keyword ?? "").Trim();
 
             IQueryable<GarmentUnitExpenditureNoteItem> Query = (from uenItem in dbContext.GarmentUnitExpenditureNoteItems
                                                                 join uen in dbSet on uenItem.UENId equals uen.Id
                                                                 join b in dbContext.GarmentUnitDeliveryOrders
                                                                 on uen.UnitDOId equals b.Id
-                                                                where b.RONo == RONo 
+                                                                where b.RONo == RONo
                                                                 && uenItem.IsDeleted == false
                                                                 && uenItem.ProductCode.Contains(Keyword)
-                                                                && (uen.ExpenditureType=="SUBCON" || uen.ExpenditureType == "TRANSFER SUBCON")
-                                                                && uenItem.ProductName=="FABRIC"
+                                                                && (uen.ExpenditureType == "SUBCON" || uen.ExpenditureType == "TRANSFER SUBCON")
+                                                                && uenItem.ProductName == "FABRIC"
                                                                 select uenItem).AsQueryable();
 
             var Data = from a in Query
@@ -1284,7 +1284,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                            a.ProductId,
                            b.DesignColor
                        };
-            
+
             List<object> ListData = new List<object>();
             ListData.AddRange(Data.Distinct());
             return ListData;
@@ -1300,7 +1300,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return viewModel;
         }
 
-		public async Task<int> Update(int id, GarmentUnitExpenditureNote garmentUnitExpenditureNote)
+        public async Task<int> Update(int id, GarmentUnitExpenditureNote garmentUnitExpenditureNote)
         {
             int Updated = 0;
 
@@ -1315,7 +1315,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         .Include(d => d.Items)
                         .Single(m => m.Id == id);
 
-                    foreach(var uncheck in itemIsSaveFalse)
+                    foreach (var uncheck in itemIsSaveFalse)
                     {
                         var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.FirstOrDefault(s => s.ProductId == uncheck.ProductId && s.StorageId == oldGarmentUnitExpenditureNote.StorageId && s.UomId == uncheck.UomId);
 
@@ -1430,10 +1430,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             var garmentInventoryMovementIn = GenerateGarmentInventoryMovement(oldGarmentUnitExpenditureNote, oldGarmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "IN");
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementIn);
-                            
+
                             var garmentInventoryMovementOut = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, oldGarmentInventorySummaryExisting, "OUT");
                             garmentInventoryMovementOut.Before = garmentInventoryMovementIn.After;
-                            garmentInventoryMovementOut.After = garmentInventoryMovementOut.Before -(decimal) garmentUnitExpenditureNoteItem.Quantity;
+                            garmentInventoryMovementOut.After = garmentInventoryMovementOut.Before - (decimal)garmentUnitExpenditureNoteItem.Quantity;
                             dbSetGarmentInventoryMovement.Add(garmentInventoryMovementOut);
 
                             EntityExtension.FlagForUpdate(oldGarmentInventorySummaryExisting, identityService.Username, USER_AGENT);
@@ -1450,8 +1450,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         {
                             var coba = dbContext.GarmentUnitExpenditureNotes.AsNoTracking().FirstOrDefault(d => d.Id == id);
                             coba.Items = itemIsSaveFalse;
-                            
-                            
+
+
                             EntityExtension.FlagForDelete(oldGarmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
 
                             var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == oldGarmentUnitExpenditureNoteItem.UnitDOItemId);
@@ -1565,7 +1565,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             {
                 garmentInventoryMovement.Before = garmentInventorySummary == null ? 0 : garmentInventorySummary.Quantity;
                 garmentInventoryMovement.Quantity = (decimal)garmentUnitExpenditureNoteItem.Quantity * (type.ToUpper() == "OUT" ? -1 : 1);
-                garmentInventoryMovement.After = garmentInventorySummary == null || garmentInventorySummary.Quantity == 0  ? garmentInventoryMovement.Quantity : garmentInventoryMovement.Before + garmentInventoryMovement.Quantity;
+                garmentInventoryMovement.After = garmentInventorySummary == null || garmentInventorySummary.Quantity == 0 ? garmentInventoryMovement.Quantity : garmentInventoryMovement.Before + garmentInventoryMovement.Quantity;
             }
             else
             {
@@ -1604,7 +1604,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             garmentInventoryDocument.StorageId = garmentUnitExpenditureNote.StorageId;
             garmentInventoryDocument.StorageCode = garmentUnitExpenditureNote.StorageCode;
             garmentInventoryDocument.StorageName = garmentUnitExpenditureNote.StorageName;
-            
+
             garmentInventoryDocument.Remark = "";
 
             foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
@@ -1640,7 +1640,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             if (garmentUnitExpenditureNote.ExpenditureType == "PROSES" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "SISA" || garmentUnitExpenditureNote.ExpenditureType == "SUBCON")// || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
             {
                 no = string.Concat("BUK", garmentUnitExpenditureNote.UnitRequestCode, Year, Month, Day);
-            }else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" || garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "LAIN-LAIN")
+            } else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" || garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "LAIN-LAIN")
             {
                 no = string.Concat("BUK", garmentUnitExpenditureNote.UnitSenderCode, Year, Month, Day);
 
@@ -1827,7 +1827,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 try
                 {
                     List<string> ListUenNo = uenNo.Split(",").ToList();
-                    foreach(var UENNo in ListUenNo)
+                    foreach (var UENNo in ListUenNo)
                     {
                         var oldGarmentUnitExpenditureNote = dbSet
                         .Include(d => d.Items)
@@ -1845,7 +1845,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         Updated = await dbContext.SaveChangesAsync();
                     }
                     //dbSet.Update(garmentUnitExpenditureNote);
-                  
+
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -1896,27 +1896,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return uen;
         }
 
-		public ExpenditureROViewModel GetROAsalById(int id)
-		{
-			ExpenditureROViewModel viewModel = new ExpenditureROViewModel();
+        public ExpenditureROViewModel GetROAsalById(int id)
+        {
+            ExpenditureROViewModel viewModel = new ExpenditureROViewModel();
 
-			var uendetail = dbSet.Include(x=>x.Items).FirstOrDefault(x => x.Items.Any(i => i.Id == id));
+            var uendetail = dbSet.Include(x => x.Items).FirstOrDefault(x => x.Items.Any(i => i.Id == id));
 
-			var unitDO = dbSetGarmentUnitDeliveryOrder.FirstOrDefault(a => a.Id == uendetail.UnitDOId);
+            var unitDO = dbSetGarmentUnitDeliveryOrder.FirstOrDefault(a => a.Id == uendetail.UnitDOId);
 
-			foreach (var item in uendetail.Items.Where(s=>s.Id== id))
-			{
-				var unitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(a => a.Id == item.UnitDOItemId);
-				viewModel = new ExpenditureROViewModel
-				{
-					DetailExpenditureId = item.Id,
-					ROAsal = unitDOItem.RONo,
-					BuyerCode= item.BuyerCode
-				};
-			}
-			return viewModel;
+            foreach (var item in uendetail.Items.Where(s => s.Id == id))
+            {
+                var unitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(a => a.Id == item.UnitDOItemId);
+                viewModel = new ExpenditureROViewModel
+                {
+                    DetailExpenditureId = item.Id,
+                    ROAsal = unitDOItem.RONo,
+                    BuyerCode = item.BuyerCode
+                };
+            }
+            return viewModel;
 
-		}
+        }
         //
         public IQueryable<GarmentUENViewModel> GetDataUENQuery(int id)
         {
@@ -1958,7 +1958,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 Query = Query.OrderBy(b => b.UENNo).ThenBy(b => b.PONo);
             }
 
-            
+
             Pageable<MonitoringOutViewModel> pageable = new Pageable<MonitoringOutViewModel>(Query, page - 1, size);
             List<MonitoringOutViewModel> Data = pageable.Data.ToList<MonitoringOutViewModel>();
             int TotalData = pageable.TotalCount;
@@ -1992,7 +1992,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             ItemCode = a.ProductCode,
                             ItemName = a.ProductName,
                             PONo = a.POSerialNumber,
-                            Quantity = Math.Round(a.UomUnit == "YARD" && type == "FABRIC" ? (double)a.Quantity * 0.9144 : (double)a.Quantity,2),
+                            Quantity = Math.Round(a.UomUnit == "YARD" && type == "FABRIC" ? (double)a.Quantity * 0.9144 : (double)a.Quantity, 2),
                             Storage = b.StorageName,
                             UENNo = b.UENNo,
                             UnitCode = b.UnitRequestCode,
@@ -2087,14 +2087,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             result.Columns.Add(new DataColumn() { ColumnName = "Gudang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
-            
+
 
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
             if (Query.ToArray().Count() == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "",""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -2238,7 +2238,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         m.CreatedUtc = reviseDate;
 
-                        
+
 
                         EntityExtension.FlagForCreate(changeDateHistory, user, "Facade");
                         dbSetUenUrnChangeDate.Add(changeDateHistory);
@@ -2333,5 +2333,145 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             public string roNo { get; set; }
             public string uenNo { get; set; }
         }
+
+
+        //------------------Menu baru history Delet-MDP BUK FACEDE----------------------------------------//
+
+        public IQueryable<MonitoringOutDeletedViewModel> ReadDeletedQuery(string bonType, DateTime? dateFrom, DateTime? dateTo)
+        {
+            var offset = 7;
+            DateTime d1 = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime d2 = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            List<MonitoringOutDeletedViewModel> list = new List<MonitoringOutDeletedViewModel>();
+
+            var Data = ( from d  in dbContext.GarmentUnitExpenditureNoteItems.IgnoreQueryFilters() 
+                       join p in dbContext.GarmentUnitExpenditureNotes.IgnoreQueryFilters() on d.UENId equals p.Id
+                       where d.IsDeleted == true
+                        //&& p.IsDeleted == false
+                        && ((d1 != new DateTime(1970, 1, 1)) ? (d.DeletedUtc.Date >= d1 && d.DeletedUtc.Date <= d2) : true)
+                       select new
+                       {
+                           id = p.Id,
+                           ueNid = d.UENId,
+                           deletedUtcEx = p.DeletedUtc,
+                           deletedByEx = p.DeletedBy,
+                           uenNoEx = p.UENNo,
+                           unitEx = p.UnitRequestName,
+                           expenditureDate = p.ExpenditureDate,
+                           unitDoNoEx = p.UnitDONo,
+                           expenditureType = p.ExpenditureType,
+                           expenditureToEx = p.ExpenditureTo,
+                           roNoEx = d.RONo,
+                           poSerialNumber = d.POSerialNumber,
+                           productNameEx = d.ProductName,
+                           quantityEx = d.Quantity,
+                           uomUnitEx = d.UomUnit
+                       }
+                       )
+                       .Distinct()
+                       .ToList();
+
+            var Query = (from data in Data
+                         select new MonitoringOutDeletedViewModel
+                         {
+                             id = data.id,
+                             ueNid = data.ueNid,
+                             deletedUtcEx = (data.deletedUtcEx.AddHours(offset)).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+                             deletedByEx = data.deletedByEx,
+                             uenNoEx = data.uenNoEx,
+                             unitEx = data.unitEx,
+                             expenditureDate = (data.expenditureDate.AddHours(offset)).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+                             unitDoNoEx = data.unitDoNoEx,
+                             expenditureType = data.expenditureType,
+                             expenditureToEx = data.expenditureToEx,
+
+                             roNoEx = data.roNoEx,
+                             poSerialNumber = data.poSerialNumber,
+                             productNameEx = data.productNameEx,
+                             quantityEx = data.quantityEx,
+                             uomUnitEx = data.uomUnitEx
+
+                         }).OrderByDescending(s => s.deletedUtcEx);
+            int i = 1;
+            foreach (var item in Query)
+            {
+                list.Add(
+                       new MonitoringOutDeletedViewModel
+                       {
+                           id = item.id,
+                           ueNid = item.ueNid,
+                           deletedUtcEx = item.deletedUtcEx,
+                           deletedByEx = item.deletedByEx,
+                           uenNoEx = item.uenNoEx,
+                           unitEx = item.unitEx,
+                           expenditureDate = item.expenditureDate,
+                           unitDoNoEx = item.unitDoNoEx,
+                           expenditureType = item.expenditureType,
+                           expenditureToEx = item.expenditureToEx,
+
+                           roNoEx = item.roNoEx,
+                           poSerialNumber = item.poSerialNumber,
+                           productNameEx = item.productNameEx,
+                           quantityEx = item.quantityEx,
+                           uomUnitEx = item.uomUnitEx
+                       });
+                i++;
+            }
+             return Query.AsQueryable();
+        }
+
+        public Tuple<List<MonitoringOutDeletedViewModel>, int> ReadDeleted(string bonType, DateTime? dateFrom, DateTime? dateTo)
+        {
+            List<MonitoringOutDeletedViewModel> Query = ReadDeletedQuery(bonType, dateFrom, dateTo).ToList();
+
+            return Tuple.Create(Query, Query.Count());
+        }
+
+        //---Mencoba Excel XLS MDP BUK---//
+        public MemoryStream GenerateDeletedExcel(string bonType, DateTime? dateFrom, DateTime? dateTo)
+        {
+            // Memfilter Query sesuai dengan kriteria Anda (bonType, dateFrom, dateTo)
+            var Query = ReadDeletedQuery(bonType, dateFrom, dateTo);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(int) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TGL DELETE", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "USER DELETE", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO BON KELUAR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "UNIT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TGL PENGELUARAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO DO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JENIS PENGELUARAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TUJUAN BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(decimal) });
+            result.Columns.Add(new DataColumn() { ColumnName = "SATUAN", DataType = typeof(String) });
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+            if (Query.ToArray().Count() == 0)
+            {
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, ""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 0;
+                foreach (MonitoringOutDeletedViewModel data in Query)
+                {
+                    index++;
+                    result.Rows.Add(index, data.deletedUtcEx,  data.deletedByEx,  data.uenNoEx, data.unitEx,
+                        data.expenditureDate, data.unitDoNoEx, data.expenditureType, data.expenditureToEx,
+                        data.roNoEx, data.poSerialNumber, data.productNameEx, data.quantityEx, data.uomUnitEx
+                        );
+                }
+            }
+
+            return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
+        //------------------Akhir Menu baru history Delet-MDP----------------------------------------//
+
     }
 }

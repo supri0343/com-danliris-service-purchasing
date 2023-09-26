@@ -39,6 +39,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitExpenditureNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.LogHistory;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -165,6 +166,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentSubconUnitExpenditureNote> GarmentSubconUnitExpenditureNotes { get; set; }
         public DbSet<GarmentSubconUnitExpenditureNoteItem> GarmentSubconUnitExpenditureNoteItems { get; set; }
 
+        public DbSet<LogHistory> LogHistories { get; set; }
         //public DbSet<ImportValue> ImportValues { get; set; }
 
         public DbSet<GarmentClosingDate> ClosingDate { get; set; }
@@ -202,9 +204,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib
                 .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
 
             modelBuilder.Entity<GarmentUnitReceiptNote>()
-                .HasIndex(i => i.URNNo)
-                .IsUnique()
-                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
+                   .HasIndex(i => i.URNNo)
+                   .IsUnique()
+                    .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
+
+            //modelBuilder.Entity<GarmentUnitReceiptNote>()
+            // .HasIndex(i => i.URNNo)
+            // .IsUnique()
+            // .HasFilter(" [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
 
             modelBuilder.Entity<GarmentReceiptCorrection>()
                 .HasIndex(i => i.CorrectionNo)
