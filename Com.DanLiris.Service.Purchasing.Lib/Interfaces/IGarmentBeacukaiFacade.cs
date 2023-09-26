@@ -24,6 +24,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 		List<object> GetFinInSubcon(string contractNo);
 
 		List<object> GetBCDOUrn(string contractNo, string subconContractType, string subconCategory);
+
+		List<object> GetROByUenNo(string uenNo);
 		//List<object> GetBCDOUrnFilter(string contractNo);
 
 

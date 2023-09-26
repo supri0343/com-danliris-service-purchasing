@@ -641,7 +641,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                 //var uenIds = uenId.Contains(",") ? uenId.Split(",").ToList() :  new List<string> { uenId };
                 //var uenNos = uenId.Contains(",") ? uenNo.Split(",").ToList() : new List<string> { uenNo };
                 //var result = facade.GetROByUen(uenIds, uenNos);
-                var result = facade.GetROByUen(uenId, uenNo);
+                var result = facade.GetROByUen(uenId);
 
                 Dictionary<string, object> Result =
                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
