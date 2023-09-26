@@ -643,29 +643,74 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
         public List<object> ReadBCByContractNoforSubcon(string contractNo, string subconContractType, string subconCategory)
         {
-            var data = (from a in dbContext.GarmentBeacukais
-                        join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
-                        join c in dbContext.GarmentDeliveryOrders on a.Id equals c.CustomsId
-                        join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
-                        join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                        where a.IsDeleted == false && b.IsDeleted == false && a.SubconContractNo == contractNo
-                        select new
-                        {
-                            bcNoIn = a.BeacukaiNo,
-                            bcDateIn = a.BeacukaiDate,
-                            quantityIn = b.TotalQty,
-                            fintype = a.FinishedGoodType,
-                            garmentDONo = b.GarmentDONo,
-                            roNo = e.RONo
-                        }).GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.fintype, x.garmentDONo, x.roNo }, (key, group) => new
-                        {
-                            bcNoIn = key.bcNoIn,
-                            bcDateIn = key.bcDateIn,
-                            quantityIn = group.Sum(x => x.quantityIn),
-                            fintype = key.fintype,
-                            gamentDONo = key.garmentDONo,
-                            roNo = key.roNo
-                        });
+            var dataDO = (from a in dbContext.GarmentBeacukais
+                          join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
+                          join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
+                          join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
+                          join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
+                          where a.IsDeleted == false && b.IsDeleted == false
+                          && c.IsDeleted == false
+                            && d.IsDeleted == false
+                            && e.IsDeleted == false
+                          && a.SubconContractNo == contractNo
+                          && b.IsPO == true
+                          select new
+                          {
+                              bcNoIn = a.BeacukaiNo,
+                              bcDateIn = a.BeacukaiDate,
+                              quantityIn = e.SmallQuantity,
+                              fintype = a.FinishedGoodType,
+                              garmentDONo = b.GarmentDONo,
+                              roNo = e.RONo,
+                              uomUnitIn = e.UomUnit,
+                              subconContractId = a.SubconContractId
+                          }).Distinct();
+            //.GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.fintype, x.garmentDONo, x.roNo }, (key, group) => new
+            //{
+            //    bcNoIn = key.bcNoIn,
+            //    bcDateIn = key.bcDateIn,
+            //    quantityIn = group.Sum(x => x.quantityIn),
+            //    fintype = key.fintype,
+            //    gamentDONo = key.garmentDONo,
+            //    roNo = key.roNo,
+            //    uomUnitIn = group.First().uomUnitIn,
+            //    subconContractId = group.First().subconContractId
+            //}).Distinct();
+            var dataDONonPO = (from a in dbContext.GarmentBeacukais
+                               join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
+                               join c in dbContext.GarmentDeliveryOrderNonPOs on b.GarmentDOId equals c.Id
+                               join d in dbContext.GarmentDeliveryOrderNonPOItems on c.Id equals d.GarmentDeliveryOrderNonPOId
+                               //join e in dbContext.GarmentDeliveryOrderNonPO on d.Id equals e.GarmentDOItemId into k
+
+
+                               //join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
+                               where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false
+                               && d.IsDeleted == false
+                               && a.SubconContractNo == contractNo && !b.IsPO
+                               select new
+                               {
+                                   bcNoIn = a.BeacukaiNo,
+                                   bcDateIn = a.BeacukaiDate,
+                                   quantityIn = d.Quantity,
+                                   fintype = a.FinishedGoodType,
+                                   garmentDONo = b.GarmentDONo,
+                                   roNo = "-",
+                                   uomUnitIn = d.UomUnit,
+                                   subconContractId = a.SubconContractId
+                               });
+                          //.GroupBy(x => new { x.bcDateIn, x.bcNoIn, x.fintype, x.garmentDONo, x.roNo }, (key, group) => new
+                          //{
+                          //    bcNoIn = key.bcNoIn,
+                          //    bcDateIn = key.bcDateIn,
+                          //    quantityIn = group.Sum(x => x.quantityIn),
+                          //    fintype = key.fintype,
+                          //    gamentDONo = key.garmentDONo,
+                          //    roNo = key.roNo,
+                          //    uomUnitIn = group.First().uomUnitIn,
+                          //    subconContractId = group.First().subconContractId
+                          //}).Distinct();
+
+            var data = dataDO.Union(dataDONonPO).ToList();
 
             List<object> ListData = new List<object>(data);
 
@@ -752,6 +797,53 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
             return ListData;
 
         }
+
+        public List<object> GetROByUenNo(string uenNo)
+        {
+
+            var uenNos = uenNo.Contains(",") ? uenNo.Split(",").ToList() : new List<string> { uenNo };
+
+            var GarmentUEN = dbContext.GarmentUnitExpenditureNotes.Where(x => uenNos.Contains(x.UENNo.ToString())).Select(s => new { Id = s.Id, UENNo = s.UENNo }).ToList();
+            //var GarmentUENList = GarmentUEN.ToList();
+            var GarmentUENIds = GarmentUEN.Select(s => s.Id);
+
+            var GarmentUENItems = dbContext.GarmentUnitExpenditureNoteItems.Where(x => GarmentUENIds.Contains(x.UENId)).Select(s => new { RONo = s.RONo, UENId = s.UENId }).ToList();
+
+
+
+            var data = (from a in GarmentUEN
+                        join b in GarmentUENItems on a.Id equals b.UENId
+
+                        //&& uenNos.Contains(a.UENNo.ToString())
+                        select new roViewModel
+                        {
+                            id = a.Id,
+                            roNo = b.RONo,
+                            uenNo = a.UENNo
+
+                        })
+                    .GroupBy(x => new { x.id }, (key, group) => new roViewModel
+                    {
+                        id = key.id,
+                        roNo = group.First().roNo,
+                        uenNo = group.First().uenNo
+                    }).ToList();
+
+
+
+            List<object> ListData = new List<object>(data);
+
+            return ListData;
+
+        }
+
+        public class roViewModel
+        {
+            public long id { get; set; }
+            public string roNo { get; set; }
+            public string uenNo { get; set; }
+        }
+
 
         //public List<object> GetBCDOUrnSewing(string contractNo)
         //{
