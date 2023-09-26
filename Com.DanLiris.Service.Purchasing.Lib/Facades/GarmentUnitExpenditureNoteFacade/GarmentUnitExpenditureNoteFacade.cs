@@ -2258,17 +2258,54 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return Updated;
         }
 
-        public List<object> GetROByUen(string uenId,string uenNo)
+        //public List<object> GetROByUenNo(string uenNo)
+        //{
+            
+        //        var uenNos = uenNo.Contains(",") ? uenNo.Split(",").ToList() : new List<string> { uenNo };
+
+        //        var GarmentUEN = dbContext.GarmentUnitExpenditureNotes.Where(x => uenNos.Contains(x.UENNo.ToString())).Select( s => new { Id = s.Id, UENNo = s.UENNo}).ToList();
+        //        //var GarmentUENList = GarmentUEN.ToList();
+        //        var GarmentUENIds = GarmentUEN.Select(s => s.Id);
+                
+        //        var GarmentUENItems = dbContext.GarmentUnitExpenditureNoteItems.Where(x => GarmentUENIds.Contains( x.UENId)).Select( s => new { RONo = s.RONo, UENId = s.UENId}).ToList();
+
+                
+
+        //        var data = (from a in GarmentUEN
+        //                join b in GarmentUENItems on a.Id equals b.UENId
+
+        //                //&& uenNos.Contains(a.UENNo.ToString())
+        //                select new roViewModel
+        //                {
+        //                    id = a.Id,
+        //                    roNo = b.RONo,
+        //                    uenNo = a.UENNo
+
+        //                })
+        //                .GroupBy(x => new { x.id }, (key, group) => new roViewModel
+        //                 {
+        //                     id = key.id,
+        //                     roNo = group.First().roNo,
+        //                     uenNo = group.First().uenNo
+        //                 }).ToList();
+
+            
+
+        //    List<object> ListData = new List<object>(data);
+
+        //    return ListData;
+
+        //}
+
+
+        public List<object> GetROByUen(string uenId)
         {
-            //List<GarmentUnitExpenditureNote> GarmentUEN = new List<GarmentUnitExpenditureNote>();
-            List<roViewModel> data = new List<roViewModel>();
+            
+            
+            var uenIds = uenId.Contains(",") ? uenId.Split(",").ToList() : new List<string> { uenId };
+                
 
-            if (uenId != null)
-            {
-                var uenIds = uenId.Contains(",") ? uenId.Split(",").ToList() : new List<string> { uenId };
-                ///GarmentUEN = dbContext.GarmentUnitExpenditureNotes.Where(x => uenIds.Contains(x.Id.ToString()));
-
-                data = (from a in dbContext.GarmentUnitExpenditureNotes
+            var data = (from a in dbContext.GarmentUnitExpenditureNotes
                         join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                         where a.IsDeleted == false && b.IsDeleted == false
                         && uenIds.Contains(a.Id.ToString())
@@ -2281,44 +2318,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             id = key.id,
                             roNo = group.First().roNo
                         }).ToList();
-            }
 
-            if (uenNo != null)
-            {
-                var uenNos = uenNo.Contains(",") ? uenNo.Split(",").ToList() : new List<string> { uenNo };
-
-                data = (from a in dbContext.GarmentUnitExpenditureNotes
-                        join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
-                        where a.IsDeleted == false && b.IsDeleted == false
-                        && uenNos.Contains(a.UENNo.ToString())
-                        select new roViewModel
-                        {
-                            id = Convert.ToInt32(a.Id),
-                            roNo = b.RONo,
-                            uenNo = a.UENNo
-                            
-                        }).GroupBy(x => new { x.id }, (key, group) => new roViewModel
-                        {
-                            id = key.id,
-                            roNo = group.First().roNo,
-                            uenNo = group.First().uenNo
-                        }).ToList();
-            }
-
-
-            //var data = (from a in GarmentUEN
-            //            join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
-            //            where a.IsDeleted == false && b.IsDeleted == false 
-            //            //&& uenId.Contains(a.Id.ToString())
-            //            select new
-            //            {
-            //                id = a.Id,
-            //                roNo = b.RONo
-            //            }).GroupBy(x => new { x.id}, (key, group) => new
-            //            {
-            //                id = key.id,
-            //                roNo = group.First().roNo
-            //            });
 
             List<object> ListData = new List<object>(data);
 
@@ -2329,7 +2329,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
         public class roViewModel
         { 
-            public int id { get; set; }
+            public long id { get; set; }
             public string roNo { get; set; }
             public string uenNo { get; set; }
         }
