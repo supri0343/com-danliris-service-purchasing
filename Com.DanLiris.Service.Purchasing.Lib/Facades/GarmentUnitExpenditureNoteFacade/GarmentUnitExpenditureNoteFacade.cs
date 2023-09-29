@@ -32,6 +32,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade
 {
@@ -56,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
         private readonly DbSet<GarmentUnitReceiptNote> dbSetGarmentUnitReceiptNote;
         private readonly DbSet<GarmentDOItems> dbSetGarmentDOItems;
         private readonly DbSet<GarmentUenUrnChangeDateHistory> dbSetUenUrnChangeDate;
-
+        private readonly LogHistoryFacades logHistoryFacades;
         //private GarmentReturnCorrectionNoteFacade garmentReturnCorrectionNoteFacade;
 
 
@@ -82,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             dbSetUenUrnChangeDate = dbContext.Set<GarmentUenUrnChangeDateHistory>();
 
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
-
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
             //this.garmentReturnCorrectionNoteFacade = (GarmentReturnCorrectionNoteFacade)serviceProvider.GetService(typeof(GarmentReturnCorrectionNoteFacade));
         }
 
@@ -540,6 +542,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         EntityExtension.FlagForCreate(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
                         dbSetGarmentUnitReceiptNote.Add(garmentUnitReceiptNote);
 
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Create Bon Terima Unit - " + garmentUnitReceiptNote.URNNo);
+
                         await dbContext.SaveChangesAsync();
 
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
@@ -649,6 +654,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         garmentUnitDO.UnitDONo = await garmentUnitDeliveryOrderFacade.GenerateNo(garmentUnitDO);
                         EntityExtension.FlagForCreate(garmentUnitDO, identityService.Username, USER_AGENT);
+
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Create Unit Delivery Order- " + garmentUnitDO.UnitDONo);
 
                         dbSetGarmentUnitDeliveryOrder.Add(garmentUnitDO);
 
@@ -805,6 +813,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             #endregion Inventory
 
+                            //Create Log History
+                            logHistoryFacades.Create("PEMBELIAN", "Create Bon Pengeluaran Unit - " + uen.UENNo);
+
                             Created = await dbContext.SaveChangesAsync();
                         }
 
@@ -887,6 +898,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         garmentUnitReceiptNote.URNNo = await garmentUnitReceiptNoteFacade.GenerateNo(garmentUnitReceiptNote);
                         EntityExtension.FlagForCreate(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
                         dbSetGarmentUnitReceiptNote.Add(garmentUnitReceiptNote);
+
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Create Bon Penerimaan Unit - " + garmentUnitReceiptNote.URNNo);
 
                         await dbContext.SaveChangesAsync();
 
@@ -1095,6 +1109,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             EntityExtension.FlagForDelete(uenItem, identityService.Username, USER_AGENT);
                         }
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Bon Pengeluaran Unit - " + garmentUnitExpenditureNote.UENNo);
 
                     Deleted = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -1501,6 +1518,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     }
 
                     //dbSet.Update(garmentUnitExpenditureNote);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Update Bon Pengeluaran Unit - " + garmentUnitExpenditureNote.UENNo);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
