@@ -554,15 +554,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
         }
 
-        public List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(string currencyCode, int supplierId)
+        public List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(string currencyCode, int supplierId, int niId)
         {
             var query = dbContext.GarmentInternNotes.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
 
-            if (!string.IsNullOrEmpty(currencyCode))
-                query = query.Where(entity => entity.CurrencyCode.Contains(currencyCode));
+            if(niId > 0)
+            {
+                query = query.Where(entity => entity.Id == niId);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(currencyCode))
+                    query = query.Where(entity => entity.CurrencyCode.Contains(currencyCode));
 
-            if (supplierId > 0)
-                query = query.Where(entity => entity.SupplierId.GetValueOrDefault() == supplierId);
+                if (supplierId > 0)
+                    query = query.Where(entity => entity.SupplierId.GetValueOrDefault() == supplierId);
+            }
 
             var result = new List<GarmentInternalNoteDto>();
             if (query.Count() > 0)
@@ -1134,6 +1141,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 }
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
+        }
+
+        public List<object> GetByNIForDPPVATExpenditure(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentInternNote> Query = dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "INNo"
+            };
+
+            Query = QueryHelper<GarmentInternNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Query = Query.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentInternNote>.ConfigureFilter(Query, FilterDictionary);
+
+            var result = Query.Select(s => new
+            {
+                Id = s.Id,
+                INNo = s.INNo,
+            });
+
+
+            result = result.Take(Size);
+
+            List<object> ListData = new List<object>(result);
+
+            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            //Query = QueryHelper<GarmentInternNote>.ConfigureOrder(Query, OrderDictionary);
+
+            //Pageable<GarmentInternNote> pageable = new Pageable<GarmentInternNote>(Query, Page - 1, Size);
+            //List<GarmentInternNote> Data = pageable.Data.ToList();
+            //int TotalData = pageable.TotalCount;
+
+            return ListData;
         }
     }
 }
