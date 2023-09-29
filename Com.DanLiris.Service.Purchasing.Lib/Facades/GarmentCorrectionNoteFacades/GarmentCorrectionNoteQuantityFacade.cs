@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
@@ -13,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades
 {
@@ -22,12 +24,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentCorrectionNote> dbSet;
-
+        private readonly LogHistoryFacades logHistoryFacades;
         public GarmentCorrectionNoteQuantityFacade(IServiceProvider serviceProvider ,PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             this.serviceProvider = serviceProvider;
             dbSet = dbContext.Set<GarmentCorrectionNote>();
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
 
         public Tuple<List<GarmentCorrectionNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -133,6 +136,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                     }
 
                     dbSet.Add(garmentCorrectionNote);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Koreksi Jumlah Pembelian - " + garmentCorrectionNote.CorrectionNo);
 
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
