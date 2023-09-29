@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
@@ -15,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFacades
 {
@@ -31,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
         private readonly DbSet<GarmentInventoryMovement> dbSetGarmentInventoryMovement;
         private readonly DbSet<GarmentInventorySummary> dbSetGarmentInventorySummary;
         private readonly IMapper mapper;
+        private readonly LogHistoryFacades logHistoryFacades;
 
         public GarmentReceiptCorrectionFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
@@ -43,7 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
             dbSetGarmentInventoryDocument= dbContext.Set< GarmentInventoryDocument>();
             dbSetGarmentInventoryMovement = dbContext.Set<GarmentInventoryMovement>();
             dbSetGarmentInventorySummary = dbContext.Set<GarmentInventorySummary>();
-
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
             mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
@@ -253,6 +256,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFa
                     }
 
                     this.dbSet.Add(m);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Koreksi Bon Terima Unit - " + m.CorrectionNo);
+
 
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();

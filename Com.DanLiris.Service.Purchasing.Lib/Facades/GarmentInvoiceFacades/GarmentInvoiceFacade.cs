@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 {
@@ -25,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
         public readonly IServiceProvider serviceProvider;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
+        private readonly LogHistoryFacades logHistoryFacades;
 
         public GarmentInvoiceFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
@@ -33,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             this.dbSetDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
             this.serviceProvider = serviceProvider;
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
         public Tuple<List<GarmentInvoice>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
@@ -101,6 +104,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                     model.TotalAmount = _total;
 
                     this.dbSet.Add(model);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Garment Invoice - " + model.InvoiceNo);
+
                     Created = await dbContext.SaveChangesAsync();
 
                     foreach (var item in model.Items)
@@ -260,6 +267,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                         }
                     }
 
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Garment Invoice - " + model.InvoiceNo);
+
                     Deleted = dbContext.SaveChanges();
                     transaction.Commit();
                 }
@@ -382,6 +392,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                     }
                     EntityExtension.FlagForUpdate(model, user, USER_AGENT);
                     this.dbSet.Update(model);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Update Garment Invoice - " + model.InvoiceNo);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();

@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 {
@@ -29,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
         private readonly DbSet<GarmentSubconDeliveryOrder> dbSetSubconDeliveryOrders ;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
+        private readonly LogHistoryFacades logHistoryFacades;
         public GarmentBeacukaiFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
@@ -38,6 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
             this.dbSetSubconDeliveryOrders = dbContext.Set<GarmentSubconDeliveryOrder>();
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
             this.serviceProvider = serviceProvider;
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
 
         public Tuple<List<GarmentBeacukai>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -284,6 +288,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             }
                         }
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Bea Cukai - " + model.BeacukaiNo);
+
                     Created = await dbContext.SaveChangesAsync();
 
                     foreach (var item in model.Items)
@@ -391,6 +399,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                
                         }
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Bea Cukai - " + model.BeacukaiNo);
 
                     Deleted = dbContext.SaveChanges();
                     transaction.Commit();
@@ -612,6 +623,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                     }
 
                     this.dbSet.Update(model);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Update Bea Cukai - " + model.BeacukaiNo);
+
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
 

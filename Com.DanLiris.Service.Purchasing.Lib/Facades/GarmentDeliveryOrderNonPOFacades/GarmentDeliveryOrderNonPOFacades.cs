@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
@@ -13,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOFacades
 {
@@ -24,15 +26,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrderNonPO> dbSet;
         private readonly DbSet<GarmentDeliveryOrderNonPOItem> dbSetItem;
-
+        private readonly LogHistoryFacades logHistoryFacades;
         private readonly IMapper mapper;
+
         public GarmentDeliveryOrderNonPOFacades(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentDeliveryOrderNonPO>();
             dbSetItem = dbContext.Set<GarmentDeliveryOrderNonPOItem>();
             this.serviceProvider = serviceProvider;
-
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
             mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
@@ -128,6 +131,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
 
                     this.dbSet.Add(m);
 
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Surat Jalan Non PO - " + m.DONo);
+
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -160,6 +166,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
 
                        
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Surat Jalan Non PO - " + model.DONo);
+
+
                     Deleted = await dbContext.SaveChangesAsync();
 
                     await dbContext.SaveChangesAsync();
@@ -231,6 +242,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
                         }
 
                         dbSet.Update(oldM);
+
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Update Surat Jalan Non PO - " + m.DONo);
 
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
