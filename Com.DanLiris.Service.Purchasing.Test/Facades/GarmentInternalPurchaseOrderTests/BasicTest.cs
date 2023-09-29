@@ -64,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
-            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName), ServiceProvider);
             var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
 
             return new GarmentExternalPurchaseOrderDataUtil(facade, garmentInternalPurchaseOrderDataUtil);
@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Success_Create_Multiple_Data()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.CreateMultiple(listData, USERNAME);
             Assert.NotEqual(0, Response);
@@ -82,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Error_Create_Multiple_Data()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             foreach (var data in listData)
             {
@@ -95,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Success_Get_All_Data()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
             Assert.NotEmpty(Response.Item1);
@@ -104,7 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Success_Get_All_Data_With_Items_Order()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read(Order: "{\"Items.ProductName\" : \"desc\"}");
             Assert.NotEmpty(Response.Item1);
@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadById((int) listData.First().Id);
             Assert.NotNull(Response);
@@ -122,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Success_Check_Cuplicate_Data()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.CheckDuplicate(listData.First());
             Assert.False(Response);
@@ -132,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         public async Task Should_Success_Split_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            var facade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            var facade = new GarmentInternalPurchaseOrderFacade(dbContext, ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var data = dbContext.GarmentInternalPurchaseOrders.AsNoTracking().Include(m => m.Items).Single(m => m.Id == listData.First().Id);
 
@@ -143,7 +143,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Error_Split_Data()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var data = listData.First();
             data.Items = null;
@@ -154,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Success_Delete_Data()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var data = listData.First();
             var Response = await facade.Delete((int)data.Id, USERNAME);
@@ -164,7 +164,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Error_Delete_Data()
         {
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Delete(0, USERNAME));
             Assert.NotNull(e.Message);
@@ -191,7 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             };
             Assert.True(viewModelZeroQuantity.Validate(null).Count() > 0);
 
-            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            var facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var data = listData.First();
             var item = data.Items.First();
@@ -235,7 +235,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
         [Fact]
         public async Task Should_Success_Get_Data_By_Tags()
         {
-            GarmentInternalPurchaseOrderFacade facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            GarmentInternalPurchaseOrderFacade facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             GarmentInternalPurchaseOrder data = model.FirstOrDefault();
           
@@ -262,7 +262,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             await facade.Create(data, USERNAME);
-            GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
             var Response = Facade.GetIPOEPODurationReport("", "0-7 hari", null, null, 1, 25, "{}", 7);
             Assert.NotEqual(-1, Response.Item2);
 
@@ -282,7 +282,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await EPOdataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
             await facade.Create(data, USERNAME);
-            GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()));
+            GarmentInternalPurchaseOrderFacade Facade = new GarmentInternalPurchaseOrderFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
 
             var Response = Facade.GenerateExcelIPOEPODuration("", "8-14 hari", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
@@ -296,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
 		public async Task Should_Success_Get_Data_By_Name()
 		{
 			var dbContext = _dbContext(GetCurrentMethod());
-			var facade = new GarmentInternalPurchaseOrderFacade(dbContext);
+			var facade = new GarmentInternalPurchaseOrderFacade(dbContext, ServiceProvider);
 			var listData = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 			var data = dbContext.GarmentInternalPurchaseOrders.AsNoTracking().Include(m => m.Items).Single(m => m.Id == listData.First().Id);
 

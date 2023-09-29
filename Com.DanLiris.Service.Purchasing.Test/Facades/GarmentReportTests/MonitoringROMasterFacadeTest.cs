@@ -111,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
             var garmentPurchaseRequestData = garmentPurchaseRequestDataUtil.GetNewData();
 
-            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext, mockServiceProvider.Object);
             var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
             var garmentInternalPurchaseOrderData = await garmentInternalPurchaseOrderDataUtil.GetNewData(garmentPurchaseRequestData);
 
@@ -208,7 +208,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
             var garmentPurchaseRequestData = garmentPurchaseRequestDataUtil.GetNewData();
 
-            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext, mockServiceProvider.Object);
             var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
             var garmentInternalPurchaseOrderData = await garmentInternalPurchaseOrderDataUtil.GetNewData(garmentPurchaseRequestData);
 
