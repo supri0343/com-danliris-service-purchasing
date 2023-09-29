@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentStockOpnameTests
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(serviceProvider, dbContext);
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
-            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext);
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(dbContext, serviceProvider);
             var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
 
             var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(serviceProvider, dbContext);
