@@ -82,11 +82,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
 
         [HttpGet("dpp-vat-bank-expenditures")]
-        public IActionResult GetDPPVATBankExpenditures([FromQuery] string currencyCode, [FromQuery] int supplierId)
+        public IActionResult GetDPPVATBankExpenditures([FromQuery] string currencyCode, [FromQuery] int supplierId, [FromQuery] int niId)
         {
             try
             {
-                var result = facade.BankExpenditureReadInternalNotes(currencyCode, supplierId);
+                var result = facade.BankExpenditureReadInternalNotes(currencyCode, supplierId,niId);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -101,6 +101,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("ni-for-dpp-vat-bank-expenditures")]
+        public IActionResult GetByNIForDPPVATExpenditure(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                var result = facade.GetByNIForDPPVATExpenditure(page, size,order,keyword,filter);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
 
         [HttpGet("dpp-vat-bank-expenditures-optimized")]
         public IActionResult GetDPPVATBankExpendituresOptimized([FromQuery] int currencyId, [FromQuery] int supplierId)
