@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities;
@@ -16,6 +17,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades
 {
@@ -25,11 +27,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentInternalPurchaseOrder> dbSet;
-
-        public GarmentInternalPurchaseOrderFacade(PurchasingDbContext dbContext)
+        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly IServiceProvider serviceProvider;
+        public GarmentInternalPurchaseOrderFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentInternalPurchaseOrder>();
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
 
         public Tuple<List<GarmentInternalPurchaseOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -135,6 +139,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                         model.IsPosted = false;
                         model.IsClosed = false;
 
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Create Purchase Order Internal - " + model.PONo);
+
                         foreach (var item in model.Items)
                         {
                             EntityExtension.FlagForCreate(item, user, USER_AGENT);
@@ -206,6 +213,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
                     dbSet.Add(model);
 
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Split Purchase Order Internal - " + model.PONo);
+
                     Splited = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -248,6 +258,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                             EntityExtension.FlagForUpdate(garmentPurchaseRequest, username, USER_AGENT);
                         }
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Purchase Order Internal - " + model.PONo);
 
                     Deleted = await dbContext.SaveChangesAsync();
 
