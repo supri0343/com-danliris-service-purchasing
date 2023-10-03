@@ -408,6 +408,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
 
                     dbSet.Add(garmentUnitReceiptNote);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Bon Terima Unit - " + garmentUnitReceiptNote.URNNo);
+
+
                     Created = await dbContext.SaveChangesAsync();
 
 
@@ -783,9 +788,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 };
                                 EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
                                 dbSetGarmentDOItems.Add(garmentDOItems);
-
-                                //Create Log History
-                                logHistoryFacades.Create("PEMBELIAN", "Create Bon Terima Unit - " + garmentUrn.URNNo);
 
                                 await dbContext.SaveChangesAsync();
                             }
