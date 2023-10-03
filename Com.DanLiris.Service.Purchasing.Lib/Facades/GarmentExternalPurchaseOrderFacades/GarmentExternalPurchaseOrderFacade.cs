@@ -637,8 +637,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         EntityExtension.FlagForUpdate(m, user, "Facade");
                         m.IsApproved = true;
 
-                        //Create Log History
-                        logHistoryFacades.Create("PEMBELIAN", "Approve Purchase Order External - " + m.EPONo);
+                        if (m.IsOverBudget)
+                        {
+                            //Create Log History
+                            logHistoryFacades.Create("PEMBELIAN", "Approve Over Budget Purchase Order External - " + m.EPONo);
+                        }
+                        else
+                        {
+                            //Create Log History
+                            logHistoryFacades.Create("PEMBELIAN", "Approve Purchase Order External - " + m.EPONo);
+                        }
+                       
 
                         foreach (var item in m.Items)
                         {

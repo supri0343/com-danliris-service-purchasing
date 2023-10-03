@@ -196,6 +196,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     dbSet.Add(garmentUnitExpenditureNote);
 
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Bon Pengeluaran Unit - " + garmentUnitExpenditureNote.UENNo);
+
                     Created = await dbContext.SaveChangesAsync();
 
                     if (garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" && garmentUnitExpenditureNote.ExpenditureTo == "PEMBELIAN")
@@ -812,9 +815,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             #endregion Inventory
 
-                            //Create Log History
-                            logHistoryFacades.Create("PEMBELIAN", "Create Bon Pengeluaran Unit - " + uen.UENNo);
-
+                           
                             Created = await dbContext.SaveChangesAsync();
                         }
 
