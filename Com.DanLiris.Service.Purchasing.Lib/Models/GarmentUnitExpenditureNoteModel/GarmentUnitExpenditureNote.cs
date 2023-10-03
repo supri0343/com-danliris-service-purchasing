@@ -51,6 +51,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteM
         public bool IsReceived { get; set; }
 
         public virtual ICollection<GarmentUnitExpenditureNoteItem> Items { get; set; }
-
     }
 }
