@@ -114,6 +114,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             }
         }
 
+        private MonitoringOutDeletedViewModel ViewModel1
+        {
+            get
+            {
+                return new MonitoringOutDeletedViewModel
+                {
+                    deletedByEx = "deletedByEx"
+                };
+            }
+        }
+
         private ServiceValidationExeption GetServiceValidationExeption()
         {
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
@@ -1004,6 +1015,154 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
-        
+        //------------MDP-Menu Baru Monitoring History Delet Data BUK Controller------//
+        [Fact]
+        public void Should_Sucess_Get_Deleted_Report_Data_BUK()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockunitdo = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadDeleted(null, null, null))
+                .Returns(Tuple.Create(new List<MonitoringOutDeletedViewModel> { ViewModel1 }, 25));
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+          {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockunitdo.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetDeleted(null, null, null);
+            //Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public void Should_Error_Get_Deleted_Report_Data_BUK()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockunitdo = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadDeleted("b", DateTime.Now, DateTime.Now))
+                .Returns(Tuple.Create(new List<MonitoringOutDeletedViewModel> { ViewModel1 }, 25));
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+          {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockunitdo.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetDeleted(null, null, null);
+            //Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Deleted_Report_Xls_Data_BUK()
+        {
+
+            var mockMapper = new Mock<IMapper>();
+            var mockunitdo = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.GenerateDeletedExcel(null, null, null))
+            .Returns(new MemoryStream()); // Mengembalikan objek MemoryStream kosong
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockunitdo.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetDeletedXls(null, null, null);
+            Assert.NotNull(response);
+        }
+        [Fact]
+        public void Should_Error_Get_Deleted_Report_Xls_BUK_Data()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockunitdo = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.GenerateDeletedExcel("b", DateTime.Now, DateTime.Now))
+                .Returns(new MemoryStream());
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockunitdo.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetDeletedXls(null, null, null);
+            Assert.Null(response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_Deleted_Report_Xls_BUK_Date()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockunitdo = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            //mockFacade.Setup(x => x.GenerateDeletedExcel(null, null, null))
+            //    .Returns(Tuple.Create(new List<MonitoringUnitReceiptAllDeleted> { ViewModel }, 25));
+
+            mockFacade.Setup(x => x.GenerateDeletedExcel(null, null, null))
+            .Returns(new MemoryStream()); // Mengembalikan objek MemoryStream kosong
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockunitdo.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetDeletedXls(null, DateTime.MinValue, DateTime.Now);
+            Assert.NotNull(response);
+        }
+        //------------Menu Baru Monitoring History Delet Data BUK Controller------//
+
     }
 }

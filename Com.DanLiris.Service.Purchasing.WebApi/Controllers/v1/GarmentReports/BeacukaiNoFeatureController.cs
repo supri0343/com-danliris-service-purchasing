@@ -14,6 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/bcno-feature")]
+   // [Route("v{version:apiVersion}/monitoring-history-delete")]
     [Authorize]
     public class BeacukaiNoFeatureController : Controller
     {
@@ -43,8 +44,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 string accept = Request.Headers["Accept"];
 
                 var data = _facade.GetBeacukaiNo(filter, keyword);
-
-
 
                 return Ok(new
                 {
