@@ -625,7 +625,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         GarmentUnitDeliveryOrder garmentUnitDO = new GarmentUnitDeliveryOrder
                         {
-                            UnitDOType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" ? "TRANSFER SUBCON" : "SAMPLE"),
+                            UnitDOType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" ? "SUBCON" : "SAMPLE"),
                             UnitDODate = garmentUnitExpenditureNote.ExpenditureDate,
                             UnitRequestId = garmentUnitExpenditureNote.UnitRequestId,
                             UnitRequestCode = garmentUnitExpenditureNote.UnitRequestCode,
@@ -702,8 +702,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         GarmentUnitExpenditureNote uen = new GarmentUnitExpenditureNote
                         {
                             ExpenditureDate = garmentUnitExpenditureNote.ExpenditureDate,
-                            ExpenditureType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" ? "TRANSFER SUBCON" : "SAMPLE"),
-                            ExpenditureTo = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" ? "TRANSFER SUBCON" : "SAMPLE"),
+                            ExpenditureType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" ? "SUBCON" : "SAMPLE"),
+                            ExpenditureTo = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" ? "SUBCON" : "SAMPLE"),
                             UnitDOId = garmentUnitDO.Id,
                             UnitDONo = garmentUnitDO.UnitDONo,
                             UnitSenderId = garmentUnitDO.UnitSenderId,
@@ -1062,13 +1062,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         }
                     }
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || (garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" && garmentUnitExpenditureNote.UnitSenderCode != "SMP1"))
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SUBCON" || (garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" && garmentUnitExpenditureNote.UnitSenderCode != "SMP1"))
                     {
                         var urn = dbSetGarmentUnitReceiptNote.Include(a => a.Items).FirstOrDefault(a => a.UENId == id);
                         EntityExtension.FlagForDelete(urn, identityService.Username, USER_AGENT);
                         foreach (var urnItem in urn.Items)
                         {
                             EntityExtension.FlagForDelete(urnItem, identityService.Username, USER_AGENT);
+
+                            var doitems = dbSetGarmentDOItems.Where(x => x.URNItemId == urnItem.Id);
+
+                            foreach(var doitem in doitems)
+                            {
+                                EntityExtension.FlagForDelete(doitem, identityService.Username, USER_AGENT);
+                            }
                         }
                         var unitDOItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(a => a.URNId == urn.Id);
                         var unitDO = dbSetGarmentUnitDeliveryOrder.Include(a => a.Items).FirstOrDefault(a => a.Id == unitDOItem.UnitDOId);
