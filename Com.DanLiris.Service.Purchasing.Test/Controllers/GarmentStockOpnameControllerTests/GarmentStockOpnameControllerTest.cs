@@ -131,7 +131,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentStockOpnameCon
         public void Download_Success()
         {
             var mockFacade = new Mock<IGarmentStockOpnameFacade>();
-            mockFacade.Setup(x => x.Download(It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            mockFacade.Setup(x => x.Download(It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new MemoryStream());
 
             var validateServiceMock = new Mock<IValidateService>();
@@ -145,7 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentStockOpnameCon
 
             var controller = GetController(mockFacade, servicePMock);
 
-            var response = controller.DownloadFile(DateTimeOffset.Now, "unit", "storage", "storageName");
+            var response = controller.DownloadFile(DateTime.Now, "unit", "storage", "storageName");
             Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
 
@@ -173,7 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentStockOpnameCon
         public void Download_Error()
         {
             var mockFacade = new Mock<IGarmentStockOpnameFacade>();
-            mockFacade.Setup(x => x.Download(It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            mockFacade.Setup(x => x.Download(It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Throws(new Exception());
 
             var validateServiceMock = new Mock<IValidateService>();
@@ -187,7 +187,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentStockOpnameCon
 
             var controller = GetController(mockFacade, servicePMock);
 
-            var response = controller.DownloadFile(DateTimeOffset.Now, "unit", "storage", "storageName");
+            var response = controller.DownloadFile(DateTime.Now, "unit", "storage", "storageName");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
