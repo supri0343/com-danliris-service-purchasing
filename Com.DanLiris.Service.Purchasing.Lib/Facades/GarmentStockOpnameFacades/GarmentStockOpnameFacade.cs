@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -35,6 +36,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
         private readonly DbSet<GarmentStockOpname> dbSet;
         private readonly DbSet<GarmentDOItems> dbSetDOItem;
         private readonly DbSet<GarmentUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItems;
+        private readonly DbSet<GarmentUnitReceiptNote> dbSetGarmentUnitReceiptNotes;
+
 
         public GarmentStockOpnameFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -45,6 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
             dbSet = dbContext.Set<GarmentStockOpname>();
             dbSetDOItem = dbContext.Set<GarmentDOItems>();
             dbSetGarmentUnitReceiptNoteItems = dbContext.Set<GarmentUnitReceiptNoteItem>();
+            dbSetGarmentUnitReceiptNotes = dbContext.Set<GarmentUnitReceiptNote>();
         }
 
         public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -106,38 +110,126 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
             return data;
         }
 
-        public Stream Download(DateTimeOffset date, string unit, string storage, string storageName)
-        {
-            var data = dbSetDOItem.Where(i => i.UnitCode == unit && i.StorageCode == storage && i.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : i.ProductName))
-                .Where(i => i.CreatedUtc <= date.DateTime)
-                .Select(i => new
-                {
-                    i.Id,
-                    i.POSerialNumber,
-                    i.RO,
-                    i.ProductCode,
-                    i.ProductName,
-                    i.DesignColor,
-                    BeforeQuantity = i.RemainingQuantity,
-                    Quantity = i.RemainingQuantity
-                })
-                .ToList();
+        //public Stream Download(DateTimeOffset date, string unit, string storage, string storageName)
+        //{
+        //    var data = dbSetDOItem.Where(i => i.UnitCode == unit && i.StorageCode == storage && i.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : i.ProductName))
+        //        .Where(i => i.CreatedUtc <= date.DateTime)
+        //        .Select(i => new
+        //        {
+        //            i.Id,
+        //            i.POSerialNumber,
+        //            i.RO,
+        //            i.ProductCode,
+        //            i.ProductName,
+        //            i.DesignColor,
+        //            BeforeQuantity = i.RemainingQuantity,
+        //            Quantity = i.RemainingQuantity
+        //        })
+        //        .ToList();
 
-            if (data.Count > 0)
+        //    if (data.Count > 0)
+        //    {
+        //        DataTable table = new DataTable();
+        //        table.Columns.Add(new DataColumn() { ColumnName = "DOItemId", DataType = typeof(int) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "PONo", DataType = typeof(string) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "RONo", DataType = typeof(string) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "DONo", DataType = typeof(string) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "ArrivalDate", DataType = typeof(string) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "Product Code", DataType = typeof(string) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "Product Name", DataType = typeof(string) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "Design Color", DataType = typeof(string) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "Before Quantity", DataType = typeof(decimal) });
+        //        table.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(decimal) });
+
+        //        foreach (var d in data)
+        //        {
+        //            table.Rows.Add(d.Id, d.POSerialNumber, d.RO, d.ProductCode, d.ProductName, d.DesignColor, d.BeforeQuantity, d.Quantity);
+        //        }
+
+        //        var excelPack = new ExcelPackage();
+        //        var ws = excelPack.Workbook.Worksheets.Add("WriteTest");
+        //        ws.Cells["A1"].Value = "Tanggal Stock Opname";
+        //        ws.Cells["A2"].Value = "Unit";
+        //        ws.Cells["A3"].Value = "Nama Gudang";
+        //        ws.Cells["B1"].Value = date.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0));
+        //        ws.Cells["B2"].Value = unit;
+        //        ws.Cells["B3"].Value = $"{storage} - {storageName}";
+        //        ws.Cells["A5"].LoadFromDataTable(table, true);
+        //        ws.Cells["H6:H" + data.Count + 6].Style.Locked = false;
+        //        ws.Protection.IsProtected = true;
+        //        ws.Cells[ws.Dimension.Address].AutoFitColumns();
+
+        //        Stream stream = new MemoryStream();
+        //        excelPack.SaveAs(stream);
+
+        //        return stream;
+        //    }
+        //    else
+        //    {
+        //        throw new Exception("Tidak data yang cocok");
+        //    }
+        //}
+
+        public Stream Download(DateTime date, string unit, string storage, string storageName)
+        {
+
+            DateTime DateFrom = date == null ? new DateTime(1970, 1, 1) : (DateTime)date;
+            
+            var Data = (from a in dbContext.GarmentDOItems
+                         join b in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals b.Id
+                         join c in dbContext.GarmentUnitReceiptNotes on b.URNId equals c.Id
+                         join d in dbContext.GarmentDeliveryOrders on c.DOId equals d.Id
+                         where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false &&
+                               a.CreatedUtc.AddHours(7).Date >= DateFrom.Date && a.UnitCode == unit
+                               && a.StorageCode == storage && a.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : a.ProductName)
+
+                         select new GarmentStockOpnameViewModel
+                         {
+                             IdSO = a.Id,
+                             POSerialNumber = a.POSerialNumber,
+                             RONo = a.RO,
+                             DONo = c.DONo,
+                             ArrivalDate = d.ArrivalDate.AddHours(7).Date,
+                             ProductCode = a.ProductCode,
+                             ProductName = a.ProductName,
+                             DesignColor = a.DesignColor,
+                             Quantity = a.RemainingQuantity,
+                             BeforeQuantity = a.RemainingQuantity
+                         }).ToList();
+            
+            //var data = dbSetDOItem.Where(i => i.UnitCode == unit && i.StorageCode == storage && i.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : i.ProductName))
+            //    .Where(i => i.CreatedUtc <= date.DateTime)
+            //    .Select(i => new
+            //    {
+            //        i.Id,
+            //        i.POSerialNumber,
+            //        i.RO,
+            //        i.ProductCode,
+            //        i.ProductName,
+            //        i.DesignColor,
+            //        BeforeQuantity = i.RemainingQuantity,
+            //        Quantity = i.RemainingQuantity
+            //    })
+            //    .ToList();
+
+            if (Data.Count > 0)
             {
                 DataTable table = new DataTable();
                 table.Columns.Add(new DataColumn() { ColumnName = "DOItemId", DataType = typeof(int) });
                 table.Columns.Add(new DataColumn() { ColumnName = "PONo", DataType = typeof(string) });
                 table.Columns.Add(new DataColumn() { ColumnName = "RONo", DataType = typeof(string) });
+                table.Columns.Add(new DataColumn() { ColumnName = "DONo", DataType = typeof(string) });
+                table.Columns.Add(new DataColumn() { ColumnName = "Arrival Date", DataType = typeof(string) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Product Code", DataType = typeof(string) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Product Name", DataType = typeof(string) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Design Color", DataType = typeof(string) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Before Quantity", DataType = typeof(decimal) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(decimal) });
 
-                foreach (var d in data)
+                foreach (var d in Data)
                 {
-                    table.Rows.Add(d.Id, d.POSerialNumber, d.RO, d.ProductCode, d.ProductName, d.DesignColor, d.BeforeQuantity, d.Quantity);
+
+                    table.Rows.Add(d.IdSO, d.POSerialNumber, d.RONo, d.DONo, d.ArrivalDate, d.ProductCode, d.ProductName, d.DesignColor, d.BeforeQuantity, d.Quantity);
                 }
 
                 var excelPack = new ExcelPackage();
@@ -145,11 +237,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
                 ws.Cells["A1"].Value = "Tanggal Stock Opname";
                 ws.Cells["A2"].Value = "Unit";
                 ws.Cells["A3"].Value = "Nama Gudang";
-                ws.Cells["B1"].Value = date.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0));
+                ws.Cells["B1"].Value = DateFrom.ToString("dd MMMM yyyy");   
+                //date.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0))
                 ws.Cells["B2"].Value = unit;
                 ws.Cells["B3"].Value = $"{storage} - {storageName}";
                 ws.Cells["A5"].LoadFromDataTable(table, true);
-                ws.Cells["H6:H" + data.Count + 6].Style.Locked = false;
+                ws.Cells["H6:H" + Data.Count + 6].Style.Locked = false;
                 ws.Protection.IsProtected = true;
                 ws.Cells[ws.Dimension.Address].AutoFitColumns();
 
