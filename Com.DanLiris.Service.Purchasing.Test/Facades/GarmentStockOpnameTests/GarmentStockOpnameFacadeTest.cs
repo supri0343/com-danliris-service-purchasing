@@ -129,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentStockOpnameTests
             var data = await dataUtil(facade, serviceProvider, dbContext).GetNewData();
             var firstData = data.First();
 
-            var Response = facade.Download(DateTimeOffset.Now, firstData.UnitCode, firstData.StorageCode, firstData.StorageName);
+            var Response = facade.Download(DateTime.Now, firstData.UnitCode, firstData.StorageCode, firstData.StorageName);
             Assert.IsType<MemoryStream>(Response);
         }
 

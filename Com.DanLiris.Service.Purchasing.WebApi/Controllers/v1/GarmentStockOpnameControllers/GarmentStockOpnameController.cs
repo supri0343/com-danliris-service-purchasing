@@ -96,7 +96,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentStockOpna
         }
 
         [HttpGet("download")]
-        public IActionResult DownloadFile(DateTimeOffset? date, string unit, string storage, string storageName)
+        public IActionResult DownloadFile(DateTime? date, string unit, string storage, string storageName)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentStockOpna
                 stream.Position = 0;
 
                 FileStreamResult fileStreamResult = new FileStreamResult(stream, "application/excel");
-                fileStreamResult.FileDownloadName = $"Garment Stock Opname {unit} {storageName} {date.Value.ToOffset(new TimeSpan(_identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy")}.xlsx";
+                fileStreamResult.FileDownloadName = $"Garment Stock Opname {unit} {storageName} {date.Value.ToString("dd MMMM yyyy")}.xlsx";
 
                 return fileStreamResult;
             }
