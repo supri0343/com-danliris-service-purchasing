@@ -64,6 +64,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 unitName = "SPINNING 1";
             }
+            else if (viewModel.unit.code == "S2") {
+                unitName = "SPINNING";
+            }
             else 
             {
                 unitName = viewModel.unit.name;
