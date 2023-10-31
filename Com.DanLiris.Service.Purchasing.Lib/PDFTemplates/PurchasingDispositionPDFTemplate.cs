@@ -342,6 +342,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     else if (unitId == "35")
                     {
                         unitName = "SPINNING 1";
+                    } else if (detail.Unit.code == "S2") {
+                        unitName = "SPINNING";
                     }
                     else
                     {
