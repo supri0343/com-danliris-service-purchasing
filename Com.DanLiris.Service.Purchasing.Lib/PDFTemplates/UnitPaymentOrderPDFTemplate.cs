@@ -158,6 +158,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 {
                     UnitName = "SPINNING 1";
                 }
+                else if (unitReceiptNote.UnitCode == "S2")
+                {
+                    UnitName = "SPINNING";
+                }
                 else
                 {
                     UnitName = unitReceiptNote.UnitName;
