@@ -230,7 +230,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentLocalPurchasingJournalReportFacade, GarmentLocalPurchasingJournalReportFacade>()
                 .AddTransient<IGarmentDetailImportPurchasingJournalReportFacade, GarmentDetailImportPurchasingJournalReportFacade>()
                 .AddTransient<IGarmentDetailLocalPurchasingJournalReportFacade, GarmentDetailLocalPurchasingJournalReportFacade>()
-                .AddTransient<LogHistoryFacades>();
+                .AddTransient<ILogHistoryFacades, LogHistoryFacades>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
