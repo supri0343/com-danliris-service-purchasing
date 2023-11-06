@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
@@ -33,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
         public readonly IServiceProvider serviceProvider;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
+        private readonly LogHistoryFacades logHistoryFacades;
 
         public GarmentInternNoteFacades(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
@@ -41,6 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             dbSetExternalPurchaseOrderItem = dbContext.Set<GarmentExternalPurchaseOrderItem>();
             this.serviceProvider = serviceProvider;
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
 
         public async Task<int> Create(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7)
@@ -83,6 +86,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     }
 
                     this.dbSet.Add(m);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Nota Intern - " + m.INNo);
 
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -132,6 +138,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                             var result = _garmentDebtBalanceService.EmptyInternalNote((int)garmentDeliveryOrder.Id).Result;
                         }
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Nota Intern - " + model.INNo);
 
                     Deleted = dbContext.SaveChanges();
                     transaction.Commit();
@@ -290,6 +299,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     }
                     EntityExtension.FlagForUpdate(m, user, USER_AGENT);
                     this.dbSet.Update(m);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Update Nota Intern - " + m.INNo);
+
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
 
