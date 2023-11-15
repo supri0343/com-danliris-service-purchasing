@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
     public interface IMutationBeacukaiFacade
     {
-        Tuple<List<MutationBBCentralViewModel>, int> GetReportBBCentral(int page, int size, string Order, DateTime? dateFrom, DateTime? dateTo, int offset);
-        MemoryStream GenerateExcelBBCentral (DateTime? dateFrom, DateTime? dateTo, int offset);
+        Task<Tuple<List<MutationBBCentralViewModel>, int>> GetReportBBCentral(int page, int size, string Order, DateTime? dateFrom, DateTime? dateTo, int offset);
+        Task<MemoryStream> GenerateExcelBBCentral (DateTime? dateFrom, DateTime? dateTo, int offset);
         Tuple<List<MutationBPCentralViewModel>, int> GetReportBPCentral(int page, int size, string Order, DateTime? dateFrom, DateTime? dateTo, int offset);
         MemoryStream GenerateExcelBPCentral (DateTime? dateFrom, DateTime? dateTo, int offset);
     }
