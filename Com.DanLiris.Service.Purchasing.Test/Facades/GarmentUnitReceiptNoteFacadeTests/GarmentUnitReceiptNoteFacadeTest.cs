@@ -3150,7 +3150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             }
 
             await facade.Create(data);
-            var Response = facadeMutation.GetReportBBCentral(1, 25, "{}", null, null, 7);
+            var Response = await facadeMutation.GetReportBBCentral(1, 25, "{}", null, null, 7);
             Assert.NotNull(Response.Item1);
         }
         [Fact]

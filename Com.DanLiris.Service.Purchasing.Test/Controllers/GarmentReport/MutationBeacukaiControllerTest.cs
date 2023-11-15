@@ -13,6 +13,7 @@ using System.IO;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
@@ -94,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         {
             var mockFacade = new Mock<IMutationBeacukaiFacade>();
             mockFacade.Setup(x => x.GetReportBBCentral(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
-                .Returns(Tuple.Create(new List<MutationBBCentralViewModel> { viewModelBB }, 25));
+                .ReturnsAsync(Tuple.Create(new List<MutationBBCentralViewModel> { viewModelBB }, 25));
 
             var mockMapper = new Mock<AutoMapper.IMapper>();
             mockMapper.Setup(x => x.Map<List<MutationBBCentralViewModel>>(It.IsAny<List<MutationBBCentralViewModel>>()))
@@ -119,8 +120,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
 
-            var response = controller.GetReportBBCentrals(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
-            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+            var response =  controller.GetReportBBCentrals(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response.Result));
         }
 
         [Fact]
@@ -227,7 +228,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         {
             var mockFacade = new Mock<IMutationBeacukaiFacade>();
             mockFacade.Setup(x => x.GetReportBBCentral(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
-                .Returns(Tuple.Create(new List<MutationBBCentralViewModel> { viewModelBB }, 25));
+                .ReturnsAsync(Tuple.Create(new List<MutationBBCentralViewModel> { viewModelBB }, 25));
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<MutationBBCentralViewModel>>(It.IsAny<List<MutationBBCentralViewModel>>()))
@@ -249,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             };
 
             var response = controller.GetReportBBCentrals(null, null, 0, 0, null);
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response.Result));
         }
         [Fact]
         public void Should_Fail_Get_Report_BP()
@@ -286,7 +287,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         {
             var mockFacade = new Mock<IMutationBeacukaiFacade>();
             mockFacade.Setup(x => x.GenerateExcelBBCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
-                .Returns(new MemoryStream());
+                .ReturnsAsync(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<MutationBBCentralViewModel>>(It.IsAny<List<MutationBBCentralViewModel>>()))
@@ -311,7 +312,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             //var dateFrom = dateTo.AddDays(-30);
 
             var response = controller.GetXlsBBCentral(null, null);
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response.Result));
         }
 
         [Fact]
