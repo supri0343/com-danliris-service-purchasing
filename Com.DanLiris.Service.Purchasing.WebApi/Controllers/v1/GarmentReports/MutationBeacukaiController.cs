@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
 
         [HttpGet("bbCentrals")]
-        public IActionResult GetReportBBCentrals(DateTime? dateFrom, DateTime? dateTo, int page = 1, int size = 25, string Order = "{}")
+        public async Task<IActionResult> GetReportBBCentrals(DateTime? dateFrom, DateTime? dateTo, int page = 1, int size = 25, string Order = "{}")
         {
             try
             {
@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
-                var data = _facade.GetReportBBCentral(page, size, Order, dateFrom, dateTo, offset);
+                var data = await _facade.GetReportBBCentral(page, size, Order, dateFrom, dateTo, offset);
 
 
 
@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("bbCentrals/download")]
-        public IActionResult GetXlsBBCentral(DateTime? dateFrom, DateTime? dateTo)
+        public async Task<IActionResult> GetXlsBBCentral(DateTime? dateFrom, DateTime? dateTo)
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = _facade.GenerateExcelBBCentral(dateFrom, dateTo, offset);
+                var xls = await _facade.GenerateExcelBBCentral(dateFrom, dateTo, offset);
 
                 string filename = String.Format("Laporan Pertanggungjawaban Mutasi Bahan Baku Pusat - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
