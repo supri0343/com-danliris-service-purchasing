@@ -12,6 +12,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
@@ -28,11 +29,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbSet = dbContext.Set<GarmentDeliveryOrder>();
         }
         #region BB
-        public Tuple<List<MutationBBCentralViewModel>, int> GetReportBBCentral(int page, int size, string Order, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public async Task<Tuple<List<MutationBBCentralViewModel>, int>> GetReportBBCentral(int page, int size, string Order, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
             //var Query = GetStockQuery(tipebarang, unitcode, dateFrom, dateTo, offset);
             //Query = Query.OrderByDescending(x => x.SupplierName).ThenBy(x => x.Dono);
-            List<MutationBBCentralViewModel> Query = GetCentralItemBBReport(dateFrom, dateTo, offset).ToList();
+            List<MutationBBCentralViewModel> Query = await GetCentralItemBBReport(dateFrom, dateTo, offset);
             //Query = Query.OrderBy(x => x.ItemCode).ToList();
 
             Pageable<MutationBBCentralViewModel> pageable = new Pageable<MutationBBCentralViewModel>(Query, page - 1, size);
@@ -83,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
-        private List<GarmentLeftoverWarehouseReportExpenditureViewModel> GetReportLeftOver(DateTime dateFrom, DateTime dateTo, string receiptType)
+        private async Task<List<GarmentLeftoverWarehouseReportExpenditureViewModel>> GetReportLeftOver(DateTime dateFrom, DateTime dateTo, string receiptType)
         {
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
             //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
@@ -107,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
-        private List<GarmentLeftoverWarehouseStockMonitoringViewModel> GetReportLeftOverStock(DateTime dateFrom, DateTime dateTo, string unit)
+        private async Task<List<GarmentLeftoverWarehouseStockMonitoringViewModel>> GetReportLeftOverStock(DateTime dateFrom, DateTime dateTo, string unit)
         {
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
             //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
@@ -158,7 +159,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
-        public List<MutationBBCentralViewModel> GetCentralItemBBReport(DateTime? datefrom, DateTime? dateto, int offset)
+        public async Task<List<MutationBBCentralViewModel>> GetCentralItemBBReport(DateTime? datefrom, DateTime? dateto, int offset)
         {
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
@@ -394,7 +395,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                             }).ToList();
 
             //var leftoverbalance = GetReportLeftOverStock(new DateTime(2022, 1, 1), new DateTime(2022, 1, 1),"");
-            var leftoverbalance = GetReportLeftOverStock(DateFrom, DateTo, "");
+            var leftoverbalance = await GetReportLeftOverStock(DateFrom, DateTo, "");
             var leftoverBalanceRemove = leftoverbalance.Where(x => x.ProductCode != "").AsQueryable();
 
             var totalQtyBefore = leftoverBalanceRemove.Sum(x => x.BeginingbalanceQty);
@@ -600,7 +601,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      }).ToList();
 
             //var leftoverreceipt = GetReportLeftOverReceipt(DateFrom, DateTo, "FABRIC");
-            var leftoverexpenditure = GetReportLeftOver(DateFrom, DateTo, "FABRIC");
+            var leftoverexpenditure = await GetReportLeftOver(DateFrom, DateTo, "FABRIC");
 
             var EPOExpend = (from a in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters()
                        join b in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on a.GarmentEPOId equals b.Id
@@ -815,6 +816,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //    });
             //}
 
+            //IQueryable<GarmentUnitReceiptNoteItem> QueryURN = dbSetURN;
+
+           var QueryURN = (from a in dbContext.GarmentUnitReceiptNoteItems.IgnoreQueryFilters()
+                           where a.DeletedAgent != ""
+                           select new GUNRMTemp
+                           {
+                              ProductCode = a.ProductCode,
+                              ProductName = a.DeletedAgent
+                            }).Distinct().ToList();
+
+            //string DtlProduct;
+
+            foreach (var data in mutation)
+            {
+                var DtlProduct = QueryURN.Where(q => q.ProductCode == data.ItemCode).Select(s => s.ProductName).FirstOrDefault();
+
+                data.ItemName = DtlProduct;
+            }
 
             mutation = mutation.Where(x => (x.ItemCode != "EMB001") && (x.ItemCode != "WSH001") && (x.ItemCode != "PRC001") && (x.ItemCode != "APL001") && (x.ItemCode != "QLT001") && (x.ItemCode != "SMT001") && (x.ItemCode != "GMT001") && (x.ItemCode != "PRN001") && (x.ItemCode != "SMP001")).ToList(); ;
             //mutation = mutation.Where(x => (x.BeginQty != 0) || (x.LastQty != 0) || (x.ReceiptQty != 0) || (x.ExpenditureQty != 0 || (x.AdjustmentQty != 0))).ToList();
@@ -858,9 +877,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         }
 
-        public MemoryStream GenerateExcelBBCentral(DateTime? dateFrom, DateTime? dateTo, int offset)
+        public async Task<MemoryStream> GenerateExcelBBCentral(DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetCentralItemBBReport(dateFrom, dateTo, offset);
+            var Query = await GetCentralItemBBReport(dateFrom, dateTo, offset);
             //Query = Query.OrderBy(b => b.ItemCode).ToList();
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });

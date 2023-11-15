@@ -33,4 +33,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double OpnameQty { get; set; }
         public double LastQty { get; set; }
     }
+
+    public class GUNRMTemp
+    {
+        public string ProductCode { get; set; }
+        public string ProductName { get; set; }
+    }
 }
