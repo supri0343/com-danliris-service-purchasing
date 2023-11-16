@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
         public readonly IServiceProvider serviceProvider;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
-        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly ILogHistoryFacades logHistoryFacades;
 
         public GarmentInvoiceFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             this.dbSetDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
             this.serviceProvider = serviceProvider;
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
-            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
+            logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
         }
         public Tuple<List<GarmentInvoice>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
