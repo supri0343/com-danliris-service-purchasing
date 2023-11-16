@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
+﻿
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentCorrectionNote> dbSet;
-        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly ILogHistoryFacades logHistoryFacades;
         public GarmentCorrectionNotePriceFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.serviceProvider = serviceProvider;
@@ -37,7 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
 
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentCorrectionNote>();
-            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
+            logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
         }
 
         public Tuple<List<GarmentCorrectionNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")

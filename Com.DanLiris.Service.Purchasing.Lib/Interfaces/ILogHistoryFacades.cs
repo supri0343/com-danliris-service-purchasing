@@ -10,5 +10,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     public interface ILogHistoryFacades
     {
         Task<List<LogHistoryViewModel>> GetReportQuery(DateTime dateFrom, DateTime dateTo);
+        void Create(string division, string activity);
     }
 }

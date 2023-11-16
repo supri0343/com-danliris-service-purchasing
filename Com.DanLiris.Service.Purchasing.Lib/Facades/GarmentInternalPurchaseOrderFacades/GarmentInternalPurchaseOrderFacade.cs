@@ -27,13 +27,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentInternalPurchaseOrder> dbSet;
-        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly ILogHistoryFacades logHistoryFacades;
         private readonly IServiceProvider serviceProvider;
         public GarmentInternalPurchaseOrderFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentInternalPurchaseOrder>();
-            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
+            logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
         }
 
         public Tuple<List<GarmentInternalPurchaseOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")

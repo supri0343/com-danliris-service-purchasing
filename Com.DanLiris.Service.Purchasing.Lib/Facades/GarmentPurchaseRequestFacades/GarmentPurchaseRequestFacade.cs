@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentPurchaseRequest> dbSet;
         private readonly IServiceProvider serviceProvider;
-        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly ILogHistoryFacades logHistoryFacades;
         private readonly string GarmentPreSalesContractUri = "merchandiser/garment-pre-sales-contracts/";
 
         public GarmentPurchaseRequestFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
@@ -42,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<GarmentPurchaseRequest>();
-            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
+            logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
         }
 
         public Tuple<List<GarmentPurchaseRequest>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
