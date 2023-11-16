@@ -27,7 +27,6 @@ using OfficeOpenXml;
 using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNotePDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.CostCalculationGarment;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
@@ -49,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentUnitDeliveryOrder> garmentUnitDeliveryOrders;
         private readonly DbSet<GarmentPurchaseRequest> garmentPurchaseRequests;
         private readonly PurchasingDbContext dbContext;
-        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly ILogHistoryFacades logHistoryFacades;
         public GarmentDOItemFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.serviceProvider = serviceProvider;
@@ -65,7 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             garmentUnitDeliveryOrders = dbContext.Set<GarmentUnitDeliveryOrder>();
             garmentPurchaseRequests = dbContext.Set<GarmentPurchaseRequest>();
             this.dbContext = dbContext;
-            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
+            logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
         }
 
         public List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}")

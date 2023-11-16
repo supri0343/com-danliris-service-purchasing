@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
@@ -26,7 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentDeliveryOrderNonPO> dbSet;
         private readonly DbSet<GarmentDeliveryOrderNonPOItem> dbSetItem;
-        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly ILogHistoryFacades logHistoryFacades;
         private readonly IMapper mapper;
 
         public GarmentDeliveryOrderNonPOFacades(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
@@ -35,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderNonPOF
             dbSet = dbContext.Set<GarmentDeliveryOrderNonPO>();
             dbSetItem = dbContext.Set<GarmentDeliveryOrderNonPOItem>();
             this.serviceProvider = serviceProvider;
-            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
+            logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
             mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
