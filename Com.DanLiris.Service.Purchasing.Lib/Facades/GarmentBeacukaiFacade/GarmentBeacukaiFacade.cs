@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
         private readonly DbSet<GarmentDeliveryOrderNonPO> dbSetDeliveryOrderNonPOs;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
         private string USER_AGENT = "Facade";
-        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly ILogHistoryFacades logHistoryFacades;
         public GarmentBeacukaiFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.dbContext = dbContext;
@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
             this.dbSetDeliveryOrderNonPOs = dbContext.Set<GarmentDeliveryOrderNonPO>();
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
             this.serviceProvider = serviceProvider;
-            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
+            logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
         }
 
         public Tuple<List<GarmentBeacukai>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
