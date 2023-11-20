@@ -34,6 +34,8 @@ using OfficeOpenXml.Style;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUenUrnChangeDateHistory;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels.DOItems;
+using Microsoft.Extensions.DependencyInjection;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -61,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentUenUrnChangeDateHistory> dbSetUenUrnChangeDate;
         private readonly DbSet<GarmentBeacukai> dbSetBC;
         private readonly DbSet<GarmentBeacukaiItem> dbSetBCI;
-
+        private readonly LogHistoryFacades logHistoryFacades;
         private readonly IMapper mapper;
 
         public GarmentUnitReceiptNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
@@ -86,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             dbSetUenUrnChangeDate = dbContext.Set<GarmentUenUrnChangeDateHistory>();
             dbSetBC = dbContext.Set<GarmentBeacukai>();
             dbSetBCI = dbContext.Set<GarmentBeacukaiItem>();
-
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
@@ -406,6 +408,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
 
                     dbSet.Add(garmentUnitReceiptNote);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Bon Terima Unit - " + garmentUnitReceiptNote.URNNo);
+
+
                     Created = await dbContext.SaveChangesAsync();
 
 
@@ -552,6 +559,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 Items = unitDOItems
                             };
                             garmentUnitDeliveryOrder.UnitDONo = await garmentUnitDeliveryOrderFacade.GenerateNo(garmentUnitDeliveryOrder);
+
+                            //Create Log History
+                            logHistoryFacades.Create("PEMBELIAN", "Create Unit Delivery Order - " + garmentUnitDeliveryOrder.UnitDONo);
+
                             EntityExtension.FlagForCreate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
 
                             dbSetGarmentUnitDeliveryOrder.Add(garmentUnitDeliveryOrder);
@@ -616,6 +627,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 Items = uenItems
                             };
                             garmentUnitExpenditureNote.UENNo = await garmentUnitExpenditureNoteFacade.GenerateNo(garmentUnitExpenditureNote);
+
+                            //Create Log History
+                            logHistoryFacades.Create("PEMBELIAN", "Create Bon Pengeluaran Unit - " + garmentUnitExpenditureNote.UENNo);
+
                             EntityExtension.FlagForCreate(garmentUnitExpenditureNote, identityService.Username, USER_AGENT);
 
                             dbSetGarmentUnitExpenditureNote.Add(garmentUnitExpenditureNote);
@@ -773,6 +788,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 };
                                 EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
                                 dbSetGarmentDOItems.Add(garmentDOItems);
+
                                 await dbContext.SaveChangesAsync();
                             }
 
@@ -962,6 +978,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
 
                     garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Update Bon Terima Unit - " + oldGarmentUnitReceiptNote.URNNo);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -1169,6 +1188,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         }
 
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Bon Terima Unit - " + garmentUnitReceiptNote.URNNo);
 
                     Deleted = await dbContext.SaveChangesAsync();
                     transaction.Commit();

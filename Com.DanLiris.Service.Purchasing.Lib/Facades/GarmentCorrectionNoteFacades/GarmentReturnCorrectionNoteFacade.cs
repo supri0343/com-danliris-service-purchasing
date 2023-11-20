@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades
 {
@@ -20,12 +22,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentCorrectionNote> dbSet;
-
+        private readonly LogHistoryFacades logHistoryFacades;
         public GarmentReturnCorrectionNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             this.serviceProvider = serviceProvider;
             dbSet = dbContext.Set<GarmentCorrectionNote>();
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
 
         public SupplierViewModel GetSupplier(long supplierId)
@@ -152,6 +155,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                     }
 
                     dbSet.Add(garmentCorrectionNote);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Nota Koreksi Retur - " + garmentCorrectionNote.CorrectionNo);
 
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();

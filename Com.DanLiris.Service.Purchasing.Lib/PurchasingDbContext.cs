@@ -35,6 +35,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentClosingDateModels;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUenUrnChangeDateHistory;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.LogHistory;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -151,6 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentDeliveryOrderNonPO> GarmentDeliveryOrderNonPOs { get; set; }
         public DbSet<GarmentDeliveryOrderNonPOItem> GarmentDeliveryOrderNonPOItems { get; set; }
 
+        public DbSet<LogHistory> LogHistories { get; set; }
         //public DbSet<ImportValue> ImportValues { get; set; }
 
         public DbSet<GarmentClosingDate> ClosingDate { get; set; }

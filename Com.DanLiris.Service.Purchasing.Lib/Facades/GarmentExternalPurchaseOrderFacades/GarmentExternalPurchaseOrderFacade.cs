@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
@@ -18,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades
 {
@@ -28,12 +30,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentExternalPurchaseOrder> dbSet;
         public readonly IServiceProvider serviceProvider;
+        private readonly LogHistoryFacades logHistoryFacades;
 
         public GarmentExternalPurchaseOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<GarmentExternalPurchaseOrder>();
             this.serviceProvider = serviceProvider;
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
 
         public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -145,6 +149,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                     }
 
                     this.dbSet.Add(m);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Purchase Order External - " + m.EPONo);
 
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -280,6 +287,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                             }
                         }
 
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Update Purchase Order External - " + m.EPONo);
+
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
                     }
@@ -354,6 +364,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         EntityExtension.FlagForDelete(item, user, "Facade");
                     }
 
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Purchase Order External - " + m.EPONo);
+
                     Deleted = dbContext.SaveChanges();
                     transaction.Commit();
                 }
@@ -384,6 +397,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         EntityExtension.FlagForUpdate(m, user, "Facade");
                         m.IsPosted = true;
 
+                        //Create Log History
+                        logHistoryFacades.Create("PEMBELIAN", "Post Purchase Order External - " + m.EPONo);
+
                         foreach (var item in m.Items)
                         {
                             GarmentInternalPurchaseOrderItem IPOItems = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
@@ -405,6 +421,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                         //}
                     });
+
+                    
 
                     Updated = dbContext.SaveChanges();
                     transaction.Commit();
@@ -434,6 +452,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                     EntityExtension.FlagForUpdate(m, user, "Facade");
                     m.IsPosted = false;
                     m.IsApproved = false;
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "UnPost Purchase Order External - " + m.EPONo);
 
                     foreach (var item in m.Items)
                     {
@@ -479,6 +500,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                     EntityExtension.FlagForUpdate(m, user, "Facade");
                     m.IsCanceled = true;
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Cancel Purchase Order External - " + m.EPONo);
 
                     foreach (var item in m.Items)
                     {
@@ -530,6 +554,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                     EntityExtension.FlagForUpdate(m, user, "Facade");
                     m.IsClosed = true;
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Close Purchase Order External - " + m.EPONo);
 
                     foreach (var item in m.Items)
                     {
@@ -609,6 +636,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                     {
                         EntityExtension.FlagForUpdate(m, user, "Facade");
                         m.IsApproved = true;
+
+                        if (m.IsOverBudget)
+                        {
+                            //Create Log History
+                            logHistoryFacades.Create("PEMBELIAN", "Approve Over Budget Purchase Order External - " + m.EPONo);
+                        }
+                        else
+                        {
+                            //Create Log History
+                            logHistoryFacades.Create("PEMBELIAN", "Approve Purchase Order External - " + m.EPONo);
+                        }
+                       
 
                         foreach (var item in m.Items)
                         {

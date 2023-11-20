@@ -16,6 +16,8 @@ using Com.Moonlay.Models;
 using Com.DanLiris.Service.Purchasing.Lib.Migrations;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderReturFacades
 {
@@ -29,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentUnitDeliveryOrder> dbSet;
         private readonly IMapper mapper;
-
+        private readonly LogHistoryFacades logHistoryFacades;
         public GarmentUnitDeliveryOrderReturFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
@@ -38,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentUnitDeliveryOrder>();
             mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
+            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
         }
         public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
@@ -130,6 +133,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
 
                     dbSet.Add(garmentUnitDeliveryOrder);
 
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Unit Delivery Order Return - " + garmentUnitDeliveryOrder.UnitDONo);
+
                     Created = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -196,6 +202,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
                         if (garmentDOItems != null)
                             garmentDOItems.RemainingQuantity += (decimal)garmentUnitDeliveryOrderItem.Quantity;
                     }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Unit Delivery Order Return - " + garmentUnitDeliveryOrder.UnitDONo);
 
                     Deleted = await dbContext.SaveChangesAsync();
                     transaction.Commit();
@@ -303,6 +312,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderRe
                     }
 
                     //dbSet.Update(garmentUnitDeliveryOrder);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Update Unit Delivery Order Return - " + garmentUnitDeliveryOrder.UnitDONo);
 
                     Updated = await dbContext.SaveChangesAsync();
                     transaction.Commit();
