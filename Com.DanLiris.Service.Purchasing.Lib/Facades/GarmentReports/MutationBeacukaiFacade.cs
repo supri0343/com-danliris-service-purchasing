@@ -819,7 +819,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //IQueryable<GarmentUnitReceiptNoteItem> QueryURN = dbSetURN;
 
            var QueryURN = (from a in dbContext.GarmentUnitReceiptNoteItems.IgnoreQueryFilters()
-                           where a.DeletedAgent != ""
+                           where a.DeletedAgent != "" && a.DeletedAgent != "Facade"
                            select new GUNRMTemp
                            {
                               ProductCode = a.ProductCode,
