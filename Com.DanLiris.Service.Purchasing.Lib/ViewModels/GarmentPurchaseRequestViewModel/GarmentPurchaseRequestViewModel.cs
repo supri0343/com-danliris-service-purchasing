@@ -140,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                         itemErrorCount++;
                         itemError += "Product: 'Barang tidak boleh kosong', ";
                     }
-                    else if (String.IsNullOrWhiteSpace(item.Product.Id) || item.Product.Id.Equals("0") || String.IsNullOrWhiteSpace(item.Product.Code) || String.IsNullOrWhiteSpace(item.Product.Name))
+                    else if (String.IsNullOrWhiteSpace(item.Product.Id) || item.Product.Id.Equals("0") || String.IsNullOrWhiteSpace(item.Product.Code) /*|| String.IsNullOrWhiteSpace(item.Product.Name)*/)
                     {
                         itemErrorCount++;
                         itemError += "Product: 'Data Barang tidak benar', ";
