@@ -18,6 +18,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public double dealQuantity { get; set; }
         public double dOQuantity { get; set; }
         public double remainingQuantity { get; set; }
+
+        public string buyerCode { get; set; }
+        public string buyerName { get; set; }
+        public string artiCle { get; set; }
+
         public string uomUnit { get; set; }
         public long ePODetailId { get; set; }
         public DateTimeOffset createdUtc { get; set; }
