@@ -1159,6 +1159,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 UnitSenderId = m.UnitSenderId,
                 UnitSenderCode = m.UnitSenderCode,
                 UnitSenderName = m.UnitSenderName,
+                IsPreparing = m.IsPreparing,
                 Items = m.Items.Select(i => new GarmentUnitExpenditureNoteItem
                 {
                     Id = i.Id,
@@ -1205,6 +1206,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 s.UnitSenderId,
                 s.UnitSenderCode,
                 s.UnitSenderName,
+                s.IsPreparing,
                 s.Items
             }));
 
