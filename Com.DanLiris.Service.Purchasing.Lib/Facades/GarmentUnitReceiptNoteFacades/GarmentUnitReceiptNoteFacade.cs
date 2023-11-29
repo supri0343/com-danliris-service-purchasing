@@ -63,7 +63,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentUenUrnChangeDateHistory> dbSetUenUrnChangeDate;
         private readonly DbSet<GarmentBeacukai> dbSetBC;
         private readonly DbSet<GarmentBeacukaiItem> dbSetBCI;
-        private readonly LogHistoryFacades logHistoryFacades;
+        private readonly ILogHistoryFacades logHistoryFacades;
         private readonly IMapper mapper;
 
         public GarmentUnitReceiptNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             dbSetUenUrnChangeDate = dbContext.Set<GarmentUenUrnChangeDateHistory>();
             dbSetBC = dbContext.Set<GarmentBeacukai>();
             dbSetBCI = dbContext.Set<GarmentBeacukaiItem>();
-            logHistoryFacades = serviceProvider.GetService<LogHistoryFacades>();
+            logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
