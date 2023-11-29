@@ -1826,7 +1826,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								&& a.UnitCode == "SMP1"
 							 select new FlowDetailPenerimaanViewModels
 							 {
-								 kdbarang = b.ProductCode,
+								 kdbarang = b.ProductCode.Trim(),
 								 nmbarang = b.ProductName,
 								 nopo = b.POSerialNumber,
 								 keterangan = b.ProductRemark,
@@ -1912,7 +1912,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								&& a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
 							 select new FlowDetailPenerimaanViewModels
 							 {
-								 kdbarang = b.ProductCode,
+								 kdbarang = b.ProductCode.Trim(),
 								 nmbarang = b.ProductName,
 								 nopo = b.POSerialNumber,
 								 keterangan = b.ProductRemark,
