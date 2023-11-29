@@ -424,8 +424,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                //NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                                NoArticle =  c.Article.TrimEnd(),
                                PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
-                               PlanPo = b.POSerialNumber,
-                               ProductCode = b.ProductCode,
+                               PlanPo = b.POSerialNumber.Trim(),
+                               ProductCode = b.ProductCode.Trim(),
                                //ProductName = b.ProductName,
                                ReceiptCorrectionQty = (decimal)e.SmallQuantity,
                                ReceiptQty = 0,
@@ -562,7 +562,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var Codes = GetProductCode(PrdoctCodes);
 
             stock1 = (from i in stock
-                      join b in Codes on i.ProductCode equals b.Code into produtcodes
+                      join b in Codes on i.ProductCode.Trim() equals b.Code.Trim() into produtcodes
                       from bb in produtcodes.DefaultIfEmpty()
                       select new GarmentStockReportViewModel
                       {
