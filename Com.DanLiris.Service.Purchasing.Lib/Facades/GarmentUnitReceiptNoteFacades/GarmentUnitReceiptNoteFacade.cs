@@ -1840,7 +1840,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								 jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
 								 satuanterima = b.SmallUomUnit,
 								 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
-								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
+								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : a.URNType == "SISA SUBCON" ? a.URNType : gg.UnitSenderName,
 								 Jenis = a.URNType,
 								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
 
@@ -1926,7 +1926,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								 jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
 								 satuanterima = b.SmallUomUnit,
 								 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
-								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
+								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : a.URNType == "SISA SUBCON" ? a.URNType : gg.UnitSenderName,
 								 Jenis = a.URNType,
 								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
 
