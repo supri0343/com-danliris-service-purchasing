@@ -83,7 +83,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 							 orderby a.CreatedUtc descending
 							 select new GarmentFlowDetailMaterialViewModel
 							 {
-								 ProductCode = a.ProductCode,
+								 ProductCode = a.ProductCode.Trim(),
 								 ProductName = e.ProductName == "" ? a.ProductName : e.ProductName,
 								 POSerialNumber = a.POSerialNumber,
 								 ProductRemark = a.ProductRemark,
@@ -137,7 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              orderby a.CreatedUtc descending
 							 select new GarmentFlowDetailMaterialViewModel
 							 {
-								 ProductCode = a.ProductCode,
+								 ProductCode = a.ProductCode.Trim(),
 								 ProductName = e.ProductName == "" ? a.ProductName : e.ProductName,
 								 POSerialNumber = a.POSerialNumber,
 								 ProductRemark = a.ProductRemark,
