@@ -35,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
         private readonly DbSet<GarmentStockOpname> dbSet;
         private readonly DbSet<GarmentDOItems> dbSetDOItem;
         private readonly DbSet<GarmentUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItems;
+        private readonly DbSet<GarmentUnitReceiptNote> dbSetGarmentUnitReceiptNotes;
 
         public GarmentStockOpnameFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -45,6 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
             dbSet = dbContext.Set<GarmentStockOpname>();
             dbSetDOItem = dbContext.Set<GarmentDOItems>();
             dbSetGarmentUnitReceiptNoteItems = dbContext.Set<GarmentUnitReceiptNoteItem>();
+            dbSetGarmentUnitReceiptNotes = dbContext.Set<GarmentUnitReceiptNote>();
         }
 
         public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -108,20 +110,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
 
         public Stream Download(DateTimeOffset date, string unit, string storage, string storageName)
         {
-            var data = dbSetDOItem.Where(i => i.UnitCode == unit && i.StorageCode == storage && i.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : i.ProductName))
-                .Where(i => i.CreatedUtc <= date.DateTime)
-                .Select(i => new
-                {
-                    i.Id,
-                    i.POSerialNumber,
-                    i.RO,
-                    i.ProductCode,
-                    i.ProductName,
-                    i.DesignColor,
-                    BeforeQuantity = i.RemainingQuantity,
-                    Quantity = i.RemainingQuantity
-                })
-                .ToList();
+            //var data = dbSetDOItem.Where(i => i.UnitCode == unit && i.StorageCode == storage && i.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : i.ProductName))
+            //    .Where(i => i.CreatedUtc <= date.DateTime)
+            //    .Select(i => new
+            //    {
+            //        i.Id,
+            //        i.POSerialNumber,
+            //        i.RO,
+            //        i.ProductCode,
+            //        i.ProductName,
+            //        i.DesignColor,
+            //        BeforeQuantity = i.RemainingQuantity,
+            //        Quantity = i.RemainingQuantity
+            //    })
+            //    .ToList();
+
+            var data = (from i in dbSetDOItem
+                        join b in dbSetGarmentUnitReceiptNoteItems on i.URNItemId equals b.Id
+                        join c in dbSetGarmentUnitReceiptNotes on b.URNId equals c.Id
+                        where i.UnitCode == unit && i.StorageCode == storage
+                        && i.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : i.ProductName)
+                        && i.CreatedUtc <= date.DateTime
+                        select new
+                        {
+                            i.Id,
+                            i.POSerialNumber,
+                            i.RO,
+                            i.ProductCode,
+                            i.ProductName,
+                            i.DesignColor,
+                            BeforeQuantity = i.RemainingQuantity,
+                            Quantity = i.RemainingQuantity,
+                            b.SmallQuantity,
+                            c.ReceiptDate,
+                            i.Colour,
+                            c.URNNo
+                        }).ToList();
 
             if (data.Count > 0)
             {
@@ -132,12 +156,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
                 table.Columns.Add(new DataColumn() { ColumnName = "Product Code", DataType = typeof(string) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Product Name", DataType = typeof(string) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Design Color", DataType = typeof(string) });
+                table.Columns.Add(new DataColumn() { ColumnName = "Qty Kedatangan (BUM)", DataType = typeof(decimal) });
+                table.Columns.Add(new DataColumn() { ColumnName = "Tgl Kedatangan (BUM)", DataType = typeof(string) });
+                table.Columns.Add(new DataColumn() { ColumnName = "Colour (Racking)", DataType = typeof(string) });
+                table.Columns.Add(new DataColumn() { ColumnName = "No BUM", DataType = typeof(string) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Before Quantity", DataType = typeof(decimal) });
                 table.Columns.Add(new DataColumn() { ColumnName = "Quantity", DataType = typeof(decimal) });
 
                 foreach (var d in data)
                 {
-                    table.Rows.Add(d.Id, d.POSerialNumber, d.RO, d.ProductCode, d.ProductName, d.DesignColor, d.BeforeQuantity, d.Quantity);
+                    var tgl = d.ReceiptDate.AddHours(7).ToString("dd-MM-yyyy");
+                    table.Rows.Add(d.Id, d.POSerialNumber, d.RO, d.ProductCode, d.ProductName, d.DesignColor,d.SmallQuantity,tgl,d.Colour,d.URNNo, d.BeforeQuantity, d.Quantity);
                 }
 
                 var excelPack = new ExcelPackage();
@@ -205,8 +234,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
                     GarmentStockOpnameItem item = new GarmentStockOpnameItem
                     {
                         DOItemId = (int)(double)ws.Cells[row, 1].Value,
-                        BeforeQuantity = (decimal)(double)ws.Cells[row, 7].Value,
-                        Quantity = (decimal)(double)ws.Cells[row, 8].Value
+                        BeforeQuantity = (decimal)(double)ws.Cells[row, 11].Value,
+                        Quantity = (decimal)(double)ws.Cells[row, 12].Value,
+                        Colour = (string)ws.Cells[row, 9].Value
                     };
 
                     EntityExtension.FlagForCreate(item, identityService.Username, USER_AGENT);
