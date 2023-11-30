@@ -4,13 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderNonPOModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderNonPOViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSubconDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -31,15 +34,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 		private readonly IGarmentBeacukaiFacade facade;
 		private readonly IGarmentDeliveryOrderFacade DOfacade;
 		private readonly IGarmentDeliveryOrderNonPOFacade DONonPOfacade;
+		private readonly IGarmentSubconDeliveryOrderFacades DOSubconfacade;
 		private readonly IdentityService identityService;
 
-		public GarmentBeacukaiController(IServiceProvider serviceProvider, IMapper mapper, IGarmentBeacukaiFacade facade, IGarmentDeliveryOrderFacade DOfacade, IGarmentDeliveryOrderNonPOFacade nonPOFacade)
+		public GarmentBeacukaiController(IServiceProvider serviceProvider, IMapper mapper, IGarmentBeacukaiFacade facade, IGarmentDeliveryOrderFacade DOfacade, IGarmentDeliveryOrderNonPOFacade nonPOFacade, IGarmentSubconDeliveryOrderFacades DOSubconfacade)
 		{
 			this.serviceProvider = serviceProvider;
 			this.mapper = mapper;
 			this.facade = facade;
 			this.DOfacade = DOfacade;
 			this.DONonPOfacade = nonPOFacade;
+			this.DOSubconfacade = DOSubconfacade;
 			this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 		}
 
@@ -173,15 +178,39 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
                     }
                     else
                     {
-						GarmentDeliveryOrderNonPO deliveryOrderNonPO = DONonPOfacade.ReadById((int)item.deliveryOrder.Id);
-						if (deliveryOrderNonPO != null)
-						{
-							GarmentDeliveryOrderNonPOViewModel deliveryOrderNonPOViewModel = mapper.Map<GarmentDeliveryOrderNonPOViewModel>(deliveryOrderNonPO);
-							//item.deliveryOrder.isInvoice = deliveryOrderNonPOViewModel.isInvoice;
-							item.deliveryOrderNonPO = deliveryOrderNonPOViewModel;
-							item.deliveryOrderNonPO.totalAmount = item.deliveryOrder.totalAmount;
+						if(viewModel.customType == "BC 262")
+                        {
+							GarmentDeliveryOrderNonPO deliveryOrderNonPO = DONonPOfacade.ReadById((int)item.deliveryOrder.Id);
+							if (deliveryOrderNonPO != null)
+							{
+								GarmentDeliveryOrderNonPOViewModel deliveryOrderNonPOViewModel = mapper.Map<GarmentDeliveryOrderNonPOViewModel>(deliveryOrderNonPO);
+								//item.deliveryOrder.isInvoice = deliveryOrderNonPOViewModel.isInvoice;
+								item.deliveryOrderNonPO = deliveryOrderNonPOViewModel;
+								item.deliveryOrderNonPO.totalAmount = item.deliveryOrder.totalAmount;
+							}
+						}else if (viewModel.customType == "BC 40" || viewModel.customType == "BC 27")
+                        {
+							GarmentSubconDeliveryOrder deliveryOrderSubcon = DOSubconfacade.ReadById((int)item.deliveryOrder.Id);
+							if(deliveryOrderSubcon != null)
+                            {
+								GarmentSubconDeliveryOrderViewModel deliveryOrderSubconViewModel = mapper.Map<GarmentSubconDeliveryOrderViewModel>(deliveryOrderSubcon);
+
+								GarmentDeliveryOrderNonPOViewModel garmentDeliveryOrderNonPOViewModel = new GarmentDeliveryOrderNonPOViewModel
+								{
+									Id = deliveryOrderSubconViewModel.Id,
+									doNo = deliveryOrderSubconViewModel.doNo,
+									doDate = deliveryOrderSubconViewModel.doDate,
+									arrivalDate = deliveryOrderSubconViewModel.arrivalDate,
+									totalAmount = item.deliveryOrder.totalAmount,
+									IsPO = false,
+									IsReceived = deliveryOrderSubconViewModel.IsReceived,
+								};
+
+								item.deliveryOrderNonPO = garmentDeliveryOrderNonPOViewModel;
+
+							}
 						}
-						//item.deliveryOrder = null;
+
 					}
 				}
 				Dictionary<string, object> Result =
