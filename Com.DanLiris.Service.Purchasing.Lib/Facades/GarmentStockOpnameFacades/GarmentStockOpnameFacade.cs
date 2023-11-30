@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
 
                 foreach (var d in Data)
                 {
-                    var tgl = d.ReceiptDate.AddHours(7).ToString("dd-MM-yyyy");
+                    var tgl = d.ReceiptDate.AddHours(identityService.TimezoneOffset).ToString("dd-MM-yyyy");
                     table.Rows.Add(d.Id, d.POSerialNumber, d.RO, d.ProductCode, d.ProductName, d.DesignColor,d.SmallQuantity,tgl,d.Colour,d.URNNo, d.BeforeQuantity, d.Quantity);
                 }
 
