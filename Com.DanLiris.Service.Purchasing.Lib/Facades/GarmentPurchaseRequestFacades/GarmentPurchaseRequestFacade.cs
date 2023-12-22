@@ -68,21 +68,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     case "Date":
                         if (order.Value == "asc")
                         {
-                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? o.ValidatedMD2Date : o.Date);
+                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE" || o.PRType == "SUBCON") ? o.ValidatedMD2Date : o.Date);
                         }
                         else
                         {
-                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? o.ValidatedMD2Date : o.Date);
+                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE" || o.PRType == "SUBCON") ? o.ValidatedMD2Date : o.Date);
                         }
                         break;
                     case "Status":
                         if (order.Value == "asc")
                         {
-                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
+                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE" || o.PRType == "SUBCON") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
                         }
                         else
                         {
-                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
+                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE" || o.PRType == "SUBCON") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
                         }
                         break;
                     default:
@@ -176,7 +176,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			return new ReadResponse<dynamic>(Data, TotalData, OrderDictionary);
 		}
 
-		public GarmentPurchaseRequest ReadById(int id)
+        public Tuple<List<GarmentPurchaseRequest>, int, Dictionary<string, string>> ReadDynamicForSubconDeliveryOrder(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = "{}", string Search = "[]")
+        {
+            IQueryable<GarmentPurchaseRequest> Query = this.dbSet.Include(x => x.Items).Where(x => x.IsValidated ==  true && x.PRType == "SUBCON" && x.Items.Any(s => s.RemainingQuantity > 0));
+
+            List<string> SearchAttributes = JsonConvert.DeserializeObject<List<string>>(Search);
+            if (SearchAttributes.Count == 0)
+            {
+                SearchAttributes = new List<string>() { "Items.ProductName", "Items.PO_SerialNumber" };
+            }
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, SearchAttributes, Keyword, SearchWith: "StartsWith");
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+
+            Dictionary<string, string> SelectDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Select);
+            IQueryable SelectedQuery = Query;
+            if (SelectDictionary.Count > 0)
+            {
+                SelectedQuery = QueryHelper<GarmentPurchaseRequest>.ConfigureSelect(Query, SelectDictionary);
+            }
+
+            int TotalData = SelectedQuery.Count();
+
+            Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);
+            List<GarmentPurchaseRequest> Data = pageable.Data.ToList<GarmentPurchaseRequest>();
+
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
+        public GarmentPurchaseRequest ReadById(int id)
         {
             var a = this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
@@ -228,7 +261,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
                     Created = await dbContext.SaveChangesAsync();
 
-                    if (m.PRType == "MASTER" || m.PRType == "SAMPLE")
+                    if (m.PRType == "MASTER" || m.PRType == "SAMPLE" || m.PRType == "SUBCON")
                     {
                         await SetIsPR(m.SCId, true);
                     }
@@ -268,9 +301,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             {
                 suffix = "S";
             }
+            else if (m.PRType == "SUBCON")
+            {
+                suffix = "SC";
+            }
             else
             {
-                throw new Exception("PRType only accepting \"MASTER\" and \"SAMPLE\" in order to generate RONo.");
+                throw new Exception("PRType only accepting \"MASTER\" , \"SAMPLE\" and \"SUBCON\" in order to generate RONo.");
             }
 
             var lastRONo = dbSet.Where(w => !string.IsNullOrWhiteSpace(w.RONo) && w.RONo.Length == prefix.Length + padding + suffix.Length && w.RONo.StartsWith(prefix) && w.RONo.EndsWith(suffix))
@@ -306,9 +343,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             {
                 suffix = "S";
             }
+            else if (m.PRType == "SUBCON")
+            {
+                suffix = "SC";
+            }
             else
             {
-                throw new Exception("PRType only accepting \"MASTER\" and \"SAMPLE\" in order to generate POSerialNumber.");
+                throw new Exception("PRType only accepting \"MASTER\" , \"SAMPLE\" and \"SUBCON\" in order to generate POSerialNumber.");
             }
 
             var prefixPM = string.Concat("PM", prefix);
