@@ -165,6 +165,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentSubconDel
 
                 validateService.Validate(ViewModel);
 
+                foreach(var itempr in ViewModel.itemsPR)
+                {
+                    ViewModel.items.Add(itempr);
+                }
                 var model = mapper.Map<GarmentSubconDeliveryOrder>(ViewModel);
 
                 await facade.Create(model, identityService.Username);
@@ -201,6 +205,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentSubconDel
 
                 validateService.Validate(ViewModel);
 
+                foreach (var itempr in ViewModel.itemsPR)
+                {
+                    ViewModel.items.Add(itempr);
+                }
                 var model = mapper.Map<GarmentSubconDeliveryOrder>(ViewModel);
 
                 await facade.Update(id, model, identityService.Username);
