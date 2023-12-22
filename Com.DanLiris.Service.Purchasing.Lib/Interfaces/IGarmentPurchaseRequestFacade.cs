@@ -36,5 +36,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> PRUnApprove(long id, string username);
         Task<int> Patch(long id, JsonPatchDocument<GarmentPurchaseRequest> jsonPatch, string user);
         List<GarmentInternalPurchaseOrder> ReadByTagsOptimized(string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo);
+        Tuple<List<GarmentPurchaseRequest>, int, Dictionary<string, string>> ReadDynamicForSubconDeliveryOrder(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = "{}", string Search = "[]");
     }
 }

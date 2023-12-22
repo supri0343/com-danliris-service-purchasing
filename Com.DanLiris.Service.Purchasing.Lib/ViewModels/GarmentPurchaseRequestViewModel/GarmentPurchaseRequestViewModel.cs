@@ -82,7 +82,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                 yield return new ValidationResult("Sales Contract tidak boleh kosong", new List<string> { "SalesContract" });
             }
 
-            if (new string[] { "MASTER", "SAMPLE" }.Contains(PRType))
+            if (new string[] { "MASTER", "SAMPLE", "SUBCON" }.Contains(PRType))
             {
                 if (ShipmentDate.Equals(DateTimeOffset.MinValue) || ShipmentDate == null)
                 {
@@ -180,7 +180,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
                         itemError += "Category: 'Data Kategori tidak benar', ";
                     }
 
-                    if (new string[] { "MASTER", "SAMPLE" }.Contains(PRType))
+                    if (new string[] { "MASTER", "SAMPLE", "SUBCON" }.Contains(PRType))
                     {
                         if (item.Category != null && item.Category.Name == "FABRIC")
                         {

@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
         public string beacukaiType { get; set; }
         public bool IsReceived { get; set; }
         public List<GarmentSubconDeliveryOrderItemViewModel> items { get; set; }
-
+        public List<GarmentSubconDeliveryOrderItemViewModel> itemsPR { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -103,6 +103,46 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
 
                 if (itemErrorCount > 0)
                     yield return new ValidationResult(itemError, new List<string> { "Items" });
+            }
+
+            if(this.items != null || items.Count >= 0)
+            {
+                string itemError = "[";
+
+                foreach (var item in itemsPR)
+                {
+                    itemError += "{";
+
+                    if (item.Product == null)
+                    {
+                        itemErrorCount++;
+                        itemError += "Product: 'Barang harus diisi', ";
+                    }
+
+                    if (string.IsNullOrEmpty(item.POSerialNumber))
+                    {
+                        itemErrorCount++;
+                        itemError += "POSerialNumber: 'POSerialNumber harus diisi', ";
+                    }
+
+                    if (item.DOQuantity <= 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "DOQuantity: 'DOQuantity harus lebih dari 0', ";
+                    }
+                    else if (item.DOQuantity > item.BudgetQuantity)
+                    {
+                        itemErrorCount++;
+                        itemError += "DOQuantity: 'DOQuantity tidak boleh lebih dari Budget Qty', ";
+                    }
+
+                    itemError += "}, ";
+                }
+
+                itemError += "]";
+
+                if (itemErrorCount > 0)
+                    yield return new ValidationResult(itemError, new List<string> { "ItemsPR" });
             }
         }
     }
