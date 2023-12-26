@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
         public string beacukaiType { get; set; }
         public bool IsReceived { get; set; }
         public List<GarmentSubconDeliveryOrderItemViewModel> items { get; set; }
-
+        public List<GarmentSubconDeliveryOrderItemViewModel> itemsPR { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -62,11 +62,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
             }
             int itemErrorCount = 0;
 
-            if (this.items == null || items.Count <= 0)
+            if ((this.items == null || items.Count <= 0) && (this.itemsPR == null || itemsPR.Count <= 0))
             {
                 yield return new ValidationResult("Item is required", new List<string> { "itemscount" });
             }
-            else
+            else if ((this.items != null || items.Count != 0) && (this.itemsPR == null || itemsPR.Count <= 0))
             {
                 string itemError = "[";
 
@@ -74,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
                 {
                     itemError += "{";
 
-                    if (item.Product == null )
+                    if (item.Product == null)
                     {
                         itemErrorCount++;
                         itemError += "Product: 'Barang harus diisi', ";
@@ -90,7 +90,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
                     {
                         itemErrorCount++;
                         itemError += "DOQuantity: 'DOQuantity harus lebih dari 0', ";
-                    }else if (item.DOQuantity > item.BudgetQuantity)
+                    }
+                    else if (item.DOQuantity > item.BudgetQuantity)
                     {
                         itemErrorCount++;
                         itemError += "DOQuantity: 'DOQuantity tidak boleh lebih dari Budget Qty', ";
@@ -103,6 +104,54 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
 
                 if (itemErrorCount > 0)
                     yield return new ValidationResult(itemError, new List<string> { "Items" });
+            }
+
+            if ((this.items == null || items.Count <= 0) && (this.itemsPR == null || itemsPR.Count <= 0))
+            {
+                yield return new ValidationResult("ItemPR is required", new List<string> { "itemsPRcount" });
+            }
+            else if ((this.items == null || items.Count == 0) && (this.itemsPR != null || itemsPR.Count != 0))
+            {
+                string itemError = "[";
+
+                foreach (var item in itemsPR)
+                {
+                    itemError += "{";
+
+                    if (item.Product == null)
+                    {
+                        itemErrorCount++;
+                        itemError += "Product: 'Barang harus diisi', ";
+                    }
+
+                    if (string.IsNullOrEmpty(item.POSerialNumber))
+                    {
+                        itemErrorCount++;
+                        itemError += "POSerialNumber: 'POSerialNumber harus diisi', ";
+                    }
+
+                    if (item.DOQuantity <= 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "DOQuantity: 'DOQuantity harus lebih dari 0', ";
+                    }
+                    else if (item.DOQuantity > item.BudgetQuantity)
+                    {
+                        itemErrorCount++;
+                        itemError += "DOQuantity: 'DOQuantity tidak boleh lebih dari Budget Qty', ";
+                    }
+
+                    itemError += "}, ";
+                }
+
+                itemError += "]";
+
+                if (itemErrorCount > 0)
+                    yield return new ValidationResult(itemError, new List<string> { "ItemsPR" });
+            }
+            if (( items.Count > 0) && ( itemsPR.Count > 0))
+            {
+                yield return new ValidationResult("Item yang terisi hanya boleh salah satu", new List<string> { "itemscount" });
             }
         }
     }
