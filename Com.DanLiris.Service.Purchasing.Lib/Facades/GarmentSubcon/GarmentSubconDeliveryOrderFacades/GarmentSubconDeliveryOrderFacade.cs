@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSubconDeliveryOrderViewModel;
 using Com.Moonlay.Models;
@@ -24,12 +25,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentSubconDeliveryOrder> dbSet;
         private readonly DbSet<GarmentSubconDeliveryOrderItem> dbSetItem;
+        private readonly DbSet<GarmentPurchaseRequestItem> dbSetPRItem;
         private readonly IMapper mapper;
         public GarmentSubconDeliveryOrderFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentSubconDeliveryOrder>();
             dbSetItem = dbContext.Set<GarmentSubconDeliveryOrderItem>();
+            dbSetPRItem = dbContext.Set<GarmentPurchaseRequestItem>();
             this.serviceProvider = serviceProvider;
 
             mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
@@ -104,6 +107,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                     foreach (var item in m.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        if(item.PRItemId != 0)
+                        {
+                            var pr = dbSetPRItem.FirstOrDefault(x => x.Id == item.PRItemId);
+                            pr.RemainingQuantity -= item.DOQuantity;
+
+                            EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
+                        }
                     }
 
                     this.dbSet.Add(m);
@@ -140,11 +150,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                         if(existItem == null)
                         {
                             EntityExtension.FlagForDelete(item, user, USER_AGENT);
+
+                            if (item.PRItemId != 0)
+                            {
+                                var pr = dbSetPRItem.FirstOrDefault(x => x.Id == item.PRItemId);
+                                pr.RemainingQuantity += item.DOQuantity;
+
+                                EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
+                            }
                         }
                         else
                         {
                             if(item.DOQuantity != existItem.DOQuantity)
                             {
+                                if (item.PRItemId != 0)
+                                {
+                                    var diff = item.DOQuantity - existItem.DOQuantity;
+                                    var pr = dbSetPRItem.FirstOrDefault(x => x.Id == item.PRItemId);
+                                    pr.RemainingQuantity += diff;
+
+                                    if (pr.RemainingQuantity < 0)
+                                    {
+                                        throw new Exception("Jumlah DO tidak boleh melebihi sisa.");
+                                    }
+                                    EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
+                                }
+
                                 item.DOQuantity = existItem.DOQuantity;
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                             }          
@@ -156,6 +187,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                     {
                         if(item.Id == 0)
                         {
+                            if (item.PRItemId != 0)
+                            {
+                                var pr = dbSetPRItem.FirstOrDefault(x => x.Id == item.PRItemId);
+                                pr.RemainingQuantity -= item.DOQuantity;
+
+                                EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
+                            }
+
                             item.GarmentDOId = oldModel.Id;
                             EntityExtension.FlagForCreate(item, user, USER_AGENT);
                             EntityExtension.FlagForUpdate(item, user, USER_AGENT);
@@ -212,6 +251,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                     EntityExtension.FlagForDelete(model, user, USER_AGENT);
                     foreach (var item in model.Items)
                     {
+                        if (item.PRItemId != 0)
+                        {
+                            var pr = dbSetPRItem.FirstOrDefault(x => x.Id == item.PRItemId);
+                            pr.RemainingQuantity += item.DOQuantity;
+
+                            EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
+                        }
+
+
                         EntityExtension.FlagForDelete(item, user, USER_AGENT);
                     }
                     Deleted = await dbContext.SaveChangesAsync();
