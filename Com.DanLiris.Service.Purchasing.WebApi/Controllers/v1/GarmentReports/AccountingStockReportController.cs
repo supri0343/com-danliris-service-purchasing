@@ -86,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
 
                 //string filename = String.IsNullOrWhiteSpace(unitcode) ? String.Format("Laporan Stock Pembukuan All Unit - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2A" ? String.Format("Laporan Stock Pembukuan KONFEKSI 2A - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2B" ? String.Format("Laporan Stock Pembukuan KONFEKSI 2B - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C2C" ? String.Format("Laporan Stock Pembukuan KONFEKSI 2C - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : unitcode == "C1B" ? String.Format("Laporan Stock Pembukuan KONFEKSI 2D - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy")) : String.Format("Laporan Stock Pembukuan All KONFEKSI 1 MNS - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
-                string filename = string.Format("Laporan Stock Pembukuan - {0} {1} - {2}", unitname, ((DateTime)dateFrom).ToString("dd-MM-yyyy"), ((DateTime)dateTo).ToString("dd-MM-yyyy"));
+                string filename = string.Format("Laporan Stock Pembukuan - {0} {1} - {2}.xlsx", unitname, ((DateTime)dateFrom).ToString("dd-MM-yyyy"), ((DateTime)dateTo).ToString("dd-MM-yyyy"));
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
                 return file;
