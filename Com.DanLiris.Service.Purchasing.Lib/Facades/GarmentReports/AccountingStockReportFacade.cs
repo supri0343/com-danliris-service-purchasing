@@ -92,6 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 && a.Date.Year <= DateTo.Date.Year
                                 && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                 && categories1.Contains(b.ProductName)
+                                && a.UnitCode != "SMP1"
                                 select new AccountingStockTempViewModel
                                 {
                                     ProductCode = b.ProductCode.Trim(),
@@ -277,6 +278,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               && b.ReceiptDate.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
+                              && b.UnitCode != "SMP1"
                             select new AccountingStockTempViewModel
                             {
                                 ProductCode = a.ProductCode.Trim(),
@@ -408,6 +410,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                && 
                                b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                && categories1.Contains(a.ProductName)
+                               && b.UnitSenderCode != "SMP1"
                             select new AccountingStockTempViewModel
                             {
                                 ProductCode = a.ProductCode.Trim(),
@@ -538,6 +541,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              && g.CorrectionDate.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
+                             && a.UnitCode != "SMP1"
                              select new AccountingStockTempViewModel
                              {
                                  ProductCode = b.ProductCode.Trim(),
@@ -725,6 +729,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             && b.ReceiptDate.AddHours(offset).Date <= DateTo.Date
                             && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                             && categories1.Contains(a.ProductName)
+                            && b.UnitCode != "SMP1"
                           select new AccountingStockTempViewModel
                         {
                             ProductCode = a.ProductCode.Trim(),
@@ -853,6 +858,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              && b.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
                              && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                              && categories1.Contains(a.ProductName)
+                             && b.UnitSenderCode != "SMP1"
                           select new AccountingStockTempViewModel
                          {
                              ProductCode = a.ProductCode.Trim(),
@@ -991,6 +997,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            && g.CorrectionDate.AddHours(offset).Date <= DateTo.Date
                            && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                            && categories1.Contains(b.ProductName)
+                           && a.UnitCode != "SMP1"
                            select new AccountingStockTempViewModel
                            {
                                ProductCode = b.ProductCode.Trim(),

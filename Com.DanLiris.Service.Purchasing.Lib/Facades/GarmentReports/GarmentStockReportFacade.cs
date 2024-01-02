@@ -64,6 +64,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 //&& i.IsDeleted == false && j.IsDeleted == false
                                 && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                 && categories1.Contains(b.ProductName)
+                                && a.UnitCode != "SMP1"
                                 select new GarmentStockReportViewModelTemp
                                 {
                                     BeginningBalanceQty = Math.Round(b.Quantity, 2),
@@ -119,6 +120,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               && b.ReceiptDate.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
+                              && b.UnitCode != "SMP1"
                             select new GarmentStockReportViewModelTemp
                             {
                                 BeginningBalanceQty = Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero),
@@ -176,6 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                && b.ExpenditureDate.AddHours(offset).Date < DateFrom.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                && categories1.Contains(a.ProductName)
+                               && b.UnitSenderCode != "SMP1"
                             select new GarmentStockReportViewModelTemp
                             {
                                 //BeginningBalanceQty = Convert.ToDecimal(a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * -1 * 0.9144 : b.ExpenditureType == "EXTERNAL" ? Convert.ToDouble(urnitem == null ? 0 : urnitem.SmallQuantity) * -1 : -1 * a.Quantity),
@@ -232,6 +235,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              && g.CorrectionDate.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
+                             && a.UnitCode != "SMP1"
                              select new GarmentStockReportViewModelTemp
                              {
                                  BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity, 2, MidpointRounding.AwayFromZero),
@@ -307,6 +311,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               && b.ReceiptDate.AddHours(offset).Date <= DateTo.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
+                              && b.UnitCode != "SMP1"
                           select new GarmentStockReportViewModelTemp
                           {
                               BeginningBalanceQty = 0,
@@ -360,6 +365,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                && b.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                && categories1.Contains(a.ProductName)
+                               && b.UnitSenderCode != "SMP1"
                           select new GarmentStockReportViewModelTemp
                           {
                               BeginningBalanceQty = 0,
@@ -414,6 +420,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              && g.CorrectionDate.AddHours(offset).Date <= DateTo.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
+                             && a.UnitCode != "SMP1"
                            select new GarmentStockReportViewModelTemp
                            {
                                BeginningBalanceQty = 0,
