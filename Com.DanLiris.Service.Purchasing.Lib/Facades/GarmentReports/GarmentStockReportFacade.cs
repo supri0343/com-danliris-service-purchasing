@@ -296,6 +296,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
                           from prs in PR.DefaultIfEmpty()
+                          join g in dbContext.GarmentUnitExpenditureNotes on b.UENId equals g.Id into UEN
+                          from dd in UEN.DefaultIfEmpty()
                               //join h in Codes on a.ProductCode equals h.Code
                           where a.IsDeleted == false && b.IsDeleted == false &&
                                 //&& c.IsDeleted == false && d.IsDeleted == false &&
