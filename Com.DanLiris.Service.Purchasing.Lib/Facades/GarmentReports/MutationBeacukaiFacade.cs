@@ -6,6 +6,8 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -845,7 +847,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             mm.AdjustmentQty = Math.Round(mutation.Sum(x => x.AdjustmentQty), 2);
             mm.BeginQty = Math.Round(mutation.Sum(x => x.BeginQty), 2);
             mm.ExpenditureQty = Math.Round(mutation.Sum(x => x.ExpenditureQty), 2);
-            mm.ItemCode = "";
+            mm.ItemCode = "TOTAL";
             mm.ItemName = "";
             mm.LastQty = Math.Round(mutation.Sum(x => x.LastQty), 2);
             mm.ReceiptQty = Math.Round(mutation.Sum(x => x.ReceiptQty), 2);
@@ -901,7 +903,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 result.Rows.Add((item.ItemCode), item.ItemName, item.SupplierType, item.UnitQtyName, item.BeginQty, item.ReceiptQty, item.ExpenditureQty, item.AdjustmentQty, item.LastQty, item.OpnameQty, item.Diff);
             }
 
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+            ExcelPackage package = new ExcelPackage();
+            var sheet = package.Workbook.Worksheets.Add("Data");
+
+            sheet.Cells["A1"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+            
+            var a = Query.Count();
+            sheet.Cells[$"A{a + 1}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Merge = true;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+
+            //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
 
         }
         #endregion 
@@ -1337,7 +1357,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             mm.AdjustmentQty = Math.Round(bpmutation.Sum(x => x.AdjustmentQty), 2);
             mm.BeginQty = Math.Round(bpmutation.Sum(x => x.BeginQty), 2);
             mm.ExpenditureQty = Math.Round(bpmutation.Sum(x => x.ExpenditureQty), 2);
-            mm.ItemCode = "";
+            mm.ItemCode = "TOTAL";
             mm.ItemName = "";
             mm.LastQty = Math.Round(bpmutation.Sum(x => x.LastQty), 2);
             mm.ReceiptQty = Math.Round(bpmutation.Sum(x => x.ReceiptQty), 2);
@@ -1440,8 +1460,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     result.Rows.Add((item.ItemCode), item.ItemName, item.SupplierType, item.UnitQtyName, item.BeginQty, item.ReceiptQty, item.ExpenditureQty, item.AdjustmentQty, item.LastQty, item.OpnameQty, item.Diff);
                 }
 
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+            //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
 
+            ExcelPackage package = new ExcelPackage();
+            var sheet = package.Workbook.Worksheets.Add("Data");
+
+            sheet.Cells["A1"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+
+            var a = Query.Count();
+            sheet.Cells[$"A{a + 1}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Merge = true;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
         }
 
         #endregion
