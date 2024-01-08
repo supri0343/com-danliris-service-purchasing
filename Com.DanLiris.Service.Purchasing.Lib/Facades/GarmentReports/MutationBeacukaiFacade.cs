@@ -456,7 +456,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                        }).ToList();
 
-            //var totalQty = leftoverbalanceQuery.Sum(x => x.BeginQty);
+            var totalQty = leftoverbalanceQuery.Sum(x => x.LastQty);
 
 
             #endregion
