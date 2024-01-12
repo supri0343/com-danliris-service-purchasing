@@ -91,11 +91,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
                         itemErrorCount++;
                         itemError += "DOQuantity: 'DOQuantity harus lebih dari 0', ";
                     }
-                    else if (item.DOQuantity > item.BudgetQuantity)
-                    {
-                        itemErrorCount++;
-                        itemError += "DOQuantity: 'DOQuantity tidak boleh lebih dari Budget Qty', ";
-                    }
+                    //else if (item.DOQuantity > item.BudgetQuantity)
+                    //{
+                    //    itemErrorCount++;
+                    //    itemError += "DOQuantity: 'DOQuantity tidak boleh lebih dari Budget Qty', ";
+                    //}
 
                     itemError += "}, ";
                 }
