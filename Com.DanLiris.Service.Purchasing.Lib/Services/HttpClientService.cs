@@ -59,5 +59,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services
             return await _client.SendAsync(request);
 
         }
+
+        public async Task<HttpResponseMessage> PutAsync(string url, string token, HttpContent content)
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return await _client.PutAsync(url, content);
+        }
     }
 }
