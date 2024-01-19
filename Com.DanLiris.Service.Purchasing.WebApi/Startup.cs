@@ -86,6 +86,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitExpenditureNoteFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconCustomOutFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -236,13 +238,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentDetailImportPurchasingJournalReportFacade, GarmentDetailImportPurchasingJournalReportFacade>()
                 .AddTransient<IGarmentDetailLocalPurchasingJournalReportFacade, GarmentDetailLocalPurchasingJournalReportFacade>()
                 .AddTransient<ILogHistoryFacades, LogHistoryFacades>()
-                .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>()
-                .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>()
-                .AddTransient<IGarmentSubconUnitReceiptNoteFacade, GarmentSubconUnitReceiptNoteFacade>()
-                .AddTransient<IGarmentSubconUnitDeliveryOrderFacade, GarmentSubconUnitDeliveryOrderFacades>()
-                .AddTransient<IGarmentSubconUnitExpenditureNoteFacade, GarmentSubconUnitExpenditureNoteFacade>();
-
-
+                .AddTransient<IGarmentSubconCustomOutFacade, GarmentSubconCustomOutFacade>();
+            
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

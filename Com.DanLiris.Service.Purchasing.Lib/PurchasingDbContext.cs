@@ -40,6 +40,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitExpenditureNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.LogHistory;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconCustomOut;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -168,7 +170,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<LogHistory> LogHistories { get; set; }
         //public DbSet<ImportValue> ImportValues { get; set; }
-
+        public DbSet<GarmentSubconCustomOut> GarmentSubconCustomOuts { get; set; }
+        public DbSet<GarmentSubconCustomOutItem> GarmentSubconCustomOutItems { get; set; }
+        public DbSet<GarmentSubconCustomOutDetail> GarmentSubconCustomOutDetails { get; set; }
         public DbSet<GarmentClosingDate> ClosingDate { get; set; }
 
 
