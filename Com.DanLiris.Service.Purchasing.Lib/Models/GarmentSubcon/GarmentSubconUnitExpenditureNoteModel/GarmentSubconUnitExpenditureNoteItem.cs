@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitEx
 
         public long UnitDOItemId { get; set; }
         public long URNItemId { get; set; }
-        public long DODetailId { get; set; }
+        public long DOItemId { get; set; }
         public long EPOItemId { get; set; }
         public long POItemId { get; set; }
         public long PRItemId { get; set; }
