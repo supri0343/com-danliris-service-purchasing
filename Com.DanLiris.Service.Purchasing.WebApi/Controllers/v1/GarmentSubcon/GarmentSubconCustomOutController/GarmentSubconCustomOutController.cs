@@ -229,5 +229,35 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentSubcon.Ga
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("by-local-sales-note")]
+        public async Task<IActionResult> GetByLocalSalesNote([FromBody]List<string>noteNo)
+        {
+            try
+            {
+                //identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var Data = await facade.GetByLocalSalesNote(noteNo);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", Data.Count },
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+
     }
 }
