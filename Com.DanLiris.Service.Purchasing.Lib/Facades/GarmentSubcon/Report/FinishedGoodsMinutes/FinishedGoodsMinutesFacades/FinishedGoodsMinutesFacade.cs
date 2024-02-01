@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.Finis
                          join c in deliveryOrders on b.GarmentDOId equals c.Id
                          where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false
                          && Rono.Contains(a.RONo)
-                         select new FinishedGoodsMinutesVM
+                         select new
                          {
                              RONo = a.RONo,
                              ProductName = a.ProductName,
@@ -49,7 +49,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.Finis
                              ReceiptBCNo = c.BeacukaiNo,
                              ReceiptBCType = c.BeacukaiType,
                              ReceiptBCDate = c.BeacukaiDate
-                         }).Distinct().ToListAsync();
+                         }).GroupBy(x => new { x.RONo,x.ProductName,x.ProductCode,x.UsedUomUnit,x.DONo,x.SupplierName,x.ReceiptQty,x.ReceiptUomUnit,x.ReceiptBCNo,x.ReceiptBCType,x.ReceiptBCDate},(key,group) => new FinishedGoodsMinutesVM 
+                         {
+                             RONo = key.RONo,
+                             ProductName = key.ProductName,
+                             ProductCode = key.ProductCode,
+                             UsedQty = group.Sum(x => x.UsedQty),
+                             UsedUomUnit = key.UsedUomUnit,
+                             DONo = key.DONo,
+                             SupplierName = key.SupplierName,
+                             ReceiptQty = key.ReceiptQty,
+                             ReceiptUomUnit = key.ReceiptUomUnit,
+                             ReceiptBCNo = key.ReceiptBCNo,
+                             ReceiptBCType = key.ReceiptBCType,
+                             ReceiptBCDate = key.ReceiptBCDate
+                         }).ToListAsync();
 
             return Query;
 
