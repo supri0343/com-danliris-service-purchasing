@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSubconCustomOutVM;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconCustomOutFacades
 {
@@ -64,13 +65,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                         LocalSalesNoteNo = y.LocalSalesNoteNo,
                         Quantity = y.Quantity,
                     }),
-                    
-                }) ;
+
+                });
 
             var a = Query.Where(x => x.Items.Any(s => s.LocalSalesNoteNo == ""));
             List<string> searchAttributes = new List<string>()
             {
-                "BCNo","Category"/*, "Items.UENNo" , "Items.LocalSalesNoteNo"*/
+                "BCNo","Category"/*, "Items.LocalSalesNoteNo" *//*, "Items.LocalSalesNoteNo"*/
             };
 
             Query = QueryHelper<GarmentSubconCustomOut>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -115,9 +116,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                         {
                             //Update IsUsed Local Sales Note
                             idsToUpdate.Add(item.LocalSalesNoteId.Value);
-                        } 
+                        }
 
-                        if(m.Category == "SISA" && item.UENId != 0)
+                        if (m.Category == "SISA" && item.UENId != 0)
                         {
                             //Update IsReceived BUK
                             var uen = dbContext.GarmentSubconUnitExpenditureNotes.FirstOrDefault(x => x.Id == item.UENId);
@@ -189,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                             EntityExtension.FlagForUpdate(uen, user, USER_AGENT);
                         }
 
-                        if(item.Details.Count() > 0)
+                        if (item.Details.Count() > 0)
                         {
                             foreach (var detail in item.Details)
                             {
@@ -307,11 +308,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                                     dbSetDetail.Add(detail);
                                 }
                             }
-                           
+
 
                         }
                     }
-                    
+
 
                     if (idsToUpdateFalse.Count > 0)
                     {
@@ -341,6 +342,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             }
 
             return Updated;
+        }
+
+        
+        public async Task<List<GetByLocalSalesNoteVM>> GetByLocalSalesNote(List<string> noteNo)
+        {
+            var result = new List<GetByLocalSalesNoteVM>();
+            var model = await dbSet
+                .Include(m => m.Items)
+                .Where(x => x.Items.Any(s => noteNo.Contains(s.LocalSalesNoteNo))).ToListAsync();
+
+            foreach(var a in model)
+            {
+                result.Add(new GetByLocalSalesNoteVM
+                {
+                    LocalSalesNote = a.Items.First().LocalSalesNoteNo,
+                    BCNo = a.BCNo,
+                    BCDate = a.BCDate,
+                    BCType = a.BCType
+
+                });
+            }
+
+            return result;
         }
 
         protected async Task<string> PutIsUsedSubconLocalSalesNote(List<long> ids, bool isUsed)
