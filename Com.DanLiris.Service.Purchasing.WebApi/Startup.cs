@@ -88,6 +88,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUni
 using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconCustomOutFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.FinishedGoodsMinutes.FinishedGoodsMinutesFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.GarmentReceiptSubconStockReport;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -243,8 +244,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentDetailLocalPurchasingJournalReportFacade, GarmentDetailLocalPurchasingJournalReportFacade>()
                 .AddTransient<ILogHistoryFacades, LogHistoryFacades>()
                 .AddTransient<IGarmentSubconCustomOutFacade, GarmentSubconCustomOutFacade>()
-                .AddTransient<IFinishedGoodsMinutesFacade, FinishedGoodsMinutesFacade>();
-                
+                .AddTransient<IFinishedGoodsMinutesFacade, FinishedGoodsMinutesFacade>()
+                .AddTransient<IGarmentReceiptSubconStockReportFacade, GarmentReceiptSubconStockReportFacade>();
+
+
 
 
         }
