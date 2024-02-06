@@ -1281,7 +1281,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                      }).ToList();
 
                 var total = resultToCount.Count;
-                var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 21);
+                var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
                 var okPercentage = total > 0 ? okTotal / (double)total * 100 : 0;
 
                 var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
