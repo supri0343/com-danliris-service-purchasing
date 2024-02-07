@@ -1622,7 +1622,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     RONo = garmentDeliveryOrderDetail.RONo,
                     ShipmentDate = garmentPurchaseRequest.ShipmentDate,
                     DODate = garmentDeliveryOrder.DODate,
-                    OKStatus = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 21 ? "OK" : "NOT OK",
+                    OKStatus = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 30 ? "OK" : "NOT OK",
                     Staff = garmentExternalPurchaseOrder.CreatedBy,
                     POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                     //Category = cat
