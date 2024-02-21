@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
         private readonly DbSet<GarmentSubconUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItem;
 
         private readonly DbSet<GarmentSubconDeliveryOrder> dbsetGarmentDeliveryOrder;
+        private readonly DbSet<GarmentSubconDeliveryOrderItem> dbsetGarmentDeliveryOrderItem;
         private readonly IMapper mapper;
         public GarmentSubconUnitReceiptNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -41,7 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             dbSet = dbContext.Set<GarmentSubconUnitReceiptNote>();
             dbSetGarmentUnitReceiptNoteItem = dbContext.Set<GarmentSubconUnitReceiptNoteItem>();
             dbsetGarmentDeliveryOrder = dbContext.Set<GarmentSubconDeliveryOrder>();
-
+            dbsetGarmentDeliveryOrderItem = dbContext.Set<GarmentSubconDeliveryOrderItem>();
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
@@ -155,15 +156,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
 
                     if (garmentUnitReceiptNote.URNType == "TERIMA SUBCON")
                     {
-                        var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
-                        EntityExtension.FlagForUpdate(garmentDeliveryOrder, identityService.Username, USER_AGENT);
-                        garmentDeliveryOrder.IsReceived = true;
+                        //var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                        //EntityExtension.FlagForUpdate(garmentDeliveryOrder, identityService.Username, USER_AGENT);
+                        //garmentDeliveryOrder.IsReceived = true;
                     }
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
                         EntityExtension.FlagForCreate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
 
+                        //Update ReceiptQty DeliveryOrder
+                        var garmentDeliveryOrderItem = dbsetGarmentDeliveryOrderItem.First(d => d.Id == garmentUnitReceiptNoteItem.DOItemId);
+                        garmentDeliveryOrderItem.ReceiptQuantity += garmentUnitReceiptNoteItem.ReceiptQuantity;
+                        EntityExtension.FlagForUpdate(garmentDeliveryOrderItem, identityService.Username, USER_AGENT);
+                        
                         if (garmentUnitReceiptNote.URNType == "PROSES")
                         {
                             //await UpdateDR(garmentUnitReceiptNote.DRId, true, garmentUnitReceiptNote.UnitCode);
