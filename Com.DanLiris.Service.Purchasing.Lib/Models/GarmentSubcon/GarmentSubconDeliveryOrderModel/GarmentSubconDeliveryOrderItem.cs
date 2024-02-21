@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderM
         public double PricePerDealUnit { get; set; }
         public string CurrencyCode { get; set; }
         public long PRItemId { get; set; }
+        public decimal ReceiptQuantity { get; set; }
         public virtual long GarmentDOId { get; set; }
         [ForeignKey("GarmentDOId")]
         public virtual GarmentSubconDeliveryOrder GarmentSubconDeliveryOrder { get; set; }
