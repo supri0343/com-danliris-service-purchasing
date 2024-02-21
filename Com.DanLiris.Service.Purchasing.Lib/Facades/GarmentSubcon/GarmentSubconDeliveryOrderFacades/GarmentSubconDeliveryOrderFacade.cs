@@ -309,7 +309,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
             FilterDictionary.Remove("SupplierId");
 
             IQueryable<GarmentSubconDeliveryOrder> Query = dbSet
-                .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.ProductOwnerId == filterSupplierId) && m.CustomsId != 0 && m.IsReceived == false)
+                .Where(m => m.DONo.Contains(Keyword ?? "") && (filterSupplierId == 0 ? true : m.ProductOwnerId == filterSupplierId) && m.CustomsId != 0 /*&& m.IsReceived == false*/)
                 .Select(m => new GarmentSubconDeliveryOrder
                 {
                     Id = m.Id,
@@ -323,11 +323,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                     BeacukaiDate = m.BeacukaiDate,
                     LastModifiedUtc = m.LastModifiedUtc,
                     Article = m.Article,
-                    Items = m.Items.Select(i => new GarmentSubconDeliveryOrderItem
+                    Items = m.Items.Where(s => s.DOQuantity != (double)s.ReceiptQuantity).Select(i => new GarmentSubconDeliveryOrderItem
                     {
                         Id = i.Id,
                         POSerialNumber = i.POSerialNumber,
-                        DOQuantity = i.DOQuantity,
+                        DOQuantity = (i.DOQuantity - (double)i.ReceiptQuantity),
+                        ReceiptQuantity = i.ReceiptQuantity,
                         PricePerDealUnit = i.PricePerDealUnit,
                         ProductId = i.ProductId,
                         ProductCode = i.ProductCode,
