@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
 
             List<string> searchAttributes = new List<string>()
             {
-                "DONo", "RONo","SupplierName"
+                "DONo", "RONo"/*,"SupplierName"*/
             };
 
             Query = QueryHelper<GarmentSubconDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
