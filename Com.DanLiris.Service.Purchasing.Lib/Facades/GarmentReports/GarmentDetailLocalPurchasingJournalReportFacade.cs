@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join d in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals d.Id
                          join c in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals c.Id                         
                          where a.URNType == "PEMBELIAN" && c.SupplierIsImport == false
-                               && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE")                   
+                               && (c.PaymentType == "T/T AFTER" || c.PaymentType == "T/T BEFORE" || c.PaymentType == "FREE")                   
                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date 
                          group new { Price = b.PricePerDealUnit, Qty = b.ReceiptQuantity, Rate = c.DOCurrencyRate } by new 
                          { a.URNNo, a.ReceiptDate, a.SupplierCode, a.SupplierName, a.Remark, c.InternNo, c.BillNo, e.CodeRequirment, c.PaymentType, c.DOCurrencyCode, c.DOCurrencyRate, c.UseVat, c.VatRate, c.UseIncomeTax, c.IncomeTaxRate } into G
