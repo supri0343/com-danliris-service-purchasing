@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
 
         [MaxLength(255)]
         public string RONo { get; set; }
-        [MaxLength(1000)]
+        [MaxLength(5000)]
         public string Article { get; set; }
         public bool IsUsed { get; set; }
 
