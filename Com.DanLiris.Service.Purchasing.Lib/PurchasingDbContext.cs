@@ -212,6 +212,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib
                    .IsUnique()
                     .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
 
+            modelBuilder.Entity<GarmentUnitReceiptNote>()
+                .HasIndex(i => i.DRNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000') AND [DRNo] !=''");
             //modelBuilder.Entity<GarmentUnitReceiptNote>()
             // .HasIndex(i => i.URNNo)
             // .IsUnique()
