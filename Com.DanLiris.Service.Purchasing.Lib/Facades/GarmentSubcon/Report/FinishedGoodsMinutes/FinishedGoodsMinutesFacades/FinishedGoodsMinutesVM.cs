@@ -18,5 +18,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.Finis
         public string ReceiptBCType { get; set; }
         public DateTimeOffset ReceiptBCDate { get; set; }
         public string RONo { get; set; }
+        public double PricePerDeal { get; set; }
     }
 }
