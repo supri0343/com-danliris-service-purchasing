@@ -37,19 +37,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.Finis
                          && Rono.Contains(a.RONo)
                          select new
                          {
-                             RONo = a.RONo,
-                             ProductName = a.ProductName,
-                             ProductCode = a.ProductCode,
+                             a.RONo,
+                             a.ProductName,
+                             a.ProductCode,
                              UsedQty = a.Quantity,
                              UsedUomUnit = a.UomUnit,
-                             DONo = c.DONo,
+                             c.DONo,
                              SupplierName = c.ProductOwnerName,
                              ReceiptQty = b.DOQuantity,
                              ReceiptUomUnit = b.UomUnit,
                              ReceiptBCNo = c.BeacukaiNo,
                              ReceiptBCType = c.BeacukaiType,
-                             ReceiptBCDate = c.BeacukaiDate
-                         }).GroupBy(x => new { x.RONo,x.ProductName,x.ProductCode,x.UsedUomUnit,x.DONo,x.SupplierName,x.ReceiptQty,x.ReceiptUomUnit,x.ReceiptBCNo,x.ReceiptBCType,x.ReceiptBCDate},(key,group) => new FinishedGoodsMinutesVM 
+                             ReceiptBCDate = c.BeacukaiDate,
+                             PricePerDeal =  b.PricePerDealUnit
+                         }).GroupBy(x => new { x.RONo,x.ProductName,x.ProductCode,x.UsedUomUnit,x.DONo,x.SupplierName,x.ReceiptQty,x.ReceiptUomUnit,x.ReceiptBCNo,x.ReceiptBCType,x.ReceiptBCDate,x.PricePerDeal},(key,group) => new FinishedGoodsMinutesVM 
                          {
                              RONo = key.RONo,
                              ProductName = key.ProductName,
@@ -62,7 +63,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.Finis
                              ReceiptUomUnit = key.ReceiptUomUnit,
                              ReceiptBCNo = key.ReceiptBCNo,
                              ReceiptBCType = key.ReceiptBCType,
-                             ReceiptBCDate = key.ReceiptBCDate
+                             ReceiptBCDate = key.ReceiptBCDate,
+                             PricePerDeal = key.PricePerDeal
                          }).ToListAsync();
 
             return Query;
