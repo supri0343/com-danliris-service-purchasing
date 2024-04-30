@@ -90,33 +90,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                          //PR
                          join d in _dbContext.PurchaseRequestItems on b.PRItemId equals d.Id
                          join c in _dbContext.PurchaseRequests on d.PurchaseRequestId equals c.Id
+
                          //EPO
-                         join e in _dbContext.ExternalPurchaseOrderItems on a.Id equals e.POId into f
-                         from epoitem in f.DefaultIfEmpty()
                          join k in _dbContext.ExternalPurchaseOrderDetails on b.Id equals k.POItemId into l
                          from epodetail in l.DefaultIfEmpty()
+                         join e in _dbContext.ExternalPurchaseOrderItems on epodetail.EPOItemId equals e.Id into f
+                         from epoitem in f.DefaultIfEmpty()
                          join g in _dbContext.ExternalPurchaseOrders on epoitem.EPOId equals g.Id into h
                          from epo in h.DefaultIfEmpty()
-                             //DO
+                         //DO
                          join yy in _dbContext.DeliveryOrderDetails on epodetail.Id equals yy.EPODetailId into zz
                          from doDetail in zz.DefaultIfEmpty()
                          join m in _dbContext.DeliveryOrderItems on doDetail.DOItemId equals m.Id into n
                          from doItem in n.DefaultIfEmpty()
                          join o in _dbContext.DeliveryOrders on doItem.DOId equals o.Id into p
                          from DO in p.DefaultIfEmpty()
-                             //    //URN
+                         //    //URN
                          join s in _dbContext.UnitReceiptNoteItems on doDetail.Id equals s.DODetailId into t
                          from urnItem in t.DefaultIfEmpty()
                          join q in _dbContext.UnitReceiptNotes on urnItem.URNId equals q.Id into r
                          from urn in r.DefaultIfEmpty()
-                             //    //UPO
-                         join u in _dbContext.UnitPaymentOrderItems on urn.Id equals u.URNId into v
+                         //    //UPO
+                         join y in _dbContext.UnitPaymentOrderDetails on urnItem.Id equals y.URNItemId into z
+                         from upoDetail in z.DefaultIfEmpty()
+                         join u in _dbContext.UnitPaymentOrderItems on upoDetail.UPOItemId equals u.Id into v
                          from upoItem in v.DefaultIfEmpty()
                          join w in _dbContext.UnitPaymentOrders on upoItem.UPOId equals w.Id into x
                          from upo in x.DefaultIfEmpty()
-                         join y in _dbContext.UnitPaymentOrderDetails on upoItem.Id equals y.UPOItemId into z
-                         from upoDetail in z.DefaultIfEmpty()
-                         where
+                         
+
+                          where
                           a.CreatedBy == (string.IsNullOrWhiteSpace(createdBy) ? a.CreatedBy : createdBy)
                           && (poExtId > 0 ? epo.Id == poExtId : true )
                           && b.Status == (string.IsNullOrWhiteSpace(status) ? b.Status : status)
@@ -130,6 +133,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                           && a.PRDate.Date <= endDate.Date
                           && epo.OrderDate.Date >= StartDatePO.Date
                           && epo.OrderDate.Date <= EndDatePO.Date
+                          && b.Quantity > 0
                          select new
                          {
                              PurchaseRequestId = c.Id,
