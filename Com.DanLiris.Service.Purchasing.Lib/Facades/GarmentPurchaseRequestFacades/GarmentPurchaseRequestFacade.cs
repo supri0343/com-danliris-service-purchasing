@@ -403,7 +403,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     {
                         EntityExtension.FlagForUpdate(oldM, user, USER_AGENT);
 
-                        if (m.PRType == "MASTER" || m.PRType == "SAMPLE")
+                        if (m.PRType == "MASTER" || m.PRType == "SAMPLE" || m.PRType == "SUBCON")
                         {
                             oldM.Article = m.Article;
                             oldM.Date = m.Date;
@@ -602,7 +602,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         EntityExtension.FlagForDelete(item, user, USER_AGENT);
                     }
 
-                    if (data.PRType == "MASTER" || data.PRType == "SAMPLE")
+                    if (data.PRType == "MASTER" || data.PRType == "SAMPLE" || data.PRType == "SUBCON")
                     {
                         var countPreSCinOtherPR = dbSet.Count(w => w.Id != data.Id && w.SCId == data.SCId);
                         if (countPreSCinOtherPR == 0)
