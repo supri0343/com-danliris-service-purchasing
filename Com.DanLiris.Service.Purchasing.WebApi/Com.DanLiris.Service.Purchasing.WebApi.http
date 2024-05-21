@@ -1,0 +1,6 @@
+@Com.DanLiris.Service.Purchasing.WebApi_HostAddress = http://localhost:5283
+
+GET {{Com.DanLiris.Service.Purchasing.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
