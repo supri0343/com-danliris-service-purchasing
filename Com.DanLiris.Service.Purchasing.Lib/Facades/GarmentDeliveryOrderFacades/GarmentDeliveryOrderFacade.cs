@@ -554,7 +554,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 {
                     foreach (var detail in item.Details)
                     {
-                        data.TotalAmount += detail.ReceiptQuantity * detail.PricePerDealUnit;
+                        data.TotalAmount += detail.DOQuantity * detail.PricePerDealUnit;
                     }
                 }
             }
