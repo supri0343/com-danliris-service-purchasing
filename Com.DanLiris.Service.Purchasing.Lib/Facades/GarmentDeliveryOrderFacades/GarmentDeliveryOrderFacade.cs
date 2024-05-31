@@ -2490,7 +2490,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             SupplierCode = garmentDeliveryOrder.SupplierCode;
             SupplierName = garmentDeliveryOrder.SupplierName;
             GarmentDeliveryOrderId = garmentDeliveryOrder.Id;
-            DODate = garmentDeliveryOrder.DODate;
+            DODate = garmentDeliveryOrder.ArrivalDate;
             DONo = garmentDeliveryOrder.DONo;
             CreatedBy = garmentDeliveryOrder.CreatedBy;
         }
