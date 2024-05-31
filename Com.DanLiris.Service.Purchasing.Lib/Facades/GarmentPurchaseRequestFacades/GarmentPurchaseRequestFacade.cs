@@ -1222,7 +1222,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Dibuat PO Internal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "NO RO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Bagian", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jenis", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Buyer", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Shipment GMT", DataType = typeof(String) });
