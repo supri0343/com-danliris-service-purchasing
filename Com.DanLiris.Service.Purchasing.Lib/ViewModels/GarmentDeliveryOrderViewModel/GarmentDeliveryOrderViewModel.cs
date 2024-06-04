@@ -135,7 +135,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                                 detailError += "doQuantity: 'DoQuantity must be greater than 0', ";
                             }
 
-                            if (detail.doQuantity > doQtyRemains) {
+                            if (detail.doQuantity >= doQtyRemains) {
                                 detailErrorCount++;
                                 detailError += "doQuantity: 'Jumlah diterima lebih besar dari jumlah dipesan', ";
                             }
