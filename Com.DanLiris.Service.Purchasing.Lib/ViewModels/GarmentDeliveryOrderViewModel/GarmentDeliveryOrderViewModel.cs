@@ -114,9 +114,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
 
                         foreach (var detail in item.fulfillments)
                         {
-                            PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                            var doQty = purchasingDbContext.GarmentDeliveryOrderDetails.Where(x => x.POSerialNumber == detail.poSerialNumber).Sum(x => x.DOQuantity);
-                            var doQtyRemains = detail.dealQuantity - doQty;
+                            //PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+                            //var doQty = purchasingDbContext.GarmentDeliveryOrderDetails.Where(x => x.POSerialNumber == detail.poSerialNumber).Sum(x => x.DOQuantity);
+                            //var doQtyRemains = detail.dealQuantity - doQty;
                             detailError += "{";
 
                             if (detail.conversion == 0)
@@ -135,10 +135,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
                                 detailError += "doQuantity: 'DoQuantity must be greater than 0', ";
                             }
 
-                            if (detail.doQuantity > doQtyRemains) {
-                                detailErrorCount++;
-                                detailError += "doQuantity: 'Jumlah diterima lebih besar dari jumlah dipesan', ";
-                            }
+                            //if (detail.doQuantity >= doQtyRemains) {
+                            //    detailErrorCount++;
+                            //    detailError += "doQuantity: 'Jumlah diterima lebih besar dari jumlah dipesan', ";
+                            //}
 
                             
 
