@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             var header = dbContext.PurchasingDocumentExpeditions.AsQueryable();
             if (type == "not-history")
             {
-                header = header.GroupBy(x => x.UnitPaymentOrderNo)
+                header = header.GroupBy(x => x.UnitPaymentOrderNo).ToList()
                         .Select(g => g.OrderByDescending(x => x.LastModifiedUtc).FirstOrDefault()).AsQueryable();
             }
 
