@@ -1091,7 +1091,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             Query = Query.Where(entity => entity.Date.AddHours(Offset) >= DateFrom.GetValueOrDefault() && entity.Date.AddHours(Offset) <= DateTo.GetValueOrDefault().AddDays(1).AddSeconds(-1));
             // override duplicate 
-            Query = Query.GroupBy(
+            var QueryBaru = Query.GroupBy(
                 key => new { key.Id, key.BankName, key.CategoryName, key.Currency, key.Date, key.DivisionCode, key.DivisionName, key.DocumentNo, key.DPP, key.InvoiceNumber, key.PaymentMethod, key.SupplierCode, key.SupplierName, key.TotalDPP, key.TotalPaid, key.TotalPPN, key.VAT, key.UnitPaymentOrderNo, key.DifferenceNominal },
                 value => value,
                 (key, value) => new BankExpenditureNoteReportViewModel
@@ -1117,22 +1117,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     DifferenceNominal = key.DifferenceNominal
                 });
             if (!string.IsNullOrWhiteSpace(DocumentNo))
-                Query = Query.Where(entity => entity.DocumentNo == DocumentNo);
+                QueryBaru = QueryBaru.Where(entity => entity.DocumentNo == DocumentNo);
 
             if (!string.IsNullOrWhiteSpace(UnitPaymentOrderNo))
-                Query = Query.Where(entity => entity.UnitPaymentOrderNo == UnitPaymentOrderNo);
+                QueryBaru = QueryBaru.Where(entity => entity.UnitPaymentOrderNo == UnitPaymentOrderNo);
 
             if (!string.IsNullOrWhiteSpace(InvoiceNo))
-                Query = Query.Where(entity => entity.InvoiceNumber == InvoiceNo);
+                QueryBaru = QueryBaru.Where(entity => entity.InvoiceNumber == InvoiceNo);
 
             if (!string.IsNullOrWhiteSpace(SupplierCode))
-                Query = Query.Where(entity => entity.SupplierCode == SupplierCode);
+                QueryBaru = QueryBaru.Where(entity => entity.SupplierCode == SupplierCode);
 
             if (!string.IsNullOrWhiteSpace(PaymentMethod))
-                Query = Query.Where(entity => entity.PaymentMethod == PaymentMethod);
+                QueryBaru = QueryBaru.Where(entity => entity.PaymentMethod == PaymentMethod);
 
             if (!string.IsNullOrWhiteSpace(DivisionCode))
-                Query = Query.Where(entity => entity.DivisionCode == DivisionCode);
+                QueryBaru = QueryBaru.Where(entity => entity.DivisionCode == DivisionCode);
 
             Pageable<BankExpenditureNoteReportViewModel> pageable = new Pageable<BankExpenditureNoteReportViewModel>(Query, Page - 1, Size);
             List<object> data = pageable.Data.ToList<object>();
