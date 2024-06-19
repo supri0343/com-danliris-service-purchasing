@@ -247,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                             EntityExtension.FlagForUpdate(detail, username, USER_AGENT);
                             dbContext.Entry(detail).Property(x => x.SupplierPayment).IsModified = true;
-
+                            //berhenti d atas ini
                             var pdeExisting = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.BankExpenditureNoteNo == model.DocumentNo && entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
                             if (pdeExisting != null)
                             {
@@ -397,8 +397,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                         EntityExtension.FlagForCreate(detail, username, USER_AGENT);
 
-                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.Include(item => item.Items).LastOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
-                        
+                        //var pdeSPB = dbContext.PurchasingDocumentExpeditions.Include(item => item.Items).LastOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.Include(item => item.Items).OrderBy(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).LastOrDefault();
+
+
                         if (pdeSPB != null && string.IsNullOrWhiteSpace(pdeSPB.BankExpenditureNoteNo))
                         {
                             // update pde
@@ -949,7 +951,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.URNId,
                 s.URNNo,
                 AmountPaid = (detailDbSet.Where(x => x.UnitPaymentOrderNo == s.UnitPaymentOrderNo).ToList().Count == 0 ? 0 : detailDbSet.Where(x => x.UnitPaymentOrderNo == s.UnitPaymentOrderNo).Sum(x => x.SupplierPayment)),
-                IsPosted = dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).LastOrDefault() != null ? dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).LastOrDefault().IsPosted : true,
+                IsPosted = dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).OrderBy(p => p.DocumentNo).LastOrDefault() != null ? dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).OrderBy(p => p.DocumentNo).LastOrDefault().IsPosted : true,
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,
