@@ -146,11 +146,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 try
                 {
                     EntityExtension.FlagForUpdate(model, username, USER_AGENT);
+
                     dbContext.Entry(model).Property(x => x.GrandTotal).IsModified = true;
                     dbContext.Entry(model).Property(x => x.BGCheckNumber).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
+
+                  
+
+
 
                     foreach (var detail in model.Details)
                     {
@@ -158,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             var paidFlag = true;
 
-                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).ToList();
+                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).AsNoTracking().ToList();
 
                             if (query.Count == 0)
                             {
@@ -226,7 +231,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             var paidFlag = true;
 
-                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).ToList();
+                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).AsNoTracking().ToList();
 
                             if (query.Count == 0)
                             {
@@ -246,7 +251,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             }
 
                             EntityExtension.FlagForUpdate(detail, username, USER_AGENT);
-                            dbContext.Entry(detail).Property(x => x.SupplierPayment).IsModified = true;
+                            //dbContext.Set<BankExpenditureNoteDetailModel>().Find();
+                            //dbContext.Entry(detail).Property(x => x.SupplierPayment).IsModified = true;
                             //berhenti d atas ini
                             var pdeExisting = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.BankExpenditureNoteNo == model.DocumentNo && entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
                             if (pdeExisting != null)
@@ -277,7 +283,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             //    dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                             //    dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                             //    dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
+
                         }
+                        
+                        
                     }
 
                     foreach (var detail in dbContext.BankExpenditureNoteDetails.AsNoTracking().Where(p => p.BankExpenditureNoteId == model.Id))
