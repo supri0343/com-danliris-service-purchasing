@@ -30,20 +30,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             DateTimeOffset dateFromFilter = (dateFrom == null ? new DateTime(1970, 1, 1) : dateFrom.Value.Date);
             DateTimeOffset dateToFilter = (dateTo == null ? DateTimeOffset.UtcNow.Date : dateTo.Value.Date);
 
-            
-            var header = dbContext.PurchasingDocumentExpeditions.AsQueryable();
+            //agar Query bisa di gunakan setelah ada nya if else condition
+            IEnumerable<UnitPaymentOrderNotVerifiedReportViewModel> Query;
             if (type == "not-history")
             {
-                header = header.GroupBy(x => x.UnitPaymentOrderNo).ToList()
+                var headerQueryable = dbContext.PurchasingDocumentExpeditions.AsQueryable();
+                var header1 = headerQueryable.GroupBy(x => x.UnitPaymentOrderNo).ToList()
                         .Select(g => g.OrderByDescending(x => x.LastModifiedUtc).FirstOrDefault()).AsQueryable();
-            }
 
-            var Query = (from p in header
+                Query = (from p in header1
                          where p.IsDeleted == false &&
                             p.UnitPaymentOrderNo == (string.IsNullOrWhiteSpace(no) ? p.UnitPaymentOrderNo : no) &&
                             p.SupplierCode == (string.IsNullOrWhiteSpace(supplier) ? p.SupplierCode : supplier) &&
                             p.DivisionCode == (string.IsNullOrWhiteSpace(division) ? p.DivisionCode : division) &&
-                            p.VerifyDate!=null &&
+                            p.VerifyDate != null &&
                             p.VerifyDate.GetValueOrDefault().AddHours(offset).Date >= dateFromFilter &&
                             p.VerifyDate.GetValueOrDefault().AddHours(offset).Date <= dateToFilter
                             && p.Position == (ExpeditionPosition)6
@@ -56,11 +56,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                              Currency = p.Currency,
                              UPODate = p.UPODate,
                              TotalPaid = p.TotalPaid,
-                             NotVerifiedReason=p.NotVerifiedReason,
-                             LastModifiedUtc=p.LastModifiedUtc
+                             NotVerifiedReason = p.NotVerifiedReason,
+                             LastModifiedUtc = p.LastModifiedUtc
                          });
-           
-            return Query;
+            }
+            else
+            {
+                //download excel
+                //(type == "history")
+                var header = dbContext.PurchasingDocumentExpeditions.AsQueryable().ToList();
+                Query = (from p in header
+                         where p.IsDeleted == false &&
+                            p.UnitPaymentOrderNo == (string.IsNullOrWhiteSpace(no) ? p.UnitPaymentOrderNo : no) &&
+                            p.SupplierCode == (string.IsNullOrWhiteSpace(supplier) ? p.SupplierCode : supplier) &&
+                            p.DivisionCode == (string.IsNullOrWhiteSpace(division) ? p.DivisionCode : division) &&
+                            p.VerifyDate != null &&
+                            p.VerifyDate.GetValueOrDefault().AddHours(offset).Date >= dateFromFilter &&
+                            p.VerifyDate.GetValueOrDefault().AddHours(offset).Date <= dateToFilter
+                            && p.Position == (ExpeditionPosition)6
+                         select new UnitPaymentOrderNotVerifiedReportViewModel
+                         {
+                             UnitPaymentOrderNo = p.UnitPaymentOrderNo,
+                             DivisionName = p.DivisionName,
+                             SupplierName = p.SupplierName,
+                             VerifyDate = p.VerifyDate,
+                             Currency = p.Currency,
+                             UPODate = p.UPODate,
+                             TotalPaid = p.TotalPaid,
+                             NotVerifiedReason = p.NotVerifiedReason,
+                             LastModifiedUtc = p.LastModifiedUtc
+                         });
+            }
+
+            return Query.AsQueryable();
         }
 
         public Tuple<List<UnitPaymentOrderNotVerifiedReportViewModel>, int> GetReport(string no, string supplier, string division, DateTimeOffset? dateFrom, DateTimeOffset? dateTo, int page, int size, string Order, int offset, string type)

@@ -146,11 +146,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 try
                 {
                     EntityExtension.FlagForUpdate(model, username, USER_AGENT);
+
                     dbContext.Entry(model).Property(x => x.GrandTotal).IsModified = true;
                     dbContext.Entry(model).Property(x => x.BGCheckNumber).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
+
+                  
+
+
 
                     foreach (var detail in model.Details)
                     {
@@ -158,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             var paidFlag = true;
 
-                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).ToList();
+                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).AsNoTracking().ToList();
 
                             if (query.Count == 0)
                             {
@@ -226,7 +231,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             var paidFlag = true;
 
-                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).ToList();
+                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).AsNoTracking().ToList();
 
                             if (query.Count == 0)
                             {
@@ -246,8 +251,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             }
 
                             EntityExtension.FlagForUpdate(detail, username, USER_AGENT);
-                            dbContext.Entry(detail).Property(x => x.SupplierPayment).IsModified = true;
-
+                            //dbContext.Set<BankExpenditureNoteDetailModel>().Find();
+                            //dbContext.Entry(detail).Property(x => x.SupplierPayment).IsModified = true;
+                            //berhenti d atas ini
                             var pdeExisting = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.BankExpenditureNoteNo == model.DocumentNo && entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
                             if (pdeExisting != null)
                             {
@@ -277,7 +283,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             //    dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                             //    dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                             //    dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
+
                         }
+                        
+                        
                     }
 
                     foreach (var detail in dbContext.BankExpenditureNoteDetails.AsNoTracking().Where(p => p.BankExpenditureNoteId == model.Id))
@@ -397,8 +406,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                         EntityExtension.FlagForCreate(detail, username, USER_AGENT);
 
-                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.Include(item => item.Items).LastOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
-                        
+                        //var pdeSPB = dbContext.PurchasingDocumentExpeditions.Include(item => item.Items).LastOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.Include(item => item.Items).OrderBy(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).LastOrDefault();
+
+
                         if (pdeSPB != null && string.IsNullOrWhiteSpace(pdeSPB.BankExpenditureNoteNo))
                         {
                             // update pde
@@ -949,7 +960,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.URNId,
                 s.URNNo,
                 AmountPaid = (detailDbSet.Where(x => x.UnitPaymentOrderNo == s.UnitPaymentOrderNo).ToList().Count == 0 ? 0 : detailDbSet.Where(x => x.UnitPaymentOrderNo == s.UnitPaymentOrderNo).Sum(x => x.SupplierPayment)),
-                IsPosted = dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).LastOrDefault() != null ? dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).LastOrDefault().IsPosted : true,
+                IsPosted = dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).OrderBy(p => p.DocumentNo).LastOrDefault() != null ? dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).OrderBy(p => p.DocumentNo).LastOrDefault().IsPosted : true,
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,
@@ -1091,7 +1102,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             Query = Query.Where(entity => entity.Date.AddHours(Offset) >= DateFrom.GetValueOrDefault() && entity.Date.AddHours(Offset) <= DateTo.GetValueOrDefault().AddDays(1).AddSeconds(-1));
             // override duplicate 
-            Query = Query.GroupBy(
+            var QueryBaru = Query.GroupBy(
                 key => new { key.Id, key.BankName, key.CategoryName, key.Currency, key.Date, key.DivisionCode, key.DivisionName, key.DocumentNo, key.DPP, key.InvoiceNumber, key.PaymentMethod, key.SupplierCode, key.SupplierName, key.TotalDPP, key.TotalPaid, key.TotalPPN, key.VAT, key.UnitPaymentOrderNo, key.DifferenceNominal },
                 value => value,
                 (key, value) => new BankExpenditureNoteReportViewModel
@@ -1117,22 +1128,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     DifferenceNominal = key.DifferenceNominal
                 });
             if (!string.IsNullOrWhiteSpace(DocumentNo))
-                Query = Query.Where(entity => entity.DocumentNo == DocumentNo);
+                QueryBaru = QueryBaru.Where(entity => entity.DocumentNo == DocumentNo);
 
             if (!string.IsNullOrWhiteSpace(UnitPaymentOrderNo))
-                Query = Query.Where(entity => entity.UnitPaymentOrderNo == UnitPaymentOrderNo);
+                QueryBaru = QueryBaru.Where(entity => entity.UnitPaymentOrderNo == UnitPaymentOrderNo);
 
             if (!string.IsNullOrWhiteSpace(InvoiceNo))
-                Query = Query.Where(entity => entity.InvoiceNumber == InvoiceNo);
+                QueryBaru = QueryBaru.Where(entity => entity.InvoiceNumber == InvoiceNo);
 
             if (!string.IsNullOrWhiteSpace(SupplierCode))
-                Query = Query.Where(entity => entity.SupplierCode == SupplierCode);
+                QueryBaru = QueryBaru.Where(entity => entity.SupplierCode == SupplierCode);
 
             if (!string.IsNullOrWhiteSpace(PaymentMethod))
-                Query = Query.Where(entity => entity.PaymentMethod == PaymentMethod);
+                QueryBaru = QueryBaru.Where(entity => entity.PaymentMethod == PaymentMethod);
 
             if (!string.IsNullOrWhiteSpace(DivisionCode))
-                Query = Query.Where(entity => entity.DivisionCode == DivisionCode);
+                QueryBaru = QueryBaru.Where(entity => entity.DivisionCode == DivisionCode);
 
             Pageable<BankExpenditureNoteReportViewModel> pageable = new Pageable<BankExpenditureNoteReportViewModel>(Query, Page - 1, Size);
             List<object> data = pageable.Data.ToList<object>();
