@@ -109,7 +109,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     Currency = s.Currency,
                     Items = s.Items.Where(d => d.PurchasingDocumentExpeditionId == s.Id).ToList(),
                     LastModifiedUtc = s.LastModifiedUtc
-                }).OrderBy(s => s.UnitPaymentOrderNo.Remove(5, 6));
+                })
+                .OrderBy(s => s.UnitPaymentOrderNo.Substring(5,6));
 
             List<object> list = new List<object>();
             list.AddRange(
