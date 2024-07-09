@@ -113,6 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 				return Query.AsQueryable();
 			}
 			else
+            //masuk sini
 			{
 				var Query = (from a in dbContext.GarmentUnitExpenditureNoteItems
 							 join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
@@ -163,7 +164,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  Box = a.Box,
                                  Level = a.Level,
                                  Area = a.Area,
-                             });
+                             }).ToList();
 				return Query.AsQueryable();
 			}
            
