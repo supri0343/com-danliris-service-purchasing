@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitExpenditureNoteFacade
 {
-    public class GarmentSubconUnitExpenditureNoteFacade: IGarmentSubconUnitExpenditureNoteFacade
+    public class GarmentSubconUnitExpenditureNoteFacade : IGarmentSubconUnitExpenditureNoteFacade
     {
         private readonly string USER_AGENT = "Facade";
 
@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
         private readonly DbSet<GarmentSubconUnitDeliveryOrder> dbSetGarmentUnitDeliveryOrder;
         private readonly DbSet<GarmentSubconUnitDeliveryOrderItem> dbSetGarmentUnitDeliveryOrderItem;
         private readonly DbSet<GarmentSubconUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItem;
-        
+
 
         private readonly IMapper mapper;
 
@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                             var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == unitDOItem.URNItemId);
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)unitDOItem.Quantity;
-                            garmentUnitReceiptNoteItem.RemainingQuantity +=  (decimal)unitDOItem.Quantity;
+                            garmentUnitReceiptNoteItem.RemainingQuantity += (decimal)unitDOItem.Quantity;
                         }
                     }
 
@@ -178,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
 
                         var garmentUnitDeliveryOrderItem = dbSetGarmentUnitDeliveryOrderItem.FirstOrDefault(s => s.Id == garmentUnitExpenditureNoteItem.UnitDOItemId);
                         var garmentUnitReceiptNoteItem = dbSetGarmentUnitReceiptNoteItem.FirstOrDefault(u => u.Id == garmentUnitExpenditureNoteItem.URNItemId);
-                        
+
                         if (garmentUnitDeliveryOrderItem != null && garmentUnitReceiptNoteItem != null)
                         {
                             if (garmentUnitDeliveryOrderItem.Quantity != garmentUnitExpenditureNoteItem.Quantity)
@@ -301,7 +301,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                                 garmentUnitDeliveryOrderItem.Quantity = newGarmentUnitExpenditureNoteItem.Quantity;
                             }
                             oldGarmentUnitExpenditureNoteItem.Quantity = garmentUnitExpenditureNote.Items.FirstOrDefault(i => i.Id == oldGarmentUnitExpenditureNoteItem.Id).Quantity;
-                            
+
                             oldGarmentUnitExpenditureNoteItem.Conversion = garmentUnitReceiptNoteItem.Conversion;
                             oldGarmentUnitExpenditureNoteItem.ItemStatus = newGarmentUnitExpenditureNoteItem.ItemStatus;
                         }
@@ -360,7 +360,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                         ProductRemark = i.ProductRemark,
                         PRItemId = i.PRItemId,
                         EPOItemId = i.EPOItemId,
-                        DODetailId = i.DODetailId,
+                        DOItemId = i.DOItemId,
                         POItemId = i.POItemId,
                         POSerialNumber = i.POSerialNumber,
                         PricePerDealUnit = i.PricePerDealUnit,
@@ -419,7 +419,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                         i.Id,
                         i.UnitDOItemId,
                         i.URNItemId,
-                        i.DODetailId,
+                        i.DOItemId,
                         i.EPOItemId,
                         i.POItemId,
                         i.PRItemId,
@@ -491,9 +491,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             string no = "";
             //if (garmentUnitExpenditureNote.ExpenditureType == "PROSES" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "SISA" || garmentUnitExpenditureNote.ExpenditureType == "SUBCON")// || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
             //{
-                no = string.Concat("BUK", garmentUnitExpenditureNote.UnitRequestCode, Year, Month, Day);
+            no = string.Concat("BUK", garmentUnitExpenditureNote.UnitRequestCode, Year, Month, Day);
             //}
-          
+
             int Padding = 3;
 
             var lastNo = await dbSet.Where(w => w.UENNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.UENNo).FirstOrDefaultAsync();

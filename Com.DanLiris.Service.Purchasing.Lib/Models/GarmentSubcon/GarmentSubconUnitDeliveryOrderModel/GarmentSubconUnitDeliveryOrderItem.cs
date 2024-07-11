@@ -9,14 +9,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDe
 {
     public class GarmentSubconUnitDeliveryOrderItem : StandardEntity<long>
 	{
-		[MaxLength(255)]
-		public string? UId { get; set; }
-		public long URNId { get; set; }
+        [MaxLength(255)]
+        public string? UId { get; set; }
+        public long URNId { get; set; }
         [MaxLength(255)]
         public string? URNNo { get; set; }
 
         public long URNItemId { get; set; }
-        public long DODetailId { get; set; }
+        public long DOItemId { get; set; }
         public long EPOItemId { get; set; }
         public long POItemId { get; set; }
         public long PRItemId { get; set; }
@@ -29,8 +29,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDe
         public string? ProductCode { get; set; }
         [MaxLength(1000)]
         public string? ProductName { get; set; }
-		[MaxLength(1000)]
-		public string? ProductRemark { get; set; }
+        [MaxLength(1000)]
+        public string? ProductRemark { get; set; }
 
         [MaxLength(255)]
         public string? RONo { get; set; }
@@ -45,8 +45,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDe
         public double PricePerDealUnit { get; set; }
         [MaxLength(255)]
         public string? FabricType { get; set; }
-		[MaxLength(1000)]
-		public string? DesignColor { get; set; }
+        [MaxLength(1000)]
+        public string? DesignColor { get; set; }
 
         public double? DOCurrencyRate { get; set; }
 

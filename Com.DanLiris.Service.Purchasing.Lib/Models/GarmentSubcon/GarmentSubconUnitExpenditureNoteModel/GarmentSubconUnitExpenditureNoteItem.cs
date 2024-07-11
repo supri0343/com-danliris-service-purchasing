@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitEx
 
         public long UnitDOItemId { get; set; }
         public long URNItemId { get; set; }
-        public long DODetailId { get; set; }
+        public long DOItemId { get; set; }
         public long EPOItemId { get; set; }
         public long POItemId { get; set; }
         public long PRItemId { get; set; }
@@ -40,7 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitEx
 
         public double PricePerDealUnit { get; set; }
         [MaxLength(255)]
-        public string? FabricType{ get; set; }
+        public string? FabricType { get; set; }
 
         public long ProductOwnerId { get; set; }
         [MaxLength(255)]
@@ -57,8 +57,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitEx
 
         [MaxLength(25)]
         public string? ItemStatus { get; set; }
-		[MaxLength(255)]
-		public string? UId { get; set; }
+        [MaxLength(255)]
+        public string? UId { get; set; }
         public string? BeacukaiNo { get; set; }
         public DateTimeOffset BeacukaiDate { get; set; }
         public string? BeacukaiType { get; set; }
