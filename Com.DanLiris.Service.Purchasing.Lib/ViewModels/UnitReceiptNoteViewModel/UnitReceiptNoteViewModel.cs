@@ -29,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
         public string remark { get; set; }
 
         public bool isPaid { get; set; }
+       
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (this.date.Equals(DateTimeOffset.MinValue) || this.date == null)
@@ -64,10 +65,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
             {
                 yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
             }
-
+            var countGroup = items.Where( x => x.IsSave).GroupBy(x => x.categoryId).Count();
             int itemErrorCount = 0;
 
-            if (this.items.Count.Equals(0))
+            if (countGroup> 1)
+            {
+                yield return new ValidationResult("Kategori tidak boleh sama", new List<string> { "countGroup" });
+            }
+
+            if (this.items.Where(x => x.IsSave).Count().Equals(0))
             {
                 yield return new ValidationResult("Items is required", new List<string> { "itemscount" });
             }

@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                     }
                 }
             }
-
+            vm.items = vm.items.Where(x => x.IsSave).ToList();
             UnitReceiptNote m = _mapper.Map<UnitReceiptNote>(vm);
 
             IValidateService validateService = (IValidateService)_serviceProvider.GetService(typeof(IValidateService));
