@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUnitReceiptNoteViewModels;
 using Com.Moonlay.Models;
@@ -549,6 +550,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                     foreach(var item in garmentUnitReceiptNote.Items)
                     {
                         EntityExtension.FlagForDelete(item, identityService.Username, USER_AGENT);
+
+                        //Update ReceiptQty DeliveryOrder
+                        if (garmentUnitReceiptNote.URNType == "TERIMA SUBCON")
+                        {
+                            var garmentDeliveryOrderItem = dbsetGarmentDeliveryOrderItem.First(d => d.Id == item.DOItemId);
+                            garmentDeliveryOrderItem.ReceiptQuantity -= item.ReceiptQuantity;
+                            EntityExtension.FlagForUpdate(garmentDeliveryOrderItem, identityService.Username, USER_AGENT);
+                        }
                     }
 
                     #region Proses dari DR
