@@ -105,7 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 {
                     BCDate = i.BeacukaiDate,
                     BeacukaiNo = i.BeacukaiNo,
-                    Country = supplier == null ? "-" : supplier.address,
+                    Country = supplier == null ? "-" : supplier.country,
                     CurrencyCode = i.CurrencyCode,
                     SupplierCode = i.SupplierCode,
                     SupplierName = i.SupplierName,
