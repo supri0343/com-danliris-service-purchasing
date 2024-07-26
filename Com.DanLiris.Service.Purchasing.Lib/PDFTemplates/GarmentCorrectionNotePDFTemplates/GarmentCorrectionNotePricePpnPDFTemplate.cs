@@ -137,20 +137,55 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 tableContent.AddCell(cellLeft);
 
                 decimal totalPPN;
-                var convertdouble = Convert.ToDecimal(model.VatRate);
-
-                if ((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
+                //var convertdouble = Convert.ToDecimal(model.VatRate);
+                if (deliveryOrder.IsPayVAT == true)
                 {
-                    totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) * (convertdouble / 100);
+                    var convertdouble = Convert.ToDecimal(deliveryOrder.VatRate);
+                    if ((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
+                    {
+                        totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) * (convertdouble / 100);
+                    }
+                    else
+                    {
+                        totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity * (convertdouble / 100);
+                    }
+                    totalAmountPPN += totalPPN;
+
+                    cellRight.Phrase = new Phrase(totalPPN.ToString("n", new CultureInfo("id-ID")), normal_font);
+                    tableContent.AddCell(cellRight);
                 }
                 else
                 {
-                    totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity * (convertdouble / 100);
-                }
-                totalAmountPPN += totalPPN;
+                    var convertdouble = Convert.ToDecimal(model.VatRate);
+                    if ((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
+                    {
+                        totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) * (convertdouble / 100);
+                    }
+                    else
+                    {
+                        totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity * (convertdouble / 100);
+                    }
+                    totalAmountPPN += totalPPN;
 
-                cellRight.Phrase = new Phrase(totalPPN.ToString("n", new CultureInfo("id-ID")), normal_font);
-                tableContent.AddCell(cellRight);
+                    cellRight.Phrase = new Phrase(totalPPN.ToString("n", new CultureInfo("id-ID")), normal_font);
+                    tableContent.AddCell(cellRight);
+                }
+
+                ///
+                //if ((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
+                //{
+                //    totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) * (convertdouble / 100);
+                //}
+                //else
+                //{
+                //    totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity * (convertdouble / 100);
+                //}
+                //totalAmountPPN += totalPPN;
+
+                //cellRight.Phrase = new Phrase(totalPPN.ToString("n", new CultureInfo("id-ID")), normal_font);
+                //tableContent.AddCell(cellRight);
+
+
             }
 
             PdfPCell cellRightMerge = new PdfPCell() {

@@ -1150,7 +1150,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //var Status = ""; //new[] { "" };
             var Supplier = new[] { "MADEIRA", "MARATHON" };
 
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportResult = new List<AccuracyOfArrivalReportHeader>();
             //switch (category)
             //{
@@ -1387,7 +1387,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 category = "BP";
             }
             
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportResult = new List<AccuracyOfArrivalReportHeader>();
 
             switch (category)
@@ -1495,7 +1495,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var Status = "";  // new[] { "" };
             var Supplier = new[] { "MADEIRA", "MARATHON" };
 
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo && w.SupplierCode.Equals(supplierCode)).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo && w.SupplierCode.Equals(supplierCode)).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportDetailResult = new List<AccuracyOfArrivalReportDetail>();
             //switch (category)
             //{
@@ -1749,7 +1749,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //    };
             //    Data.Add(_new);
             //}
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo && w.SupplierCode.Equals(supplier)).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo && w.SupplierCode.Equals(supplier)).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportDetailResult = new List<AccuracyOfArrivalReportDetail>();
             //switch (category)
             //{
