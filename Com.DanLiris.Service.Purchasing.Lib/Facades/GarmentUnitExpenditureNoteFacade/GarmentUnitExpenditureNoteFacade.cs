@@ -262,16 +262,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             {
                                 if (epoItemIds.Contains(garmentExternalPurchaseOrderItemId))
                                 {
-                                    var BUKItem = garmentUnitExpenditureNote.Items.FirstOrDefault(a => a.EPOItemId == garmentExternalPurchaseOrderItemId);
+                                    //var BUKItem = garmentUnitExpenditureNote.Items.FirstOrDefault(a => a.EPOItemId == garmentExternalPurchaseOrderItemId);
+                                    var BUKItem = garmentUnitExpenditureNote.Items.Where(a => a.EPOItemId == garmentExternalPurchaseOrderItemId).GroupBy( s => s.EPOItemId).FirstOrDefault();
                                     GarmentExternalPurchaseOrderItem garmentExternalPurchaseOrderItem = dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(p => p.Id.Equals(garmentExternalPurchaseOrderItemId));
                                     GarmentExternalPurchaseOrderItem newItem = new GarmentExternalPurchaseOrderItem
                                     {
                                         BudgetPrice = garmentExternalPurchaseOrderItem.BudgetPrice,
                                         Conversion = garmentExternalPurchaseOrderItem.Conversion,
-                                        DealQuantity = BUKItem.Quantity / (double)BUKItem.Conversion,
+                                        //DealQuantity = BUKItem.Quantity / (double)BUKItem.Conversion,
+                                        DealQuantity = BUKItem.Sum(r => r.Quantity) / (double)BUKItem.FirstOrDefault().Conversion,
                                         DealUomId = garmentExternalPurchaseOrderItem.DealUomId,
                                         DealUomUnit = garmentExternalPurchaseOrderItem.DealUomUnit,
-                                        DefaultQuantity = BUKItem.Quantity / (double)BUKItem.Conversion,
+                                        DefaultQuantity = BUKItem.Sum(r => r.Quantity) / (double)BUKItem.FirstOrDefault().Conversion,
                                         DefaultUomId = garmentExternalPurchaseOrderItem.DefaultUomId,
                                         DefaultUomUnit = garmentExternalPurchaseOrderItem.DefaultUomUnit,
                                         DOQuantity = 0,
@@ -289,18 +291,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                         ReceiptQuantity = 0,
                                         Remark = garmentExternalPurchaseOrderItem.Remark,
                                         RONo = garmentExternalPurchaseOrderItem.RONo,
-                                        SmallQuantity = BUKItem.Quantity,
+                                        SmallQuantity = BUKItem.Sum( r => r.Quantity),
                                         SmallUomId = garmentExternalPurchaseOrderItem.SmallUomId,
                                         SmallUomUnit = garmentExternalPurchaseOrderItem.SmallUomUnit,
                                         UsedBudget = 0,
                                         Article = garmentExternalPurchaseOrderItem.Article,
-                                        UENItemId = BUKItem.Id
+                                        UENItemId = BUKItem.FirstOrDefault().Id
 
                                     };
 
                                     if (!(garmentExternalPurchaseOrder.PaymentMethod == "CMT" || garmentExternalPurchaseOrder.PaymentMethod == "FREE FROM BUYER") || !(garmentExternalPurchaseOrder.PaymentType == "FREE" || garmentExternalPurchaseOrder.PaymentType == "EX MASTER FREE"))
                                     {
-                                        newItem.UsedBudget = BUKItem.Quantity / (double)BUKItem.Conversion * garmentExternalPurchaseOrderItem.PricePerDealUnit * garmentExternalPurchaseOrder.BudgetRate;
+                                        newItem.UsedBudget = BUKItem.Sum(r => r.Quantity) / (double)BUKItem.FirstOrDefault().Conversion * garmentExternalPurchaseOrderItem.PricePerDealUnit * garmentExternalPurchaseOrder.BudgetRate;
                                     }
 
                                     epoItems.Add(newItem);
