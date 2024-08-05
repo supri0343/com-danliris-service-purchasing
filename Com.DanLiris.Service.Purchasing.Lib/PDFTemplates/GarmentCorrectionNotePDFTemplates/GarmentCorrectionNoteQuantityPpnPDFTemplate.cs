@@ -139,14 +139,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
 
                 decimal totalPPH;
 
-                var convertdouble = Convert.ToDecimal(model.VatRate);
+                if (deliveryOrder.IsPayVAT == true)
+                {
+                    var convertdouble = Convert.ToDecimal(deliveryOrder.VatRate);
+                    totalPPH = (convertdouble / 100) * item.PricePerDealUnitAfter * item.Quantity;
 
-                totalPPH = (convertdouble / 100) * item.PricePerDealUnitAfter * item.Quantity ;
+                    totalAmountPPH += totalPPH;
+
+                    cellRight.Phrase = new Phrase(totalPPH.ToString("n", new CultureInfo("id-ID")), normal_font);
+                    tableContent.AddCell(cellRight);
+                }
+                else
+                {
+                    var convertdouble = Convert.ToDecimal(model.VatRate);
+                    totalPPH = (convertdouble / 100) * item.PricePerDealUnitAfter * item.Quantity;
+
+                    totalAmountPPH += totalPPH;
+
+                    cellRight.Phrase = new Phrase(totalPPH.ToString("n", new CultureInfo("id-ID")), normal_font);
+                    tableContent.AddCell(cellRight);
+                }
                 
-                totalAmountPPH += totalPPH;
-
-                cellRight.Phrase = new Phrase(totalPPH.ToString("n", new CultureInfo("id-ID")), normal_font);
-                tableContent.AddCell(cellRight);
             }
 
             PdfPCell cellRightMerge = new PdfPCell() {
