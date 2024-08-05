@@ -15,13 +15,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
 {
     public class GarmentSubconUnitExpenditureNoteViewModel : BaseViewModel, IValidatableObject
     {
-        public string? UId { get; set; }
-        public string? UENNo { get; set; }
+        public string UId { get; set; }
+        public string UENNo { get; set; }
         public DateTimeOffset ExpenditureDate { get; set; }
-        public string? ExpenditureType { get; set; }
-        public string? ExpenditureTo { get; set; }
+        public string ExpenditureType { get; set; }
+        public string ExpenditureTo { get; set; }
         public long UnitDOId { get; set; }
-        public string? UnitDONo { get; set; }
+        public string UnitDONo { get; set; }
 
         public UnitViewModel UnitRequest { get; set; }
 
@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
             {
                 yield return new ValidationResult("Tanggal Pengeluaran Diperlukan", new List<string> { "ExpenditureDate" });
             }
-            else if(UnitDODate > ExpenditureDate)
+            else if (UnitDODate > ExpenditureDate)
             {
                 yield return new ValidationResult($"Tanggal Pengeluaran Tidak boleh kurang dari {UnitDODate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"))}", new List<string> { "ExpenditureDate" });
             }
@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
             else
             {
                 string itemError = "[";
-                
+
                 foreach (var item in Items)
                 {
                     itemError += "{";
@@ -100,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
                             itemError += "Quantity: 'Jumlah harus lebih dari 0', ";
                         }
                     }
-                    
+
                     itemError += "}, ";
                 }
 

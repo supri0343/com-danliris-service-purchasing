@@ -251,7 +251,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)oldGarmentUnitDeliveryOrderItem.Quantity + (decimal)GarmentSubconUnitDeliveryOrderItem.Quantity;
                             garmentUnitReceiptNoteItem.RemainingQuantity = garmentUnitReceiptNoteItem.RemainingQuantity + (decimal)oldGarmentUnitDeliveryOrderItem.Quantity - (decimal)GarmentSubconUnitDeliveryOrderItem.Quantity;
-                           
+
                             oldGarmentUnitDeliveryOrderItem.Quantity = GarmentSubconUnitDeliveryOrderItem.Quantity;
                             oldGarmentUnitDeliveryOrderItem.DefaultDOQuantity = GarmentSubconUnitDeliveryOrderItem.Quantity; // Jumlah DO awal mengikuti Jumlah yang diubah (reset)
                             oldGarmentUnitDeliveryOrderItem.FabricType = GarmentSubconUnitDeliveryOrderItem.FabricType;
@@ -266,7 +266,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity + (decimal)GarmentSubconUnitDeliveryOrderItem.Quantity;
                             garmentUnitReceiptNoteItem.RemainingQuantity = garmentUnitReceiptNoteItem.RemainingQuantity - (decimal)GarmentSubconUnitDeliveryOrderItem.Quantity;
 
-                           
+
                         }
                     }
 
@@ -282,7 +282,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                             EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                             garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity - (decimal)oldGarmentUnitDeliveryOrderItem.Quantity;
                             garmentUnitReceiptNoteItem.RemainingQuantity = garmentUnitReceiptNoteItem.RemainingQuantity + (decimal)oldGarmentUnitDeliveryOrderItem.Quantity;
-                           
+
                         }
                     }
 
@@ -338,7 +338,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                         ProductRemark = i.ProductRemark,
                         PRItemId = i.PRItemId,
                         EPOItemId = i.EPOItemId,
-                        DODetailId = i.DODetailId,
+                        DOItemId = i.DOItemId,
                         POItemId = i.POItemId,
                         POSerialNumber = i.POSerialNumber,
                         PricePerDealUnit = i.PricePerDealUnit,
@@ -352,7 +352,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                         FabricType = i.FabricType,
                         DesignColor = i.DesignColor,
                         DOCurrencyRate = i.DOCurrencyRate,
-                        BeacukaiDate =i.BeacukaiDate,
+                        BeacukaiDate = i.BeacukaiDate,
                         BeacukaiNo = i.BeacukaiNo,
                         BeacukaiType = i.BeacukaiType,
                     }).ToList()
@@ -393,7 +393,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                         i.ProductRemark,
                         i.Quantity,
                         i.DefaultDOQuantity,
-                        i.DODetailId,
+                        i.DOItemId,
                         i.EPOItemId,
                         i.FabricType,
                         i.PricePerDealUnit,

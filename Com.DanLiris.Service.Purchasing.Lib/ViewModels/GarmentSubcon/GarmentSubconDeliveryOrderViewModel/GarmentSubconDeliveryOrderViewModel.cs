@@ -35,7 +35,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
             else
             {
                 PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                if (purchasingDbContext.GarmentSubconDeliveryOrders.Where(DO => DO.DONo.Equals(doNo) && DO.Id != Id && DO.DODate.ToOffset((new TimeSpan(7, 0, 0))) == doDate && DO.ProductOwnerId == supplier.Id && DO.ArrivalDate.ToOffset((new TimeSpan(7, 0, 0))) == arrivalDate).Count() > 0)
+                if (purchasingDbContext.GarmentSubconDeliveryOrders
+                    .Where(DO => DO.DONo.Equals(doNo) && DO.Id != Id 
+                    && DO.DODate.AddHours(7) == doDate
+                    && DO.ProductOwnerId == supplier.Id 
+                    && DO.ArrivalDate.AddHours(7) == arrivalDate)
+                    .Count() > 0)
                 {
                     yield return new ValidationResult("DONo is already exist", new List<string> { "DONo" });
                 }

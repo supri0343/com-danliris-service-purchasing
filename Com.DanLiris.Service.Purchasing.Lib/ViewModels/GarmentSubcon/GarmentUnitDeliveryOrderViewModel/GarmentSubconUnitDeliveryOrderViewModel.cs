@@ -11,34 +11,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
 {
     public class GarmentSubconUnitDeliveryOrderViewModel : BaseViewModel, IValidatableObject
     {
-        public string? UId { get; set; }
-        public string? UnitDOType { get; set; }
-        public string? UnitDONo { get; set; }
+        public string UId { get; set; }
+        public string UnitDOType { get; set; }
+        public string UnitDONo { get; set; }
         public DateTimeOffset UnitDODate { get; set; }
 
         public UnitViewModel UnitRequest { get; set; }
 
         public UnitViewModel UnitSender { get; set; }
-        
+
         public IntegrationViewModel.StorageViewModel Storage { get; set; }
         public IntegrationViewModel.StorageViewModel StorageRequest { get; set; }
 
-        public string? RONo { get; set; }
-        public string? Article { get; set; }
+        public string RONo { get; set; }
+        public string Article { get; set; }
         public bool IsUsed { get; set; }
 
         public long DOId { get; set; }
-        public string? DONo { get; set; }
+        public string DONo { get; set; }
 
         public long CorrectionId { get; set; }
-        public string? CorrectionNo { get; set; }
+        public string CorrectionNo { get; set; }
 
         public long UENFromId { get; set; }
-        public string? UENFromNo { get; set; }
+        public string UENFromNo { get; set; }
         public long UnitDOFromId { get; set; }
-        public string? UnitDOFromNo { get; set; }
-        public string? OtherDescription { get; set; }
-      
+        public string UnitDOFromNo { get; set; }
+        public string OtherDescription { get; set; }
+
 
         public List<GarmentSubconUnitDeliveryOrderItemViewModel> Items { get; set; }
 
@@ -50,10 +50,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
             }
             if (DateTimeOffset.Compare(DateTimeOffset.Now, UnitDODate) < 0)
             {
-                yield return new ValidationResult("Tgl. Delivery Order tidak boleh lebih dari hari ini", new List<string> {"UnitDODate"}); //menambah kondisi validasi
+                yield return new ValidationResult("Tgl. Delivery Order tidak boleh lebih dari hari ini", new List<string> { "UnitDODate" }); //menambah kondisi validasi
             }
 
-            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" &&(UnitRequest == null || string.IsNullOrWhiteSpace(UnitRequest.Id)))
+            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" && (UnitRequest == null || string.IsNullOrWhiteSpace(UnitRequest.Id)))
             {
                 yield return new ValidationResult("Unit yang meminta harus diisi", new List<string> { "UnitRequest" });
             }
@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
                 yield return new ValidationResult("Keterangan Lain-lain harus diisi", new List<string> { "OtherDescription" });
             }
 
-            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" && string.IsNullOrWhiteSpace(RONo) )
+            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" && string.IsNullOrWhiteSpace(RONo))
             {
                 yield return new ValidationResult("No RO harus diisi", new List<string> { "RONo" });
             }
@@ -115,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
                                 itemErrorCount++;
                                 itemError += "Quantity: 'Jumlah tidak boleh 0', ";
                             }
-                            else if(UnitDOType == "RETUR")
+                            else if (UnitDOType == "RETUR")
                             {
                                 if (item.Quantity > item.ReturQtyCheck)
                                 {
@@ -130,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
                                 if (UrnItem != null)
                                 {
                                     var UDOItem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
-                                    var quantity =Math.Round(UrnItem.RemainingQuantity + (decimal)(UDOItem != null ? UDOItem.Quantity : 0),2);
+                                    var quantity = Math.Round(UrnItem.RemainingQuantity + (decimal)(UDOItem != null ? UDOItem.Quantity : 0), 2);
                                     if ((decimal)item.Quantity > quantity)
                                     {
                                         itemErrorCount++;
@@ -146,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
                             //}
                         }
 
-                       
+
 
                         itemError += "}, ";
                     }
