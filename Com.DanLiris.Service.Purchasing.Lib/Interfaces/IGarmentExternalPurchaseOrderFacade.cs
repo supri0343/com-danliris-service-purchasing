@@ -38,5 +38,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 
         List<GarmentExternalPurchaseOrderItem> ReadItemForUnitDOByRO(string Keyword = null, string Filter = "{}");
         bool GetIsUnpost(int Id);
+        List<object> DynamicSubcon(string Keyword = null, string Filter = "{}");
     }
 }
