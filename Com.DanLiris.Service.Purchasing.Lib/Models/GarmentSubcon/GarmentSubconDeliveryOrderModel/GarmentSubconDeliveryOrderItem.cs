@@ -30,5 +30,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderM
         public virtual long GarmentDOId { get; set; }
         [ForeignKey("GarmentDOId")]
         public virtual GarmentSubconDeliveryOrder GarmentSubconDeliveryOrder { get; set; }
+        [MaxLength(20)]
+        public string EPONo { get; set; }
+        public long EPOId { get; set; }
+        public long EPOItemId { get; set; }
     }
 }

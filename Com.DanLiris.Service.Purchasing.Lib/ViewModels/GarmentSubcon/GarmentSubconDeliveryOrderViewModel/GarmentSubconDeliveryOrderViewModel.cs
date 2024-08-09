@@ -23,6 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
         public DateTimeOffset beacukaiDate { get; set; }
         public string beacukaiType { get; set; }
         public bool IsReceived { get; set; }
+        
         public List<GarmentSubconDeliveryOrderItemViewModel> items { get; set; }
         public List<GarmentSubconDeliveryOrderItemViewModel> itemsPR { get; set; }
 
@@ -74,6 +75,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
                 {
                     itemError += "{";
 
+                    if (item.EPONo == null)
+                    {
+                        itemErrorCount++;
+                        itemError += "EPONo: 'EPONo harus diisi', ";
+                    }
+
                     if (item.Product == null)
                     {
                         itemErrorCount++;
@@ -91,11 +98,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
                         itemErrorCount++;
                         itemError += "DOQuantity: 'DOQuantity harus lebih dari 0', ";
                     }
-                    //else if (item.DOQuantity > item.BudgetQuantity)
-                    //{
-                    //    itemErrorCount++;
-                    //    itemError += "DOQuantity: 'DOQuantity tidak boleh lebih dari Budget Qty', ";
-                    //}
+                     if (item.DOQuantity > item.BudgetQuantity)
+                    {
+                        itemErrorCount++;
+                        itemError += "DOQuantity: 'DOQuantity tidak boleh lebih dari Budget Qty', ";
+                    }
 
                     itemError += "}, ";
                 }
