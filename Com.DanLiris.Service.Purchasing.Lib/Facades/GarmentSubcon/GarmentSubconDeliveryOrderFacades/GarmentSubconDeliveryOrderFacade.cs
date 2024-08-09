@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderNonPOViewModel;
@@ -118,6 +119,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
 
                             EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
                         }
+                        else if (item.EPOItemId != 0)
+                        {
+                            GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(item.EPOItemId));
+                            externalPurchaseOrderItem.DOQuantity += item.DOQuantity;
+
+                            EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
+                        }
                     }
 
                     this.dbSet.Add(m);
@@ -162,14 +170,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
 
                                 EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
                             }
+                            else if (item.EPOItemId != 0)
+                            {
+                                GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(item.EPOItemId));
+                                externalPurchaseOrderItem.DOQuantity -= item.DOQuantity;
+
+                                EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
+                            }
                         }
                         else
                         {
                             if (item.DOQuantity != existItem.DOQuantity)
                             {
+                                var diff = item.DOQuantity - existItem.DOQuantity;
                                 if (item.PRItemId != 0)
                                 {
-                                    var diff = item.DOQuantity - existItem.DOQuantity;
+                                  
                                     var pr = dbSetPRItem.FirstOrDefault(x => x.Id == item.PRItemId);
                                     pr.RemainingQuantity += diff;
 
@@ -178,6 +194,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                                         throw new Exception("Jumlah DO tidak boleh melebihi sisa.");
                                     }
                                     EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
+                                }
+                                else if (item.EPOItemId != 0)
+                                {
+                                    GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(item.EPOItemId));
+                                    externalPurchaseOrderItem.DOQuantity -= diff;
+
+                                    if (externalPurchaseOrderItem.DOQuantity < 0)
+                                    {
+                                        throw new Exception("Jumlah DO tidak boleh melebihi sisa.");
+                                    }
+
+                                    EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
                                 }
 
                                 item.DOQuantity = existItem.DOQuantity;
@@ -197,6 +225,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                                 pr.RemainingQuantity -= item.DOQuantity;
 
                                 EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
+                            }
+                            else if (item.EPOItemId != 0)
+                            {
+                                GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(item.EPOItemId));
+                                externalPurchaseOrderItem.DOQuantity += item.DOQuantity;
+
+                                EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
                             }
 
                             item.GarmentDOId = oldModel.Id;
@@ -261,6 +296,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                             pr.RemainingQuantity += item.DOQuantity;
 
                             EntityExtension.FlagForUpdate(pr, user, USER_AGENT);
+                        }
+                        else if (item.EPOItemId != 0)
+                        {
+                            GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(item.EPOItemId));
+                            externalPurchaseOrderItem.DOQuantity -= item.DOQuantity;
+
+                            EntityExtension.FlagForUpdate(externalPurchaseOrderItem, user, USER_AGENT);
                         }
 
 
