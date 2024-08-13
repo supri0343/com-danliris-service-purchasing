@@ -380,7 +380,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             double total = 0;
             double totalPurchase = 0;
-
+            StringBuilder sb = new StringBuilder();
+            int count = 0;
             foreach (FormItemDto item in viewModel.Items)
             {
                 for (int indexItem = 0; indexItem < item.Details.Count; indexItem++)
@@ -435,8 +436,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     totalPurchase += (detail.PricePerQTY * detail.QTYOrder);
                 }
+
+                sb.Append(item.Invoice).Append(",");
+                count++;
             }
 
+            string result1 = sb.ToString().Trim();
+
+            string resultInvoice = count <= 1 ? result1.Replace(",", "") : result1;
 
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
             tableContent.ExtendLastRow = false;
@@ -513,7 +520,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Colspan = 2;
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.ProformaNo, normal_font);
+            //cellLeftNoBorder.Phrase = new Phrase(viewModel.ProformaNo, normal_font);
+
+            cellLeftNoBorder.Phrase = new Phrase(string.IsNullOrWhiteSpace(viewModel.ProformaNo) ? resultInvoice : viewModel.ProformaNo, normal_font);
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
