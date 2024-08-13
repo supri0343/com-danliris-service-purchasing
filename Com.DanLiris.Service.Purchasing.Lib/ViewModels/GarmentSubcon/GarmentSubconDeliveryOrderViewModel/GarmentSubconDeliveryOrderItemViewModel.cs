@@ -16,6 +16,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
         public double PricePerDealUnit { get; set; }
         public string CurrencyCode { get; set; }
         public long PRItemId { get; set; }
+        public string EPONo { get; set; }
+        public long EPOId { get; set; }
+        public long EPOItemId { get; set; }
 
     }
 }
