@@ -565,6 +565,40 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("arrivalReportDetail/downloadall")]
+        public IActionResult GetXlsArrivalDetailAll(string category, DateTime? dateFrom, DateTime? dateTo)
+        {
+
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                DateTimeOffset DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                DateTimeOffset DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                var xls = facade.GenerateExcelArrivalDetailAll(category, dateFrom, dateTo, offset);
+
+                if (category == "")
+                {
+                    category = "Bahan Baku dan Bahan Pendukung";
+                }
+
+                string filename = String.Format($"Monitoring Detail Ketepatan Kedatangan {category} - {DateFrom.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))} - {DateTo.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"))}.xlsx");
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
         #endregion
 
         #region MONITORING DELIVERY
