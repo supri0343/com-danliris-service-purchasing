@@ -232,6 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
                             detail.UnitId = internalPurchaseOrder.UnitId;
                             detail.UnitCode = internalPurchaseOrder.UnitCode;
+                            detail.ProductRemark = internalPurchaseOrderItem.ProductRemark;
                             EntityExtension.FlagForCreate(detail, user, USER_AGENT);
 
                             GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
@@ -1820,6 +1821,77 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        //
+        public MemoryStream GenerateExcelArrivalDetailAll(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            if (category == "Bahan Baku")
+            {
+                category = "BB";
+            }
+            else if (category == "Bahan Pendukung")
+            {
+                category = "BP";
+            }
+           
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var reportDetailResult = new List<AccuracyOfArrivalReportDetail>();
+            
+            switch (category)
+            {
+                case "BB":
+                    reportDetailResult = GetBBDetailResult(selectedGarmentDeliveryOrders);
+                    break;
+                case "BP":
+                    reportDetailResult = GetBPDetailResult(selectedGarmentDeliveryOrders);
+                    break;
+                default:
+                    reportDetailResult = GetDefaultDetailResult(selectedGarmentDeliveryOrders);
+                    break;
+            }
+
+            reportDetailResult = reportDetailResult.OrderBy(o => o.DODate).ThenBy(t => t.DONo).ToList();
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "NO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PLAN PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PURCHASE REQUEST", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PO INTERNAL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PEMBELIAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO SJ", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KETERANGAN BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "ARTIKEL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL SHIPMENT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL DATANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "+/- DATANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "STAFF", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KATEGORI", DataType = typeof(String) });
+
+            if (reportDetailResult.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in reportDetailResult)
+                {
+                    index++;
+                    string prDate = item.PRDate == null ? "-" : item.PRDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string poDate = item.IPODate == null ? "-" : item.IPODate.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string epoDate = item.EPODate == null ? "-" : item.EPODate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string shipmentDate = item.ShipmentDate == null ? "-" : item.ShipmentDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string doDate = item.DODate == null ? "-" : item.DODate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(index, item.SupplierName, item.POSerialNumber, prDate, poDate, epoDate, item.DONo, item.ProductCode, item.ProductName, item.ProductRemark, item.Article, item.RONo,
+                        shipmentDate, doDate, item.OKStatus, item.Staff, item.ProductName);
+                }
+            }
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+        //
 
         public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset)
         {
