@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurchase;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,5 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
         DispositionPurchaseReportIndexDto GetReport(int supplierId, string username, DateTimeOffset? dateForm, DateTimeOffset? dateTo, int size = 10, int page = 1);
         Task<DispositionUserIndexDto> GetListUsers(string keyword);
         List<GarmentDispositionPurchase> GetGarmentDispositionPurchase();
+        Tuple<List<GarmentDispositionByInvoiceReportDto>, int> GetReport(int dispositionId, int supplierId, DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcel(int dispositionId, int supplierId, DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier, int offset);
     }
 }

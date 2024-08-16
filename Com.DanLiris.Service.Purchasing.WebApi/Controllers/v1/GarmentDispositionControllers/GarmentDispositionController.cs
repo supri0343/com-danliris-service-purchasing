@@ -414,5 +414,63 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("report-disposition-by-invoice")]
+        public IActionResult GetReport(int dispositionId, int supplierId, DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier, int page, int size, string Order = "{}")
+        {
+            try
+            {
+                VerifyUser();
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
+
+                var data = facade.GetReport(dispositionId, supplierId, dateFromSendCashier, dateToSendCashier, dateFromReceiptCashier, dateToReceiptCashier, page, size, Order, offset);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("report-disposition-by-invoice/download")]
+        public IActionResult GetXlsOUT(int dispositionId, int supplierId, DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier)
+        {
+            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+            string accept = Request.Headers["Accept"];
+            try
+            {
+                VerifyUser();
+                byte[] xlsInBytes;
+                //DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
+                //DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
+
+                var xls = facade.GenerateExcel(dispositionId, supplierId, dateFromSendCashier, dateToSendCashier, dateFromReceiptCashier, dateToReceiptCashier, offset);
+
+                string filename = String.Format("LAPORAN DISPOSISI PEMBAYARAN PER INVOICE - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }
