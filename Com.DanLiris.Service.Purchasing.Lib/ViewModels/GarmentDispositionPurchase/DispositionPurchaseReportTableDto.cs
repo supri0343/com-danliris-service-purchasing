@@ -12,11 +12,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public string SupplierCode { get; set; }
         public int SupplierId { get; set; }
         public string SupplierName { get; set; }
-        public string Category { get; set; }
+        public string Category { get; set; }    
         public string PaymentType { get; set; }
         public string InvoiceNo { get; set; }
         public DateTimeOffset DueDate { get; set; }
         public string CurrencyCode { get; set; }
         public double Nominal { get; set; }
+        public int ItemId { get; set; }
+        public int Count { get; set; }
     }
 }

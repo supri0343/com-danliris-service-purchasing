@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 {
@@ -133,137 +135,357 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
             using (var package = new ExcelPackage())
             {
-                #region headerExcel
-                var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
-                worksheet.Cells[row,col].Value = title;
-                worksheet.Cells[row,col,row,maxCol].Merge = true;
-                worksheet.Cells[row,col,row,maxCol].Style.Font.Size = 20;
-                worksheet.Cells[row, col, row, maxCol].Style.Font.Bold = true;
-                row++;
+                //#region headerExcel
+                //var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
+                //worksheet.Cells[row,col].Value = title;
+                //worksheet.Cells[row,col,row,maxCol].Merge = true;
+                //worksheet.Cells[row,col,row,maxCol].Style.Font.Size = 20;
+                //worksheet.Cells[row, col, row, maxCol].Style.Font.Bold = true;
+                //row++;
 
-                row++;
-                worksheet.Cells[row, col].Value = "filter";
-                worksheet.Cells[row, col, row, maxCol].Merge = true;
-                worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
-                row++;
+                //row++;
+                //worksheet.Cells[row, col].Value = "filter";
+                //worksheet.Cells[row, col, row, maxCol].Merge = true;
+                //worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                //row++;
 
-                worksheet.Cells[row, col].Value = "Supplier : "+supplierName;
-                worksheet.Cells[row, col, row, maxCol].Merge = true;
-                worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
-                row++;
+                //worksheet.Cells[row, col].Value = "Supplier : "+supplierName;
+                //worksheet.Cells[row, col, row, maxCol].Merge = true;
+                //worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                //row++;
 
-                worksheet.Cells[row, col].Value = "Staff Pembelian : " + username;
-                worksheet.Cells[row, col, row, maxCol].Merge = true;
-                worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
-                row++;
+                //worksheet.Cells[row, col].Value = "Staff Pembelian : " + username;
+                //worksheet.Cells[row, col, row, maxCol].Merge = true;
+                //worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                //row++;
 
-                worksheet.Cells[row, col].Value = "Tanggal Awal Disposisi : " + (dateFrom.HasValue? dateFrom.GetValueOrDefault().ToString("dd MMM yyyy"):"");
-                worksheet.Cells[row, col, row, maxCol].Merge = true;
-                worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
-                row++;
+                //worksheet.Cells[row, col].Value = "Tanggal Awal Disposisi : " + (dateFrom.HasValue? dateFrom.GetValueOrDefault().ToString("dd MMM yyyy"):"");
+                //worksheet.Cells[row, col, row, maxCol].Merge = true;
+                //worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                //row++;
 
-                worksheet.Cells[row, col].Value = "Tanggal Akhir Disposisi : " + (dateTo.HasValue? dateTo.GetValueOrDefault().ToString("dd MMM yyyy"):"");
-                worksheet.Cells[row, col, row, maxCol].Merge = true;
-                worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
-                row++;
-                #endregion
+                //worksheet.Cells[row, col].Value = "Tanggal Akhir Disposisi : " + (dateTo.HasValue? dateTo.GetValueOrDefault().ToString("dd MMM yyyy"):"");
+                //worksheet.Cells[row, col, row, maxCol].Merge = true;
+                //worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                //row++;
+                //#endregion
 
-                #region headerTable
-                row++;
-                int rowSpan = 1;
-                int colSpan = 1;
-                worksheet.Cells[row, col].Value = "No.";
-                worksheet.Cells[row, col, row+rowSpan, col].Merge = true;
-                worksheet.Cells[row, col, row+rowSpan, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
-                col++;
+                //#region headerTable
+                //row++;
+                //int rowSpan = 1;
+                //int colSpan = 1;
+                //worksheet.Cells[row, col].Value = "No.";
+                //worksheet.Cells[row, col, row+rowSpan, col].Merge = true;
+                //worksheet.Cells[row, col, row+rowSpan, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "Staff Pembelian";
-                worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
-                col++;
+                //worksheet.Cells[row, col].Value = "Staff Pembelian";
+                //worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "Disposisi";
-                worksheet.Cells[row, col, row, col+colSpan].Merge = true;
-                worksheet.Cells[row, col, row, col+colSpan].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row, col+colSpan].Style.Font.Bold = true;
-                //col+=2;
-                row++;
+                //worksheet.Cells[row, col].Value = "Disposisi";
+                //worksheet.Cells[row, col, row, col+colSpan].Merge = true;
+                //worksheet.Cells[row, col, row, col+colSpan].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row, col+colSpan].Style.Font.Bold = true;
+                ////col+=2;
+                //row++;
 
-                worksheet.Cells[row, col].Value = "Nomor";
-                worksheet.Cells[row, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col].Style.Font.Bold = true;
-                col++;
+                //worksheet.Cells[row, col].Value = "Nomor";
+                //worksheet.Cells[row, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "Tanggal";
-                worksheet.Cells[row, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col].Style.Font.Bold = true;
-                col++;
-                row--;
+                //worksheet.Cells[row, col].Value = "Tanggal";
+                //worksheet.Cells[row, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col].Style.Font.Bold = true;
+                //col++;
+                //row--;
 
-                worksheet.Cells[row, col].Value = "Supplier";
-                worksheet.Cells[row, col, row, col + colSpan].Merge = true;
-                worksheet.Cells[row, col, row, col + colSpan].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row, col + colSpan].Style.Font.Bold = true;
-                //col += 2;
-                row++;
+                //worksheet.Cells[row, col].Value = "Supplier";
+                //worksheet.Cells[row, col, row, col + colSpan].Merge = true;
+                //worksheet.Cells[row, col, row, col + colSpan].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row, col + colSpan].Style.Font.Bold = true;
+                ////col += 2;
+                //row++;
 
-                worksheet.Cells[row, col].Value = "Kode";
-                worksheet.Cells[row, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col].Style.Font.Bold = true;
-                col++;
+                //worksheet.Cells[row, col].Value = "Kode";
+                //worksheet.Cells[row, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "Nama";
-                worksheet.Cells[row, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col].Style.Font.Bold = true;
-                col++;
-                row--;
+                //worksheet.Cells[row, col].Value = "Nama";
+                //worksheet.Cells[row, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col].Style.Font.Bold = true;
+                //col++;
+                //row--;
 
-                worksheet.Cells[row, col].Value = "Kategori";
-                worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
-                col++;
+                //worksheet.Cells[row, col].Value = "Kategori";
+                //worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "Tipe Bayar";
-                worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
-                col++;
+                //worksheet.Cells[row, col].Value = "Tipe Bayar";
+                //worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "No Proforma/Invoice";
-                worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
-                col++;
+                //worksheet.Cells[row, col].Value = "No Proforma/Invoice";
+                //worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "Tanggal Jatuh Tempo";
-                worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
-                col++;
+                //worksheet.Cells[row, col].Value = "Tanggal Jatuh Tempo";
+                //worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "Mata Uang";
-                worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
-                col++;
+                //worksheet.Cells[row, col].Value = "Mata Uang";
+                //worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                //col++;
 
-                worksheet.Cells[row, col].Value = "Nominal";
-                worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
-                worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
-                col++;
-                row += 2;
-                #endregion
+                //worksheet.Cells[row, col].Value = "Nominal";
+                //worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                //worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                //col++;
+                //row += 2;
+                //#endregion
                 #region DataBody
                 col = 1;
-                var dataTable = ConvertListDataToTable(data);
-                worksheet.Cells[row, col].LoadFromDataTable(dataTable, false);
+                
+                //worksheet.Cells[row, col].LoadFromDataTable(dataTable, false);
                 #endregion
-              
-                worksheet.Cells[worksheet.Cells.Address].AutoFitColumns();
+                var Qr = data.ToArray();
+                var q = data.ToList();
+                var index = 0;
+                foreach (DispositionPurchaseReportTableDto a in q)
+                {
+                    DispositionPurchaseReportTableDto dup = Array.Find(Qr, o => o.DispositionNo == a.DispositionNo);
+                    if (dup != null)
+                    {
+                        if (dup.Count == 0)
+                        {
+                            index++;
+                            dup.Count = index;
+                        }
+                    }
+                    a.Count = dup.Count;
+                }
+                //data = q.AsQueryable();
+                var dataTable = ConvertListDataToTable(data);
+                foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(dataTable, "Sheet 1") })
+                {
+                    var worksheet = package.Workbook.Worksheets.Add(item.Value);
+
+                    #region headerExcel
+                    //var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
+                    worksheet.Cells[row, col].Value = title;
+                    worksheet.Cells[row, col, row, maxCol].Merge = true;
+                    worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 20;
+                    worksheet.Cells[row, col, row, maxCol].Style.Font.Bold = true;
+                    row++;
+
+                    row++;
+                    worksheet.Cells[row, col].Value = "filter";
+                    worksheet.Cells[row, col, row, maxCol].Merge = true;
+                    worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                    row++;
+
+                    worksheet.Cells[row, col].Value = "Supplier : " + supplierName;
+                    worksheet.Cells[row, col, row, maxCol].Merge = true;
+                    worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                    row++;
+
+                    worksheet.Cells[row, col].Value = "Staff Pembelian : " + username;
+                    worksheet.Cells[row, col, row, maxCol].Merge = true;
+                    worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                    row++;
+
+                    worksheet.Cells[row, col].Value = "Tanggal Awal Disposisi : " + (dateFrom.HasValue ? dateFrom.GetValueOrDefault().ToString("dd MMM yyyy") : "");
+                    worksheet.Cells[row, col, row, maxCol].Merge = true;
+                    worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                    row++;
+
+                    worksheet.Cells[row, col].Value = "Tanggal Akhir Disposisi : " + (dateTo.HasValue ? dateTo.GetValueOrDefault().ToString("dd MMM yyyy") : "");
+                    worksheet.Cells[row, col, row, maxCol].Merge = true;
+                    worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
+                    row++;
+                    #endregion
+
+                    #region headerTable
+                    row++;
+                    int rowSpan = 1;
+                    int colSpan = 1;
+                    worksheet.Cells[row, col].Value = "No.";
+                    worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "Staff Pembelian";
+                    worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "Disposisi";
+                    worksheet.Cells[row, col, row, col + colSpan].Merge = true;
+                    worksheet.Cells[row, col, row, col + colSpan].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row, col + colSpan].Style.Font.Bold = true;
+                    //col+=2;
+                    row++;
+
+                    worksheet.Cells[row, col].Value = "Nomor";
+                    worksheet.Cells[row, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "Tanggal";
+                    worksheet.Cells[row, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col].Style.Font.Bold = true;
+                    col++;
+                    row--;
+
+                    worksheet.Cells[row, col].Value = "Supplier";
+                    worksheet.Cells[row, col, row, col + colSpan].Merge = true;
+                    worksheet.Cells[row, col, row, col + colSpan].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row, col + colSpan].Style.Font.Bold = true;
+                    //col += 2;
+                    row++;
+
+                    worksheet.Cells[row, col].Value = "Kode";
+                    worksheet.Cells[row, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "Nama";
+                    worksheet.Cells[row, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col].Style.Font.Bold = true;
+                    col++;
+                    row--;
+
+                    worksheet.Cells[row, col].Value = "Kategori";
+                    worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "Tipe Bayar";
+                    worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "No Proforma/Invoice";
+                    worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "Tanggal Jatuh Tempo";
+                    worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "Mata Uang";
+                    worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                    col++;
+
+                    worksheet.Cells[row, col].Value = "Nominal";
+                    worksheet.Cells[row, col, row + rowSpan, col].Merge = true;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Size = 12;
+                    worksheet.Cells[row, col, row + rowSpan, col].Style.Font.Bold = true;
+                    col++;
+                    row += 2;
+                    #endregion
+
+                    worksheet.Cells["A11"].LoadFromDataTable(item.Key, false, OfficeOpenXml.Table.TableStyles.None);
+
+
+                    //sheet.Cells["C1:D1"].Merge = true;
+                    //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    //sheet.Cells["E1:F1"].Merge = true;
+                    //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                    Dictionary<string, int> counts = new Dictionary<string, int>();
+                    Dictionary<string, int> countsType = new Dictionary<string, int>();
+                    var docNo = data.ToArray();
+                    int value;
+                    foreach (var a in data)
+                    {
+                        //FactBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo);
+                        //if (counts.TryGetValue(a.Invoice + a.ExpenditureGoodId, out value))
+                        //{
+                        //    counts[a.Invoice + a.ExpenditureGoodId]++;
+                        //}
+                        //else
+                        //{
+                        //    counts[a.Invoice + a.ExpenditureGoodId] = 1;
+                        //}
+
+                        //FactBeacukaiViewModel dup1 = Array.Find(docNo, o => o.BCType == a.BCType);
+                        if (countsType.TryGetValue(a.DispositionNo, out value))
+                        {
+                            countsType[a.DispositionNo]++;
+                        }
+                        else
+                        {
+                            countsType[a.DispositionNo] = 1;
+                        }
+                    }
+
+                    //index = 8;
+                    //foreach (KeyValuePair<string, int> b in counts)
+                    //{
+                    //    sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += b.Value;
+                    //}
+
+                    index = 11;
+                    foreach (KeyValuePair<string, int> c in countsType)
+                    {
+
+                        worksheet.Cells["A" + index + ":A" + (index + c.Value - 1)].Merge = true;
+                        worksheet.Cells["A" + index + ":A" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Merge = true;
+                        worksheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells["C" + index + ":C" + (index + c.Value - 1)].Merge = true;
+                        worksheet.Cells["C" + index + ":C" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells["D" + index + ":D" + (index + c.Value - 1)].Merge = true;
+                        worksheet.Cells["D" + index + ":D" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells["E" + index + ":E" + (index + c.Value - 1)].Merge = true;
+                        worksheet.Cells["E" + index + ":E" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Merge = true;
+                        worksheet.Cells["F" + index + ":F" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        index += c.Value;
+                    }
+                    worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+
+                }
+
+                //worksheet.Cells[worksheet.Cells.Address].AutoFitColumns();
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
@@ -293,7 +515,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             foreach (var item in dataWithIndex)
             {
                 dataTable.Rows.Add(
-                    item.Index.ToString(),
+                    //item.Index.ToString(),
+                    item.Item.Count.ToString(),
                     item.Item.StaffName,
                     item.Item.DispositionNo,
                     item.Item.DispositionDate.ToString("dd/MM/yyyy"),
