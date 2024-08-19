@@ -256,47 +256,90 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
         public DispositionPurchaseReportIndexDto GetReport(int supplierId, string username, DateTimeOffset? dateForm, DateTimeOffset? dateTo, int size, int page)
         {
-            var dataModel = dbSet
-                .AsNoTracking()
-                    .Include(p => p.GarmentDispositionPurchaseItems)
-                        .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
-                        //.Where(s=> s.Position == PurchasingGarmentExpeditionPosition.Purchasing)
-                        .AsQueryable();
+            //var dataModel = dbSet
+            //    .AsNoTracking()
+            //        .Include(p => p.GarmentDispositionPurchaseItems)
+            //            .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
+            //            //.Where(s=> s.Position == PurchasingGarmentExpeditionPosition.Purchasing)
+            //            .AsQueryable();
 
+            var dispositionFilter = dbContext.GarmentDispositionPurchases.AsQueryable();
+
+           
             if (supplierId != 0)
-                dataModel = dataModel.Where(s => s.SupplierId == supplierId);
+                dispositionFilter = dispositionFilter.Where(s => s.SupplierId == supplierId);
 
             if (!string.IsNullOrEmpty(username))
-                dataModel = dataModel.Where(s => s.CreatedBy == username);
+                dispositionFilter = dispositionFilter.Where(s => s.CreatedBy == username);
 
             if (dateForm.HasValue)
-                dataModel = dataModel.Where(s => s.CreatedUtc >= dateForm.GetValueOrDefault());
+                dispositionFilter = dispositionFilter.Where(s => s.CreatedUtc >= dateForm.GetValueOrDefault());
 
             if (dateTo.HasValue)
-                dataModel = dataModel.Where(s => s.CreatedUtc <= dateTo.GetValueOrDefault());
+                dispositionFilter = dispositionFilter.Where(s => s.CreatedUtc <= dateTo.GetValueOrDefault());
 
-            var countData = dataModel.Count();
+            var result = (from disposition in dispositionFilter
+                          join item in dbContext.GarmentDispositionPurchaseItems on disposition.Id equals item.GarmentDispositionPurchaseId
+                          join details in dbContext.GarmentDispositionPurchaseDetailss on item.Id equals details.GarmentDispositionPurchaseItemId
+                          select new DispositionPurchaseReportTableDto
+                          {
+                              StaffName = disposition.CreatedBy,
+                              DispositionNo = disposition.DispositionNo,
+                              InvoiceNo = disposition.InvoiceProformaNo != null ? disposition.InvoiceProformaNo : item.Invoice,
+                              Nominal = details.PaidPrice,
+                              SupplierCode = disposition.SupplierCode,
+                              SupplierName = disposition.SupplierName,
+                              CurrencyCode = item.CurrencyCode,
+                              DispositionDate = disposition.CreatedUtc,
+                              Category = disposition.Category,
+                              PaymentType = disposition.PaymentType,
+                              DueDate = disposition.DueDate,
 
-            var dataList = dataModel.ToList();
+                              ItemId = item.Id
+                          }).GroupBy(x => new { x.ItemId }, (key, group) => new DispositionPurchaseReportTableDto
+                          {
+                              StaffName = group.FirstOrDefault().StaffName,
+                              DispositionNo = group.FirstOrDefault().DispositionNo,
+                              InvoiceNo = group.FirstOrDefault().InvoiceNo,
+                              Nominal = group.Sum(s => s.Nominal),
+                              SupplierCode = group.FirstOrDefault().SupplierCode,
+                              SupplierName = group.FirstOrDefault().SupplierName,
+                              CurrencyCode = group.FirstOrDefault().CurrencyCode,
+                              DispositionDate = group.FirstOrDefault().DispositionDate,
+                              Category = group.FirstOrDefault().Category,
+                              PaymentType = group.FirstOrDefault().PaymentType,
+                              DueDate = group.FirstOrDefault().DueDate,
+                              
+                          }
+
+
+
+                          ).OrderByDescending(s => s.DispositionDate);
+
+            
+
+            var countData = result.Count();
+
+            var dataList = result.ToList();
 
 
             var Query = dataList.AsQueryable();
 
             if (page != 0 && size != 0)
             {
-                Pageable<GarmentDispositionPurchase> pageable = new Pageable<GarmentDispositionPurchase>(Query, page - 1, size);
-                List<GarmentDispositionPurchase> Data = pageable.Data.ToList();
+                Pageable<DispositionPurchaseReportTableDto> pageable = new Pageable<DispositionPurchaseReportTableDto>(Query, page - 1, size);
+                List<DispositionPurchaseReportTableDto> Data = pageable.Data.ToList();
 
                 int TotalData = pageable.TotalCount;
 
-                var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseReportTableDto>>(Data.ToList());
+                var model = mapper.Map<List<DispositionPurchaseReportTableDto>, List<DispositionPurchaseReportTableDto>>(Data.ToList());
 
                 var indexModel = new DispositionPurchaseReportIndexDto(model, page, countData);
                 return indexModel;
             }
             else
             {
-                var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseReportTableDto>>(Query.ToList());
+                var model =Query.ToList();
 
                 var indexModel = new DispositionPurchaseReportIndexDto(model, 1, countData);
                 return indexModel;
