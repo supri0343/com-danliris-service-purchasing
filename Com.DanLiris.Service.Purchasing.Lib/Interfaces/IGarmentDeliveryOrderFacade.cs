@@ -33,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 
         Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofArrival(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, int offset);
         MemoryStream GenerateExcelArrivalDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, int offset);
+        MemoryStream GenerateExcelArrivalDetailAll(string category, DateTime? dateFrom, DateTime? dateTo, int offset);
 
         IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset);
         Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofDelivery(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset);
