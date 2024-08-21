@@ -18,7 +18,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
 		public string productName { get; set; }
 		public string productCode { get; set; }
 		public string productDesc { get; set; }
+		public double budgetqty { get; set; }
 		public double quantity { get; set; }
+		public double diffqty { get; set; }
 		public string uom { get; set; }
 		public double budgetPrice { get; set; }
 		public double price { get; set; }
