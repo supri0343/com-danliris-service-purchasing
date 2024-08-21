@@ -940,16 +940,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             var Query = (from a in dbContext.GarmentExternalPurchaseOrders
                          join b in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals b.GarmentEPOId
                          join d in dbContext.GarmentPurchaseRequests on b.PRId equals d.Id
+                         join c in dbContext.GarmentPurchaseRequestItems on d.Id equals c.GarmentPRId 
 
                          //Conditions
                          where b.IsOverBudget == true && a.IsOverBudget == true && a.IsDeleted == false
-                            && b.IsDeleted == false
-                            && d.IsDeleted == false
+                            && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
                             && a.IsApproved == (string.IsNullOrWhiteSpace(status) ? a.IsApproved : _status)
                             && d.UnitId == (string.IsNullOrWhiteSpace(unit) ? d.UnitId : unit)
                             && a.EPONo == (string.IsNullOrWhiteSpace(epono) ? a.EPONo : epono)
                             && a.SupplierId.ToString() == (string.IsNullOrWhiteSpace(supplier) ? a.SupplierId.ToString() : supplier)
-                             && ((d1 != new DateTime(1970, 1, 1)) ? (a.OrderDate.Date >= d1 && a.OrderDate.Date <= d2) : true)
+                            && ((d1 != new DateTime(1970, 1, 1)) ? (a.OrderDate.Date >= d1 && a.OrderDate.Date <= d2) : true)
 
                          select new GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel
                          {
@@ -965,7 +965,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              productCode = b.ProductCode,
                              productName = b.ProductName,
                              productDesc = b.Remark,
+                             budgetqty = c.Quantity,
                              quantity = b.DealQuantity,
+                             diffqty = b.DealQuantity - c.Quantity,
                              uom = b.DealUomUnit,
                              budgetPrice = b.BudgetPrice,
                              price = b.PricePerDealUnit,
@@ -995,7 +997,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         productCode = item.productCode,
                         productName = item.productName,
                         productDesc = item.productDesc,
+                        budgetqty = item.budgetqty,
                         quantity = item.quantity,
+                        diffqty = item.diffqty,
                         uom = item.uom,
                         budgetPrice = item.budgetPrice,
                         price = item.price,
@@ -1050,7 +1054,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Budget", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Selisih", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Budget", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga  Beli", DataType = typeof(String) });
@@ -1062,7 +1068,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Over Budget", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -1070,7 +1076,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                 {
                     index++;
 
-                    result.Rows.Add(item.no, item.poExtNo, item.poExtDate, item.supplierCode, item.supplierName, item.prNo, item.prDate, item.prRefNo, item.unit, item.productName, item.productCode, item.productDesc, item.quantity, item.uom, item.price, item.budgetPrice, item.totalBudgetPrice, item.totalPrice, item.overBudgetValue, item.overBudgetValuePercentage, item.status, item.overBudgetRemark);
+                    result.Rows.Add(item.no, item.poExtNo, item.poExtDate, item.supplierCode, item.supplierName, item.prNo, item.prDate, item.prRefNo, item.unit, item.productName, item.productCode, item.productDesc, item.budgetqty, item.quantity, item.diffqty, item.uom, item.price, item.budgetPrice, item.totalBudgetPrice, item.totalPrice, item.overBudgetValue, item.overBudgetValuePercentage, item.status, item.overBudgetRemark);
                 }
             }
 
