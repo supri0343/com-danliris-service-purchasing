@@ -163,7 +163,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         GarmentDOItems garmentDOItems = dbSetGarmentDOItems.Single(w => w.Id == garmentUnitDeliveryOrderItem.DOItemsId);
                         
                         EntityExtension.FlagForUpdate(garmentDOItems, identityService.Username, USER_AGENT);
-                        garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity - (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                        var diffQty = garmentDOItems.RemainingQuantity - (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                        if (diffQty < 0)
+                        {
+                            throw new Exception("Jumlah barang yang dimasukkan melebihi sisa barang yang ada");
+                        }
+                        else
+                        {
+                            garmentDOItems.RemainingQuantity -= (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                            dbSetGarmentDOItems.Update(garmentDOItems);
+                        }
 
                         GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.IgnoreQueryFilters().Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
                         garmentUnitReceiptNote.IsUnitDO = true;
@@ -225,7 +234,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         if (garmentDOItems != null)
                         {
                             EntityExtension.FlagForUpdate(garmentDOItems, identityService.Username, USER_AGENT);
-                            garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                            garmentDOItems.RemainingQuantity += (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                            dbSetGarmentDOItems.Update(garmentDOItems);
                         }
                     }
 
@@ -283,6 +293,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                             {
                                 EntityExtension.FlagForUpdate(garmentDOItems, identityService.Username, USER_AGENT);
                                 garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + (decimal)oldGarmentUnitDeliveryOrderItem.Quantity - (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                                dbSetGarmentDOItems.Update(garmentDOItems);
                             }
 
                             oldGarmentUnitDeliveryOrderItem.Quantity = garmentUnitDeliveryOrderItem.Quantity;
@@ -309,7 +320,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                             if (garmentDOItems != null)
                             {
                                 EntityExtension.FlagForUpdate(garmentDOItems, identityService.Username, USER_AGENT);
-                                garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity - (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                                var diffQty = garmentDOItems.RemainingQuantity - (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                                if (diffQty < 0)
+                                {
+                                    throw new Exception("Jumlah barang yang dimasukkan melebihi sisa barang yang ada");
+                                }
+                                else
+                                {
+                                    garmentDOItems.RemainingQuantity -= (decimal)garmentUnitDeliveryOrderItem.Quantity;
+                                    dbSetGarmentDOItems.Update(garmentDOItems);
+                                }
                             }
                         }
                     }
@@ -335,7 +355,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                             if (garmentDOItems != null)
                             {
                                 EntityExtension.FlagForUpdate(garmentDOItems, identityService.Username, USER_AGENT);
-                                garmentDOItems.RemainingQuantity = garmentDOItems.RemainingQuantity + (decimal)oldGarmentUnitDeliveryOrderItem.Quantity;
+                                garmentDOItems.RemainingQuantity += (decimal)oldGarmentUnitDeliveryOrderItem.Quantity;
+                                dbSetGarmentDOItems.Update(garmentDOItems);
                             }
                         }
                     }
