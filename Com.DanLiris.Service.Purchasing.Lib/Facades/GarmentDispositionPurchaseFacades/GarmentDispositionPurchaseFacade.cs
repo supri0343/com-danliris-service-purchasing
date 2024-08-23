@@ -196,6 +196,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 s.IsPayVat = epo.IsPayVAT;
                 return s;
                 });
+
+
+            var proformaNo = (string.IsNullOrWhiteSpace(model.ProformaNo) ? string.Join(", ", model.Items.Select(s => s.Invoice)) : model.ProformaNo) ;
+         
+
+            model.ProformaNo = proformaNo;
             model.Items = modelFixing.ToList();
             return model;
         }
@@ -699,6 +705,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 .SelectMany(t => t.Item.GarmentDispositionPurchaseDetails).Sum(t => t.QTYPaid):0;
             viewModel.DispositionQuantityPaid = dispositionPaid!= null ? dispositionPaid
                 .SelectMany(t => t.Item.GarmentDispositionPurchaseDetails).Sum(t => t.QTYPaid):0;
+
             //foreach Unit
 
             viewModel.Items.ForEach(t =>
@@ -751,11 +758,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
         public IQueryable<GarmentDispositionByInvoiceReportDto> GetQuery(int dispositionId, int supplierId,  DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier,  int offset)
         {
-            DateTime DateFromSendCashier = dateFromSendCashier == null ? new DateTime(1970, 1, 1) : (DateTime)dateFromSendCashier;
-            DateTime DateToSendCashier = dateToSendCashier == null ? DateTime.Now : (DateTime)dateToSendCashier;
+            DateTime DateFromSendCashier = dateFromSendCashier == null ? new DateTime(1970, 1, 1).Date : ((DateTime)dateFromSendCashier).Date;
+            DateTime DateToSendCashier = dateToSendCashier == null ? DateTime.Now.Date : ((DateTime)dateToSendCashier).Date;
 
-            DateTime DateFromReceiptCashier = dateFromReceiptCashier == null ? new DateTime(1970, 1, 1) : (DateTime)dateFromReceiptCashier;
-            DateTime DateToReceiptCashier = dateToReceiptCashier == null ? DateTime.Now : (DateTime)dateToReceiptCashier;
+            DateTime DateFromReceiptCashier = dateFromReceiptCashier == null ? new DateTime(1970, 1, 1).Date : ((DateTime)dateFromReceiptCashier).Date;
+            DateTime DateToReceiptCashier = dateToReceiptCashier == null ? DateTime.Now.Date : ((DateTime)dateToReceiptCashier).Date;
 
             var test = new List<GarmentDispositionByInvoiceReportDto>();
 

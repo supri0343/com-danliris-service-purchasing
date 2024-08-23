@@ -55,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                     foreach (var detail in details)
                     {
-                        resultItems.Add(new GarmentDispositionNoteItemDto(detail.UnitId, detail.UnitCode, detail.UnitName, detail.ProductId, detail.ProductName, detail.QTYPaid, detail.PricePerQTY));
+                        resultItems.Add(new GarmentDispositionNoteItemDto(detail.UnitId, detail.UnitCode, detail.UnitName, detail.ProductId, detail.ProductName, detail.QTYPaid, detail.PricePerQTY, item.Invoice));
                     }
                 }  
 
@@ -83,23 +83,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var dispositionItems = _dbContext.GarmentDispositionPurchaseItems.Where(entity => dispositionIds.Contains(entity.GarmentDispositionPurchaseId)).ToList();
             var dispositionItemIds = dispositionItems.Select(entity => entity.Id).ToList();
             var dispositionDetails = _dbContext.GarmentDispositionPurchaseDetailss.Where(entity => dispositionItemIds.Contains(entity.GarmentDispositionPurchaseItemId)).ToList();
+            var countItem = 0;
             foreach (var dispositionNote in queryResult)
             {
                 var items = dispositionItems.Where(element => element.GarmentDispositionPurchaseId == dispositionNote.Id).ToList();
-
                 var resultItems = new List<GarmentDispositionNoteItemDto>();
 
+                countItem = items.Count();
+                var invoiceNoItem = string.Empty;
+                var proformaNo = string.Empty;
                 foreach (var item in items)
                 {
                     var details = dispositionDetails.Where(element => element.GarmentDispositionPurchaseItemId == item.Id).ToList();
-
+                    var invoice = item.Invoice;
                     foreach (var detail in details)
                     {
-                        resultItems.Add(new GarmentDispositionNoteItemDto(detail.UnitId, detail.UnitCode, detail.UnitName, detail.ProductId, detail.ProductName, detail.QTYPaid, detail.PricePerQTY));
+                        resultItems.Add(new GarmentDispositionNoteItemDto(detail.UnitId, detail.UnitCode, detail.UnitName, detail.ProductId, detail.ProductName, detail.QTYPaid, detail.PricePerQTY, item.Invoice));
                     }
+
+                    if (countItem > 1)
+                    {
+                        invoiceNoItem += item.Invoice + ", ";
+                    }
+                    else {
+                        invoiceNoItem = item.Invoice ;
+                    }    
+                    
                 }
 
-                result.Add(new GarmentDispositionNoteDto(dispositionNote.Id, dispositionNote.DispositionNo, dispositionNote.CreatedUtc.ToUniversalTime(), dispositionNote.DueDate, dispositionNote.SupplierId, dispositionNote.SupplierCode, dispositionNote.SupplierName, dispositionNote.VAT, dispositionNote.VAT, dispositionNote.IncomeTax, dispositionNote.IncomeTax, dispositionNote.Amount, dispositionNote.Amount, dispositionNote.CurrencyId, dispositionNote.CurrencyName, 0, dispositionNote.Dpp, dispositionNote.Dpp, resultItems, dispositionNote.InvoiceProformaNo, dispositionNote.Category));
+                proformaNo = (string.IsNullOrWhiteSpace(dispositionNote.InvoiceProformaNo) ? invoiceNoItem : dispositionNote.InvoiceProformaNo);
+
+                //result.Add(new GarmentDispositionNoteDto(dispositionNote.Id, dispositionNote.DispositionNo, dispositionNote.CreatedUtc.ToUniversalTime(), dispositionNote.DueDate, dispositionNote.SupplierId, dispositionNote.SupplierCode, dispositionNote.SupplierName, dispositionNote.VAT, dispositionNote.VAT, dispositionNote.IncomeTax, dispositionNote.IncomeTax, dispositionNote.Amount, dispositionNote.Amount, dispositionNote.CurrencyId, dispositionNote.CurrencyName, 0, dispositionNote.Dpp, dispositionNote.Dpp, resultItems, dispositionNote.InvoiceProformaNo, dispositionNote.Category));
+                result.Add(new GarmentDispositionNoteDto(dispositionNote.Id, dispositionNote.DispositionNo, dispositionNote.CreatedUtc.ToUniversalTime(), dispositionNote.DueDate, dispositionNote.SupplierId, dispositionNote.SupplierCode, dispositionNote.SupplierName, dispositionNote.VAT, dispositionNote.VAT, dispositionNote.IncomeTax, dispositionNote.IncomeTax, dispositionNote.Amount, dispositionNote.Amount, dispositionNote.CurrencyId, dispositionNote.CurrencyName, 0, dispositionNote.Dpp, dispositionNote.Dpp, resultItems, proformaNo, dispositionNote.Category));
             }
 
             return result;
