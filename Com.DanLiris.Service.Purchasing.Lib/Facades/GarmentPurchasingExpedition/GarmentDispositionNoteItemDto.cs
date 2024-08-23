@@ -2,7 +2,7 @@
 {
     public class GarmentDispositionNoteItemDto
     {
-        public GarmentDispositionNoteItemDto(int unitId, string unitCode, string unitName, int productId, string productName, double quantity, double price)
+        public GarmentDispositionNoteItemDto(int unitId, string unitCode, string unitName, int productId, string productName, double quantity, double price, string invoice)
         {
             UnitId = unitId;
             UnitCode = unitCode;
@@ -11,6 +11,7 @@
             ProductName = productName;
             Quantity = quantity;
             Price = price;
+            InvoiceNo = invoice;
         }
 
         public int UnitId { get; private set; }
@@ -20,5 +21,6 @@
         public string ProductName { get; private set; }
         public double Quantity { get; private set; }
         public double Price { get; private set; }
+        public string InvoiceNo { get; private set; }
     }
 }
