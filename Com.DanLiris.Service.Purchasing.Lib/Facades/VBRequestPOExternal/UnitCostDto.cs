@@ -16,12 +16,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             var total = detail.PriceTotal;
             if (elementInvoice != null)
             {
-                if (elementInvoice.UseVat && !elementInvoice.IsPayVat)
+                if (elementInvoice.UseVat == true && elementInvoice.IsPayVat == true)
                 {
                     total += detail.PriceTotal * (elementInvoice.VatRate / 100); ;
                 }
 
-                if (elementInvoice.UseIncomeTax && !elementInvoice.IsPayTax)
+                if (elementInvoice.UseIncomeTax == true && elementInvoice.IsPayTax == true)
                 {
                     total -= detail.PriceTotal * (elementInvoice.IncomeTaxRate / 100);
                 }
