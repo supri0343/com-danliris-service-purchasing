@@ -940,7 +940,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             var Query = (from a in dbContext.GarmentExternalPurchaseOrders
                          join b in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals b.GarmentEPOId
                          join d in dbContext.GarmentPurchaseRequests on b.PRId equals d.Id
-                         join c in dbContext.GarmentPurchaseRequestItems on d.Id equals c.GarmentPRId 
+                         join c in dbContext.GarmentPurchaseRequestItems on b.PO_SerialNumber equals c.PO_SerialNumber 
 
                          //Conditions
                          where b.IsOverBudget == true && a.IsOverBudget == true && a.IsDeleted == false
