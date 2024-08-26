@@ -81,6 +81,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                 yield return new ValidationResult("OrderDate is greater than delivery date", new List<string> { "DeliveryDate" });
             }
 
+            if (this.IsIncomeTax && this.IncomeTax == null)
+            {
+                yield return new ValidationResult("IncomeTax is Required", new List<string> { "incomeTax" });
+            }
+
+
             if (Category == "FABRIC")
             {
                 if (string.IsNullOrWhiteSpace(DryRubbing))
