@@ -650,7 +650,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     isUpdate = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     transaction.Rollback();
                     throw new Exception(e.Message);
@@ -1171,14 +1171,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             switch (category)
             {
                 case "BB":
-                     reportResult = GetBBResult(selectedGarmentDeliveryOrders);
-                     break;
+                    reportResult = GetBBResult(selectedGarmentDeliveryOrders);
+                    break;
                 case "BP":
-                     reportResult = GetBPResult(selectedGarmentDeliveryOrders);
-                     break;
+                    reportResult = GetBPResult(selectedGarmentDeliveryOrders);
+                    break;
                 default:
-                     reportResult = GetDefaultResult(selectedGarmentDeliveryOrders);
-                     break;
+                    reportResult = GetDefaultResult(selectedGarmentDeliveryOrders);
+                    break;
             }
 
             reportResult = reportResult.Where(w => w.Total > 0).ToList();
@@ -1237,7 +1237,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     SupplierId = selectedSupplierId,
                     SupplierCode = selectedSupplier.SupplierCode,
                     SupplierName = selectedSupplier.SupplierName,
-                    OKStatusPercentage = Math.Floor((double)okPercentage),
+                    //OKStatusPercentage = Math.Floor((double)okPercentage),
+                    OKStatusPercentage = okPercentage,
                     OKTotal = 0,
                     Total = total
                 };
@@ -1296,7 +1297,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                 var total = resultToCount.Count;
                 var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
-                var okPercentage = total > 0 ? okTotal / (double)total * 100 : 0;
+                var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
+
+                var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+                var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
 
                 var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
 
@@ -1305,8 +1309,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     SupplierId = selectedSupplierId,
                     SupplierCode = selectedSupplier.SupplierCode,
                     SupplierName = selectedSupplier.SupplierName,
-                    OKStatusPercentage = Math.Floor((double)okPercentage),
+                    //OKStatusPercentage = Math.Floor((double)okPercentage),
+                    OKStatusPercentage = okPercentage,
                     OKTotal = okTotal,
+                    //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
+                    NotOKStatusPercentage = notOkPercentage,
+                    NotOKTotal = notOkTotal,
                     Total = total,
                 };
 
@@ -1323,7 +1331,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
             var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
             var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
-            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment =="BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
 
             var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
             var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
@@ -1354,7 +1362,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                 var total = resultToCount.Count;
                 var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
-                var okPercentage = total > 0 ? okTotal / (double)total * 100 : 0;
+                var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
+
+                var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+                var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
 
                 var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
 
@@ -1364,8 +1375,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     SupplierId = selectedSupplierId,
                     SupplierCode = selectedSupplier.SupplierCode,
                     SupplierName = selectedSupplier.SupplierName,
-                    OKStatusPercentage = Math.Floor((double)okPercentage),
+                    //OKStatusPercentage = Math.Floor((double)okPercentage),
+                    OKStatusPercentage = okPercentage,
                     OKTotal = okTotal,
+                    //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
+                    NotOKStatusPercentage = notOkPercentage,
+                    NotOKTotal = notOkTotal,
                     Total = total
                 };
 
@@ -1387,7 +1402,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
                 category = "BP";
             }
-            
+
             var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportResult = new List<AccuracyOfArrivalReportHeader>();
 
@@ -1515,7 +1530,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             switch (category)
             {
-                case "BB":                  
+                case "BB":
                     reportDetailResult = GetBBDetailResult(selectedGarmentDeliveryOrders);
                     break;
                 case "BP":
@@ -1769,7 +1784,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             switch (category)
             {
-                case "BB":             
+                case "BB":
                     reportDetailResult = GetBBDetailResult(selectedGarmentDeliveryOrders);
                     break;
                 case "BP":
@@ -1833,10 +1848,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
                 category = "BP";
             }
-           
+
             var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportDetailResult = new List<AccuracyOfArrivalReportDetail>();
-            
+
             switch (category)
             {
                 case "BB":
@@ -1888,6 +1903,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     result.Rows.Add(index, item.SupplierName, item.POSerialNumber, prDate, poDate, epoDate, item.DONo, item.ProductCode, item.ProductName, item.ProductRemark, item.Article, item.RONo,
                         shipmentDate, doDate, item.OKStatus, item.Staff, item.ProductName);
                 }
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+
+                int Total = 0;
+                int TotalOk = 0;
+                string PercentOk = "";
+                int TotalNotOk = 0;
+                string PercentNotOk = "";
+
+                Total = reportDetailResult.Count;
+                TotalOk = reportDetailResult.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+                PercentOk = ((decimal)TotalOk / Total).ToString("P", new CultureInfo("id-ID"));
+                TotalNotOk = reportDetailResult.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+                PercentNotOk = ((decimal)TotalNotOk / Total).ToString("P", new CultureInfo("id-ID"));
+
+                result.Rows.Add(null, "KESIAPAN BAHAN BAKU / BAHAN PENDUKUNG DENGAN LEAD TIME 30 HARI", null, null, null, null, null, null, null, null);
+                result.Rows.Add(null, "Status OK", null, "Perhitungan dari selisih Tgl Shipment dengan Tgl Kedatangan Barang >= 30 hari", null, null, null, null, null, null);
+                result.Rows.Add(null, "Persentase Status OK", null, $"{TotalOk}/{Total} X 100% = {PercentOk}", null, null, null, null, null, null);
+                result.Rows.Add(null, "Status NOT OK", null, "Perhitungan dari selisih Tgl Shipment dengan Tgl Kedatangan Barang < 30 hari", null, null, null, null, null, null);
+                result.Rows.Add(null, "Persentase Status NOT OK", null, $"{TotalNotOk}/{Total} X 100% = {PercentNotOk}", null, null, null, null, null, null);
+
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
@@ -2268,90 +2304,81 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
             var Query1 = (from a in dbContext.GarmentDeliveryOrders
-                         join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
-                         join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
-                          join d in dbContext.GarmentInternalPurchaseOrders on j.POId equals d.Id
+                          join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
+                          join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
                           join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
-                         join o in dbContext.GarmentBeacukaiItems on a.Id equals o.GarmentDOId into beaitems
-                         from oo in beaitems.DefaultIfEmpty()
-                         join r in dbContext.GarmentBeacukais on oo.BeacukaiId equals r.Id into beas
-                         from rr in beas.DefaultIfEmpty()
-                         join n in dbContext.GarmentUnitReceiptNoteItems on j.Id equals n.DODetailId into p
-                         from URNItem in p.DefaultIfEmpty()
-                         join k in dbContext.GarmentUnitReceiptNotes on URNItem.URNId equals k.Id into l
-                         from URN in l.DefaultIfEmpty()
-
-                         where a.IsDeleted == false
-                             && i.IsDeleted == false
-                             && j.IsDeleted == false
-                             && d.IsDeleted == false
-                             && m.IsDeleted == false
-                             && URN.IsDeleted == false
-                             && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)
-                             && a.SupplierId == (supplierId == 0 ? a.SupplierId : supplierId)
-                             && a.BillNo == (string.IsNullOrWhiteSpace(billNo) ? a.BillNo : billNo)
-                             && a.PaymentBill == (string.IsNullOrWhiteSpace(paymentBill) ? a.PaymentBill : paymentBill)
-                             && a.DODate.AddHours(offset).Date >= DateFrom.Date
-                             && a.DODate.AddHours(offset).Date <= DateTo.Date
-                             && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
-                             //&& URN.URNType == "PEMBELIAN"
-
-                         select new GarmentDeliveryOrderReportViewModel
-                         {
-                             no = a.DONo,
-                             supplierDoDate = a.DODate == null ? new DateTime(1970, 1, 1) : a.DODate,
-                             date = a.ArrivalDate,
-                             URNNo = URN == null ? "-" : URN.URNNo,
-                             URNDate = URN == null ? new DateTime(1970, 1, 1) : URN.ReceiptDate,
-                             URNType = URN == null ? "-" : URN.URNType,
-                             urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
-                             urnUom = URNItem == null ? "-" : URNItem.UomUnit,
-                             UnitName = URN.UnitName ?? "-",
-                             //urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
-                             //urnUom = URNItem == null ? "-" : URNItem.UomUnit,
-                             supplierName = a.SupplierName,
-                             supplierCode = a.SupplierCode,
-                             shipmentNo = a.ShipmentNo,
-                             shipmentType = a.ShipmentType,
-                             createdBy = a.CreatedBy,
-                             doCurrencyCode = a.DOCurrencyCode,
-                             doCurrencyRate = a.DOCurrencyRate,
-                             isCustoms = a.IsCustoms,
-                             price = j.PricePerDealUnit,
-                             ePONo = i.EPONo,
-                             productCode = j.ProductCode,
-                             productName = j.ProductName,
-                             productRemark = j.ProductRemark,
-                             prRefNo = j.POSerialNumber,
-                             roNo = j.RONo,
-                             prNo = j.PRNo,
-                             remark = a.Remark,
-                             dOQuantity = j.DOQuantity,
-                             dealQuantity = j.DealQuantity,
-                             uomUnit = j.UomUnit,
-                             createdUtc = j.CreatedUtc,
-
-                             buyerCode = d.BuyerCode,
-                            buyerName = d.BuyerName,
-                            artiCle = d.Article,
-
-
-                             EPOcreatedBy = m.CreatedBy,
-                             INNo = a.InternNo,
-                             TermPayment = m.PaymentMethod,
-                             BeacukaiNo = rr != null ? rr.BeacukaiNo : "-",
-                             BeacukaiDate = rr != null? rr.CreatedUtc : DateTimeOffset.MinValue,
-                             BeacukaiType = rr != null ? rr.CustomsType : "-",
-                             BillNo = a.BillNo,
-                             PaymentBill = a.PaymentBill,
-                             BCDate = rr != null? rr.BeacukaiDate : new DateTime(1970, 1, 1)
-                         });
-
-            var Query = (from gdo in Query1
-                          where gdo.URNType != "PROSES" && gdo.URNType != "GUDANG LAIN"
+                          join o in dbContext.GarmentBeacukaiItems on a.Id equals o.GarmentDOId into beaitems
+                          from oo in beaitems.DefaultIfEmpty()
+                          join r in dbContext.GarmentBeacukais on oo.BeacukaiId equals r.Id into beas
+                          from rr in beas.DefaultIfEmpty()
+                          join n in dbContext.GarmentUnitReceiptNoteItems on j.Id equals n.DODetailId into p
+                          from URNItem in p.DefaultIfEmpty()
+                          join k in dbContext.GarmentUnitReceiptNotes on URNItem.URNId equals k.Id into l
+                          from URN in l.DefaultIfEmpty()
+                          where a.IsDeleted == false
+                              && i.IsDeleted == false
+                              && j.IsDeleted == false
+                              && m.IsDeleted == false
+                              && URN.IsDeleted == false
+                              && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)
+                              && a.SupplierId == (supplierId == 0 ? a.SupplierId : supplierId)
+                              && a.BillNo == (string.IsNullOrWhiteSpace(billNo) ? a.BillNo : billNo)
+                              && a.PaymentBill == (string.IsNullOrWhiteSpace(paymentBill) ? a.PaymentBill : paymentBill)
+                              && a.DODate.AddHours(offset).Date >= DateFrom.Date
+                              && a.DODate.AddHours(offset).Date <= DateTo.Date
+                              && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
+                          //&& URN.URNType == "PEMBELIAN"
 
                           select new GarmentDeliveryOrderReportViewModel
                           {
+                              no = a.DONo,
+                              supplierDoDate = a.DODate == null ? new DateTime(1970, 1, 1) : a.DODate,
+                              date = a.ArrivalDate,
+                              URNNo = URN == null ? "-" : URN.URNNo,
+                              URNDate = URN == null ? new DateTime(1970, 1, 1) : URN.ReceiptDate,
+                              URNType = URN == null ? "-" : URN.URNType,
+                              urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
+                              urnUom = URNItem == null ? "-" : URNItem.UomUnit,
+                              UnitName = URN.UnitName ?? "-",
+                              //urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
+                              //urnUom = URNItem == null ? "-" : URNItem.UomUnit,
+                              supplierName = a.SupplierName,
+                              supplierCode = a.SupplierCode,
+                              shipmentNo = a.ShipmentNo,
+                              shipmentType = a.ShipmentType,
+                              createdBy = a.CreatedBy,
+                              doCurrencyCode = a.DOCurrencyCode,
+                              doCurrencyRate = a.DOCurrencyRate,
+                              isCustoms = a.IsCustoms,
+                              price = j.PricePerDealUnit,
+                              ePONo = i.EPONo,
+                              productCode = j.ProductCode,
+                              productName = j.ProductName,
+                              productRemark = j.ProductRemark,
+                              prRefNo = j.POSerialNumber,
+                              roNo = j.RONo,
+                              prNo = j.PRNo,
+                              remark = a.Remark,
+                              dOQuantity = j.DOQuantity,
+                              dealQuantity = j.DealQuantity,
+                              uomUnit = j.UomUnit,
+                              createdUtc = j.CreatedUtc,
+                              EPOcreatedBy = m.CreatedBy,
+                              INNo = a.InternNo,
+                              TermPayment = m.PaymentMethod,
+                              BeacukaiNo = rr != null ? rr.BeacukaiNo : "-",
+                              BeacukaiDate = rr != null ? rr.CreatedUtc : DateTimeOffset.MinValue,
+                              BeacukaiType = rr != null ? rr.CustomsType : "-",
+                              BillNo = a.BillNo,
+                              PaymentBill = a.PaymentBill,
+                              BCDate = rr != null ? rr.BeacukaiDate : new DateTime(1970, 1, 1)
+                          });
+
+            var Query = (from gdo in Query1
+                         where gdo.URNType != "PROSES" && gdo.URNType != "GUDANG LAIN"
+
+                         select new GarmentDeliveryOrderReportViewModel
+                         {
                              no = gdo.no,
                              supplierDoDate = gdo.supplierDoDate,
                              date = gdo.date,
@@ -2381,12 +2408,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              dealQuantity = gdo.dealQuantity,
                              uomUnit = gdo.uomUnit,
                              createdUtc = gdo.createdUtc,
-
-                              buyerCode = gdo.buyerCode,
-                              buyerName = gdo.buyerName,
-                              artiCle = gdo.artiCle,
-
-                              EPOcreatedBy = gdo.EPOcreatedBy,
+                             EPOcreatedBy = gdo.EPOcreatedBy,
                              INNo = gdo.INNo,
                              TermPayment = gdo.TermPayment,
                              URNType = gdo.URNType,
@@ -2397,7 +2419,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              PaymentBill = gdo.PaymentBill,
                              BCDate = gdo.BCDate,
                              diffdate = gdo.BeacukaiDate == DateTimeOffset.MinValue ? "No BC Belum Diinput" : Math.Abs((gdo.date.ToOffset(new TimeSpan(offset, 0, 0)) - gdo.BeacukaiDate.ToOffset(new TimeSpan(offset, 0, 0))).Days).ToString()
-                          });
+                         });
 
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<GarmentDeliveryOrderReportViewModel> urn = new List<GarmentDeliveryOrderReportViewModel>();
@@ -2446,13 +2468,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.createdUtc);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
-
-            result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
-
-            result.Columns.Add(new DataColumn() { ColumnName = "Nama Buyer", DataType = typeof(String) });
-
-            result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
-
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Surat Jalan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Tiba", DataType = typeof(String) });
@@ -2494,8 +2509,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             if (Query.ToArray().Count() == 0)
                 // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
                 //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
-                result.Rows.Add("","","","", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
-                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
+            //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "");
             else
             {
                 int index = 0;
@@ -2511,7 +2526,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     string BcDate = item.BCDate == new DateTime(1970, 1, 1) ? "-" : item.BCDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
                     // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
-                    result.Rows.Add(index, item.buyerCode, item.buyerName, item.artiCle, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.TermPayment, item.diffdate);
+                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.TermPayment, item.diffdate);
                     //result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.diffdate);
 
                     //result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo);
@@ -2561,9 +2576,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         public long SupplierId { get; set; }
         public string SupplierCode { get; set; }
         public string SupplierName { get; set; }
-        public double OKStatusPercentage { get; set; }
+        public decimal OKStatusPercentage { get; set; }
+        public decimal NotOKStatusPercentage { get; set; }
         public int Total { get; set; }
         public int OKTotal { get; internal set; }
+        public int NotOKTotal { get; internal set; }
     }
 
     public class AccuracyOfArrivalReportHeaderResult
