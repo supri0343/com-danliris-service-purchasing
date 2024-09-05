@@ -10,14 +10,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public string user { get; set; }
         public string divisi { get; set; }
         public string unit { get; set; }
-        public double selisih { get; set; }
+        public double selisih1 { get; set; }
+        public string selisih { get; set; }
         public double selisih2 { get; set; }
         public string nmbarang { get; set; }
         public string nmsupp { get; set; }
         public string nopr { get; set; }
         public double jumpr { get; set; }
         public DateTimeOffset tgltarget { get; set; }
-        public DateTimeOffset tgldatang { get; set; }
+        public string tgldatang { get; set; }
+        public DateTimeOffset tgldatang1 { get; set; }
         public DateTimeOffset tglpoint { get; set; }
         public DateTimeOffset tglpoeks { get; set; }
         public DateTimeOffset tgpr { get; set; }

@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             PdfPCell cellHeaderContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER };
 
-            cellHeaderContentRight.AddElement(new Phrase("FM-PB-00-0-6-014/R4", normal_font));
+            cellHeaderContentRight.AddElement(new Phrase("FM-PB-00-06-014/R4", normal_font));
 
             cellHeaderContentRight.AddElement(new Phrase($"SUKOHARJO, {model.Date.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font));
             cellHeaderContentRight.AddElement(new Phrase($"( {model.SupplierCode} ) {model.SupplierName}", normal_font));
