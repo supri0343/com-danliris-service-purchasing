@@ -1252,143 +1252,410 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         private List<AccuracyOfArrivalReportHeader> GetBPResult(List<SelectedGarmentDeliveryOrder> selectedGarmentDeliveryOrders)
         {
-            var bpGarmentDOIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
-            //var garment
+            //var bpGarmentDOIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
+            ////var garment
 
+            //var selectedSupplierIds = selectedGarmentDeliveryOrders.Select(s => s.SupplierId).Distinct().ToList();
+            //var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
+            //var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId) || bpGarmentDOIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            //var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
+            ////var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new SelectedGarmentDeliveryOrderDetail() { Id = s.Id, PRId = s.PRId, GarmentDOItemId = s.GarmentDOItemId }).ToList();
+            //var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+
+            ////var bpGarmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Where(w => bpGarmentDOIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
+            ////var bpGarmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => bpGarmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new SelectedGarmentDeliveryOrderDetail() { Id = s.Id, PRId = s.PRId, GarmentDOItemId = s.GarmentDOItemId }).ToList();
+
+            ////garmentDeliveryOrderDetails.AddRange(bpGarmentDeliveryOrderDetails);
+            ////garmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Distinct().ToList();
+
+            //var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            //var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+
+            //var result = new List<AccuracyOfArrivalReportHeader>();
+            //var index = 0;
+            //foreach (var selectedSupplierId in selectedSupplierIds)
+            //{
+            //    index++;
+            //    //var se
+            //    var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
+            //    var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
+            //    var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
+
+            //    //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+
+            //    //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
+            //    var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
+            //                         join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
+            //                         join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
+            //                         join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
+
+            //                         select new
+            //                         {
+            //                             garmentDO.DODate,
+            //                             purchaseRequest.ShipmentDate
+            //                         }).ToList();
+
+            //    var total = resultToCount.Count;
+            //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+            //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
+
+            //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+            //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+            //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+            //    var datum = new AccuracyOfArrivalReportHeader
+            //    {
+            //        SupplierId = selectedSupplierId,
+            //        SupplierCode = selectedSupplier.SupplierCode,
+            //        SupplierName = selectedSupplier.SupplierName,
+            //        //OKStatusPercentage = Math.Floor((double)okPercentage),
+            //        OKStatusPercentage = okPercentage,
+            //        OKTotal = okTotal,
+            //        //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
+            //        NotOKStatusPercentage = notOkPercentage,
+            //        NotOKTotal = notOkTotal,
+            //        Total = total,
+            //    };
+
+            //    result.Add(datum);
+
+            //}
+
+            //return result;
             var selectedSupplierIds = selectedGarmentDeliveryOrders.Select(s => s.SupplierId).Distinct().ToList();
+            //var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
+            //var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            //var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
+            //var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+
+            //var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            //var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+
+            //var result = new List<AccuracyOfArrivalReportHeader>();
+            //var index = 0;
+            //foreach (var selectedSupplierId in selectedSupplierIds)
+            //{
+            //    index++;
+            //    //var se
+            //    var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
+            //    var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
+            //    var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
+
+            //    //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+
+            //    //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
+            //    var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
+            //                         join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
+            //                         join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
+            //                         join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
+
+            //                         select new
+            //                         {
+            //                             garmentDO.DODate,
+            //                             purchaseRequest.ShipmentDate
+            //                         }).ToList();
+
+            //    var total = resultToCount.Count;
+            //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+            //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
+
+            //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+            //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+            //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+            //    var datum = new AccuracyOfArrivalReportHeader
+            //    {
+            //        No = index,
+            //        SupplierId = selectedSupplierId,
+            //        SupplierCode = selectedSupplier.SupplierCode,
+            //        SupplierName = selectedSupplier.SupplierName,
+            //        //OKStatusPercentage = Math.Floor((double)okPercentage),
+            //        OKStatusPercentage = okPercentage,
+            //        OKTotal = okTotal,
+            //        //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
+            //        NotOKStatusPercentage = notOkPercentage,
+            //        NotOKTotal = notOkTotal,
+            //        Total = total
+            //    };
+
+            //    result.Add(datum);
+
+            //}
             var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
-            var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId) || bpGarmentDOIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId, s.EPOId }).ToList();
             var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
-            //var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new SelectedGarmentDeliveryOrderDetail() { Id = s.Id, PRId = s.PRId, GarmentDOItemId = s.GarmentDOItemId }).ToList();
-            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId, s.ProductCode, s.ProductName, s.ProductRemark, s.EPOItemId, s.RONo, s.POSerialNumber }).ToList();
 
-            //var bpGarmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Where(w => bpGarmentDOIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
-            //var bpGarmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => bpGarmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new SelectedGarmentDeliveryOrderDetail() { Id = s.Id, PRId = s.PRId, GarmentDOItemId = s.GarmentDOItemId }).ToList();
+            var garmentPurchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            var garmentPurchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => garmentPurchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate, s.Date }).ToList();
 
-            //garmentDeliveryOrderDetails.AddRange(bpGarmentDeliveryOrderDetails);
-            //garmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Distinct().ToList();
+            var garmentInternalPurchaseOrders = dbContext.GarmentInternalPurchaseOrders.Where(w => garmentPurchaseRequestIds.Contains(w.PRId)).Select(s => new { s.Id, s.CreatedUtc, s.PRId }).ToList();
 
-            var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
-            var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+            var garmentExternalPurchaseOrderIds = garmentDeliveryOrderItems.Select(s => s.EPOId).ToList();
+            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate, s.CreatedBy }).ToList();
 
-            var result = new List<AccuracyOfArrivalReportHeader>();
+            var garmentExternalPurchaseOrderItemIds = garmentDeliveryOrderDetails.Select(s => s.EPOItemId).ToList();
+            var garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => garmentExternalPurchaseOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Article }).ToList();
+
+            var result = new List<AccuracyOfArrivalReportDetail>();
             var index = 0;
-            foreach (var selectedSupplierId in selectedSupplierIds)
+            foreach (var garmentDeliveryOrderDetail in garmentDeliveryOrderDetails)
             {
                 index++;
-                //var se
-                var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
-                var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
-                var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
 
-                //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+                var garmentDeliveryOrderItem = garmentDeliveryOrderItems.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.GarmentDOItemId);
+                var garmentDeliveryOrder = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.GarmentDeliveryOrderId == garmentDeliveryOrderItem.GarmentDOId);
+                var garmentPurchaseRequest = garmentPurchaseRequests.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.PRId);
+                var garmentInternalPurchaseOrder = garmentInternalPurchaseOrders.FirstOrDefault(f => f.PRId == garmentDeliveryOrderDetail.PRId);
+                var garmentExternalPurchaseOrder = garmentExternalPurchaseOrders.FirstOrDefault(f => f.Id == garmentDeliveryOrderItem.EPOId);
+                var garmentExternalPurchaseOrderItem = garmentExternalPurchaseOrderItems.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.EPOItemId);
 
-                //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
-                var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
-                                     join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
-                                     join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
-                                     join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
-
-                                     select new
-                                     {
-                                         garmentDO.DODate,
-                                         purchaseRequest.ShipmentDate
-                                     }).ToList();
-
-                var total = resultToCount.Count;
-                var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
-                var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
-
-                var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
-                var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
-
-                var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
-
-                var datum = new AccuracyOfArrivalReportHeader
+                var datum = new AccuracyOfArrivalReportDetail
                 {
-                    SupplierId = selectedSupplierId,
-                    SupplierCode = selectedSupplier.SupplierCode,
-                    SupplierName = selectedSupplier.SupplierName,
-                    //OKStatusPercentage = Math.Floor((double)okPercentage),
-                    OKStatusPercentage = okPercentage,
-                    OKTotal = okTotal,
-                    //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
-                    NotOKStatusPercentage = notOkPercentage,
-                    NotOKTotal = notOkTotal,
-                    Total = total,
+                    No = index,
+                    SupplierId = garmentDeliveryOrder.SupplierId,
+                    SupplierCode = garmentDeliveryOrder.SupplierCode,
+                    SupplierName = garmentDeliveryOrder.SupplierName,
+                    PRDate = garmentPurchaseRequest.Date,
+                    IPODate = garmentInternalPurchaseOrder.CreatedUtc,
+                    EPODate = garmentExternalPurchaseOrder.OrderDate,
+                    DONo = garmentDeliveryOrder.DONo,
+                    ProductCode = garmentDeliveryOrderDetail.ProductCode,
+                    ProductName = garmentDeliveryOrderDetail.ProductName,
+                    ProductRemark = garmentDeliveryOrderDetail.ProductRemark,
+                    Article = garmentExternalPurchaseOrderItem.Article,
+                    RONo = garmentDeliveryOrderDetail.RONo,
+                    ShipmentDate = garmentPurchaseRequest.ShipmentDate,
+                    DODate = garmentDeliveryOrder.DODate,
+                    Status = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 30 ? 1 : 0,
+                    Status1 = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days < 30 ? 1 : 0,
+                    Staff = garmentExternalPurchaseOrder.CreatedBy,
+                    POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                 };
 
                 result.Add(datum);
 
-            }
+                //var total = resultToCount.Count;
+                //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+                //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
 
-            return result;
+                //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+                //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+                //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+                //    var datum = new AccuracyOfArrivalReportHeader
+                //    {
+                //        No = index,
+                //        SupplierId = selectedSupplierId,
+                //        SupplierCode = selectedSupplier.SupplierCode,
+                //        SupplierName = selectedSupplier.SupplierName,
+                //        OKStatusPercentage = okPercentage,
+                //        OKTotal = okTotal,
+                //        NotOKStatusPercentage = notOkPercentage,
+                //        NotOKTotal = notOkTotal,
+                //        Total = total
+                //    };
+
+                //    result.Add(datum);
+
+            }
+            //
+
+            var reportResult = (from a in result
+                                group new { OK = a.Status, NOK = a.Status1 } by new
+                                {
+                                    a.SupplierId,
+                                    a.SupplierCode,
+                                    a.SupplierName
+                                } into G
+
+                                select new AccuracyOfArrivalReportHeader
+                                {
+                                    SupplierId = G.Key.SupplierId,
+                                    SupplierCode = G.Key.SupplierCode,
+                                    SupplierName = G.Key.SupplierName,
+                                    OKTotal = G.Sum(m => m.OK),
+                                    NotOKTotal = G.Sum(m => m.NOK),
+                                    OKStatusPercentage = Math.Round(((G.Sum(m => m.OK) / G.Count()) * 100), 2),
+                                    NotOKStatusPercentage = Math.Round(((G.Sum(m => m.NOK) / G.Count()) * 100), 2),
+                                    Total = G.Count(),
+                                });
+
+            return reportResult.OrderBy(x => x.SupplierCode).ToList();
+
+            //return result;
+
         }
 
         private List<AccuracyOfArrivalReportHeader> GetBBResult(List<SelectedGarmentDeliveryOrder> selectedGarmentDeliveryOrders)
         {
             var selectedSupplierIds = selectedGarmentDeliveryOrders.Select(s => s.SupplierId).Distinct().ToList();
+            //var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
+            //var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            //var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
+            //var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+
+            //var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            //var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+
+            //var result = new List<AccuracyOfArrivalReportHeader>();
+            //var index = 0;
+            //foreach (var selectedSupplierId in selectedSupplierIds)
+            //{
+            //    index++;
+            //    //var se
+            //    var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
+            //    var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
+            //    var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
+
+            //    //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+
+            //    //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
+            //    var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
+            //                         join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
+            //                         join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
+            //                         join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
+
+            //                         select new
+            //                         {
+            //                             garmentDO.DODate,
+            //                             purchaseRequest.ShipmentDate
+            //                         }).ToList();
+
+            //    var total = resultToCount.Count;
+            //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+            //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
+
+            //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+            //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+            //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+            //    var datum = new AccuracyOfArrivalReportHeader
+            //    {
+            //        No = index,
+            //        SupplierId = selectedSupplierId,
+            //        SupplierCode = selectedSupplier.SupplierCode,
+            //        SupplierName = selectedSupplier.SupplierName,
+            //        //OKStatusPercentage = Math.Floor((double)okPercentage),
+            //        OKStatusPercentage = okPercentage,
+            //        OKTotal = okTotal,
+            //        //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
+            //        NotOKStatusPercentage = notOkPercentage,
+            //        NotOKTotal = notOkTotal,
+            //        Total = total
+            //    };
+
+            //    result.Add(datum);
+
+            //}
             var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
-            var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId, s.EPOId }).ToList();
             var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
-            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId, s.ProductCode, s.ProductName, s.ProductRemark, s.EPOItemId, s.RONo, s.POSerialNumber }).ToList();
 
-            var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
-            var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+            var garmentPurchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            var garmentPurchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => garmentPurchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate, s.Date }).ToList();
 
-            var result = new List<AccuracyOfArrivalReportHeader>();
+            var garmentInternalPurchaseOrders = dbContext.GarmentInternalPurchaseOrders.Where(w => garmentPurchaseRequestIds.Contains(w.PRId)).Select(s => new { s.Id, s.CreatedUtc, s.PRId }).ToList();
+
+            var garmentExternalPurchaseOrderIds = garmentDeliveryOrderItems.Select(s => s.EPOId).ToList();
+            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate, s.CreatedBy }).ToList();
+
+            var garmentExternalPurchaseOrderItemIds = garmentDeliveryOrderDetails.Select(s => s.EPOItemId).ToList();
+            var garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => garmentExternalPurchaseOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Article }).ToList();
+
+            var result = new List<AccuracyOfArrivalReportDetail>();
             var index = 0;
-            foreach (var selectedSupplierId in selectedSupplierIds)
+            foreach (var garmentDeliveryOrderDetail in garmentDeliveryOrderDetails)
             {
                 index++;
-                //var se
-                var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
-                var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
-                var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
 
-                //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+                var garmentDeliveryOrderItem = garmentDeliveryOrderItems.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.GarmentDOItemId);
+                var garmentDeliveryOrder = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.GarmentDeliveryOrderId == garmentDeliveryOrderItem.GarmentDOId);
+                var garmentPurchaseRequest = garmentPurchaseRequests.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.PRId);
+                var garmentInternalPurchaseOrder = garmentInternalPurchaseOrders.FirstOrDefault(f => f.PRId == garmentDeliveryOrderDetail.PRId);
+                var garmentExternalPurchaseOrder = garmentExternalPurchaseOrders.FirstOrDefault(f => f.Id == garmentDeliveryOrderItem.EPOId);
+                var garmentExternalPurchaseOrderItem = garmentExternalPurchaseOrderItems.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.EPOItemId);
 
-                //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
-                var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
-                                     join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
-                                     join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
-                                     join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
-
-                                     select new
-                                     {
-                                         garmentDO.DODate,
-                                         purchaseRequest.ShipmentDate
-                                     }).ToList();
-
-                var total = resultToCount.Count;
-                var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
-                var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
-
-                var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
-                var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
-
-                var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
-
-                var datum = new AccuracyOfArrivalReportHeader
+                var datum = new AccuracyOfArrivalReportDetail
                 {
                     No = index,
-                    SupplierId = selectedSupplierId,
-                    SupplierCode = selectedSupplier.SupplierCode,
-                    SupplierName = selectedSupplier.SupplierName,
-                    //OKStatusPercentage = Math.Floor((double)okPercentage),
-                    OKStatusPercentage = okPercentage,
-                    OKTotal = okTotal,
-                    //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
-                    NotOKStatusPercentage = notOkPercentage,
-                    NotOKTotal = notOkTotal,
-                    Total = total
+                    SupplierId = garmentDeliveryOrder.SupplierId,
+                    SupplierCode = garmentDeliveryOrder.SupplierCode,
+                    SupplierName = garmentDeliveryOrder.SupplierName,
+                    PRDate = garmentPurchaseRequest.Date,
+                    IPODate = garmentInternalPurchaseOrder.CreatedUtc,
+                    EPODate = garmentExternalPurchaseOrder.OrderDate,
+                    DONo = garmentDeliveryOrder.DONo,
+                    ProductCode = garmentDeliveryOrderDetail.ProductCode,
+                    ProductName = garmentDeliveryOrderDetail.ProductName,
+                    ProductRemark = garmentDeliveryOrderDetail.ProductRemark,
+                    Article = garmentExternalPurchaseOrderItem.Article,
+                    RONo = garmentDeliveryOrderDetail.RONo,
+                    ShipmentDate = garmentPurchaseRequest.ShipmentDate,
+                    DODate = garmentDeliveryOrder.DODate,
+                    Status = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 30 ? 1 : 0,
+                    Status1 = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days < 30 ? 1 : 0,
+                    Staff = garmentExternalPurchaseOrder.CreatedBy,
+                    POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                 };
 
                 result.Add(datum);
 
-            }
+                //var total = resultToCount.Count;
+                //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+                //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
 
-            return result;
+                //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+                //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+                //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+                //    var datum = new AccuracyOfArrivalReportHeader
+                //    {
+                //        No = index,
+                //        SupplierId = selectedSupplierId,
+                //        SupplierCode = selectedSupplier.SupplierCode,
+                //        SupplierName = selectedSupplier.SupplierName,
+                //        OKStatusPercentage = okPercentage,
+                //        OKTotal = okTotal,
+                //        NotOKStatusPercentage = notOkPercentage,
+                //        NotOKTotal = notOkTotal,
+                //        Total = total
+                //    };
+
+                //    result.Add(datum);
+
+            }
+            //
+
+            var reportResult = (from a in result
+                        group new { OK = a.Status, NOK = a.Status1 } by new
+                        {
+                            a.SupplierId,
+                            a.SupplierCode,
+                            a.SupplierName
+                        } into G
+
+                        select new AccuracyOfArrivalReportHeader
+                        {
+                            SupplierId = G.Key.SupplierId,
+                            SupplierCode = G.Key.SupplierCode,
+                            SupplierName = G.Key.SupplierName,
+                            OKTotal = G.Sum(m => m.OK),
+                            NotOKTotal = G.Sum(m => m.NOK),
+                            OKStatusPercentage = Math.Round(((G.Sum(m => m.OK) / G.Count()) * 100), 2),
+                            NotOKStatusPercentage = Math.Round(((G.Sum(m => m.NOK) / G.Count()) * 100), 2),
+                            Total = G.Count(),
+                        });
+
+            return reportResult.OrderBy(x => x.SupplierCode).ToList();
+
+            //return result;
         }
 
         public MemoryStream GenerateExcelArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
@@ -1426,6 +1693,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "NO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "NAMA SUPPLIER", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "OK %", DataType = typeof(int) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Not OK %", DataType = typeof(int) });
             result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(int) });
 
             if (reportResult.ToArray().Count() == 0)
@@ -2542,6 +2810,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         internal DateTimeOffset EPODate;
 
         public int No { get; internal set; }
+        public long SupplierId { get; internal set; }
         public string SupplierCode { get; internal set; }
         public string SupplierName { get; internal set; }
         public DateTimeOffset PRDate { get; internal set; }
@@ -2555,6 +2824,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         public DateTimeOffset ShipmentDate { get; internal set; }
         public DateTimeOffset DODate { get; internal set; }
         public string OKStatus { get; internal set; }
+        public decimal Status { get; internal set; }
+        public decimal Status1 { get; internal set; }
         public string Staff { get; internal set; }
         public string POSerialNumber { get; internal set; }
     }
@@ -2579,8 +2850,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         public decimal OKStatusPercentage { get; set; }
         public decimal NotOKStatusPercentage { get; set; }
         public int Total { get; set; }
-        public int OKTotal { get; internal set; }
-        public int NotOKTotal { get; internal set; }
+        public decimal OKTotal { get; internal set; }
+        public decimal NotOKTotal { get; internal set; }
     }
 
     public class AccuracyOfArrivalReportHeaderResult

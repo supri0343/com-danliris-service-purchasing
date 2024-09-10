@@ -41,5 +41,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
         public double VatRate { get; set; }
         public DateTimeOffset? DueDate { get; set; }
         public string PaymentDueDays { get; set; }
+        public string CategoryName { get; set; }
+        public string DivisionName { get; set; }
+        public string UnitCode { get; set; }
+        public string UnitName { get; set; }
     }
 }

@@ -1052,6 +1052,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                              UPCNo = a.UPCNo,
                              UPCDate = a.CorrectionDate,
                              CorrectionType = a.CorrectionType,
+                             DivisionName = a.DivisionName,
+                             CategoryName = a.CategoryName,
                              UPONo = a.UPONo,
                              InvoiceCorrectionNo = a.InvoiceCorrectionNo,
                              InvoiceCorrectionDate = a.InvoiceCorrectionDate.GetValueOrDefault(),
@@ -1077,6 +1079,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                              PriceTotal = b.PriceTotalAfter,
                              URNNo = b.URNNo,
                              URNDate = c.ReceiptDate,
+                             UnitCode = c.UnitCode,
+                             UnitName = c.UnitName,
                              UserCreated = a.CreatedBy,
                              UseVat = a.useVat ? "YA " : "TIDAK",
                              UseIncomeTax = a.useIncomeTax ? "YA " : "TIDAK",
@@ -1131,9 +1135,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "RATE PPN", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KATEGORI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DIVISI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE UNIT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA UNIT", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", "", 0, "", "", "", "", "", 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", "", 0, "", "", "", "", "", 0, "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -1149,7 +1157,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                     result.Rows.Add(item.UPCNo, UPCDate, item.CorrectionType, item.UPONo, DueDate, item.PaymentDueDays, item.InvoiceCorrectionNo, InvoiceCorrectionDate, item.VatTaxCorrectionNo, VatTaxCorrectionDate, item.IncomeTaxCorrectionNo,
                                     IncomeTaxCorrectionDate, item.SupplierCode, item.SupplierName, item.SupplierAddress, item.ReleaseOrderNoteNo, item.UPCRemark, item.EPONo, item.PRNo, item.AccountNo, item.ProductCode,
-                                    item.ProductName, item.Quantity, item.UOMUnit, item.PricePerDealUnit, item.CurrencyCode, item.CurrencyRate, item.PriceTotal, item.URNNo, URNDate, item.UserCreated, item.UseVat, item.UseIncomeTax, item.VatRate);
+                                    item.ProductName, item.Quantity, item.UOMUnit, item.PricePerDealUnit, item.CurrencyCode, item.CurrencyRate, item.PriceTotal, item.URNNo, URNDate, item.UserCreated, item.UseVat, item.UseIncomeTax, item.VatRate, item.CategoryName, item.DivisionName, item.UnitCode, item.UnitName);
                 }
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
