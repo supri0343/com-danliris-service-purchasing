@@ -46,14 +46,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                            join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                            join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                                           //add join to URNItem
-                                           join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId
-                                           join uh in dbContext.GarmentUnitReceiptNotes on u.URNId equals uh.Id
-                                           //disable Join with PO to UnitDo
-                                           //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
-                                           join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId
-                                           join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
-                                           //add left join with UEN
+                                           //add left join to URNItem
+                                           join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId into urnGroup
+                                           from u in urnGroup.DefaultIfEmpty()
+                                           join uh in dbContext.GarmentUnitReceiptNotes on u.URNId equals uh.Id into uhGroup
+                                           from uh in uhGroup.DefaultIfEmpty()
+                                               //disable Join with PO to UnitDo
+                                               //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                           join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId into fGroup
+                                           from f in fGroup.DefaultIfEmpty()
+                                           join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id into gGroup
+                                           from g in gGroup.DefaultIfEmpty()
+                                               //add left join with UEN
                                            join ue in dbContext.GarmentUnitExpenditureNoteItems on f.Id equals ue.UnitDOItemId into uenGroup
                                            from ue in uenGroup.DefaultIfEmpty()
                                            join uei in dbContext.GarmentUnitExpenditureNotes on ue.UENId equals uei.Id into ueiGroup
@@ -65,37 +69,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            {
                                                BCType = a.CustomsType,
                                                BCDate = a.BeacukaiDate.DateTime,
-                                               ProductCode = f.ProductCode,
-                                               PO = f.POSerialNumber,
+                                               ProductCode = f != null ? f.ProductCode : null,
+                                               PO = f != null ? f.POSerialNumber : null,
                                                BCNo = a.BeacukaiNo,
                                                DONo = c.DONo,
-                                               QtyBC = (double)(u.ReceiptQuantity * u.Conversion),
-                                               RONo = g.RONo,
+                                               QtyBC = f != null ? f.Quantity : 0,
+                                               RONo = g != null ? g.RONo : null,
                                                //Enhance 19-09-2024
                                                Bruto = a.Bruto,
                                                Netto = a.Netto,
-                                               URNNo = uh.URNNo,
-                                               URNDate = uh.ReceiptDate.AddHours(7).Date,
+                                               URNNo = uh != null ? uh.URNNo : null,
+                                               URNDate = uh != null ? uh.ReceiptDate.AddHours(7).Date : (DateTime?)null,
                                                UENNo = uei != null ? uei.UENNo : null,
                                                UENDate = uei != null ? uei.ExpenditureDate.AddHours(7).Date : (DateTime?)null,
                                                QtyUEN = ue != null ? ue.Quantity : 0,
                                                UENType = uei != null ? uei.ExpenditureType : null,
-                                               UnitDOItemId = f.Id,
                                                SupplierName = c.SupplierName,
+                                               UnitDOItemId = f.Id,
+
                                            }
             : filter == "PONo" ? from a in dbContext.GarmentBeacukais
                                  join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
                                  join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                  join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                  join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                                 //add join to URNItem
-                                 join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId
-                                 join uh in dbContext.GarmentUnitReceiptNotes on u.URNId equals uh.Id
-                                 //disable Join with PO to UnitDo
-                                 //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
-                                 join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId
-                                 join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
-                                 //add left join with UEN
+                                 //add left join to URNItem
+                                 join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId into urnGroup
+                                 from u in urnGroup.DefaultIfEmpty()
+                                 join uh in dbContext.GarmentUnitReceiptNotes on u.URNId equals uh.Id into uhGroup
+                                 from uh in uhGroup.DefaultIfEmpty()
+                                     //disable Join with PO to UnitDo
+                                     //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                 join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId into fGroup
+                                 from f in fGroup.DefaultIfEmpty()
+                                 join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id into gGroup
+                                 from g in gGroup.DefaultIfEmpty()
+                                     //add left join with UEN
                                  join ue in dbContext.GarmentUnitExpenditureNoteItems on f.Id equals ue.UnitDOItemId into uenGroup
                                  from ue in uenGroup.DefaultIfEmpty()
                                  join uei in dbContext.GarmentUnitExpenditureNotes on ue.UENId equals uei.Id into ueiGroup
@@ -107,37 +116,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  {
                                      BCType = a.CustomsType,
                                      BCDate = a.BeacukaiDate.DateTime,
-                                     ProductCode = f.ProductCode,
-                                     PO = f.POSerialNumber,
+                                     ProductCode = f != null ? f.ProductCode : null,
+                                     PO = f != null ? f.POSerialNumber : null,
                                      BCNo = a.BeacukaiNo,
                                      DONo = c.DONo,
-                                     QtyBC = (double)(u.ReceiptQuantity * u.Conversion),
-                                     RONo = g.RONo,
+                                     QtyBC = f != null ? f.Quantity : 0,
+                                     RONo = g != null ? g.RONo : null,
                                      //Enhance 19-09-2024
                                      Bruto = a.Bruto,
                                      Netto = a.Netto,
-                                     URNNo = uh.URNNo,
-                                     URNDate = uh.ReceiptDate.AddHours(7).Date,
+                                     URNNo = uh != null ? uh.URNNo : null,
+                                     URNDate = uh != null ? uh.ReceiptDate.AddHours(7).Date : (DateTime?)null,
                                      UENNo = uei != null ? uei.UENNo : null,
                                      UENDate = uei != null ? uei.ExpenditureDate.AddHours(7).Date : (DateTime?)null,
                                      QtyUEN = ue != null ? ue.Quantity : 0,
                                      UENType = uei != null ? uei.ExpenditureType : null,
-                                     UnitDOItemId = f.Id,
                                      SupplierName = c.SupplierName,
+                                     UnitDOItemId = f.Id,
                                  } :
                                  from a in dbContext.GarmentBeacukais
                                  join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
                                  join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                  join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                  join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                                 //add join to URNItem
-                                 join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId
-                                 join uh in dbContext.GarmentUnitReceiptNotes on u.URNId equals uh.Id
-                                 //disable Join with PO to UnitDo
-                                 //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
-                                 join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId
-                                 join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
-                                 //add left join with UEN
+                                 //add left join to URNItem
+                                 join u in dbContext.GarmentUnitReceiptNoteItems on e.Id equals u.DODetailId into urnGroup
+                                 from u in urnGroup.DefaultIfEmpty()
+                                 join uh in dbContext.GarmentUnitReceiptNotes on u.URNId equals uh.Id into uhGroup
+                                 from uh in uhGroup.DefaultIfEmpty()
+                                     //disable Join with PO to UnitDo
+                                     //join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                 join f in dbContext.GarmentUnitDeliveryOrderItems on u.Id equals f.URNItemId into fGroup
+                                 from f in fGroup.DefaultIfEmpty()
+                                 join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id into gGroup
+                                 from g in gGroup.DefaultIfEmpty()
+                                     //add left join with UEN
                                  join ue in dbContext.GarmentUnitExpenditureNoteItems on f.Id equals ue.UnitDOItemId into uenGroup
                                  from ue in uenGroup.DefaultIfEmpty()
                                  join uei in dbContext.GarmentUnitExpenditureNotes on ue.UENId equals uei.Id into ueiGroup
@@ -149,23 +162,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  {
                                      BCType = a.CustomsType,
                                      BCDate = a.BeacukaiDate.DateTime,
-                                     ProductCode = f.ProductCode,
-                                     PO = f.POSerialNumber,
+                                     ProductCode = f != null ? f.ProductCode : null,
+                                     PO = f != null ? f.POSerialNumber : null,
                                      BCNo = a.BeacukaiNo,
                                      DONo = c.DONo,
-                                     QtyBC = (double)(u.ReceiptQuantity * u.Conversion),
-                                     RONo = g.RONo,
+                                     QtyBC = f != null ? f.Quantity : 0,
+                                     RONo = g != null ? g.RONo : null,
                                      //Enhance 19-09-2024
                                      Bruto = a.Bruto,
                                      Netto = a.Netto,
-                                     URNNo = uh.URNNo,
-                                     URNDate = uh.ReceiptDate.AddHours(7).Date,
+                                     URNNo = uh != null ? uh.URNNo : null,
+                                     URNDate = uh != null ? uh.ReceiptDate.AddHours(7).Date : (DateTime?)null,
                                      UENNo = uei != null ? uei.UENNo : null,
                                      UENDate = uei != null ? uei.ExpenditureDate.AddHours(7).Date : (DateTime?)null,
                                      QtyUEN = ue != null ? ue.Quantity : 0,
                                      UENType = uei != null ? uei.ExpenditureType : null,
-                                     UnitDOItemId = f.Id,
                                      SupplierName = c.SupplierName,
+                                     UnitDOItemId = f.Id,
                                  };
 
             var ProductCode = string.Join(",", Query.Select(x => x.ProductCode).Distinct().ToList());
