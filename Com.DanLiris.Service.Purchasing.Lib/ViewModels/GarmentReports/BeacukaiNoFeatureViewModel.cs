@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double Bruto { get; set; }
         public double Netto { get; set; }
         public string URNNo { get; set; }
-        public DateTime URNDate { get; set; }
+        public DateTime? URNDate { get; set; }
         public string UENNo { get; set; }
         public DateTime? UENDate { get; set; }
         public double QtyUEN { get; set; }
