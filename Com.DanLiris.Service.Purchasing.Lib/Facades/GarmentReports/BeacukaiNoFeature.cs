@@ -62,30 +62,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            from ue in uenGroup.DefaultIfEmpty()
                                            join uei in dbContext.GarmentUnitExpenditureNotes on ue.UENId equals uei.Id into ueiGroup
                                            from uei in ueiGroup.DefaultIfEmpty()
-                                           where a.BeacukaiNo == keyword
+                                           where a.BeacukaiNo == keyword && (uh == null || uh.URNType == "PEMBELIAN")
                                            //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
                                            //&& e.IsDeleted == false
                                            select new BeacukaiNoFeatureViewModel
                                            {
                                                BCType = a.CustomsType,
                                                BCDate = a.BeacukaiDate.DateTime,
-                                               ProductCode = f != null ? f.ProductCode : null,
-                                               PO = f != null ? f.POSerialNumber : null,
+                                               ProductCode = e.ProductCode,
+                                               PO = e.POSerialNumber,
                                                BCNo = a.BeacukaiNo,
                                                DONo = c.DONo,
-                                               QtyBC = f != null ? f.Quantity : 0,
-                                               RONo = g != null ? g.RONo : null,
+                                               QtyBC = u != null ? (double)u.SmallQuantity : 0,
+                                               RONo = e.RONo,
                                                //Enhance 19-09-2024
                                                Bruto = a.Bruto,
                                                Netto = a.Netto,
-                                               URNNo = uh != null ? uh.URNNo : null,
+                                               URNNo = uh != null ? uh.URNNo : "",
                                                URNDate = uh != null ? uh.ReceiptDate.AddHours(7).Date : (DateTime?)null,
-                                               UENNo = uei != null ? uei.UENNo : null,
+                                               UENNo = uei != null ? uei.UENNo : "",
                                                UENDate = uei != null ? uei.ExpenditureDate.AddHours(7).Date : (DateTime?)null,
                                                QtyUEN = ue != null ? ue.Quantity : 0,
-                                               UENType = uei != null ? uei.ExpenditureType : null,
+                                               UENType = uei != null ? uei.ExpenditureType : "",
                                                SupplierName = c.SupplierName,
-                                               UnitDOItemId = f.Id,
+                                               UnitDOItemId = f != null ? f.Id : 0,
 
                                            }
             : filter == "PONo" ? from a in dbContext.GarmentBeacukais
@@ -109,30 +109,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  from ue in uenGroup.DefaultIfEmpty()
                                  join uei in dbContext.GarmentUnitExpenditureNotes on ue.UENId equals uei.Id into ueiGroup
                                  from uei in ueiGroup.DefaultIfEmpty()
-                                 where f.POSerialNumber == keyword
+                                 where f.POSerialNumber == keyword && (uh == null || uh.URNType == "PEMBELIAN")
                                  //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
                                  //&& e.IsDeleted == false && f.IsDeleted==false &&g.IsDeleted==false && u.IsDeleted==false 
                                  select new BeacukaiNoFeatureViewModel
                                  {
                                      BCType = a.CustomsType,
                                      BCDate = a.BeacukaiDate.DateTime,
-                                     ProductCode = f != null ? f.ProductCode : null,
-                                     PO = f != null ? f.POSerialNumber : null,
+                                     ProductCode = e.ProductCode,
+                                     PO = e.POSerialNumber,
                                      BCNo = a.BeacukaiNo,
                                      DONo = c.DONo,
-                                     QtyBC = f != null ? f.Quantity : 0,
-                                     RONo = g != null ? g.RONo : null,
+                                     QtyBC = u != null ? (double)u.SmallQuantity : 0,
+                                     RONo = e.RONo,
                                      //Enhance 19-09-2024
                                      Bruto = a.Bruto,
                                      Netto = a.Netto,
-                                     URNNo = uh != null ? uh.URNNo : null,
+                                     URNNo = uh != null ? uh.URNNo : "",
                                      URNDate = uh != null ? uh.ReceiptDate.AddHours(7).Date : (DateTime?)null,
-                                     UENNo = uei != null ? uei.UENNo : null,
+                                     UENNo = uei != null ? uei.UENNo : "",
                                      UENDate = uei != null ? uei.ExpenditureDate.AddHours(7).Date : (DateTime?)null,
                                      QtyUEN = ue != null ? ue.Quantity : 0,
-                                     UENType = uei != null ? uei.ExpenditureType : null,
+                                     UENType = uei != null ? uei.ExpenditureType : "",
                                      SupplierName = c.SupplierName,
-                                     UnitDOItemId = f.Id,
+                                     UnitDOItemId = f != null ? f.Id : 0,
                                  } :
                                  from a in dbContext.GarmentBeacukais
                                  join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
@@ -155,30 +155,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  from ue in uenGroup.DefaultIfEmpty()
                                  join uei in dbContext.GarmentUnitExpenditureNotes on ue.UENId equals uei.Id into ueiGroup
                                  from uei in ueiGroup.DefaultIfEmpty()
-                                 where g.RONo == keyword
+                                 where g.RONo == keyword && (uh == null || uh.URNType == "PEMBELIAN")
                                  //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
                                  //&& e.IsDeleted == false
                                  select new BeacukaiNoFeatureViewModel
                                  {
                                      BCType = a.CustomsType,
                                      BCDate = a.BeacukaiDate.DateTime,
-                                     ProductCode = f != null ? f.ProductCode : null,
-                                     PO = f != null ? f.POSerialNumber : null,
+                                     ProductCode = e.ProductCode,
+                                     PO = e.POSerialNumber,
                                      BCNo = a.BeacukaiNo,
                                      DONo = c.DONo,
-                                     QtyBC = f != null ? f.Quantity : 0,
-                                     RONo = g != null ? g.RONo : null,
+                                     QtyBC = u != null ? (double)u.SmallQuantity : 0,
+                                     RONo = e.RONo,
                                      //Enhance 19-09-2024
                                      Bruto = a.Bruto,
                                      Netto = a.Netto,
-                                     URNNo = uh != null ? uh.URNNo : null,
+                                     URNNo = uh != null ? uh.URNNo : "",
                                      URNDate = uh != null ? uh.ReceiptDate.AddHours(7).Date : (DateTime?)null,
-                                     UENNo = uei != null ? uei.UENNo : null,
+                                     UENNo = uei != null ? uei.UENNo : "",
                                      UENDate = uei != null ? uei.ExpenditureDate.AddHours(7).Date : (DateTime?)null,
                                      QtyUEN = ue != null ? ue.Quantity : 0,
-                                     UENType = uei != null ? uei.ExpenditureType : null,
+                                     UENType = uei != null ? uei.ExpenditureType : "",
                                      SupplierName = c.SupplierName,
-                                     UnitDOItemId = f.Id,
+                                     UnitDOItemId = f != null ? f.Id : 0,
                                  };
 
             var ProductCode = string.Join(",", Query.Select(x => x.ProductCode).Distinct().ToList());
@@ -236,7 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SupplierName = a.SupplierName
                          };
 
-            return Query2.ToList();
+            return Query2.OrderBy(x => x.BCNo).ThenBy(x => x.DONo).ThenBy(x => x.URNNo).ThenBy(x => x.UENNo).ToList();
         }
 
         private List<GarmentProductViewModel> GetProductCode(string codes)
