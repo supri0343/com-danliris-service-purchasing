@@ -337,7 +337,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 //var purchaseRequestItems = dbContext.PurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
 
                 var purchaseOrderExternalIds = queryResult.Select(s => s.EPOId).Distinct().ToList();
-                var purchaseOrderExternals = dbContext.ExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.IsPosted, s.OrderDate, s.DeliveryDate, s.CurrencyCode, s.SupplierCode, s.SupplierName, s.EPONo, s.CreatedUtc, s.PaymentDueDays, s.Remark }).ToList();
+                var purchaseOrderExternals = dbContext.ExternalPurchaseOrders.Where(w => purchaseOrderExternalIds.Contains(w.Id)).Select(s => new { s.Id, s.IsPosted, s.IsClosed, s.OrderDate, s.DeliveryDate, s.CurrencyCode, s.SupplierCode, s.SupplierName, s.EPONo, s.CreatedUtc, s.PaymentDueDays, s.Remark }).ToList();
                 //var purchaseOrderExternalItemIds = queryResult.Select(s => s.EPOItemId).Distinct().ToList();
                 //var purchaseOrderExternalItems = dbContext.ExternalPurchaseOrderItems.Where(w => purchaseOrderExternalItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
                 var purchaseOrderExternalDetailIds = queryResult.Select(s => s.EPODetailId).Distinct().ToList();
@@ -494,7 +494,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                             correctionType = correctionRemarkList.Count > 0 ? string.Join("\n", correctionRemarkList) : "",
                                             valueCorrection = correctionNominalList.Count > 0 ? string.Join("\n", correctionNominalList) : "",
                                             remark = purchaseOrderExternal != null ? purchaseOrderExternal.Remark : "",
-                                            status = (deliveryOrder == null && unitPaymentOrder == null && unitReceiptNote == null) ? "PO Closed" : purchaseOrderInternalItem.Status,
+                                            status = (unitPaymentOrder != null && purchaseOrderExternal.IsClosed == true) ? "Sudah dibuat SPB tapi di closed" : purchaseOrderInternalItem.Status,
                                             staff = purchaseOrderInternal.CreatedBy,
                                             division = purchaseOrderInternal.DivisionName,
                                             correctionRemark = "",
@@ -678,7 +678,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
                             where a.IsDeleted == false && b.IsDeleted == false
                                   && c.IsDeleted == false && d.IsDeleted == false
-                                  && DOItem.IsDeleted == false && DO.IsDeleted == false
+                                  && DOItem.IsDeleted == false && DO.IsDeleted == false && d.IsCanceled == false
                                   && ((DateFrom != new DateTime(1970, 1, 1)) ? (d.DeliveryDate.AddHours(offset).Date >= DateFrom && d.DeliveryDate.AddHours(offset).Date <= DateTo) : true)
                                   && a.DivisionId == (string.IsNullOrWhiteSpace(divisi) ? a.DivisionId : divisi)
 
@@ -727,7 +727,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 var tgltarget = new DateTimeOffset(item.tgltarget.Date, TimeSpan.Zero);
                 var tglpoint = new DateTimeOffset(item.tglpoint.Date, TimeSpan.Zero);
                 var tglpoeks = new DateTimeOffset(item.tglpoeks.Date, TimeSpan.Zero);
-                var selisih = item.tgldatang1 == DateTimeOffset.MinValue ? -1000 : ((TimeSpan)(tgldatang - tgltarget)).Days;
+                var selisih = item.tgldatang1 == DateTimeOffset.MinValue ? 1000 : ((TimeSpan)(tgldatang - tgltarget)).Days;
                 var selisih2 = ((TimeSpan)(tglpoeks - tglpoint)).Days;
 
 
@@ -736,7 +736,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     user = item.user,
                     divisi = item.divisi,
                     unit = item.unit,
-                    selisih = selisih == -1000 ? "-" : selisih.ToString(),
+                    selisih = selisih,
+                    selisih1 = selisih == 1000 ? "-" : selisih.ToString(),
                     selisih2 = selisih2,
                     nmbarang = item.nmbarang,
                     nmsupp = item.nmsupp,
@@ -813,6 +814,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     divisi = item.divisi,
                     unit = item.unit,
                     selisih = item.selisih,
+                    selisih1 = item.selisih1,
                     selisih2 = item.selisih2,
                     nmbarang = item.nmbarang,
                     nmsupp = item.nmsupp,
@@ -830,7 +832,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
             return Tuple.Create(Data, Data.Count);
         }
-
 
         public MemoryStream GenerateExcelSarmut(DateTime? dateFrom, DateTime? dateTo, string divisi, string staff, int offset)
         {

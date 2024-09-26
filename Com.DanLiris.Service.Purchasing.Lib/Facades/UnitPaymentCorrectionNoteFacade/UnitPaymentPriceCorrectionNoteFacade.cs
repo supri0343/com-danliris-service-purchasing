@@ -1037,11 +1037,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
             var Query = (from a in dbContext.UnitPaymentCorrectionNotes
                          join b in dbContext.UnitPaymentCorrectionNoteItems on a.Id equals b.UPCId
+                         join f in dbContext.UnitPaymentOrderDetails on b.UPODetailId equals f.Id
+                         join e in dbContext.UnitPaymentOrderItems on f.UPOItemId equals e.Id
+                         join d in dbContext.UnitPaymentOrders on e.UPOId equals d.Id
                          join c in dbContext.UnitReceiptNotes on b.URNNo equals c.URNNo
-                         join d in dbContext.UnitPaymentOrders on a.UPOId equals d.Id                         
-                         join e in dbContext.UnitPaymentOrderItems on d.Id equals e.UPOId
-                         join f in dbContext.UnitPaymentOrderDetails on e.Id equals f.UPOItemId
-                         join g in dbContext.ExternalPurchaseOrders on f.EPONo equals g.EPONo
+                         join g in dbContext.ExternalPurchaseOrders on b.EPONo equals g.EPONo
 
                          where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false &&
                                d.IsDeleted == false && e.IsDeleted == false && f.IsDeleted == false && g.IsDeleted == false &&
