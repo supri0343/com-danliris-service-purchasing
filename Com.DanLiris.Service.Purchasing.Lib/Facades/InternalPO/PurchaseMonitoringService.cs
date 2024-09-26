@@ -179,7 +179,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var internalpurchaseorderitemIds = queryresult.Select(x => x.InternalPurchaseOrderItemId).Distinct().ToList();
             var internalpurchaseorderitems = _dbContext.InternalPurchaseOrderItems.Where(x => internalpurchaseorderitemIds.Contains(x.Id)).Select(s => new { s.Id, s.Status }).ToList();
             var externalpurchaseorderIds = queryresult.Select(x => x.ExternalPurchaseOrderId).Distinct().ToList();
-            var externalpurchaseorders = _dbContext.ExternalPurchaseOrders.Where(x => externalpurchaseorderIds.Contains(x.Id)).Select(x => new { x.Id, x.IsPosted, x.CurrencyId, x.CurrencyCode, x.CurrencyRate, x.CreatedUtc, x.OrderDate, x.DeliveryDate, x.EPONo, x.SupplierId, x.SupplierCode, x.SupplierName, x.PaymentDueDays, x.Remark }).ToList();
+            var externalpurchaseorders = _dbContext.ExternalPurchaseOrders.Where(x => externalpurchaseorderIds.Contains(x.Id)).Select(x => new { x.Id, x.IsClosed, x.IsPosted, x.CurrencyId, x.CurrencyCode, x.CurrencyRate, x.CreatedUtc, x.OrderDate, x.DeliveryDate, x.EPONo, x.SupplierId, x.SupplierCode, x.SupplierName, x.PaymentDueDays, x.Remark }).ToList();
             var externalpurchaseorderitemIds = queryresult.Select(x => x.ExternalPurchaseOrderItemId).Distinct().ToList();
             var externalpurchaseorderitems = _dbContext.ExternalPurchaseOrderItems.Where(x => externalpurchaseorderitemIds.Contains(x.Id)).Select(x => new { x.Id }).ToList();
             var externalpurchaseorderdetailIds = queryresult.Select(x => x.ExternalPurchaseOrderDetailId).Distinct().ToList();
@@ -253,7 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     InternalPurchaseOrderStaff = internalpurchaseorder != null ? internalpurchaseorder.CreatedBy : "",
                     InternalPurchaseOrderItemId = internalpurchaseorderitem == null ? 0 : internalpurchaseorderitem.Id,
                     //InternalPurchaseOrderStatus = internalpurchaseorderitem != null ? internalpurchaseorderitem.Status : "",
-                    InternalPurchaseOrderStatus = (deliveryOrder == null && unitPaymentOrder == null && unitReceiptNote == null) ? "PO Closed" : internalpurchaseorderitem.Status,
+                    InternalPurchaseOrderStatus = (unitPaymentOrder != null && externalpurchaseorder.IsClosed == true) ? "Sudah dibuat SPB tapi di closed" : internalpurchaseorderitem.Status,
                     ExternalPurchaseOrderId = externalpurchaseorder != null && externalpurchaseorder.IsPosted ? externalpurchaseorder.Id : 0,
                     ExternalPurchaseOrderCreatedDate = externalpurchaseorderdetail != null && externalpurchaseorder.IsPosted ? externalpurchaseorder.CreatedUtc : (DateTime?)null,
                     ExternalPurchaseOrderDate = externalpurchaseorderdetail != null && externalpurchaseorder.IsPosted ? externalpurchaseorder.OrderDate.Date : (DateTime?)null,
@@ -300,7 +300,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     UnitPaymentOrderIncomeTaxNo = unitPaymentOrder != null && unitPaymentOrder.UseIncomeTax ? unitPaymentOrder.IncomeTaxNo : "",
                     UnitPaymentOrderIncomeTax = unitPaymentOrder != null && unitPaymentOrder.UseIncomeTax ? unitPaymentOrder.IncomeTaxRate * unitPaymentOrderDetail.PriceTotal : 0
                 });
-            }
+            } 
 
             return reportdata;
         }
