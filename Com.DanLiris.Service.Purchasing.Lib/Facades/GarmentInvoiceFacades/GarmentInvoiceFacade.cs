@@ -15,6 +15,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using static Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports.BCForAvalFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 {
@@ -25,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
         private readonly DbSet<GarmentDeliveryOrder> dbSetDeliveryOrder;
         public readonly IServiceProvider serviceProvider;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
+        private readonly IGarmentInternNoteFacade _facadeInternNote;
         private string USER_AGENT = "Facade";
         private readonly ILogHistoryFacades logHistoryFacades;
 
@@ -35,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             this.dbSetDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
             this.serviceProvider = serviceProvider;
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
+            _facadeInternNote = serviceProvider.GetService<IGarmentInternNoteFacade>();
             logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
         }
         public Tuple<List<GarmentInvoice>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
@@ -70,7 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             return model;
         }
 
-        public async Task<int> Create(GarmentInvoice model, string username, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(GarmentInvoice model, GarmentInvoiceViewModel viewModel, string username, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -158,6 +164,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                             await _garmentDebtBalanceService.UpdateFromInvoice((int)deliveryOrder.Id, new InvoiceFormDto((int)model.Id, model.InvoiceDate, model.InvoiceNo, amount, currencyAmount, vatAmount, incomeTaxAmount, model.IsPayVat, model.IsPayTax, currencyVATAmount, currencyIncomeTaxAmount, model.VatNo));
                         }
                     }
+
+
+                    GarmentInternNote internNote = await MapToModelInvoice(model, viewModel);
+
+                    await _facadeInternNote.CreateWithInvoice(internNote, viewModel.supplier.Import, username, 7);
+
 
                     transaction.Commit();
                 }
@@ -436,6 +448,98 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                 }).ToList();
 
             return models;
+        }
+
+        private async Task<GarmentInternNote> MapToModelInvoice(GarmentInvoice model, GarmentInvoiceViewModel viewModel)
+        {
+            var internNote = new GarmentInternNote
+            {
+                Active = model.Active,
+            
+                CreatedAgent = model.CreatedAgent,
+                CreatedBy = model.CreatedBy,
+                CreatedUtc = model.CreatedUtc,
+                DeletedAgent = model.DeletedAgent,
+                DeletedBy = model.DeletedBy,
+                DeletedUtc = model.DeletedUtc,
+                IsDeleted = model.IsDeleted,
+                LastModifiedAgent = model.LastModifiedAgent,
+                LastModifiedBy = model.LastModifiedBy,
+                LastModifiedUtc = model.LastModifiedUtc,
+                INNo = null,
+                Remark = null,
+                INDate = DateTimeOffset.Now,
+                CurrencyId = model.CurrencyId,
+                CurrencyCode = model.CurrencyCode,
+                CurrencyRate = viewModel.currency.Rate,
+                SupplierId = model.SupplierId,
+                SupplierCode = model.SupplierCode,
+                SupplierName = model.SupplierName,
+                IsCreatedVB = false,
+                IsPphPaid = model.IsPayTax,
+                DPPVATIsPaid = model.IsPayVat,
+                Items = model.Items.Select(i => new GarmentInternNoteItem
+                {
+                    Active = i.Active,
+                    CreatedAgent = i.CreatedAgent,
+                    CreatedBy = i.CreatedBy,
+                    CreatedUtc = i.CreatedUtc,
+                    DeletedAgent = i.DeletedAgent,
+                    DeletedBy = i.DeletedBy,
+                    DeletedUtc = i.DeletedUtc,
+                    IsDeleted = i.IsDeleted,
+                    LastModifiedAgent = i.LastModifiedAgent,
+                    LastModifiedBy = i.LastModifiedBy,
+                    LastModifiedUtc = i.LastModifiedUtc,
+                    InvoiceId = i.InvoiceId,
+                    InvoiceNo = model.InvoiceNo,
+                    InvoiceDate = model.InvoiceDate,
+                    TotalAmount = i.TotalAmount,
+                    Details = i.Details.Select(d => new GarmentInternNoteDetail
+                    {
+                        Active = d.Active,
+                        CreatedAgent = d.CreatedAgent,
+                        CreatedBy = d.CreatedBy,
+                        CreatedUtc = d.CreatedUtc,
+                        DeletedAgent = d.DeletedAgent,
+                        DeletedBy = d.DeletedBy,
+                        DeletedUtc = d.DeletedUtc,
+                        IsDeleted = d.IsDeleted,
+                        LastModifiedAgent = d.LastModifiedAgent,
+                        LastModifiedBy = d.LastModifiedBy,
+                        LastModifiedUtc = d.LastModifiedUtc,
+                        EPOId = d.EPOId,
+                        EPONo = d.EPONo,
+                        DOId = i.DeliveryOrderId,
+                        DONo = i.DeliveryOrderNo,
+                        POSerialNumber = d.POSerialNumber,
+                        RONo = d.RONo,
+                        PaymentMethod = i.PaymentMethod,
+                        PaymentType = i.PaymentType,
+                        PaymentDueDays = d.PaymentDueDays,
+                        PaymentDueDate = i.DODate.AddDays(d.PaymentDueDays),
+                        DODate = i.DODate,
+                        ProductCode = d.ProductCode,
+                        ProductId = d.ProductId,
+                        ProductName = d.ProductName,
+                        Quantity = d.DOQuantity,
+                        UOMId = d.UomId,
+                        UOMUnit = d.UomUnit,
+                        PricePerDealUnit = d.PricePerDealUnit,
+                        PriceTotal = d.PricePerDealUnit * d.DOQuantity,
+
+
+
+
+                    }).ToList()
+
+
+
+                }).ToList()
+            };
+
+            return internNote;
+
         }
     }
 }

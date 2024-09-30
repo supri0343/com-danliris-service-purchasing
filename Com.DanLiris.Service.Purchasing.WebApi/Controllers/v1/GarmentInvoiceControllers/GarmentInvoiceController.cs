@@ -282,7 +282,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 
 				var model = mapper.Map<GarmentInvoice>(ViewModel);
 
-				await facade.Create(model, identityService.Username);
+				await facade.Create(model, ViewModel, identityService.Username);
 
 				Dictionary<string, object> Result =
 					new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)

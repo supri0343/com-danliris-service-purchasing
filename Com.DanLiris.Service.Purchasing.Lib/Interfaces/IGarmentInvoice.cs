@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     {
         Tuple<List<GarmentInvoice>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         GarmentInvoice ReadById(int id);
-        Task<int> Create(GarmentInvoice m, string user, int clientTimeZoneOffset = 7);
+        Task<int> Create(GarmentInvoice m, GarmentInvoiceViewModel viewModel, string user, int clientTimeZoneOffset = 7 );
         Task<int> Update(int id, GarmentInvoice m, string user, int clientTimeZoneOffset = 7);
         int Delete(int id, string username);
         GarmentInvoice ReadByDOId(int id);
