@@ -1214,5 +1214,61 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
             return ListData;
         }
+
+        public async Task<int> CreateWithInvoice(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7)
+        {
+            int Created = 0;
+
+            
+                try
+                {
+                    EntityExtension.FlagForCreate(m, user, USER_AGENT);
+
+                    m.INNo = await GenerateNo(m, isImport, clientTimeZoneOffset);
+                    m.INDate = DateTimeOffset.Now;
+
+                    foreach (var item in m.Items)
+                    {
+                        GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+                        if (garmentInvoice != null)
+                            garmentInvoice.HasInternNote = true;
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        foreach (var detail in item.Details)
+                        {
+                            GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                            GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.RONo.Equals(detail.RONo));
+                            if (internalPurchaseOrder != null)
+                            {
+                                detail.UnitId = internalPurchaseOrder.UnitId;
+                                detail.UnitCode = internalPurchaseOrder.UnitCode;
+                                detail.UnitName = internalPurchaseOrder.UnitName;
+                            }
+                            if (garmentDeliveryOrder != null)
+                            {
+                                garmentDeliveryOrder.InternNo = m.INNo;
+                            }
+                            EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+
+                            await _garmentDebtBalanceService.UpdateFromInternalNote((int)detail.DOId, new InternalNoteFormDto((int)m.Id, m.INNo));
+                        }
+                    }
+
+                    this.dbSet.Add(m);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Nota Intern - " + m.INNo);
+
+                    Created = await dbContext.SaveChangesAsync();
+                    //transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    //transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            
+
+            return Created;
+        }
     }
 }
