@@ -19,6 +19,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using static Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports.BCForAvalFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 {
@@ -60,8 +62,92 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<GarmentInvoice>.ConfigureOrder(Query, OrderDictionary);
 
+
+
+
             Pageable<GarmentInvoice> pageable = new Pageable<GarmentInvoice>(Query, Page - 1, Size);
             List<GarmentInvoice> Data = pageable.Data.ToList();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
+        public Tuple<List<GarmentInvoiceIndexDto>, int, Dictionary<string, string>> ReadMerge(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentInvoice> Query = this.dbSet.Include(m => m.Items).ThenInclude(i => i.Details);
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "invoiceNo", "supplierName","items.deliveryOrderNo","npn","nph", "internNoteNo"
+            };
+
+
+            var result = (from a in Query
+                          join b in dbContext.GarmentInternNoteItems on a.Id equals b.InvoiceId into r
+                          from b in r.DefaultIfEmpty()
+                          join c in dbContext.GarmentInternNotes on b.GarmentINId equals c.Id into s
+                          from c in s.DefaultIfEmpty()
+                          //where 
+                          //a.InvoiceNo.Contains(Keyword) && c.INNo.Contains(Keyword)
+                          
+                          select new GarmentInvoiceIndexDto
+                          {
+                              Id = a.Id,
+                              LastModifiedUtc = a.LastModifiedUtc,
+                              CreatedUtc = a.CreatedUtc,
+                              invoiceNo = a.InvoiceNo,
+                              invoiceDate = a.InvoiceDate,
+                              internNoteNo = c.INNo,
+                              internNoteId =c != null?c.Id : 0,
+                              supplierName = a.SupplierName,
+                              supplier = new SupplierViewModel
+                              {
+                                  Code = a.SupplierCode,
+                                  Name = a.SupplierName
+                              },
+                              CreatedBy = a.CreatedBy,
+                              npn = a.NPN,
+                              nph = a.NPH,
+                              items = a.Items.Select(x => new GarmentInvoiceItemIndexDto()
+                              {
+
+                                  deliveryOrderId = x.DeliveryOrderId,
+                                  deliveryOrderNo = x.DeliveryOrderNo,
+                                  deliveryOrder = new GarmentDeliveryOrderViewModel(){ 
+                                    doNo = x.DeliveryOrderNo,
+                                        
+                                  },
+                                   
+                              }).ToList()
+
+                          }).AsQueryable();
+
+            if (Keyword != null) {
+                result = result.Where(x =>
+                                           x.invoiceNo.Contains(Keyword)
+                                           || (x.CreatedBy != null && x.CreatedBy.Contains(Keyword))
+                                           || (x.internNoteNo != null && x.internNoteNo.Contains(Keyword))  // Null check pada internNoteNo
+                                           || (x.npn != null && x.npn.Contains(Keyword))  // Null check pada npn
+                                           || (x.nph != null && x.nph.Contains(Keyword))  // Null check pada nph
+                                           || (x.supplierName != null && x.supplierName.Contains(Keyword)) // Null check pada supplierName
+                                           || x.items.Any(i => i.deliveryOrderNo != null && i.deliveryOrderNo.Contains(Keyword))
+                                        );
+                // result = result.Select(s => s.items.Where(r => r.deliveryOrderNo.Contains(Keyword)).ToList());
+
+            }
+
+                
+
+            //result = QueryHelper<GarmentInvoiceIndexDto>.ConfigureSearch(result, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            result = QueryHelper<GarmentInvoiceIndexDto>.ConfigureFilter(result, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            result = QueryHelper<GarmentInvoiceIndexDto>.ConfigureOrder(result, OrderDictionary);
+
+            Pageable<GarmentInvoiceIndexDto> pageable = new Pageable<GarmentInvoiceIndexDto>(result, Page - 1, Size);
+            List<GarmentInvoiceIndexDto> Data = pageable.Data.ToList();
             int TotalData = pageable.TotalCount;
 
             return Tuple.Create(Data, TotalData, OrderDictionary);
@@ -76,7 +162,109 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             return model;
         }
 
-        public async Task<int> Create(GarmentInvoice model, GarmentInvoiceViewModel viewModel, string username, int clientTimeZoneOffset = 7)
+        public async Task<int> Create(GarmentInvoice model, string username, int clientTimeZoneOffset = 7)
+        {
+            int Created = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    double _total = 0;
+                    EntityExtension.FlagForCreate(model, username, USER_AGENT);
+                    if (model.UseIncomeTax)
+                    {
+                        model.NPH = GenerateNPH();
+                    }
+                    if (model.UseVat)
+                    {
+                        model.NPN = GenerateNPN();
+                    }
+                    foreach (var item in model.Items)
+                    {
+                        _total += item.TotalAmount;
+                        GarmentDeliveryOrder deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.DeliveryOrderId);
+                        if (deliveryOrder != null)
+                            deliveryOrder.IsInvoice = true;
+                        EntityExtension.FlagForCreate(item, username, USER_AGENT);
+
+                        foreach (var detail in item.Details)
+                        {
+                            EntityExtension.FlagForCreate(detail, username, USER_AGENT);
+                        }
+                    }
+                    model.TotalAmount = _total;
+
+                    this.dbSet.Add(model);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Garment Invoice - " + model.InvoiceNo);
+
+                    Created = await dbContext.SaveChangesAsync();
+
+                    foreach (var item in model.Items)
+                    {
+                        var deliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.DeliveryOrderId);
+                        if (deliveryOrder != null)
+                        {
+                            var amount = 0.0;
+                            var currencyAmount = 0.0;
+                            var vatAmount = 0.0;
+                            var currencyVATAmount = 0.0;
+                            var incomeTaxAmount = 0.0;
+                            var currencyIncomeTaxAmount = 0.0;
+
+                            if (model.CurrencyCode == "IDR")
+                            {
+                                amount = item.TotalAmount;
+                                if (model.IsPayVat)
+                                {
+                                    vatAmount = item.TotalAmount * 0.1;
+                                    //vatAmount = item.TotalAmount * (model.VatRate / 100);
+                                }
+
+                                if (model.IsPayTax)
+                                {
+                                    incomeTaxAmount = item.TotalAmount * model.IncomeTaxRate / 100;
+                                }
+                            }
+                            else
+                            {
+                                amount = item.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                                currencyAmount = item.TotalAmount;
+                                if (model.IsPayVat)
+                                {
+                                    vatAmount = amount * 0.1;
+                                    //vatAmount = amount * (model.VatRate / 100);
+                                    currencyVATAmount = item.TotalAmount * 0.1;
+                                    //currencyVATAmount = item.TotalAmount * (model.VatRate / 100);
+                                }
+
+                                if (model.IsPayTax)
+                                {
+                                    incomeTaxAmount = amount * model.IncomeTaxRate / 100;
+                                    currencyIncomeTaxAmount = item.TotalAmount * model.IncomeTaxRate / 100;
+                                }
+                            }
+
+                            await _garmentDebtBalanceService.UpdateFromInvoice((int)deliveryOrder.Id, new InvoiceFormDto((int)model.Id, model.InvoiceDate, model.InvoiceNo, amount, currencyAmount, vatAmount, incomeTaxAmount, model.IsPayVat, model.IsPayTax, currencyVATAmount, currencyIncomeTaxAmount, model.VatNo));
+                        }
+                    }
+
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Created;
+        }
+
+
+        public async Task<int> CreateMerge(GarmentInvoice model, GarmentInvoiceViewModel viewModel, string username, int clientTimeZoneOffset = 7)
         {
             int Created = 0;
 
@@ -540,6 +728,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 
             return internNote;
 
+        }
+
+        public string GetInternNoteNo(long invoiceId)
+        {
+            var internNote = dbContext.GarmentInternNotes.Where(x =>x.Items.Any(i => i.InvoiceId == invoiceId)).FirstOrDefault().INNo ;
+            return internNote;
         }
     }
 }
