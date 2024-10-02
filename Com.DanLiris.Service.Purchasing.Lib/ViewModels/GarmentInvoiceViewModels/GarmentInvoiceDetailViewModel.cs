@@ -24,5 +24,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
         public bool useVat { get; set; }
         public bool useIncomeTax { get; set; }
         public string pOSerialNumber { get; set; }
+        public double receiptQuantity { get; set; }
     }
 }
