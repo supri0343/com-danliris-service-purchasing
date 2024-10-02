@@ -296,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 					foreach (var detail in item.details)
 					{ 
 						detail.receiptQuantity = item.deliveryOrder.items.Select(i => i.fulfillments.Sum(f => f.receiptQuantity)).FirstOrDefault();
-
+						detail.correctionQuantity = item.deliveryOrder.items.Select(i => i.fulfillments.Sum(f => f.quantityCorrection)).FirstOrDefault();
                     }
                     //foreach (var doitems in item.deliveryOrder.items)
                     //{ 
@@ -426,6 +426,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 			try
 			{
 				facade.Delete(id, identityService.Username);
+				return NoContent();
+			}
+			catch (Exception)
+			{
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+			}
+		}
+
+		[HttpDelete("merge/{id}")]
+		public async Task<IActionResult> DeleteMerge([FromRoute] int id)
+		{
+			identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+			identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
+			try
+			{
+				await facade.DeleteMerge(id, identityService.Username);
 				return NoContent();
 			}
 			catch (Exception)
