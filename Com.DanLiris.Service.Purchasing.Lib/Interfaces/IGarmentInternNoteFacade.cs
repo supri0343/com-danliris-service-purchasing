@@ -23,5 +23,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, int bankExpenditureNoteId, string bankExpenditureNoteNo, string internalNoteIds = "[]", string invoiceNoteIds = "[]");
         MemoryStream GenerateDataExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
         List<object> GetByNIForDPPVATExpenditure(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        Task<int> DeleteMerge(int id, string username);
     }
 }

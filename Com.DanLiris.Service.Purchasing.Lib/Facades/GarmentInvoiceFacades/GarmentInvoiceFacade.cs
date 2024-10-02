@@ -21,6 +21,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 {
@@ -483,6 +484,55 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             return Deleted;
         }
 
+
+        public async Task<int> DeleteMerge(int id, string username)
+        {
+            int Deleted = 0;
+
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var internNoteId = this.dbContext.GarmentInternNotes.Where(s => s.Items.Any(r => r.InvoiceId == id)).FirstOrDefault().Id;
+
+                    await _facadeInternNote.DeleteMerge(Convert.ToInt32(internNoteId), username);
+                    
+                    var model = this.dbSet
+                        .Include(d => d.Items)
+                            .ThenInclude(d => d.Details)
+                        .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
+
+                    EntityExtension.FlagForDelete(model, username, USER_AGENT);
+
+                    foreach (var item in model.Items)
+                    {
+                        GarmentDeliveryOrder garmentDeliveryOrder = dbSetDeliveryOrder.FirstOrDefault(s => s.Id == item.DeliveryOrderId);
+                        if (garmentDeliveryOrder != null)
+                            garmentDeliveryOrder.IsInvoice = false;
+                        EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                        var deleted = _garmentDebtBalanceService.EmptyInvoice((int)item.DeliveryOrderId).Result;
+                        foreach (var detail in item.Details)
+                        {
+                            EntityExtension.FlagForDelete(detail, username, USER_AGENT);
+                        }
+                    }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Garment Invoice - " + model.InvoiceNo);
+
+                    Deleted = dbContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Deleted;
+        }
+
         public HashSet<long> GetGarmentInvoiceId(long id)
         {
             return new HashSet<long>(dbContext.GarmentInvoiceItems.Where(d => d.GarmentInvoice.Id == id).Select(d => d.Id));
@@ -715,6 +765,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                         UOMUnit = d.UomUnit,
                         PricePerDealUnit = d.PricePerDealUnit,
                         PriceTotal = d.PricePerDealUnit * d.DOQuantity,
+                        InvoiceDetailId = Convert.ToInt32(d.Id)
 
 
 

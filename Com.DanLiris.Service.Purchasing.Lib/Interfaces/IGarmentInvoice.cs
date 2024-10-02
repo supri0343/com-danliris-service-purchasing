@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<GarmentInvoice> ReadForInternNote(List<long> garmentInvoiceIds);
         Tuple<List<GarmentInvoiceIndexDto>, int, Dictionary<string, string>> ReadMerge(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         string GetInternNoteNo(long invoiceId);
+        Task<int> DeleteMerge(int id, string username);
 
 
 
