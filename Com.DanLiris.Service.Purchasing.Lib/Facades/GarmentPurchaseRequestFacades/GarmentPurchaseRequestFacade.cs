@@ -261,7 +261,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
                     Created = await dbContext.SaveChangesAsync();
 
-                    if (m.PRType == "MASTER" || m.PRType == "SAMPLE" || m.PRType == "SUBCON")
+                    if (m.PRType == "MASTER" || m.PRType == "SAMPLE" || m.PRType == "SUBCON" || m.PRType == "TERIMA SUBCON")
                     {
                         await SetIsPR(m.SCId, true);
                     }
@@ -305,9 +305,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             {
                 suffix = "SC";
             }
+            else if (m.PRType == "TERIMA SUBCON")
+            {
+                suffix = "TS";
+            }
             else
             {
-                throw new Exception("PRType only accepting \"MASTER\" , \"SAMPLE\" and \"SUBCON\" in order to generate RONo.");
+                throw new Exception("PRType only accepting \"MASTER\" , \"SAMPLE\" , \"SUBCON\" , \"TERIMA SUBCON\" in order to generate RONo.");
             }
 
             var lastRONo = dbSet.Where(w => !string.IsNullOrWhiteSpace(w.RONo) && w.RONo.Length == prefix.Length + padding + suffix.Length && w.RONo.StartsWith(prefix) && w.RONo.EndsWith(suffix))
@@ -347,9 +351,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             {
                 suffix = "SC";
             }
+            else if (m.PRType == "TERIMA SUBCON")
+            {
+                suffix = "TS";
+            }
             else
             {
-                throw new Exception("PRType only accepting \"MASTER\" , \"SAMPLE\" and \"SUBCON\" in order to generate POSerialNumber.");
+                throw new Exception("PRType only accepting \"MASTER\" , \"SAMPLE\" , \"SUBCON\" and \"TERIMA SUBCON\" in order to generate POSerialNumber.");
             }
 
             var prefixPM = string.Concat("PM", prefix);
