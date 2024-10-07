@@ -6,20 +6,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
 {
     public class GarmentSampleExpenditureGoodViewModel
     {
-        public Guid Id { get; internal set; }
-        public string ExpenditureGoodNo { get; internal set; }
-        public Unit Unit { get; internal set; }
-        public string ExpenditureType { get; internal set; }
-        public string RONo { get; internal set; }
-        public string Article { get; internal set; }
-        public GarmentComodity Comodity { get; internal set; }
-        public Buyer Buyer { get; internal set; }
-        public DateTimeOffset ExpenditureDate { get; internal set; }
-        public string Invoice { get; internal set; }
-        public string ContractNo { get; internal set; }
-        public double Carton { get; internal set; }
-        public string Description { get; internal set; }
-        public bool IsReceived { get; private set; }
+        public Guid Id { get;  set; }
+        public string ExpenditureGoodNo { get;  set; }
+        public Unit Unit { get;  set; }
+        public string ExpenditureType { get;  set; }
+        public string RONo { get;  set; }
+        public string Article { get;  set; }
+        public GarmentComodity Comodity { get;  set; }
+        public Buyer Buyer { get;  set; }
+        public DateTimeOffset ExpenditureDate { get;  set; }
+        public string Invoice { get;  set; }
+        public string ContractNo { get;  set; }
+        public double Carton { get;  set; }
+        public string Description { get;  set; }
+        public bool IsReceived { get;  set; }
         public double TotalQuantity { get; set; }
         public double TotalPrice { get; set; }
     }
