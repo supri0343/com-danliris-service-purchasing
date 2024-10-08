@@ -268,6 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 && w.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? w.UnitCode : unitcode)
                 && w.ProductCode == (string.IsNullOrWhiteSpace(productcode) ? w.ProductCode : productcode)
                 && w.ProductName == "FABRIC"
+                && w.UnitName != "SAMPLE"
                 );
 
             var data = Query.Select(x => new DOItemsViewModels
@@ -287,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 Area = x.Area,
                 CreatedBy = x.CreatedBy,
                 ModyfiedBy = x.Colour == "-" ? "-" : x.LastModifiedBy
-            }).ToList();
+            }).OrderByDescending(x => x.POSerialNumber).ThenByDescending(x => x.RemainingQuantity).ToList();
             //List<object> ListData = new List<object>(data.OrderBy(o => o.POSerialNumber));
 
             return data;
