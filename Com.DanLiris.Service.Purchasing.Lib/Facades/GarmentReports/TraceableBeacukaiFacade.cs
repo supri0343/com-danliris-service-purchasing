@@ -795,7 +795,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SatuanBUK = a.SatuanBUK,
                              UnitDOType = a.UnitDOType,
 
-                             SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
+                             SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : bb.ExpenditureType == "LAIN-LAIN" ? bb.TotalQuantity : 0,
                              Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                              EksporQty = bb != null ? (bb.ExpenditureType == "EXPORT" ? bb.TotalQuantity : 0) : 0,
 
