@@ -217,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 });
 
 
-            var proformaNo = (string.IsNullOrWhiteSpace(model.ProformaNo) ? string.Join(", ", model.Items.Select(s => s.Invoice)) : model.ProformaNo) ;
+            var proformaNo = (string.IsNullOrWhiteSpace(model.ProformaNo) ? string.Join(", ", model.Items.Select(s => s.Invoice).Distinct()) : model.ProformaNo) ;
          
 
             model.ProformaNo = proformaNo;
@@ -679,7 +679,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     modelParentUpdate.Dpp = dataModel.Dpp;
                     modelParentUpdate.DueDate = dataModel.DueDate;
                     modelParentUpdate.IncomeTax = dataModel.IncomeTax;
-                    modelParentUpdate.InvoiceProformaNo = dataModel.InvoiceProformaNo;
+                    //modelParentUpdate.InvoiceProformaNo = dataModel.InvoiceProformaNo;
                     modelParentUpdate.OtherCost = dataModel.OtherCost;
                     modelParentUpdate.PaymentType = dataModel.PaymentType;
                     modelParentUpdate.SupplierCode = dataModel.SupplierCode;
