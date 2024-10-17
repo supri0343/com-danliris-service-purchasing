@@ -146,6 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     List<int> distinctPOId = new List<int>();
                     dataModel.GarmentDispositionPurchaseItems.ForEach(t =>
                     {
+                        EntityExtension.FlagForDelete(t, identityService.Username, USER_AGENT);
                         //var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrders.AsNoTracking().Where(a => a.Id == t.EPOId).FirstOrDefault();
                         //EPOItems1.IsDispositionPaidCreatedAll = false;
                         //EntityExtension.FlagForUpdate(EPOItems1, identityService.Username, USER_AGENT);
@@ -153,7 +154,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
                         t.GarmentDispositionPurchaseDetails.ForEach(s =>
                         {
-                            if(!distinctPOId.Contains(s.EPO_POId))
+                            EntityExtension.FlagForDelete(s, identityService.Username, USER_AGENT);
+                            if (!distinctPOId.Contains(s.EPO_POId))
                                 distinctPOId.Add(s.EPO_POId);
                             //var EPOItems2 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == s.EPO_POId).FirstOrDefault();
                             //EPOItems2.IsDispositionCreatedAll = false;
