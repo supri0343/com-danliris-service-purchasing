@@ -285,6 +285,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 						item.deliveryOrder.useVat = deliveryOrderViewModel.useVat;
 						item.deliveryOrder.supplier = deliveryOrderViewModel.supplier;
 						item.deliveryOrder.docurrency = deliveryOrderViewModel.docurrency;
+						item.deliveryOrder.isCorrection = deliveryOrderViewModel.isCorrection;
 						if(item.deliveryOrder.incomeTax !=null)
 						{
 							item.deliveryOrder.incomeTax.Id = (int)deliveryOrder.IncomeTaxId;
