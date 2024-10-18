@@ -32,10 +32,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         private readonly IMapper mapper;
         private readonly IGarmentInternNoteFacade facade;
         private readonly IGarmentDeliveryOrderFacade deliveryOrderFacade;
+        private readonly IGarmentExternalPurchaseOrderFacade epoFacade;
         private readonly IGarmentInvoice invoiceFacade;
         private readonly IdentityService identityService;
 
-        public GarmentInternNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInternNoteFacade facade, IGarmentDeliveryOrderFacade deliveryOrderFacade, IGarmentInvoice invoiceFacade)
+        public GarmentInternNoteController(IServiceProvider serviceProvider, IMapper mapper, IGarmentInternNoteFacade facade, IGarmentDeliveryOrderFacade deliveryOrderFacade, IGarmentInvoice invoiceFacade, IGarmentExternalPurchaseOrderFacade epoFacade)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
@@ -43,6 +44,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
             this.deliveryOrderFacade = deliveryOrderFacade;
             this.invoiceFacade = invoiceFacade;
+            this.epoFacade = epoFacade;
+
         }
 
         protected void VerifyUser()
@@ -473,8 +476,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                         foreach (var detail in item.details)
                         {
                             var deliveryOrder = deliveryOrderFacade.ReadById((int)detail.deliveryOrder.Id);
+                            var epo = epoFacade.ReadById((int)detail.ePOId);
                             var deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
                             detail.deliveryOrder = deliveryOrderViewModel;
+                            detail.isOverBudget = epo.IsOverBudget;
                         }
                     }
 
