@@ -10,8 +10,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public string user { get; set; }
         public string divisi { get; set; }
         public string unit { get; set; }
-        public double selisih1 { get; set; }
-        public string selisih { get; set; }
+        public double selisih { get; set; }
+        public string selisih1 { get; set; }
         public double selisih2 { get; set; }
         public string nmbarang { get; set; }
         public string nmsupp { get; set; }
