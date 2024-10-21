@@ -48,5 +48,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds);
         List<GarmentDOUrnViewModel> GetDataDO(int id);
         Task<int> SetIsSubconInvoice(List<string> DONos, bool isSubconInvoice);
+
+        Tuple<List<OverBudgetQtyReportViewModel>, int> GetReportOB(string epoNo, string poNo, string inNo, int page, int size, string Order);
+
+        MemoryStream GenerateExcelOB(string epoNo, string poNo, string inNo);
     }
 }
