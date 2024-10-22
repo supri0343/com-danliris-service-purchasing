@@ -2,10 +2,12 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -149,6 +151,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             }
         }
 
+        private GarmentExternalPurchaseOrder garmentExternalPurchaseOrder
+        {
+            get
+            {
+                return new GarmentExternalPurchaseOrder
+                {
+                    Id = 1,
+                    Items = new List<GarmentExternalPurchaseOrderItem>
+                {
+                    new GarmentExternalPurchaseOrderItem
+                    {
+                        Id = 1,
+                    }
+                }
+                };
+            }
+        }
+
         private GarmentInvoiceViewModel garmentInvoiceViewModel
         {
             get
@@ -187,7 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
-        private GarmentInternNoteController GetController(Mock<IGarmentInternNoteFacade> facadeM, Mock<IGarmentDeliveryOrderFacade> facadeDO , Mock<IValidateService> validateM, Mock<IMapper> mapper,Mock<IGarmentInvoice> facadeINV, Mock<IGarmentCorrectionNoteQuantityFacade> correctionNote = null)
+        private GarmentInternNoteController GetController(Mock<IGarmentInternNoteFacade> facadeM, Mock<IGarmentDeliveryOrderFacade> facadeDO , Mock<IValidateService> validateM, Mock<IMapper> mapper,Mock<IGarmentInvoice> facadeINV, Mock<IGarmentExternalPurchaseOrderFacade> facadeEPO, Mock<IGarmentCorrectionNoteQuantityFacade> correctionNote = null)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -250,6 +270,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var mockMapper = new Mock<IMapper>();
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
 
             GarmentInternNoteController controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
             var response = controller.Get(It.IsAny<int>());
@@ -264,6 +286,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var mockFacade = new Mock<IGarmentInternNoteFacade>();
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
 
             mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
@@ -286,6 +309,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var mockFacade = new Mock<IGarmentInternNoteFacade>();
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
             mockFacade.Setup(x => x.Read(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
                 .Returns(Tuple.Create(new List<GarmentInternNote>(), 0, new Dictionary<string, string>()));
@@ -304,7 +328,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             mockMapper.Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
                 .Returns(new GarmentInvoiceViewModel());
 
-            GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper,INVFacade);
+            mockMapper.Setup(x => x.Map<GarmentExternalPurchaseOrderViewModel>(It.IsAny<GarmentExternalPurchaseOrder>()))
+               .Returns(new GarmentExternalPurchaseOrderViewModel());
+
+            GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade, EPOFacade);
             var response = controller.GetByUser();
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -314,7 +341,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var mockFacade = new Mock<IGarmentInternNoteFacade>();
             var mockMapper = new Mock<IMapper>();
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+
+
             GarmentInternNoteController controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
             var response = controller.Get();
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
@@ -328,7 +358,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<GarmentInternNote>(It.IsAny<GarmentInternNoteViewModel>()))
                 .Returns(Model);
+           
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
             var mockFacade = new Mock<IGarmentInternNoteFacade>();
             mockFacade.Setup(x => x.Create(It.IsAny<GarmentInternNote>(), false, "unittestusername", 7))
@@ -336,7 +368,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
-            var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade);
+            var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade, EPOFacade);
 
             var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
@@ -356,7 +388,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var INVFacade = new Mock<IGarmentInvoice>();
 
-            var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade);
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade, EPOFacade);
 
             var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
@@ -379,8 +413,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
-            var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade);
+            var controller = GetController(mockFacade,IPOmockFacade, validateMock, mockMapper, INVFacade, EPOFacade);
 
             var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
@@ -409,7 +444,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             INVFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                  .Returns(garmentInvoiceModel);
 
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade , null, mockMapper, INVFacade);
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            EPOFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                 .Returns(garmentExternalPurchaseOrder);
+
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade , null, mockMapper, INVFacade, EPOFacade);
             var response = controller.Get(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -436,7 +475,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             INVFacade.Setup(x => x.ReadForInternNote(It.IsAny<List<long>>()))
                  .Returns(new List<GarmentInvoice> { garmentInvoiceModel });
 
-            GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, null, mockMapper, INVFacade);
+            GarmentInternNoteController controller = GetController(mockFacade,IPOmockFacade, null, mockMapper, INVFacade, null);
             var response = controller.Get();
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -458,6 +497,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
             GarmentInternNoteController controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
 
@@ -482,6 +522,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
             var controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
 
@@ -503,9 +544,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
             //Act
-            var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade);
+            var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade, EPOFacade);
             var response = controller.Delete(It.IsAny<int>());
 
             //Assert
@@ -526,9 +568,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             var garmentDeliveryOrderFacadeMock = new Mock<IGarmentDeliveryOrderFacade>();
             var GarmentInvoiceMock = new Mock<IGarmentInvoice>();
+            var GarmentEPOMock = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
             //Act
-            var controller = GetController(garmentInternNoteFacadeMock, garmentDeliveryOrderFacadeMock, validateMock, mapperMock, GarmentInvoiceMock);
+            var controller = GetController(garmentInternNoteFacadeMock, garmentDeliveryOrderFacadeMock, validateMock, mapperMock, GarmentInvoiceMock, GarmentEPOMock);
             var response = controller.Delete(It.IsAny<int>());
 
             //Assert
@@ -552,8 +595,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
-            var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade);
+            var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade, EPOFacade);
 
             var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>());
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
@@ -575,6 +619,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -612,8 +657,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
 
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
-            var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade);
+            var controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVFacade, EPOFacade);
 
             var response = await controller.Put(It.IsAny<int>(), It.IsAny<GarmentInternNoteViewModel>());
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
@@ -826,12 +872,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentInvoice());
 
+            var EPOmockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            EPOmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentExternalPurchaseOrder());
+
             var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
                 .Returns(new List<GarmentCorrectionNote>());
 
             //Act
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, EPOmockFacade, mockGarmentCorrectionNoteFacade);
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
             //Assert
@@ -888,12 +939,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentInvoice());
 
+            var EPOmockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            EPOmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentExternalPurchaseOrder());
+
             var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
                 .Returns(new List<GarmentCorrectionNote>());
 
             //Act
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, EPOmockFacade, mockGarmentCorrectionNoteFacade);
             
             //Assert
             var response = controller.GetInternNotePDF(It.IsAny<int>());
@@ -949,12 +1005,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                 .Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentInvoice());
 
+            var EPOmockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            EPOmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentExternalPurchaseOrder());
+
             var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
             mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
                 .Returns(new List<GarmentCorrectionNote>());
 
             //Act
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, EPOmockFacade, mockGarmentCorrectionNoteFacade);
             controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer unittesttoken";
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
@@ -979,10 +1040,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var mapperMock = new Mock<IMapper>();
             var garmentDeliveryOrderFacadeMock = new Mock<IGarmentDeliveryOrderFacade>();
             var garmentInvoiceFacadeMock = new Mock<IGarmentInvoice>();
+            var garmentEPOFacadeMock = new Mock<IGarmentExternalPurchaseOrderFacade>();
             var garmentCorrectionNoteFacadeMock = new Mock<IGarmentCorrectionNoteQuantityFacade>();
            
             //Act
-            GarmentInternNoteController controller = GetController(facadeMock, garmentDeliveryOrderFacadeMock, validateMock, mapperMock, garmentInvoiceFacadeMock, garmentCorrectionNoteFacadeMock);
+            GarmentInternNoteController controller = GetController(facadeMock, garmentDeliveryOrderFacadeMock, validateMock, mapperMock, garmentInvoiceFacadeMock, garmentEPOFacadeMock, garmentCorrectionNoteFacadeMock);
             var response = controller.GetInternNotePDF(It.IsAny<int>());
 
             //Assert
@@ -1068,8 +1130,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             //var mockFacade = new Mock<IGarmentInternNoteFacade>();
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, null, mockMapper, INVFacade);
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, null, mockMapper, INVFacade, EPOFacade);
             var response = controller.GetReportIN(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -1108,8 +1171,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var mockMapper = new Mock<IMapper>();
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
-            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, null, mockMapper, INVFacade);
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, null, mockMapper, INVFacade, EPOFacade);
             var response = controller.GetReportIN(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -1120,6 +1184,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             var mockMapper = new Mock<IMapper>();
             var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
             var INVFacade = new Mock<IGarmentInvoice>();
+            var EPOFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
 
             GarmentInternNoteController controller = new GarmentInternNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object, INVFacade.Object);
             var response = controller.GetXlsDO2(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());

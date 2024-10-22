@@ -2803,6 +2803,155 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        //
+        public IQueryable<OverBudgetQtyReportViewModel> GetReportQueryOB(string epoNo, string poNo, string inNo)
+        {
+            var reportResult = new List<OverBudgetQtyReportViewModel>();
+
+            var Query1 = (from a in dbContext.GarmentExternalPurchaseOrders 
+                         join b in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals b.GarmentEPOId
+                         join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.EPOItemId
+                         join d in dbContext.GarmentDeliveryOrderItems on c.GarmentDOItemId equals d.Id
+                         join e in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals e.Id
+                         join f in dbContext.GarmentInvoiceDetails on c.Id equals f.DODetailId
+                         join g in dbContext.GarmentInvoiceItems on f.InvoiceItemId equals g.Id
+                         join h in dbContext.GarmentInvoices on g.InvoiceId equals h.Id
+                         join i in dbContext.GarmentInternNotes on e.InternNo equals i.INNo
+                         where a.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? a.EPONo : epoNo)
+                               && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(poNo) ? b.PO_SerialNumber : poNo)
+                               && e.InternNo == (string.IsNullOrWhiteSpace(inNo) ? e.InternNo : inNo)
+
+                               select new OverBudgetQtyReportViewModel
+                               {
+                                   epoNo = a.EPONo,
+                                   orderDate = a.OrderDate,
+                                   createdDate = e.CreatedUtc,
+                                   supplierCode = a.SupplierCode,
+                                   supplierName = a.SupplierName,
+                                   codeRequirement = c.CodeRequirment,
+                                   poNo = b.PO_SerialNumber,
+                                   productCode = b.ProductCode,
+                                   productName = b.ProductName,
+                                   poQuantity = b.SmallQuantity,
+                                   doQuantity = c.DOQuantity,
+                                   obQuantity = 0,
+                                   percentOB = 0,
+                                   doNo = e.DONo,
+                                   doDate = e.DODate,
+                                   invoiceNo = h.InvoiceNo,
+                                   invoiceDate = h.InvoiceDate,
+                                   inNo = e.InternNo,
+                                   inDate = i.INDate,
+                                   remark = "",
+                               }
+                               ).OrderBy(b => b.epoNo).ThenBy(b => b.poNo).ThenBy(b => b.createdDate);
+            //
+
+            double QtyDO = 0;
+
+            foreach (var item in Query1)
+            {
+                QtyDO += item.doQuantity;
+
+                OverBudgetQtyReportViewModel _newData = new OverBudgetQtyReportViewModel
+                 
+                {
+                    epoNo = item.epoNo,
+                    orderDate = item.orderDate,
+                    createdDate = item.createdDate,
+                    supplierCode = item.supplierCode,
+                    supplierName = item.supplierName,
+                    poNo = item.poNo,
+                    productCode = item.productCode,
+                    productName = item.productName,
+                    poQuantity = item.poQuantity,
+                    doQuantity = item.doQuantity,
+                    codeRequirement = item.codeRequirement,
+                    accmltvQuantity = QtyDO,
+                    obQuantity = QtyDO - item.poQuantity <= 0 ? 0 : QtyDO - item.poQuantity,
+                    percentOB = QtyDO - item.poQuantity <= 0 ? 0 : Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0),
+                    doNo = item.doNo,
+                    doDate = item.doDate,
+                    invoiceNo = item.invoiceNo,
+                    invoiceDate = item.invoiceDate,
+                    inNo = item.inNo,
+                    inDate = item.inDate,
+                    remark = item.codeRequirement == "BB" ? (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 50 ? "PRESIDEN DIREKTUR" : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 30 && Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) <= 50) ? "DIREKTUR KEUANGAN" : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 10 && Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) <= 30) ? "KABAG PEMBELIAN" : "-") : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 30 ? "DIREKTUR KEUANGAN" : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 10 && Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) <= 30) ? "KADIV PEMBELIAN" : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 0 && Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) <= 10) ? "KABAG PEMBELIAN" : "-"),
+                };
+                reportResult.Add(_newData);
+            }
+
+            return reportResult.AsQueryable();
+        }
+
+        public Tuple<List<OverBudgetQtyReportViewModel>, int> GetReportOB(string epoNo, string poNo, string inNo, int page, int size, string Order)
+
+        {
+            var Query = GetReportQueryOB(epoNo, poNo, inNo);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderBy(b => b.epoNo).ThenBy(b => b.poNo).ThenBy(b => b.createdDate);
+            }
+
+            Pageable<OverBudgetQtyReportViewModel> pageable = new Pageable<OverBudgetQtyReportViewModel>(Query, page - 1, size);
+            List<OverBudgetQtyReportViewModel> Data = pageable.Data.ToList<OverBudgetQtyReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcelOB(string epoNo, string poNo, string inNo)
+        {
+            var Query = GetReportQueryOB(epoNo, poNo, inNo);
+            //Query = Query.OrderBy(b => b.epoNo).ThenBy(b => b.poNo).ThenBy(b => b.createdDate);
+            
+            DataTable result = new DataTable();
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO External", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl PO External", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Ref PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah PO", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah SJ", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah OB", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah OB %", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Approval", DataType = typeof(String) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", 0, 0, 0, 0, "", "", "", "", "", "", "");
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    
+                    string EPODate = item.orderDate == new DateTime(1970, 1, 1) ? "-" : item.orderDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string DODate = item.doDate == DateTimeOffset.MinValue ? "-" : item.doDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string InvDate = item.invoiceDate == new DateTime(1970, 1, 1) ? "-" : item.invoiceDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string NIDate = item.inDate == new DateTime(1970, 1, 1) ? "-" : item.inDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(index, item.epoNo, EPODate, item.supplierCode, item.supplierName, item.poNo, item.productCode, item.productName, item.poQuantity, item.doQuantity, item.obQuantity, item.percentOB, item.doNo, DODate, item.invoiceNo, InvDate, item.inNo, NIDate, item.remark);
+                    
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+        //
     }
 
     public class AccuracyOfArrivalReportDetail
