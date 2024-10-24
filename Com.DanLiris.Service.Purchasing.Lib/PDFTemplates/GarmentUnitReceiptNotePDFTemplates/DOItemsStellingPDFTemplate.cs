@@ -279,10 +279,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 15);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 6);
-            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
+            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
             Rectangle pageSize = new Rectangle(198.45f, 141.75f);
-            Document document = new Document(pageSize, 5, 5, 5, 1);
+            Document document = new Document(pageSize, 2, 2, 2, 2);
             //Document document = new Document(PageSize.A4.Rotate(), 10, 10, 10, 10);
 
 
@@ -320,13 +320,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + data.Article, bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("NO PO", bold_font);
+            cellIdentityContentLeft.Phrase = new Phrase("NO PO / RO", bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + data.POSerialNumber, bold_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("RO", bold_font);
-            tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + data.RoNo, bold_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.POSerialNumber +" / " + data.RoNo, bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("KOMPO", bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
@@ -336,15 +332,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + data.Colour, bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase("RACK / BOX", bold_font);
+            cellIdentityContentLeft.Phrase = new Phrase("LOKASI", bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + data.Rack + " / " + data.Box, bold_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.Rack + " / " + data.Box + " / " + data.Level + " / " + data.Area, bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("SUPPLIER", bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + data.Supplier, bold_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);   
+            cellIdentityContentLeft.Phrase = new Phrase("QTY TERIMA", bold_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-        
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.Quantity +" MTR" , bold_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("TGL TERIMA", bold_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + data.ReceiptDate, bold_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+
 
             PdfPCell cellIdentity = new PdfPCell(tableIdentity);
             tableIdentity.ExtendLastRow = false;
@@ -370,9 +374,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             image.Alignment = Element.ALIGN_RIGHT;
             image.SpacingBefore = 1f;
             image.SpacingAfter = 1f;
-            image.ScaleToFit(42f, 42f);
-            float xPosition = (pageSize.Width - image.ScaledWidth) / 2;
-            float yPosition = 2; // Position from the bottom of the page
+            image.ScaleToFit(55f, 55f);
+            float xPosition = (pageSize.Width - image.ScaledWidth);
+            float yPosition = 1; // Position from the bottom of the page
 
             // Set the position of the barcode image
             image.SetAbsolutePosition(xPosition, yPosition);
@@ -388,6 +392,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
 
             //PdfPCell cellFooter = new PdfPCell(Footer);
             //document.Add(Footer);
+
+            // Draw a border around the entire page
+            PdfContentByte canvas = writer.DirectContent;
+            Rectangle pageBorder = new Rectangle(document.PageSize);
+
+            // Set the border properties
+            pageBorder.Left += document.LeftMargin;
+            pageBorder.Right -= document.RightMargin;
+            pageBorder.Top -= document.TopMargin;
+            pageBorder.Bottom += document.BottomMargin;
+
+            pageBorder.BorderWidth = 0.5f; // Set the border width
+            pageBorder.BorderColor = BaseColor.Black; // Set the border color
+            pageBorder.Border = Rectangle.BOX; // Apply border to all sides
+
+            // Draw the border
+            canvas.Rectangle(pageBorder);
 
             document.Close();
             byte[] byteInfo = stream.ToArray();

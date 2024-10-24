@@ -554,7 +554,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         Remaining = Math.Round((double)TempQty - (double)a.QtyExpenditure,2),
                         Remark = a.Remark,
                         User = a.User,
-                        Article=  a.Article
+                        Article=  a.Article,
+                        RoNo = a.RoNo
                     };
 
                     TempQty -= (double)a.QtyExpenditure;
