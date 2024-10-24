@@ -492,7 +492,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                    ExpenditureDate = b.CreatedUtc,
                                    QtyExpenditure =  Math.Round(b.Quantity,2),
                                    Remaining = null,
-                                   Remark = e.RONo,
+                                   RoNo = e.RONo,
                                    User = b.CreatedBy,
                                    Article=e.Article
                                });
@@ -570,6 +570,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         public MemoryStream GeneratePdf(List<StellingEndViewModels> stellingEndViewModels)
         {
             return DOItemsStellingPDFTemplate.GeneratePdfTemplate(serviceProvider, stellingEndViewModels);
+        }
+
+        public MemoryStream GenerateBarcode(List<StellingEndViewModels> stellingEndViewModels)
+        {
+            return DOItemsStellingPDFTemplate.GenerateBarcode(serviceProvider, stellingEndViewModels);
         }
 
         public MemoryStream GenerateExcel(string productcode, string po, string unitcode)
