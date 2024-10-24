@@ -17,5 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<List<StellingEndViewModels>> GetStellingQuery(int id, int offset);
         MemoryStream GenerateExcel(string productcode, string po, string unitcode);
         MemoryStream GeneratePdf(List<StellingEndViewModels> stellingEndViewModels);
+        MemoryStream GenerateBarcode(List<StellingEndViewModels> stellingEndViewModels);
+
     }
 }
