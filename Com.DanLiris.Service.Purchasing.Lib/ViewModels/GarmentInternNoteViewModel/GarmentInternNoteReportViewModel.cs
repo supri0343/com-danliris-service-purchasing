@@ -20,6 +20,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public long doId { get; set; }
         public string doNo { get; set; }
         public DateTimeOffset doDate { get; set; }
+        public string epoNo { get; set; }
+        public DateTimeOffset epoDate { get; set; }
         public string billNo { get; set; }
         public string paymentBill { get; set; }
         public double? doCurrencyRate { get; set; }

@@ -1494,7 +1494,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             var purchaseRequestIds = queryResult.Select(s => s.PRId).Distinct().ToList();
             var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.PRNo, s.Date, s.UnitName, s.BuyerCode, s.BuyerName, s.RONo, s.Article, s.ShipmentDate, s.IsUsed }).ToList();
             var purchaseRequestItemIds = queryResult.Select(s => s.PRItemId).Distinct().ToList();
-            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice, s.IsUsed }).ToList();
+            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice, s.IsUsed, s.Quantity }).ToList();
 
             var purchaseOrderInternalIds = queryResult.Select(s => s.POId).Distinct().ToList();
             var purchaseOrderInternals = dbContext.GarmentInternalPurchaseOrders.Where(w => purchaseOrderInternalIds.Contains(w.Id)).Select(s => new { s.Id, s.CreatedUtc, s.CreatedBy }).ToList();
@@ -1645,7 +1645,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						productName = purchaseRequestItem.ProductName,
 						prProductRemark = purchaseRequestItem.ProductRemark,
 						poProductRemark = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.Remark,
-						poDefaultQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DefaultQuantity,
+						poDefaultQty = purchaseOrderExternalItem == null ? purchaseRequestItem.Quantity : purchaseOrderExternalItem.DefaultQuantity,
 						poDealQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity,
 						poDealUomUnit = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.DealUomUnit,
 						prBudgetPrice = purchaseRequestItem.BudgetPrice,
@@ -1893,7 +1893,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             var purchaseRequestIds = queryResult.Select(s => s.PRId).Distinct().ToList();
             var purchaseRequests = dbContext.GarmentPurchaseRequests.Include(s=> s.Items).Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.PRNo, s.Date, s.UnitName, s.BuyerCode, s.BuyerName, s.RONo, s.Article, s.ShipmentDate, s.IsUsed }).ToList();
             var purchaseRequestItemIds = queryResult.Select(s => s.PRItemId).Distinct().ToList();
-            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice, s.IsUsed }).ToList();
+            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice, s.IsUsed, s.Quantity }).ToList();
 
             var purchaseOrderInternalIds = queryResult.Select(s => s.POId).Distinct().ToList();
             var purchaseOrderInternals = dbContext.GarmentInternalPurchaseOrders.Where(w => purchaseOrderInternalIds.Contains(w.Id)).Select(s => new { s.Id, s.CreatedUtc, s.CreatedBy }).ToList();
@@ -2034,7 +2034,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         poDealQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity,
                         poDealUomUnit = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.DealUomUnit,
                         prBudgetPrice = purchaseRequestItem.BudgetPrice,
-                        poPricePerDealUnit = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.PricePerDealUnit,
+                        poPricePerDealUnit = purchaseOrderExternalItem == null ? purchaseRequestItem.Quantity : purchaseOrderExternalItem.PricePerDealUnit,
                         totalNominalPO = purchaseOrderExternalItem == null ? "" : string.Format("{0:N2}", purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit),
                         TotalNominalPO = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit,
                         poCurrencyCode = purchaseOrderExternal == null ? "" : purchaseOrderExternal.CurrencyCode,
