@@ -279,7 +279,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 15);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 6);
-            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 7);
 
             Rectangle pageSize = new Rectangle(198.45f, 141.75f);
             Document document = new Document(pageSize, 2, 2, 2, 2);
@@ -295,7 +295,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
 
             #region Identity
             StellingEndViewModels data = viewModel.Where(x => x.QtyExpenditure == null).FirstOrDefault();
-            StellingEndViewModels lastData = viewModel.Where(x => x.QtyExpenditure != null).Last();
+            //StellingEndViewModels lastData = viewModel.Where(x => x.QtyExpenditure != null).LastOrDefault();
             //PdfPTable tableMark1 = new PdfPTable(2);
             //tableMark1.SetWidths(new float[] { 2f, 4f });
             //tableMark1.WidthPercentage = 100;
