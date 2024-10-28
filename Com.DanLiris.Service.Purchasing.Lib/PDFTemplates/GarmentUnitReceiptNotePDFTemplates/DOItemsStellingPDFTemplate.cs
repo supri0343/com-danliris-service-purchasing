@@ -39,7 +39,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
 
             #region Identity
             StellingEndViewModels data = viewModel.Where(x => x.QtyExpenditure == null).FirstOrDefault();
-            StellingEndViewModels lastData = viewModel.Where(x => x.QtyExpenditure != null).Last();
+            StellingEndViewModels lastData = viewModel.Where(x => x.QtyExpenditure != null).LastOrDefault();
             //PdfPTable tableMark1 = new PdfPTable(2);
             //tableMark1.SetWidths(new float[] { 2f, 4f });
             //tableMark1.WidthPercentage = 100;
@@ -49,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             tableMark1.SetWidths(new float[] { 3f, 4f, });
             PdfPCell cellMark1 = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_MIDDLE };
 
-            string dataTOQr = string.Concat(data.Colour,"-",data.POSerialNumber,"-",lastData.Remaining.ToString(),lastData.Uom);
+            string dataTOQr = string.Concat(data.Colour,"-",data.POSerialNumber,"-",lastData?.Remaining.ToString(),lastData?.Uom);
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(dataTOQr, QRCodeGenerator.ECCLevel.Q);
 
