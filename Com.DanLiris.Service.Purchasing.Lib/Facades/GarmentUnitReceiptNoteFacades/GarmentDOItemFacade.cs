@@ -314,7 +314,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         if(a == 0)
                         {
                             var data = dbSetGarmentDOItems.Where(x => x.Id == id).FirstOrDefault();
-                            if ((viewModels.Items[a].Colour.ToUpper() != data.Colour) && (viewModels.Items[a].Rack.ToUpper() != data.Rack) && (viewModels.Items[a].Box.ToUpper() != data.Box) && (viewModels.Items[a].Area.ToUpper() != data.Area))
+                            if ((viewModels.Items[a].Colour.ToUpper() != data.Colour) || (viewModels.Items[a].Rack.ToUpper() != data.Rack) || (viewModels.Items[a].Box.ToUpper() != data.Box) || (viewModels.Items[a].Area.ToUpper() != data.Area))
                             {
                                 data.SplitQuantity = viewModels.Items[a].Quantity;
                             }
