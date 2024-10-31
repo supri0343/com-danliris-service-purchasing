@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241030072124_add-coloum-GReceiptSubcon-DO&URN-RONoMaster")]
+    partial class addcoloumGReceiptSubconDOURNRONoMaster
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4796,9 +4797,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Area");
 
-                    b.Property<string>("Article")
-                        .HasMaxLength(100);
-
                     b.Property<string>("Box");
 
                     b.Property<string>("Colour");
@@ -5463,9 +5461,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("Active");
-
-                    b.Property<string>("Article")
-                        .HasMaxLength(100);
 
                     b.Property<double>("BudgetQuantity");
 

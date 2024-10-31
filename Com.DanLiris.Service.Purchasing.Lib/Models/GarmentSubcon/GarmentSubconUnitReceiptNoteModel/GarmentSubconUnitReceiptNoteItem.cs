@@ -85,6 +85,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubcon
         public long UomId { get; set; }
         [MaxLength(1000)]
         public string UomUnit { get; set; }
+        [MaxLength(15)]
+        public string RONoMaster { get; set; }
+        [MaxLength(100)]
+        public string Article { get; set; }
 
     }
 }

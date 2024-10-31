@@ -34,5 +34,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderM
         public string EPONo { get; set; }
         public long EPOId { get; set; }
         public long EPOItemId { get; set; }
+        [MaxLength(15)]
+        public string RONoMaster { get; set; }
+        [MaxLength(100)]
+        public string Article { get; set; }
     }
 }

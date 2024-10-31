@@ -57,10 +57,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
             {
                 yield return new ValidationResult("Supplier is required", new List<string> { "Supplier" });
             }
-            if (string.IsNullOrEmpty(roNo))
-            {
-                yield return new ValidationResult("RONo is required", new List<string> { "RONo" });
-            }
+            //if (string.IsNullOrEmpty(roNo))
+            //{
+            //    yield return new ValidationResult("RONo is required", new List<string> { "RONo" });
+            //}
             int itemErrorCount = 0;
 
             if ((this.items == null || items.Count <= 0) && (this.itemsPR == null || itemsPR.Count <= 0))
