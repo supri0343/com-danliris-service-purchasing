@@ -1422,7 +1422,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                           Uom = new UomViewModel { Id = b.DealUomId.ToString(), Unit = b.DealUomUnit },
                           BudgetQuantity = b.DealQuantity - b.DOQuantity,
                           b.PO_SerialNumber,
-                          b.PricePerDealUnit
+                          b.PricePerDealUnit,
+                          RONoMaster = b.RONo,
+                          b.Article
                       };
             //var res = Query
             //    .Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && ((m.IsOverBudget == true && m.IsApproved == true) || m.IsOverBudget == false))
