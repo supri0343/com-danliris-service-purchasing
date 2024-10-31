@@ -776,10 +776,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             {
                 Query = Query.Where(x => x.UnitId == unitId);
             }
-            if (hasRONoFilter)
-            {
-                Query = Query.Where(x => x.RONo == RONo);
-            }
+            //if (hasRONoFilter)
+            //{
+            //    Query = Query.Where(x => x.RONo == RONo);
+            //}
             
             //if (hasPOSerialNumberFilter)
             //{
@@ -789,6 +789,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             var data = hasUrnItemIdFilter ? from a in Query
                                            join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
                                            where b.RemainingQuantity > 0 && b.IsDeleted == false && b.Id == UrnItemsId
+                                           && b.RONoMaster == (hasRONoFilter != null ? RONo : b.RONoMaster)
                                             select new
                                            {
                                                URNId = a.Id,
@@ -803,8 +804,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                                                b.DesignColor,
                                                b.POSerialNumber,
                                                b.RemainingQuantity,
-                                               a.RONo,
-                                               a.Article,
+                                               b.RONoMaster,
+                                               b.Article,
                                                b.ProductRemark,
                                                b.PricePerDealUnit,
                                                b.ReceiptCorrection,
@@ -816,7 +817,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                                             } : from a in Query
                        join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
                        where b.RemainingQuantity > 0 && b.StorageId == (hasStorageFilter != null ? storageId : b.StorageId) && b.IsDeleted== false
-                       select new
+                        && b.RONoMaster == (hasRONoFilter != null ? RONo : b.RONoMaster)
+                        select new
                        {
                            URNId = a.Id,
                            URNItemId = b.Id,
@@ -830,8 +832,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                            b.DesignColor,
                            b.POSerialNumber,
                            b.RemainingQuantity,
-                           a.RONo,
-                           a.Article,
+                           b.RONoMaster,
+                           b.Article,
                            b.ProductRemark,
                            b.PricePerDealUnit,
                            b.ReceiptCorrection,
@@ -864,20 +866,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             {
                 Query = Query.Where(x => x.UnitId == unitId);
             }
-            if (hasRONoFilter)
-            {
-                Query = Query.Where(x => x.RONo != RONo);
-            }
+            //if (hasRONoFilter)
+            //{
+            //    Query = Query.Where(x => x.RONo != RONo);
+            //}
 
             Keyword = (Keyword ?? "").Trim();
             var data = from a in Query
                        join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
                        where b.RemainingQuantity > 0 && b.StorageId == (hasStorageFilter != null ? storageId : b.StorageId) && b.IsDeleted == false
-                       && (a.RONo.Contains(Keyword) || b.POSerialNumber.Contains(Keyword))
+                       && (b.RONoMaster.Contains(Keyword) || b.POSerialNumber.Contains(Keyword))
+                       && b.RONoMaster != (hasRONoFilter != null ? RONo : b.RONoMaster)
                        select new
                        {
                            URNItemId = b.Id,
-                           a.RONo,
+                           //a.RONo,
+                           RONo = b.RONoMaster,
                            b.ProductName,
                            b.ProductCode,
                            b.POSerialNumber,
