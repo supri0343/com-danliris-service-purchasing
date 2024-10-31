@@ -378,6 +378,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                         ProductRemark = i.ProductRemark,
                         UomId = i.UomId,
                         UomUnit = i.UomUnit,
+                        RONoMaster = i.RONoMaster,
+                        Article = i.Article,
                     }).ToList()
                 });
 
@@ -413,6 +415,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubconDeliveryOrder
                         i.DOQuantity,
                         i.PricePerDealUnit,
                         i.Uom,
+                        i.RONoMaster,
+                        i.Article
                     }).ToList()
                 }).ToList()
             );
