@@ -64,5 +64,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUn
         public decimal DOQuantity { get; set; }
 
         public IntegrationViewModel.StorageViewModel Storage { get; set; }
+
+        public string RONoMaster { get; set; }
+        public string Article { get; set; }
     }
 }

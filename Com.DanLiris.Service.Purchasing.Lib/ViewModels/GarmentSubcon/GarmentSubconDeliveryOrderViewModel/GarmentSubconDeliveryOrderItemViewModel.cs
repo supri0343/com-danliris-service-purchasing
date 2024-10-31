@@ -19,6 +19,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentSu
         public string EPONo { get; set; }
         public long EPOId { get; set; }
         public long EPOItemId { get; set; }
-
+        public string RONoMaster { get; set; }
+        public string Article { get; set; }
     }
 }
