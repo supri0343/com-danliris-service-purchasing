@@ -283,11 +283,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             DateTimeOffset now = m.Date.ToOffset(new TimeSpan(timeZone, 0, 0));
             string y = now.ToString("yy");
 
-            var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
-            if (unitCode < 1)
-            {
-                throw new Exception("UnitCode format is invalid when Generate RONo");
-            }
+            var unitCode = new List<string> { "GMT", "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
+            //if (unitCode < 1)
+            //{
+            //    throw new Exception("UnitCode format is invalid when Generate RONo");
+            //}
 
             var prefix = string.Concat(y, unitCode);
             var padding = 5;
@@ -325,11 +325,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             DateTimeOffset now = m.Date.ToOffset(new TimeSpan(timeZone, 0, 0));
             string y = now.ToString("yy");
 
-            var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
-            if (unitCode < 1)
-            {
-                throw new Exception("UnitCode format is invalid when Generate POSerialnumber");
-            }
+            var unitCode = new List<string> { "GMT", "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
+            //if (unitCode < 1)
+            //{
+            //    throw new Exception("UnitCode format is invalid when Generate POSerialnumber");
+            //}
 
             var prefix = string.Concat(y, unitCode);
             var padding = 6;
