@@ -22,6 +22,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using static iTextSharp.text.pdf.AcroFields;
+using Org.BouncyCastle.Utilities;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 {
@@ -83,45 +84,129 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
             };
 
 
+            //var result = (from a in Query
+            //              join b in dbContext.GarmentInternNoteItems on a.Id equals b.InvoiceId into r
+            //              from b in r.DefaultIfEmpty()
+            //              join c in dbContext.GarmentInternNotes on b.GarmentINId equals c.Id into s
+            //              from c in s.DefaultIfEmpty()
+            //              //where 
+            //              //a.InvoiceNo.Contains(Keyword) && c.INNo.Contains(Keyword)
+                          
+            //              select new GarmentInvoiceIndexDto
+            //              {
+            //                  Id = a.Id,
+            //                  LastModifiedUtc = a.LastModifiedUtc,
+            //                  CreatedUtc = a.CreatedUtc,
+            //                  invoiceNo = a.InvoiceNo,
+            //                  invoiceDate = a.InvoiceDate,
+            //                  internNoteNo = c.INNo,
+            //                  internNoteId =c != null?c.Id : 0,
+            //                  supplierName = a.SupplierName,
+            //                  supplier = new SupplierViewModel
+            //                  {
+            //                      Code = a.SupplierCode,
+            //                      Name = a.SupplierName
+            //                  },
+            //                  CreatedBy = a.CreatedBy,
+            //                  npn = a.NPN,
+            //                  nph = a.NPH,
+            //                  items = a.Items.Select(x => new GarmentInvoiceItemIndexDto()
+            //                  {
+
+            //                      deliveryOrderId = x.DeliveryOrderId,
+            //                      deliveryOrderNo = x.DeliveryOrderNo,
+            //                      deliveryOrder = new GarmentDeliveryOrderViewModel(){ 
+            //                        doNo = x.DeliveryOrderNo,
+                                        
+            //                      },
+                                   
+            //                  }).ToList()
+
+            //              }).AsQueryable();
+
             var result = (from a in Query
                           join b in dbContext.GarmentInternNoteItems on a.Id equals b.InvoiceId into r
                           from b in r.DefaultIfEmpty()
                           join c in dbContext.GarmentInternNotes on b.GarmentINId equals c.Id into s
                           from c in s.DefaultIfEmpty()
-                          //where 
-                          //a.InvoiceNo.Contains(Keyword) && c.INNo.Contains(Keyword)
-                          
-                          select new GarmentInvoiceIndexDto
+                              // where kondisi dapat ditambahkan di sini jika perlu
+                          select new
                           {
                               Id = a.Id,
                               LastModifiedUtc = a.LastModifiedUtc,
                               CreatedUtc = a.CreatedUtc,
-                              invoiceNo = a.InvoiceNo,
-                              invoiceDate = a.InvoiceDate,
-                              internNoteNo = c.INNo,
-                              internNoteId =c != null?c.Id : 0,
-                              supplierName = a.SupplierName,
-                              supplier = new SupplierViewModel
+                              InvoiceNo = a.InvoiceNo,
+                              InvoiceDate = a.InvoiceDate,
+                              InternNoteNo = c.INNo,
+                              InternNoteId = c != null ? c.Id : 0,
+                              SupplierName = a.SupplierName,
+                              Supplier = new SupplierViewModel
                               {
                                   Code = a.SupplierCode,
                                   Name = a.SupplierName
                               },
                               CreatedBy = a.CreatedBy,
-                              npn = a.NPN,
-                              nph = a.NPH,
-                              items = a.Items.Select(x => new GarmentInvoiceItemIndexDto()
-                              {
+                              Npn = a.NPN,
+                              Nph = a.NPH,
+                             
 
+                              Items = a.Items.Select(x => new GarmentInvoiceItemIndexDto
+                              {
                                   deliveryOrderId = x.DeliveryOrderId,
                                   deliveryOrderNo = x.DeliveryOrderNo,
-                                  deliveryOrder = new GarmentDeliveryOrderViewModel(){ 
-                                    doNo = x.DeliveryOrderNo,
-                                        
-                                  },
-                                   
-                              }).ToList()
+                                  deliveryOrder = new GarmentDeliveryOrderViewModel()
+                                  {
+                                      doNo = x.DeliveryOrderNo,
 
-                          }).AsQueryable();
+                                  },
+                              }).ToList()
+                          })
+              .GroupBy(x => x.InvoiceNo) // Mengelompokkan berdasarkan InvoiceNo
+              .Select(group => new GarmentInvoiceIndexDto
+              {
+                  Id = group.First().Id,
+                  LastModifiedUtc = group.First().LastModifiedUtc,
+                  CreatedUtc = group.First().CreatedUtc,
+                  invoiceNo = group.Key, // Nilai GroupBy menjadi Key di sini
+                  invoiceDate = group.First().InvoiceDate,
+                  internNoteNo = group.First().InternNoteNo,
+                  internNoteId = group.First().InternNoteId,
+                  supplierName = group.First().SupplierName,
+                  supplier = group.First().Supplier,
+                  CreatedBy = group.First().CreatedBy,
+                  npn = group.First().Npn,
+                  nph = group.First().Nph,
+                  //items = group.SelectMany(x => x.Items).ToList(),
+                  //items = group.SelectMany(x => x.Items.Select( s => new GarmentInvoiceItemIndexDto
+                  //                        { 
+                  //                              deliveryOrderId = s.deliveryOrderId,
+                  //                              deliveryOrderNo = s.deliveryOrderNo,
+                  //                              deliveryOrder = new GarmentDeliveryOrderViewModel()
+                  //                              { 
+                  //                                  doNo = s.deliveryOrderNo
+                  //                              }
+
+
+                  //                        })
+                  //                          .GroupBy(r => r.deliveryOrderId) // Mengelompokkan untuk menghapus duplikat berdasarkan DeliveryOrderId
+                  //                          .Select(g => g.First()) // Memilih item pertama dari setiap grup untuk menghapus duplikat
+                  //
+                  //     .ToList()
+                 // ).ToList()
+
+                items = group.SelectMany(x => x.Items)
+                               .GroupBy(i => i.deliveryOrderId) // Grupkan berdasarkan DeliveryOrderId
+                               .Select(g => g.First()) // Ambil item pertama dari setiap grup untuk menghilangkan duplikat
+                               .ToList()
+
+
+
+
+
+                  // Gabungkan semua item dari setiap grup
+              })
+              .AsQueryable();
+
 
             if (Keyword != null) {
                 result = result.Where(x =>
