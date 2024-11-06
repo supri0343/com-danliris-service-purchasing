@@ -34,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
         public string poSerialNumber { get; set; }
 		public string npn { get; set; }
 		public string nph { get; set; }
+		public string internNoteNo { get; set; }
 		public List<GarmentInvoiceItemViewModel> items { get; set; }
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
