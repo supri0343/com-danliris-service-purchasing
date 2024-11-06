@@ -1022,10 +1022,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
         private List<GarmentDispositionIdDto> GetDispositionExpeditions(int dispositionId, int supplierId, DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier)
         {
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            
 
             var garmentDispoExpeditionUri = APIEndpoint.Finance + $"garment-disposition-expeditions/report-disposition-purchase";
-            string queryUri = "?dispositionId=" + dispositionId + "&supplierId=" + supplierId + "&dateFromSendCashier=" + dateFromSendCashier + "&dateToSendCashier=" + dateToSendCashier + "&dateFromReceiptCashier=" + dateFromReceiptCashier + "&dateToReceiptCashier=" + dateToReceiptCashier;
+            string queryUri = "?dispositionId=" + dispositionId + "&supplierId=" + supplierId + "&dateFromSendCashier=" + dateFromSendCashier.GetValueOrDefault().ToString("yyyy/MM/dd") + "&dateToSendCashier=" + dateToSendCashier.GetValueOrDefault().ToString("yyyy/MM/dd") + "&dateFromReceiptCashier=" + dateFromReceiptCashier.GetValueOrDefault().ToString("yyyy/MM/dd") + "&dateToReceiptCashier=" + dateToReceiptCashier.GetValueOrDefault().ToString("yyyy/MM/dd");
             string uri = garmentDispoExpeditionUri + queryUri;
             var httpResponse = httpClient.GetAsync($"{uri}").Result;
 
