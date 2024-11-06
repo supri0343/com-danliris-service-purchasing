@@ -10,6 +10,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.LedgerFacade
     public interface IGarmentLedgerFacade
     {
         ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
-        Task<int> UploadExcelAsync(List<GarmentLedgerModel> listData);
+        Task<int> UploadExcelAsync(List<GarmentGeneralLedgerModel> listData);
     }
 }

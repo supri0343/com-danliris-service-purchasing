@@ -137,9 +137,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Ledger
             }
         }
 
-        private async Task<List<GarmentLedgerModel>> MapExcel(IFormFile file, CancellationToken cancellationToken)
+        private async Task<List<GarmentGeneralLedgerModel>> MapExcel(IFormFile file, CancellationToken cancellationToken)
         {
-            var result = new List<GarmentLedgerModel>();
+            var result = new List<GarmentGeneralLedgerModel>();
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream, cancellationToken);
@@ -151,7 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Ledger
 
                     for (int row = 4; row <= rowCount; row++)
                     {
-                        var data = new GarmentLedgerModel()
+                        var data = new GarmentGeneralLedgerModel()
                         {
                             COANo = converterChecker.GeneratePureString(worksheet.Cells[row, 1]),
                             JournalType = converterChecker.GeneratePureString(worksheet.Cells[row, 3]),
