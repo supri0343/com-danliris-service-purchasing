@@ -2814,38 +2814,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                          join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.EPOItemId
                          join d in dbContext.GarmentDeliveryOrderItems on c.GarmentDOItemId equals d.Id
                          join e in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals e.Id
-                         join f in dbContext.GarmentInvoiceDetails on c.Id equals f.DODetailId
-                         join g in dbContext.GarmentInvoiceItems on f.InvoiceItemId equals g.Id
-                         join h in dbContext.GarmentInvoices on g.InvoiceId equals h.Id
-                         join i in dbContext.GarmentInternNotes on e.InternNo equals i.INNo
-                         where a.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? a.EPONo : epoNo)
-                               && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(poNo) ? b.PO_SerialNumber : poNo)
-                               && e.InternNo == (string.IsNullOrWhiteSpace(inNo) ? e.InternNo : inNo)
+                          join f in dbContext.GarmentInvoiceDetails on c.Id equals f.DODetailId into aa
+                          from DInv in aa.DefaultIfEmpty()
+                          join g in dbContext.GarmentInvoiceItems on DInv.InvoiceItemId equals g.Id into bb
+                          from IInv in bb.DefaultIfEmpty()
+                          join h in dbContext.GarmentInvoices on IInv.InvoiceId equals h.Id into cc
+                          from Inv in cc.DefaultIfEmpty()
 
-                               select new OverBudgetQtyReportViewModel
-                               {
-                                   epoNo = a.EPONo,
-                                   orderDate = a.OrderDate,
-                                   createdDate = e.CreatedUtc,
-                                   supplierCode = a.SupplierCode,
-                                   supplierName = a.SupplierName,
-                                   codeRequirement = c.CodeRequirment,
-                                   poNo = b.PO_SerialNumber,
-                                   productCode = b.ProductCode,
-                                   productName = b.ProductName,
-                                   poQuantity = b.SmallQuantity,
-                                   doQuantity = c.DOQuantity,
-                                   obQuantity = 0,
-                                   percentOB = 0,
-                                   doNo = e.DONo,
-                                   doDate = e.DODate,
-                                   invoiceNo = h.InvoiceNo,
-                                   invoiceDate = h.InvoiceDate,
-                                   inNo = e.InternNo,
-                                   inDate = i.INDate,
-                                   remark = "",
-                               }
+                          join i in dbContext.GarmentInternNoteItems on Inv.Id equals i.InvoiceId into dd
+                          from INItm in dd.DefaultIfEmpty()
+
+                          join j in dbContext.GarmentInternNotes on INItm.GarmentINId equals j.Id into ee
+                          from IN in ee.DefaultIfEmpty()
+
+                          where a.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? a.EPONo : epoNo)
+                                && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(poNo) ? b.PO_SerialNumber : poNo)
+                                && IN.INNo == (string.IsNullOrWhiteSpace(inNo) ? IN.INNo : inNo)
+
+                          select new OverBudgetQtyReportViewModel
+                          {
+                              epoNo = a.EPONo,
+                              orderDate = a.OrderDate,
+                              createdDate = e.CreatedUtc,
+                              supplierCode = a.SupplierCode,
+                              supplierName = a.SupplierName,
+                              codeRequirement = c.CodeRequirment,
+                              poNo = b.PO_SerialNumber,
+                              productCode = b.ProductCode,
+                              productName = b.ProductName,
+                              poQuantity = b.SmallQuantity,
+                              doQuantity = c.DOQuantity,
+                              obQuantity = 0,
+                              percentOB = 0,
+                              doNo = e.DONo,
+                              doDate = e.DODate,
+                              invoiceNo = Inv == null ? "-" : Inv.InvoiceNo,
+                              invoiceDate = Inv == null ? new DateTime(1970, 1, 1) : Inv.InvoiceDate,
+                              inNo = IN == null ? "-" : IN.INNo,
+                              inDate = IN == null ? new DateTime(1970, 1, 1) : IN.INDate,
+                              remark = "",
+                          }
                                ).OrderBy(b => b.epoNo).ThenBy(b => b.poNo).ThenBy(b => b.createdDate);
+
             //
 
             double QtyDO = 0;
