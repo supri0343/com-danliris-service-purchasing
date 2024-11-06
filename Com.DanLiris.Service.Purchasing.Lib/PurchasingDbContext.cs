@@ -42,6 +42,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDelive
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.LogHistory;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconCustomOut;
+using Com.DanLiris.Service.Purchasing.Lib.Models.Ledger;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -174,6 +175,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentSubconCustomOutItem> GarmentSubconCustomOutItems { get; set; }
         public DbSet<GarmentSubconCustomOutDetail> GarmentSubconCustomOutDetails { get; set; }
         public DbSet<GarmentClosingDate> ClosingDate { get; set; }
+
+        #region Ledger
+        public DbSet<GarmentGeneralLedgerModel> GarmentGeneralLedgers { get; set; }
+        public DbSet<BeginingBalanceGeneralLedgerModel> BeginingBalanceGeneralLedgers { get; set; }
+        #endregion
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241031042105_alter-table-GarmentLedger-Date-to-nullable")]
+    partial class altertableGarmentLedgerDatetonullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4796,9 +4797,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Area");
 
-                    b.Property<string>("Article")
-                        .HasMaxLength(100);
-
                     b.Property<string>("Box");
 
                     b.Property<string>("Colour");
@@ -4871,9 +4869,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("ProductRemark");
-
-                    b.Property<string>("RONoMaster")
-                        .HasMaxLength(15);
 
                     b.Property<string>("Rack");
 
@@ -5464,9 +5459,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("Article")
-                        .HasMaxLength(100);
-
                     b.Property<double>("BudgetQuantity");
 
                     b.Property<string>("CreatedAgent")
@@ -5530,9 +5522,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("ProductRemark");
-
-                    b.Property<string>("RONoMaster")
-                        .HasMaxLength(15);
 
                     b.Property<decimal>("ReceiptQuantity");
 
@@ -6939,69 +6928,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.ToTable("InternalPurchaseOrderItems");
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.Ledger.BeginingBalanceGeneralLedgerModel", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Active");
-
-                    b.Property<double>("BeginingFinishingPrintingCredit");
-
-                    b.Property<double>("BeginingFinishingPrintingDebit");
-
-                    b.Property<double>("BeginingGarmentCredit");
-
-                    b.Property<double>("BeginingGarmentDebit");
-
-                    b.Property<double>("BeginingTextileCredit");
-
-                    b.Property<double>("BeginingTextileDebit");
-
-                    b.Property<string>("COANo")
-                        .HasMaxLength(10);
-
-                    b.Property<string>("CreatedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("DeletedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("JournalType")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("LastModifiedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("LastModifiedUtc");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BeginingBalanceGeneralLedgers");
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.Ledger.GarmentGeneralLedgerModel", b =>
+            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.Ledger.GarmentLedgerModel", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
@@ -7056,14 +6983,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("LastModifiedUtc");
 
                     b.Property<string>("ProofNo")
-                        .HasMaxLength(50);
+                        .HasMaxLength(10);
 
                     b.Property<string>("Remark")
                         .HasMaxLength(500);
 
                     b.HasKey("Id");
 
-                    b.ToTable("GarmentGeneralLedgers");
+                    b.ToTable("GarmentLedgers");
                 });
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.LogHistory.LogHistory", b =>

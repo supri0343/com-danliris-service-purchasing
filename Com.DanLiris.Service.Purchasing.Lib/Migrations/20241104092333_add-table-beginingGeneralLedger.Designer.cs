@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241104092333_add-table-beginingGeneralLedger")]
+    partial class addtablebeginingGeneralLedger
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -4796,9 +4797,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("Area");
 
-                    b.Property<string>("Article")
-                        .HasMaxLength(100);
-
                     b.Property<string>("Box");
 
                     b.Property<string>("Colour");
@@ -4871,9 +4869,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("ProductRemark");
-
-                    b.Property<string>("RONoMaster")
-                        .HasMaxLength(15);
 
                     b.Property<string>("Rack");
 
@@ -5464,9 +5459,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("Article")
-                        .HasMaxLength(100);
-
                     b.Property<double>("BudgetQuantity");
 
                     b.Property<string>("CreatedAgent")
@@ -5530,9 +5522,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("ProductRemark");
-
-                    b.Property<string>("RONoMaster")
-                        .HasMaxLength(15);
 
                     b.Property<decimal>("ReceiptQuantity");
 
