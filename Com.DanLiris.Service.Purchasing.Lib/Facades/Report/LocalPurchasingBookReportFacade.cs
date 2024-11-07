@@ -321,7 +321,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     totalCurrency = (dpp + ppn) * (decimal)currencyRate;
                 }
 
-
                 var reportItem = new PurchasingReport()
                 {
                     DataSourceSort = 1,

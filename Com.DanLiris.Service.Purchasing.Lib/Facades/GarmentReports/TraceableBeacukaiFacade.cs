@@ -762,7 +762,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
                              //EksporQty = key.EksporQty
                              //EksporQty = group.Sum(x => x.EksporQty)
-                             EksporQty = key.EksporQty,
+                             EksporQty = group.Sum(x => x.EksporQty),
                              UnitDOType = key.UnitDOType
                          })
                        //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK)
@@ -795,7 +795,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SatuanBUK = a.SatuanBUK,
                              UnitDOType = a.UnitDOType,
 
-                             SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
+                             SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : bb.ExpenditureType == "LAIN-LAIN" ? bb.TotalQuantity : 0,
                              Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                              EksporQty = bb != null ? (bb.ExpenditureType == "EXPORT" ? bb.TotalQuantity : 0) : 0,
 
@@ -820,7 +820,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SatuanBUK = key.SatuanBUK,
                              SampleQty = group.Sum(x => x.SampleQty),
                              Invoice = key.Invoice,
-                             EksporQty = key.EksporQty,
+                             EksporQty = group.Sum(x => x.EksporQty),
                              UnitDOType = key.UnitDOType
                          })
                          //.OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).

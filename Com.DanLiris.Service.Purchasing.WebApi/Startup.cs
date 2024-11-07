@@ -89,6 +89,12 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUni
 using Asp.Versioning;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LogHistoryFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconCustomOutFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.FinishedGoodsMinutes.FinishedGoodsMinutesFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.Report.GarmentReceiptSubconStockReport;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LedgerFacade.GarmentGeneralLedger;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.LedgerFacade.BeginingBalanceGeneralLedger;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -240,10 +246,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentDetailLocalPurchasingJournalReportFacade, GarmentDetailLocalPurchasingJournalReportFacade>()
                 .AddTransient<ILogHistoryFacades, LogHistoryFacades>()
                 .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>()
-                .AddTransient<IGarmentSubconDeliveryOrderFacades, GarmentSubconDeliveryOrderFacade>()
                 .AddTransient<IGarmentSubconUnitReceiptNoteFacade, GarmentSubconUnitReceiptNoteFacade>()
                 .AddTransient<IGarmentSubconUnitDeliveryOrderFacade, GarmentSubconUnitDeliveryOrderFacades>()
-                .AddTransient<IGarmentSubconUnitExpenditureNoteFacade, GarmentSubconUnitExpenditureNoteFacade>();
+                .AddTransient<IGarmentSubconUnitExpenditureNoteFacade, GarmentSubconUnitExpenditureNoteFacade>()
+                .AddTransient<IGarmentSubconCustomOutFacade, GarmentSubconCustomOutFacade>()
+                .AddTransient<IFinishedGoodsMinutesFacade, FinishedGoodsMinutesFacade>()
+                .AddTransient<IGarmentReceiptSubconStockReportFacade, GarmentReceiptSubconStockReportFacade>();
+
+
+            #region Ledger
+            services.AddTransient<IGarmentGeneralLedgerFacade, GarmentGeneralLedgerFacade>()
+                .AddTransient<IBeginingBalanceGeneralLedgerFacade, BeginingBalanceGeneralLedgerFacade>();
+
+            #endregion
+
 
 
         }

@@ -40,14 +40,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentUnitExpenditureNoteModel;
-using Com.Moonlay.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using System.Reflection;
-
+using Com.DanLiris.Service.Purchasing.Lib.Models.LogHistory;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconCustomOut;
+using Com.DanLiris.Service.Purchasing.Lib.Models.Ledger;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -176,8 +171,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<LogHistory> LogHistories { get; set; }
         //public DbSet<ImportValue> ImportValues { get; set; }
-
+        public DbSet<GarmentSubconCustomOut> GarmentSubconCustomOuts { get; set; }
+        public DbSet<GarmentSubconCustomOutItem> GarmentSubconCustomOutItems { get; set; }
+        public DbSet<GarmentSubconCustomOutDetail> GarmentSubconCustomOutDetails { get; set; }
         public DbSet<GarmentClosingDate> ClosingDate { get; set; }
+
+        #region Ledger
+        public DbSet<GarmentGeneralLedgerModel> GarmentGeneralLedgers { get; set; }
+        public DbSet<BeginingBalanceGeneralLedgerModel> BeginingBalanceGeneralLedgers { get; set; }
+        #endregion
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -217,6 +219,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib
                    .IsUnique()
                     .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
 
+            modelBuilder.Entity<GarmentUnitReceiptNote>()
+                .HasIndex(i => i.DRNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000') AND [DRNo] !=''");
             //modelBuilder.Entity<GarmentUnitReceiptNote>()
             // .HasIndex(i => i.URNNo)
             // .IsUnique()

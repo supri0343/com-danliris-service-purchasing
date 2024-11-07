@@ -268,6 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 && w.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? w.UnitCode : unitcode)
                 && w.ProductCode == (string.IsNullOrWhiteSpace(productcode) ? w.ProductCode : productcode)
                 && w.ProductName == "FABRIC"
+                //&& w.UnitName != "SAMPLE"
                 );
 
             var data = Query.Select(x => new DOItemsViewModels
@@ -287,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 Area = x.Area,
                 CreatedBy = x.CreatedBy,
                 ModyfiedBy = x.Colour == "-" ? "-" : x.LastModifiedBy
-            }).ToList();
+            }).OrderByDescending(x => x.POSerialNumber).ThenByDescending(x => x.RemainingQuantity).ToList();
             //List<object> ListData = new List<object>(data.OrderBy(o => o.POSerialNumber));
 
             return data;
@@ -313,7 +314,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         if(a == 0)
                         {
                             var data = dbSetGarmentDOItems.Where(x => x.Id == id).FirstOrDefault();
-                            if ((viewModels.Items[a].Colour.ToUpper() != data.Colour) && (viewModels.Items[a].Rack.ToUpper() != data.Rack) && (viewModels.Items[a].Box.ToUpper() != data.Box) && (viewModels.Items[a].Area.ToUpper() != data.Area))
+                            if ((viewModels.Items[a].Colour.ToUpper() != data.Colour) || (viewModels.Items[a].Rack.ToUpper() != data.Rack) || (viewModels.Items[a].Box.ToUpper() != data.Box) || (viewModels.Items[a].Area.ToUpper() != data.Area))
                             {
                                 data.SplitQuantity = viewModels.Items[a].Quantity;
                             }
@@ -491,7 +492,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                    ExpenditureDate = b.CreatedUtc,
                                    QtyExpenditure =  Math.Round(b.Quantity,2),
                                    Remaining = null,
-                                   Remark = e.RONo,
+                                   RoNo = e.RONo,
                                    User = b.CreatedBy,
                                    Article=e.Article
                                }).ToList();
@@ -553,7 +554,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         Remaining = Math.Round((double)TempQty - (double)a.QtyExpenditure,2),
                         Remark = a.Remark,
                         User = a.User,
-                        Article=  a.Article
+                        Article=  a.Article,
+                        RoNo = a.RoNo
                     };
 
                     TempQty -= (double)a.QtyExpenditure;
@@ -569,6 +571,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         public MemoryStream GeneratePdf(List<StellingEndViewModels> stellingEndViewModels)
         {
             return DOItemsStellingPDFTemplate.GeneratePdfTemplate(serviceProvider, stellingEndViewModels);
+        }
+
+        public MemoryStream GenerateBarcode(List<StellingEndViewModels> stellingEndViewModels)
+        {
+            return DOItemsStellingPDFTemplate.GenerateBarcode(serviceProvider, stellingEndViewModels);
         }
 
         public MemoryStream GenerateExcel(string productcode, string po, string unitcode)

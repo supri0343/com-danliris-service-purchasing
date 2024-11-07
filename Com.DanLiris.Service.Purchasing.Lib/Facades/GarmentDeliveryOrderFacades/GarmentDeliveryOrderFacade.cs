@@ -51,56 +51,57 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         public Tuple<List<GarmentDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             //IQueryable<GarmentDeliveryOrder> Query = this.dbSet.Include(m => m.Items);
-            IQueryable<GarmentDeliveryOrder> Query = this.dbSet.AsNoTracking().Include(x => x.Items).ThenInclude(x => x.Details)
-                .Select(x => new GarmentDeliveryOrder
-                {
-                    Id = x.Id,
-                    DONo = x.DONo,
-                    DODate = x.DODate,
-                    ArrivalDate = x.ArrivalDate,
-                    BillNo = x.BillNo,
-                    PaymentBill = x.PaymentBill,
-                    SupplierId = x.SupplierId,
-                    SupplierCode = x.SupplierCode,
-                    SupplierName = x.SupplierName,
-                    CreatedBy = x.CreatedBy,
-                    IsClosed = x.IsClosed,
-                    IsCustoms = x.IsCustoms,
-                    IsInvoice = x.IsInvoice,
-                    IsSubconInvoice = x.IsSubconInvoice,
-                    LastModifiedUtc = x.LastModifiedUtc,
-                    Items = x.Items.Select(y => new GarmentDeliveryOrderItem
-                    {
-                        Id = y.Id,
-                        EPOId = y.EPOId,
-                        EPONo = y.EPONo,
-                        CurrencyId = y.CurrencyId,
-                        CurrencyCode = y.CurrencyCode,
-                        PaymentDueDays = y.PaymentDueDays,
-                        Details = y.Details.Select(z => new GarmentDeliveryOrderDetail
-                        {
-                            Id = z.Id,
-                            DOQuantity = z.DOQuantity,
-                            ProductCode = z.ProductCode,
-                            ProductId =z.ProductId,
-                            ProductName = z.ProductName,
-                            ProductRemark = z.ProductRemark,
-                            SmallQuantity = z.SmallQuantity,
-                            SmallUomId = z.SmallUomId,
-                            SmallUomUnit = z.SmallUomUnit,
-                            PricePerDealUnit = z.PricePerDealUnit,
-                            PriceTotal = z.PriceTotal
-                        }),
-                    }),
-
-                });
+            IQueryable<GarmentDeliveryOrder> Query = this.dbSet.AsNoTracking().Include(x => x.Items).ThenInclude(x => x.Details);
 
             List<string> searchAttributes = new List<string>()
             {
-                "DONo", "BillNo", "PaymentBill","SupplierName"//, "Items.EPONo"
+                "DONo", "BillNo", "PaymentBill","SupplierName", "Items.EPONo"
             };
 
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Query = Query.Select(x => new GarmentDeliveryOrder
+            {
+                Id = x.Id,
+                DONo = x.DONo,
+                DODate = x.DODate,
+                ArrivalDate = x.ArrivalDate,
+                BillNo = x.BillNo,
+                PaymentBill = x.PaymentBill,
+                SupplierId = x.SupplierId,
+                SupplierCode = x.SupplierCode,
+                SupplierName = x.SupplierName,
+                CreatedBy = x.CreatedBy,
+                IsClosed = x.IsClosed,
+                IsCustoms = x.IsCustoms,
+                IsInvoice = x.IsInvoice,
+                IsSubconInvoice = x.IsSubconInvoice,
+                LastModifiedUtc = x.LastModifiedUtc,
+                Items = x.Items.Select(y => new GarmentDeliveryOrderItem
+                {
+                    Id = y.Id,
+                    EPOId = y.EPOId,
+                    EPONo = y.EPONo,
+                    CurrencyId = y.CurrencyId,
+                    CurrencyCode = y.CurrencyCode,
+                    PaymentDueDays = y.PaymentDueDays,
+                    Details = y.Details.Select(z => new GarmentDeliveryOrderDetail
+                    {
+                        Id = z.Id,
+                        DOQuantity = z.DOQuantity,
+                        ProductCode = z.ProductCode,
+                        ProductId = z.ProductId,
+                        ProductName = z.ProductName,
+                        ProductRemark = z.ProductRemark,
+                        SmallQuantity = z.SmallQuantity,
+                        SmallUomId = z.SmallUomId,
+                        SmallUomUnit = z.SmallUomUnit,
+                        PricePerDealUnit = z.PricePerDealUnit,
+                        PriceTotal = z.PriceTotal
+                    }),
+                }),
+
+            });
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<GarmentDeliveryOrder>.ConfigureFilter(Query, FilterDictionary);
@@ -231,6 +232,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                             detail.PRItemId = internalPurchaseOrderItem.GPRItemId;
                             detail.UnitId = internalPurchaseOrder.UnitId;
                             detail.UnitCode = internalPurchaseOrder.UnitCode;
+                            detail.ProductRemark = internalPurchaseOrderItem.ProductRemark;
                             EntityExtension.FlagForCreate(detail, user, USER_AGENT);
 
                             GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(detail.EPOItemId));
@@ -547,6 +549,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     .ThenInclude(i => i.Details).Where(s => s.IsInvoice == false && s.CustomsId != 0);
             }
 
+            foreach (var data in Query)
+            {
+                data.TotalAmount = 0;
+                foreach (var item in data.Items)
+                {
+                    foreach (var detail in item.Details)
+                    {
+                        data.TotalAmount += detail.DOQuantity * detail.PricePerDealUnit;
+                    }
+                }
+            }
+
             return Query;
         }
 
@@ -636,7 +650,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     isUpdate = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     transaction.Rollback();
                     throw new Exception(e.Message);
@@ -1137,7 +1151,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //var Status = ""; //new[] { "" };
             var Supplier = new[] { "MADEIRA", "MARATHON" };
 
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportResult = new List<AccuracyOfArrivalReportHeader>();
             //switch (category)
             //{
@@ -1157,14 +1171,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             switch (category)
             {
                 case "BB":
-                     reportResult = GetBBResult(selectedGarmentDeliveryOrders);
-                     break;
+                    reportResult = GetBBResult(selectedGarmentDeliveryOrders);
+                    break;
                 case "BP":
-                     reportResult = GetBPResult(selectedGarmentDeliveryOrders);
-                     break;
+                    reportResult = GetBPResult(selectedGarmentDeliveryOrders);
+                    break;
                 default:
-                     reportResult = GetDefaultResult(selectedGarmentDeliveryOrders);
-                     break;
+                    reportResult = GetDefaultResult(selectedGarmentDeliveryOrders);
+                    break;
             }
 
             reportResult = reportResult.Where(w => w.Total > 0).ToList();
@@ -1223,7 +1237,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     SupplierId = selectedSupplierId,
                     SupplierCode = selectedSupplier.SupplierCode,
                     SupplierName = selectedSupplier.SupplierName,
-                    OKStatusPercentage = Math.Floor((double)okPercentage),
+                    //OKStatusPercentage = Math.Floor((double)okPercentage),
+                    OKStatusPercentage = okPercentage,
                     OKTotal = 0,
                     Total = total
                 };
@@ -1237,129 +1252,410 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         private List<AccuracyOfArrivalReportHeader> GetBPResult(List<SelectedGarmentDeliveryOrder> selectedGarmentDeliveryOrders)
         {
-            var bpGarmentDOIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
-            //var garment
+            //var bpGarmentDOIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
+            ////var garment
 
+            //var selectedSupplierIds = selectedGarmentDeliveryOrders.Select(s => s.SupplierId).Distinct().ToList();
+            //var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
+            //var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId) || bpGarmentDOIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            //var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
+            ////var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new SelectedGarmentDeliveryOrderDetail() { Id = s.Id, PRId = s.PRId, GarmentDOItemId = s.GarmentDOItemId }).ToList();
+            //var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+
+            ////var bpGarmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Where(w => bpGarmentDOIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
+            ////var bpGarmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => bpGarmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new SelectedGarmentDeliveryOrderDetail() { Id = s.Id, PRId = s.PRId, GarmentDOItemId = s.GarmentDOItemId }).ToList();
+
+            ////garmentDeliveryOrderDetails.AddRange(bpGarmentDeliveryOrderDetails);
+            ////garmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Distinct().ToList();
+
+            //var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            //var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+
+            //var result = new List<AccuracyOfArrivalReportHeader>();
+            //var index = 0;
+            //foreach (var selectedSupplierId in selectedSupplierIds)
+            //{
+            //    index++;
+            //    //var se
+            //    var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
+            //    var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
+            //    var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
+
+            //    //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+
+            //    //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
+            //    var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
+            //                         join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
+            //                         join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
+            //                         join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
+
+            //                         select new
+            //                         {
+            //                             garmentDO.DODate,
+            //                             purchaseRequest.ShipmentDate
+            //                         }).ToList();
+
+            //    var total = resultToCount.Count;
+            //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+            //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
+
+            //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+            //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+            //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+            //    var datum = new AccuracyOfArrivalReportHeader
+            //    {
+            //        SupplierId = selectedSupplierId,
+            //        SupplierCode = selectedSupplier.SupplierCode,
+            //        SupplierName = selectedSupplier.SupplierName,
+            //        //OKStatusPercentage = Math.Floor((double)okPercentage),
+            //        OKStatusPercentage = okPercentage,
+            //        OKTotal = okTotal,
+            //        //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
+            //        NotOKStatusPercentage = notOkPercentage,
+            //        NotOKTotal = notOkTotal,
+            //        Total = total,
+            //    };
+
+            //    result.Add(datum);
+
+            //}
+
+            //return result;
             var selectedSupplierIds = selectedGarmentDeliveryOrders.Select(s => s.SupplierId).Distinct().ToList();
+            //var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
+            //var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            //var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
+            //var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+
+            //var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            //var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+
+            //var result = new List<AccuracyOfArrivalReportHeader>();
+            //var index = 0;
+            //foreach (var selectedSupplierId in selectedSupplierIds)
+            //{
+            //    index++;
+            //    //var se
+            //    var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
+            //    var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
+            //    var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
+
+            //    //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+
+            //    //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
+            //    var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
+            //                         join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
+            //                         join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
+            //                         join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
+
+            //                         select new
+            //                         {
+            //                             garmentDO.DODate,
+            //                             purchaseRequest.ShipmentDate
+            //                         }).ToList();
+
+            //    var total = resultToCount.Count;
+            //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+            //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
+
+            //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+            //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+            //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+            //    var datum = new AccuracyOfArrivalReportHeader
+            //    {
+            //        No = index,
+            //        SupplierId = selectedSupplierId,
+            //        SupplierCode = selectedSupplier.SupplierCode,
+            //        SupplierName = selectedSupplier.SupplierName,
+            //        //OKStatusPercentage = Math.Floor((double)okPercentage),
+            //        OKStatusPercentage = okPercentage,
+            //        OKTotal = okTotal,
+            //        //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
+            //        NotOKStatusPercentage = notOkPercentage,
+            //        NotOKTotal = notOkTotal,
+            //        Total = total
+            //    };
+
+            //    result.Add(datum);
+
+            //}
             var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
-            var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId) || bpGarmentDOIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId, s.EPOId }).ToList();
             var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
-            //var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new SelectedGarmentDeliveryOrderDetail() { Id = s.Id, PRId = s.PRId, GarmentDOItemId = s.GarmentDOItemId }).ToList();
-            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BP" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId, s.ProductCode, s.ProductName, s.ProductRemark, s.EPOItemId, s.RONo, s.POSerialNumber }).ToList();
 
-            //var bpGarmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Where(w => bpGarmentDOIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
-            //var bpGarmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => bpGarmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new SelectedGarmentDeliveryOrderDetail() { Id = s.Id, PRId = s.PRId, GarmentDOItemId = s.GarmentDOItemId }).ToList();
+            var garmentPurchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            var garmentPurchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => garmentPurchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate, s.Date }).ToList();
 
-            //garmentDeliveryOrderDetails.AddRange(bpGarmentDeliveryOrderDetails);
-            //garmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Distinct().ToList();
+            var garmentInternalPurchaseOrders = dbContext.GarmentInternalPurchaseOrders.Where(w => garmentPurchaseRequestIds.Contains(w.PRId)).Select(s => new { s.Id, s.CreatedUtc, s.PRId }).ToList();
 
-            var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
-            var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+            var garmentExternalPurchaseOrderIds = garmentDeliveryOrderItems.Select(s => s.EPOId).ToList();
+            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate, s.CreatedBy }).ToList();
 
-            var result = new List<AccuracyOfArrivalReportHeader>();
+            var garmentExternalPurchaseOrderItemIds = garmentDeliveryOrderDetails.Select(s => s.EPOItemId).ToList();
+            var garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => garmentExternalPurchaseOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Article }).ToList();
+
+            var result = new List<AccuracyOfArrivalReportDetail>();
             var index = 0;
-            foreach (var selectedSupplierId in selectedSupplierIds)
+            foreach (var garmentDeliveryOrderDetail in garmentDeliveryOrderDetails)
             {
                 index++;
-                //var se
-                var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
-                var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
-                var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
 
-                //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+                var garmentDeliveryOrderItem = garmentDeliveryOrderItems.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.GarmentDOItemId);
+                var garmentDeliveryOrder = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.GarmentDeliveryOrderId == garmentDeliveryOrderItem.GarmentDOId);
+                var garmentPurchaseRequest = garmentPurchaseRequests.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.PRId);
+                var garmentInternalPurchaseOrder = garmentInternalPurchaseOrders.FirstOrDefault(f => f.PRId == garmentDeliveryOrderDetail.PRId);
+                var garmentExternalPurchaseOrder = garmentExternalPurchaseOrders.FirstOrDefault(f => f.Id == garmentDeliveryOrderItem.EPOId);
+                var garmentExternalPurchaseOrderItem = garmentExternalPurchaseOrderItems.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.EPOItemId);
 
-                //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
-                var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
-                                     join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
-                                     join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
-                                     join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
-
-                                     select new
-                                     {
-                                         garmentDO.DODate,
-                                         purchaseRequest.ShipmentDate
-                                     }).ToList();
-
-                var total = resultToCount.Count;
-                var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 21);
-                var okPercentage = total > 0 ? okTotal / (double)total * 100 : 0;
-
-                var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
-
-                var datum = new AccuracyOfArrivalReportHeader
+                var datum = new AccuracyOfArrivalReportDetail
                 {
-                    SupplierId = selectedSupplierId,
-                    SupplierCode = selectedSupplier.SupplierCode,
-                    SupplierName = selectedSupplier.SupplierName,
-                    OKStatusPercentage = Math.Floor((double)okPercentage),
-                    OKTotal = okTotal,
-                    Total = total,
+                    No = index,
+                    SupplierId = garmentDeliveryOrder.SupplierId,
+                    SupplierCode = garmentDeliveryOrder.SupplierCode,
+                    SupplierName = garmentDeliveryOrder.SupplierName,
+                    PRDate = garmentPurchaseRequest.Date,
+                    IPODate = garmentInternalPurchaseOrder.CreatedUtc,
+                    EPODate = garmentExternalPurchaseOrder.OrderDate,
+                    DONo = garmentDeliveryOrder.DONo,
+                    ProductCode = garmentDeliveryOrderDetail.ProductCode,
+                    ProductName = garmentDeliveryOrderDetail.ProductName,
+                    ProductRemark = garmentDeliveryOrderDetail.ProductRemark,
+                    Article = garmentExternalPurchaseOrderItem.Article,
+                    RONo = garmentDeliveryOrderDetail.RONo,
+                    ShipmentDate = garmentPurchaseRequest.ShipmentDate,
+                    DODate = garmentDeliveryOrder.DODate,
+                    Status = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 30 ? 1 : 0,
+                    Status1 = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days < 30 ? 1 : 0,
+                    Staff = garmentExternalPurchaseOrder.CreatedBy,
+                    POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                 };
 
                 result.Add(datum);
 
-            }
+                //var total = resultToCount.Count;
+                //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+                //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
 
-            return result;
+                //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+                //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+                //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+                //    var datum = new AccuracyOfArrivalReportHeader
+                //    {
+                //        No = index,
+                //        SupplierId = selectedSupplierId,
+                //        SupplierCode = selectedSupplier.SupplierCode,
+                //        SupplierName = selectedSupplier.SupplierName,
+                //        OKStatusPercentage = okPercentage,
+                //        OKTotal = okTotal,
+                //        NotOKStatusPercentage = notOkPercentage,
+                //        NotOKTotal = notOkTotal,
+                //        Total = total
+                //    };
+
+                //    result.Add(datum);
+
+            }
+            //
+
+            var reportResult = (from a in result
+                                group new { OK = a.Status, NOK = a.Status1 } by new
+                                {
+                                    a.SupplierId,
+                                    a.SupplierCode,
+                                    a.SupplierName
+                                } into G
+
+                                select new AccuracyOfArrivalReportHeader
+                                {
+                                    SupplierId = G.Key.SupplierId,
+                                    SupplierCode = G.Key.SupplierCode,
+                                    SupplierName = G.Key.SupplierName,
+                                    OKTotal = G.Sum(m => m.OK),
+                                    NotOKTotal = G.Sum(m => m.NOK),
+                                    OKStatusPercentage = Math.Round(((G.Sum(m => m.OK) / G.Count()) * 100), 2),
+                                    NotOKStatusPercentage = Math.Round(((G.Sum(m => m.NOK) / G.Count()) * 100), 2),
+                                    Total = G.Count(),
+                                });
+
+            return reportResult.OrderBy(x => x.SupplierCode).ToList();
+
+            //return result;
+
         }
 
         private List<AccuracyOfArrivalReportHeader> GetBBResult(List<SelectedGarmentDeliveryOrder> selectedGarmentDeliveryOrders)
         {
             var selectedSupplierIds = selectedGarmentDeliveryOrders.Select(s => s.SupplierId).Distinct().ToList();
+            //var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
+            //var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            //var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
+            //var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+
+            //var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            //var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+
+            //var result = new List<AccuracyOfArrivalReportHeader>();
+            //var index = 0;
+            //foreach (var selectedSupplierId in selectedSupplierIds)
+            //{
+            //    index++;
+            //    //var se
+            //    var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
+            //    var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
+            //    var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
+
+            //    //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+
+            //    //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
+            //    var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
+            //                         join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
+            //                         join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
+            //                         join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
+
+            //                         select new
+            //                         {
+            //                             garmentDO.DODate,
+            //                             purchaseRequest.ShipmentDate
+            //                         }).ToList();
+
+            //    var total = resultToCount.Count;
+            //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+            //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
+
+            //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+            //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+            //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+            //    var datum = new AccuracyOfArrivalReportHeader
+            //    {
+            //        No = index,
+            //        SupplierId = selectedSupplierId,
+            //        SupplierCode = selectedSupplier.SupplierCode,
+            //        SupplierName = selectedSupplier.SupplierName,
+            //        //OKStatusPercentage = Math.Floor((double)okPercentage),
+            //        OKStatusPercentage = okPercentage,
+            //        OKTotal = okTotal,
+            //        //NotOKStatusPercentage = Math.Floor((double)notOkPercentage),
+            //        NotOKStatusPercentage = notOkPercentage,
+            //        NotOKTotal = notOkTotal,
+            //        Total = total
+            //    };
+
+            //    result.Add(datum);
+
+            //}
             var garmentDeliveryOrderIds = selectedGarmentDeliveryOrders.Select(s => s.GarmentDeliveryOrderId).ToList();
-            var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId }).ToList();
+            var garmentDeliveryOrderItems = dbContext.GarmentDeliveryOrderItems.Where(w => garmentDeliveryOrderIds.Contains(w.GarmentDOId)).Select(s => new { s.Id, s.GarmentDOId, s.EPOId }).ToList();
             var garmentDeliveryOrderItemIds = garmentDeliveryOrderItems.Select(s => s.Id).ToList();
-            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment =="BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId }).ToList();
+            var garmentDeliveryOrderDetails = dbContext.GarmentDeliveryOrderDetails.Where(w => w.CodeRequirment == "BB" && !w.RONo.EndsWith("S") && garmentDeliveryOrderItemIds.Contains(w.GarmentDOItemId)).Select(s => new { s.Id, s.PRId, s.GarmentDOItemId, s.ProductCode, s.ProductName, s.ProductRemark, s.EPOItemId, s.RONo, s.POSerialNumber }).ToList();
 
-            var purchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
-            var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate }).ToList();
+            var garmentPurchaseRequestIds = garmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+            var garmentPurchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => garmentPurchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.ShipmentDate, s.Date }).ToList();
 
-            var result = new List<AccuracyOfArrivalReportHeader>();
+            var garmentInternalPurchaseOrders = dbContext.GarmentInternalPurchaseOrders.Where(w => garmentPurchaseRequestIds.Contains(w.PRId)).Select(s => new { s.Id, s.CreatedUtc, s.PRId }).ToList();
+
+            var garmentExternalPurchaseOrderIds = garmentDeliveryOrderItems.Select(s => s.EPOId).ToList();
+            var garmentExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(w => garmentExternalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.OrderDate, s.CreatedBy }).ToList();
+
+            var garmentExternalPurchaseOrderItemIds = garmentDeliveryOrderDetails.Select(s => s.EPOItemId).ToList();
+            var garmentExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(w => garmentExternalPurchaseOrderItemIds.Contains(w.Id)).Select(s => new { s.Id, s.Article }).ToList();
+
+            var result = new List<AccuracyOfArrivalReportDetail>();
             var index = 0;
-            foreach (var selectedSupplierId in selectedSupplierIds)
+            foreach (var garmentDeliveryOrderDetail in garmentDeliveryOrderDetails)
             {
                 index++;
-                //var se
-                var selectedDeliveryIds = selectedGarmentDeliveryOrders.Where(w => w.SupplierId == selectedSupplierId).Select(s => s.GarmentDeliveryOrderId).ToList();
-                var selectedDeliveryItemIds = garmentDeliveryOrderItems.Where(w => selectedDeliveryIds.Contains(w.GarmentDOId)).Select(s => s.Id).ToList();
-                var selectedGarmentDeliveryOrderDetails = garmentDeliveryOrderDetails.Where(w => selectedDeliveryItemIds.Contains(w.GarmentDOItemId)).ToList();
 
-                //var selectedPurchaseRequestIds = selectedGarmentDeliveryOrderDetails.Select(s => s.PRId).ToList();
+                var garmentDeliveryOrderItem = garmentDeliveryOrderItems.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.GarmentDOItemId);
+                var garmentDeliveryOrder = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.GarmentDeliveryOrderId == garmentDeliveryOrderItem.GarmentDOId);
+                var garmentPurchaseRequest = garmentPurchaseRequests.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.PRId);
+                var garmentInternalPurchaseOrder = garmentInternalPurchaseOrders.FirstOrDefault(f => f.PRId == garmentDeliveryOrderDetail.PRId);
+                var garmentExternalPurchaseOrder = garmentExternalPurchaseOrders.FirstOrDefault(f => f.Id == garmentDeliveryOrderItem.EPOId);
+                var garmentExternalPurchaseOrderItem = garmentExternalPurchaseOrderItems.FirstOrDefault(f => f.Id == garmentDeliveryOrderDetail.EPOItemId);
 
-                //var selectedPurchaseRequests = purchaseRequests.Where(w => selectedPurchaseRequestIds.Contains(w.Id)).ToList();
-                var resultToCount = (from garmentDODetail in selectedGarmentDeliveryOrderDetails
-                                     join garmentDOItem in garmentDeliveryOrderItems on garmentDODetail.GarmentDOItemId equals garmentDOItem.Id
-                                     join garmentDO in selectedGarmentDeliveryOrders on garmentDOItem.GarmentDOId equals garmentDO.GarmentDeliveryOrderId
-                                     join purchaseRequest in purchaseRequests on garmentDODetail.PRId equals purchaseRequest.Id
-
-                                     select new
-                                     {
-                                         garmentDO.DODate,
-                                         purchaseRequest.ShipmentDate
-                                     }).ToList();
-
-                var total = resultToCount.Count;
-                var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
-                var okPercentage = total > 0 ? okTotal / (double)total * 100 : 0;
-
-                var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
-
-                var datum = new AccuracyOfArrivalReportHeader
+                var datum = new AccuracyOfArrivalReportDetail
                 {
                     No = index,
-                    SupplierId = selectedSupplierId,
-                    SupplierCode = selectedSupplier.SupplierCode,
-                    SupplierName = selectedSupplier.SupplierName,
-                    OKStatusPercentage = Math.Floor((double)okPercentage),
-                    OKTotal = okTotal,
-                    Total = total
+                    SupplierId = garmentDeliveryOrder.SupplierId,
+                    SupplierCode = garmentDeliveryOrder.SupplierCode,
+                    SupplierName = garmentDeliveryOrder.SupplierName,
+                    PRDate = garmentPurchaseRequest.Date,
+                    IPODate = garmentInternalPurchaseOrder.CreatedUtc,
+                    EPODate = garmentExternalPurchaseOrder.OrderDate,
+                    DONo = garmentDeliveryOrder.DONo,
+                    ProductCode = garmentDeliveryOrderDetail.ProductCode,
+                    ProductName = garmentDeliveryOrderDetail.ProductName,
+                    ProductRemark = garmentDeliveryOrderDetail.ProductRemark,
+                    Article = garmentExternalPurchaseOrderItem.Article,
+                    RONo = garmentDeliveryOrderDetail.RONo,
+                    ShipmentDate = garmentPurchaseRequest.ShipmentDate,
+                    DODate = garmentDeliveryOrder.DODate,
+                    Status = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 30 ? 1 : 0,
+                    Status1 = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days < 30 ? 1 : 0,
+                    Staff = garmentExternalPurchaseOrder.CreatedBy,
+                    POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                 };
 
                 result.Add(datum);
 
-            }
+                //var total = resultToCount.Count;
+                //    var okTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+                //    var okPercentage = total > 0 ? (decimal)((okTotal / total) * 100) : 0;
 
-            return result;
+                //    var notOkTotal = resultToCount.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+                //    var notOkPercentage = total > 0 ? (decimal)((notOkTotal / total) * 100) : 0;
+
+                //    var selectedSupplier = selectedGarmentDeliveryOrders.FirstOrDefault(f => f.SupplierId == selectedSupplierId);
+
+                //    var datum = new AccuracyOfArrivalReportHeader
+                //    {
+                //        No = index,
+                //        SupplierId = selectedSupplierId,
+                //        SupplierCode = selectedSupplier.SupplierCode,
+                //        SupplierName = selectedSupplier.SupplierName,
+                //        OKStatusPercentage = okPercentage,
+                //        OKTotal = okTotal,
+                //        NotOKStatusPercentage = notOkPercentage,
+                //        NotOKTotal = notOkTotal,
+                //        Total = total
+                //    };
+
+                //    result.Add(datum);
+
+            }
+            //
+
+            var reportResult = (from a in result
+                        group new { OK = a.Status, NOK = a.Status1 } by new
+                        {
+                            a.SupplierId,
+                            a.SupplierCode,
+                            a.SupplierName
+                        } into G
+
+                        select new AccuracyOfArrivalReportHeader
+                        {
+                            SupplierId = G.Key.SupplierId,
+                            SupplierCode = G.Key.SupplierCode,
+                            SupplierName = G.Key.SupplierName,
+                            OKTotal = G.Sum(m => m.OK),
+                            NotOKTotal = G.Sum(m => m.NOK),
+                            OKStatusPercentage = Math.Round(((G.Sum(m => m.OK) / G.Count()) * 100), 2),
+                            NotOKStatusPercentage = Math.Round(((G.Sum(m => m.NOK) / G.Count()) * 100), 2),
+                            Total = G.Count(),
+                        });
+
+            return reportResult.OrderBy(x => x.SupplierCode).ToList();
+
+            //return result;
         }
 
         public MemoryStream GenerateExcelArrivalHeader(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
@@ -1373,8 +1669,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             {
                 category = "BP";
             }
-            
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportResult = new List<AccuracyOfArrivalReportHeader>();
 
             switch (category)
@@ -1397,6 +1693,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "NO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "NAMA SUPPLIER", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "OK %", DataType = typeof(int) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Not OK %", DataType = typeof(int) });
             result.Columns.Add(new DataColumn() { ColumnName = "JUMLAH", DataType = typeof(int) });
 
             if (reportResult.ToArray().Count() == 0)
@@ -1482,7 +1779,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             var Status = "";  // new[] { "" };
             var Supplier = new[] { "MADEIRA", "MARATHON" };
 
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo && w.SupplierCode.Equals(supplierCode)).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo && w.SupplierCode.Equals(supplierCode)).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportDetailResult = new List<AccuracyOfArrivalReportDetail>();
             //switch (category)
             //{
@@ -1501,7 +1798,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             switch (category)
             {
-                case "BB":                  
+                case "BB":
                     reportDetailResult = GetBBDetailResult(selectedGarmentDeliveryOrders);
                     break;
                 case "BP":
@@ -1622,7 +1919,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     RONo = garmentDeliveryOrderDetail.RONo,
                     ShipmentDate = garmentPurchaseRequest.ShipmentDate,
                     DODate = garmentDeliveryOrder.DODate,
-                    OKStatus = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 21 ? "OK" : "NOT OK",
+                    OKStatus = (garmentPurchaseRequest.ShipmentDate - garmentDeliveryOrder.DODate).Days >= 30 ? "OK" : "NOT OK",
                     Staff = garmentExternalPurchaseOrder.CreatedBy,
                     POSerialNumber = garmentDeliveryOrderDetail.POSerialNumber
                     //Category = cat
@@ -1736,7 +2033,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             //    };
             //    Data.Add(_new);
             //}
-            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.DODate.AddHours(7).Date >= dateFrom && w.DODate.AddHours(7).Date <= dateTo && w.SupplierCode.Equals(supplier)).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo && w.SupplierCode.Equals(supplier)).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
             var reportDetailResult = new List<AccuracyOfArrivalReportDetail>();
             //switch (category)
             //{
@@ -1755,7 +2052,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             switch (category)
             {
-                case "BB":             
+                case "BB":
                     reportDetailResult = GetBBDetailResult(selectedGarmentDeliveryOrders);
                     break;
                 case "BP":
@@ -1807,6 +2104,98 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        //
+        public MemoryStream GenerateExcelArrivalDetailAll(string category, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            if (category == "Bahan Baku")
+            {
+                category = "BB";
+            }
+            else if (category == "Bahan Pendukung")
+            {
+                category = "BP";
+            }
+
+            var selectedGarmentDeliveryOrders = dbContext.GarmentDeliveryOrders.Where(w => w.ArrivalDate.AddHours(7).Date >= dateFrom && w.ArrivalDate.AddHours(7).Date <= dateTo).Select(s => new SelectedGarmentDeliveryOrder(s)).ToList();
+            var reportDetailResult = new List<AccuracyOfArrivalReportDetail>();
+
+            switch (category)
+            {
+                case "BB":
+                    reportDetailResult = GetBBDetailResult(selectedGarmentDeliveryOrders);
+                    break;
+                case "BP":
+                    reportDetailResult = GetBPDetailResult(selectedGarmentDeliveryOrders);
+                    break;
+                default:
+                    reportDetailResult = GetDefaultDetailResult(selectedGarmentDeliveryOrders);
+                    break;
+            }
+
+            reportDetailResult = reportDetailResult.OrderBy(o => o.DODate).ThenBy(t => t.DONo).ToList();
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "NO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "SUPPLIER", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "PLAN PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PURCHASE REQUEST", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PO INTERNAL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL PEMBELIAN", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NO SJ", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KETERANGAN BARANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "ARTIKEL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL SHIPMENT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "TANGGAL DATANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "+/- DATANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "STAFF", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KATEGORI", DataType = typeof(String) });
+
+            if (reportDetailResult.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+            else
+            {
+                int index = 0;
+                foreach (var item in reportDetailResult)
+                {
+                    index++;
+                    string prDate = item.PRDate == null ? "-" : item.PRDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string poDate = item.IPODate == null ? "-" : item.IPODate.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string epoDate = item.EPODate == null ? "-" : item.EPODate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string shipmentDate = item.ShipmentDate == null ? "-" : item.ShipmentDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string doDate = item.DODate == null ? "-" : item.DODate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(index, item.SupplierName, item.POSerialNumber, prDate, poDate, epoDate, item.DONo, item.ProductCode, item.ProductName, item.ProductRemark, item.Article, item.RONo,
+                        shipmentDate, doDate, item.OKStatus, item.Staff, item.ProductName);
+                }
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+
+                int Total = 0;
+                int TotalOk = 0;
+                string PercentOk = "";
+                int TotalNotOk = 0;
+                string PercentNotOk = "";
+
+                Total = reportDetailResult.Count;
+                TotalOk = reportDetailResult.Count(c => (c.ShipmentDate - c.DODate).Days >= 30);
+                PercentOk = ((decimal)TotalOk / Total).ToString("P", new CultureInfo("id-ID"));
+                TotalNotOk = reportDetailResult.Count(c => (c.ShipmentDate - c.DODate).Days < 30);
+                PercentNotOk = ((decimal)TotalNotOk / Total).ToString("P", new CultureInfo("id-ID"));
+
+                result.Rows.Add(null, "KESIAPAN BAHAN BAKU / BAHAN PENDUKUNG DENGAN LEAD TIME 30 HARI", null, null, null, null, null, null, null, null);
+                result.Rows.Add(null, "Status OK", null, "Perhitungan dari selisih Tgl Shipment dengan Tgl Kedatangan Barang >= 30 hari", null, null, null, null, null, null);
+                result.Rows.Add(null, "Persentase Status OK", null, $"{TotalOk}/{Total} X 100% = {PercentOk}", null, null, null, null, null, null);
+                result.Rows.Add(null, "Status NOT OK", null, "Perhitungan dari selisih Tgl Shipment dengan Tgl Kedatangan Barang < 30 hari", null, null, null, null, null, null);
+                result.Rows.Add(null, "Persentase Status NOT OK", null, $"{TotalNotOk}/{Total} X 100% = {PercentNotOk}", null, null, null, null, null, null);
+
+            }
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+        //
 
         public IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset)
         {
@@ -2183,81 +2572,81 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
             var Query1 = (from a in dbContext.GarmentDeliveryOrders
-                         join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
-                         join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
-                         join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
-                         join o in dbContext.GarmentBeacukaiItems on a.Id equals o.GarmentDOId into beaitems
-                         from oo in beaitems.DefaultIfEmpty()
-                         join r in dbContext.GarmentBeacukais on oo.BeacukaiId equals r.Id into beas
-                         from rr in beas.DefaultIfEmpty()
-                         join n in dbContext.GarmentUnitReceiptNoteItems on j.Id equals n.DODetailId into p
-                         from URNItem in p.DefaultIfEmpty()
-                         join k in dbContext.GarmentUnitReceiptNotes on URNItem.URNId equals k.Id into l
-                         from URN in l.DefaultIfEmpty()
-                         where a.IsDeleted == false
-                             && i.IsDeleted == false
-                             && j.IsDeleted == false
-                             && m.IsDeleted == false
-                             && (URN.IsDeleted == false || URN == null)
-                             && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)
-                             && a.SupplierId == (supplierId == 0 ? a.SupplierId : supplierId)
-                             && a.BillNo == (string.IsNullOrWhiteSpace(billNo) ? a.BillNo : billNo)
-                             && a.PaymentBill == (string.IsNullOrWhiteSpace(paymentBill) ? a.PaymentBill : paymentBill)
-                             && a.DODate.AddHours(offset).Date >= DateFrom.Date
-                             && a.DODate.AddHours(offset).Date <= DateTo.Date
-                             && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
-                             //&& URN.URNType == "PEMBELIAN"
-
-                         select new GarmentDeliveryOrderReportViewModel
-                         {
-                             no = a.DONo,
-                             supplierDoDate = a.DODate == null ? new DateTime(1970, 1, 1) : a.DODate,
-                             date = a.ArrivalDate,
-                             URNNo = URN == null ? "-" : URN.URNNo,
-                             URNDate = URN == null ? new DateTime(1970, 1, 1) : URN.ReceiptDate,
-                             URNType = URN == null ? "-" : URN.URNType,
-                             urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
-                             urnUom = URNItem == null ? "-" : URNItem.UomUnit,
-                             UnitName = URN.UnitName ?? "-",
-                             //urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
-                             //urnUom = URNItem == null ? "-" : URNItem.UomUnit,
-                             supplierName = a.SupplierName,
-                             supplierCode = a.SupplierCode,
-                             shipmentNo = a.ShipmentNo,
-                             shipmentType = a.ShipmentType,
-                             createdBy = a.CreatedBy,
-                             doCurrencyCode = a.DOCurrencyCode,
-                             doCurrencyRate = a.DOCurrencyRate,
-                             isCustoms = a.IsCustoms,
-                             price = j.PricePerDealUnit,
-                             ePONo = i.EPONo,
-                             productCode = j.ProductCode,
-                             productName = j.ProductName,
-                             productRemark = j.ProductRemark,
-                             prRefNo = j.POSerialNumber,
-                             roNo = j.RONo,
-                             prNo = j.PRNo,
-                             remark = a.Remark,
-                             dOQuantity = j.DOQuantity,
-                             dealQuantity = j.DealQuantity,
-                             uomUnit = j.UomUnit,
-                             createdUtc = j.CreatedUtc,
-                             EPOcreatedBy = m.CreatedBy,
-                             INNo = a.InternNo,
-                             TermPayment = m.PaymentMethod,
-                             BeacukaiNo = rr != null ? rr.BeacukaiNo : "-",
-                             BeacukaiDate = rr != null? rr.CreatedUtc : DateTimeOffset.MinValue,
-                             BeacukaiType = rr != null ? rr.CustomsType : "-",
-                             BillNo = a.BillNo,
-                             PaymentBill = a.PaymentBill,
-                             BCDate = rr != null? rr.BeacukaiDate : new DateTime(1970, 1, 1)
-                         });
-
-            var Query = (from gdo in Query1
-                          where gdo.URNType != "PROSES" && gdo.URNType != "GUDANG LAIN"
+                          join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
+                          join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
+                          join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
+                          join o in dbContext.GarmentBeacukaiItems on a.Id equals o.GarmentDOId into beaitems
+                          from oo in beaitems.DefaultIfEmpty()
+                          join r in dbContext.GarmentBeacukais on oo.BeacukaiId equals r.Id into beas
+                          from rr in beas.DefaultIfEmpty()
+                          join n in dbContext.GarmentUnitReceiptNoteItems on j.Id equals n.DODetailId into p
+                          from URNItem in p.DefaultIfEmpty()
+                          join k in dbContext.GarmentUnitReceiptNotes on URNItem.URNId equals k.Id into l
+                          from URN in l.DefaultIfEmpty()
+                          where a.IsDeleted == false
+                              && i.IsDeleted == false
+                              && j.IsDeleted == false
+                              && m.IsDeleted == false
+                              && URN.IsDeleted == false
+                              && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)
+                              && a.SupplierId == (supplierId == 0 ? a.SupplierId : supplierId)
+                              && a.BillNo == (string.IsNullOrWhiteSpace(billNo) ? a.BillNo : billNo)
+                              && a.PaymentBill == (string.IsNullOrWhiteSpace(paymentBill) ? a.PaymentBill : paymentBill)
+                              && a.DODate.AddHours(offset).Date >= DateFrom.Date
+                              && a.DODate.AddHours(offset).Date <= DateTo.Date
+                              && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
+                          //&& URN.URNType == "PEMBELIAN"
 
                           select new GarmentDeliveryOrderReportViewModel
                           {
+                              no = a.DONo,
+                              supplierDoDate = a.DODate == null ? new DateTime(1970, 1, 1) : a.DODate,
+                              date = a.ArrivalDate,
+                              URNNo = URN == null ? "-" : URN.URNNo,
+                              URNDate = URN == null ? new DateTime(1970, 1, 1) : URN.ReceiptDate,
+                              URNType = URN == null ? "-" : URN.URNType,
+                              urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
+                              urnUom = URNItem == null ? "-" : URNItem.UomUnit,
+                              UnitName = URN.UnitName ?? "-",
+                              //urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
+                              //urnUom = URNItem == null ? "-" : URNItem.UomUnit,
+                              supplierName = a.SupplierName,
+                              supplierCode = a.SupplierCode,
+                              shipmentNo = a.ShipmentNo,
+                              shipmentType = a.ShipmentType,
+                              createdBy = a.CreatedBy,
+                              doCurrencyCode = a.DOCurrencyCode,
+                              doCurrencyRate = a.DOCurrencyRate,
+                              isCustoms = a.IsCustoms,
+                              price = j.PricePerDealUnit,
+                              ePONo = i.EPONo,
+                              productCode = j.ProductCode,
+                              productName = j.ProductName,
+                              productRemark = j.ProductRemark,
+                              prRefNo = j.POSerialNumber,
+                              roNo = j.RONo,
+                              prNo = j.PRNo,
+                              remark = a.Remark,
+                              dOQuantity = j.DOQuantity,
+                              dealQuantity = j.DealQuantity,
+                              uomUnit = j.UomUnit,
+                              createdUtc = j.CreatedUtc,
+                              EPOcreatedBy = m.CreatedBy,
+                              INNo = a.InternNo,
+                              TermPayment = m.PaymentMethod,
+                              BeacukaiNo = rr != null ? rr.BeacukaiNo : "-",
+                              BeacukaiDate = rr != null ? rr.CreatedUtc : DateTimeOffset.MinValue,
+                              BeacukaiType = rr != null ? rr.CustomsType : "-",
+                              BillNo = a.BillNo,
+                              PaymentBill = a.PaymentBill,
+                              BCDate = rr != null ? rr.BeacukaiDate : new DateTime(1970, 1, 1)
+                          });
+
+            var Query = (from gdo in Query1
+                         where gdo.URNType != "PROSES" && gdo.URNType != "GUDANG LAIN"
+
+                         select new GarmentDeliveryOrderReportViewModel
+                         {
                              no = gdo.no,
                              supplierDoDate = gdo.supplierDoDate,
                              date = gdo.date,
@@ -2298,7 +2687,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              PaymentBill = gdo.PaymentBill,
                              BCDate = gdo.BCDate,
                              diffdate = gdo.BeacukaiDate == DateTimeOffset.MinValue ? "No BC Belum Diinput" : Math.Abs((gdo.date.ToOffset(new TimeSpan(offset, 0, 0)) - gdo.BeacukaiDate.ToOffset(new TimeSpan(offset, 0, 0))).Days).ToString()
-                          });
+                         });
 
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<GarmentDeliveryOrderReportViewModel> urn = new List<GarmentDeliveryOrderReportViewModel>();
@@ -2389,7 +2778,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                 // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
                 //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
                 result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
-                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "");
+            //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "");
             else
             {
                 int index = 0;
@@ -2414,6 +2803,165 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
+
+        //
+        public IQueryable<OverBudgetQtyReportViewModel> GetReportQueryOB(string epoNo, string poNo, string inNo)
+        {
+            var reportResult = new List<OverBudgetQtyReportViewModel>();
+
+            var Query1 = (from a in dbContext.GarmentExternalPurchaseOrders 
+                         join b in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals b.GarmentEPOId
+                         join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.EPOItemId
+                         join d in dbContext.GarmentDeliveryOrderItems on c.GarmentDOItemId equals d.Id
+                         join e in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals e.Id
+                          join f in dbContext.GarmentInvoiceDetails on c.Id equals f.DODetailId into aa
+                          from DInv in aa.DefaultIfEmpty()
+                          join g in dbContext.GarmentInvoiceItems on DInv.InvoiceItemId equals g.Id into bb
+                          from IInv in bb.DefaultIfEmpty()
+                          join h in dbContext.GarmentInvoices on IInv.InvoiceId equals h.Id into cc
+                          from Inv in cc.DefaultIfEmpty()
+
+                          join i in dbContext.GarmentInternNoteItems on Inv.Id equals i.InvoiceId into dd
+                          from INItm in dd.DefaultIfEmpty()
+
+                          join j in dbContext.GarmentInternNotes on INItm.GarmentINId equals j.Id into ee
+                          from IN in ee.DefaultIfEmpty()
+
+                          where a.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? a.EPONo : epoNo)
+                                && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(poNo) ? b.PO_SerialNumber : poNo)
+                                && IN.INNo == (string.IsNullOrWhiteSpace(inNo) ? IN.INNo : inNo)
+
+                          select new OverBudgetQtyReportViewModel
+                          {
+                              epoNo = a.EPONo,
+                              orderDate = a.OrderDate,
+                              createdDate = e.CreatedUtc,
+                              supplierCode = a.SupplierCode,
+                              supplierName = a.SupplierName,
+                              codeRequirement = c.CodeRequirment,
+                              poNo = b.PO_SerialNumber,
+                              productCode = b.ProductCode,
+                              productName = b.ProductName,
+                              poQuantity = b.SmallQuantity,
+                              doQuantity = c.DOQuantity,
+                              obQuantity = 0,
+                              percentOB = 0,
+                              doNo = e.DONo,
+                              doDate = e.DODate,
+                              invoiceNo = Inv == null ? "-" : Inv.InvoiceNo,
+                              invoiceDate = Inv == null ? new DateTime(1970, 1, 1) : Inv.InvoiceDate,
+                              inNo = IN == null ? "-" : IN.INNo,
+                              inDate = IN == null ? new DateTime(1970, 1, 1) : IN.INDate,
+                              remark = "",
+                          }
+                               ).OrderBy(b => b.epoNo).ThenBy(b => b.poNo).ThenBy(b => b.createdDate);
+
+            //
+
+            double QtyDO = 0;
+
+            foreach (var item in Query1)
+            {
+                QtyDO += item.doQuantity;
+
+                OverBudgetQtyReportViewModel _newData = new OverBudgetQtyReportViewModel
+                 
+                {
+                    epoNo = item.epoNo,
+                    orderDate = item.orderDate,
+                    createdDate = item.createdDate,
+                    supplierCode = item.supplierCode,
+                    supplierName = item.supplierName,
+                    poNo = item.poNo,
+                    productCode = item.productCode,
+                    productName = item.productName,
+                    poQuantity = item.poQuantity,
+                    doQuantity = item.doQuantity,
+                    codeRequirement = item.codeRequirement,
+                    accmltvQuantity = QtyDO,
+                    obQuantity = QtyDO - item.poQuantity <= 0 ? 0 : QtyDO - item.poQuantity,
+                    percentOB = QtyDO - item.poQuantity <= 0 ? 0 : Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0),
+                    doNo = item.doNo,
+                    doDate = item.doDate,
+                    invoiceNo = item.invoiceNo,
+                    invoiceDate = item.invoiceDate,
+                    inNo = item.inNo,
+                    inDate = item.inDate,
+                    remark = item.codeRequirement == "BB" ? (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 50 ? "PRESIDEN DIREKTUR" : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 30 && Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) <= 50) ? "DIREKTUR KEUANGAN" : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 10 && Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) <= 30) ? "KABAG PEMBELIAN" : "-") : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 30 ? "DIREKTUR KEUANGAN" : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 10 && Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) <= 30) ? "KADIV PEMBELIAN" : (Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) > 0 && Math.Round(((QtyDO - item.poQuantity) / item.poQuantity) * 100, 0) <= 10) ? "KABAG PEMBELIAN" : "-"),
+                };
+                reportResult.Add(_newData);
+            }
+
+            return reportResult.AsQueryable();
+        }
+
+        public Tuple<List<OverBudgetQtyReportViewModel>, int> GetReportOB(string epoNo, string poNo, string inNo, int page, int size, string Order)
+
+        {
+            var Query = GetReportQueryOB(epoNo, poNo, inNo);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderBy(b => b.epoNo).ThenBy(b => b.poNo).ThenBy(b => b.createdDate);
+            }
+
+            Pageable<OverBudgetQtyReportViewModel> pageable = new Pageable<OverBudgetQtyReportViewModel>(Query, page - 1, size);
+            List<OverBudgetQtyReportViewModel> Data = pageable.Data.ToList<OverBudgetQtyReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcelOB(string epoNo, string poNo, string inNo)
+        {
+            var Query = GetReportQueryOB(epoNo, poNo, inNo);
+            //Query = Query.OrderBy(b => b.epoNo).ThenBy(b => b.poNo).ThenBy(b => b.createdDate);
+            
+            DataTable result = new DataTable();
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO External", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl PO External", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Ref PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah PO", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah SJ", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah OB", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah OB %", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Approval", DataType = typeof(String) });
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", 0, 0, 0, 0, "", "", "", "", "", "", "");
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+                    
+                    string EPODate = item.orderDate == new DateTime(1970, 1, 1) ? "-" : item.orderDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string DODate = item.doDate == DateTimeOffset.MinValue ? "-" : item.doDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string InvDate = item.invoiceDate == new DateTime(1970, 1, 1) ? "-" : item.invoiceDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string NIDate = item.inDate == new DateTime(1970, 1, 1) ? "-" : item.inDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(index, item.epoNo, EPODate, item.supplierCode, item.supplierName, item.poNo, item.productCode, item.productName, item.poQuantity, item.doQuantity, item.obQuantity, item.percentOB, item.doNo, DODate, item.invoiceNo, InvDate, item.inNo, NIDate, item.remark);
+                    
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+        //
     }
 
     public class AccuracyOfArrivalReportDetail
@@ -2421,8 +2969,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         internal DateTimeOffset EPODate;
 
         public int No { get; internal set; }
-        public string? SupplierCode { get; internal set; }
-        public string? SupplierName { get; internal set; }
+        public long SupplierId { get; internal set; }
+        public string SupplierCode { get; internal set; }
+        public string SupplierName { get; internal set; }
         public DateTimeOffset PRDate { get; internal set; }
         public DateTime IPODate { get; internal set; }
         public string? DONo { get; internal set; }
@@ -2433,9 +2982,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         public string? RONo { get; internal set; }
         public DateTimeOffset ShipmentDate { get; internal set; }
         public DateTimeOffset DODate { get; internal set; }
-        public string? OKStatus { get; internal set; }
-        public string? Staff { get; internal set; }
-        public string? POSerialNumber { get; internal set; }
+        public string OKStatus { get; internal set; }
+        public decimal Status { get; internal set; }
+        public decimal Status1 { get; internal set; }
+        public string Staff { get; internal set; }
+        public string POSerialNumber { get; internal set; }
     }
 
     public class SelectedGarmentDeliveryOrderDetail
@@ -2453,11 +3004,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
     {
         public int No { get; set; }
         public long SupplierId { get; set; }
-        public string? SupplierCode { get; set; }
-        public string? SupplierName { get; set; }
-        public double OKStatusPercentage { get; set; }
+        public string SupplierCode { get; set; }
+        public string SupplierName { get; set; }
+        public decimal OKStatusPercentage { get; set; }
+        public decimal NotOKStatusPercentage { get; set; }
         public int Total { get; set; }
-        public int OKTotal { get; internal set; }
+        public decimal OKTotal { get; internal set; }
+        public decimal NotOKTotal { get; internal set; }
     }
 
     public class AccuracyOfArrivalReportHeaderResult
@@ -2478,7 +3031,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             SupplierCode = garmentDeliveryOrder.SupplierCode;
             SupplierName = garmentDeliveryOrder.SupplierName;
             GarmentDeliveryOrderId = garmentDeliveryOrder.Id;
-            DODate = garmentDeliveryOrder.DODate;
+            DODate = garmentDeliveryOrder.ArrivalDate;
             DONo = garmentDeliveryOrder.DONo;
             CreatedBy = garmentDeliveryOrder.CreatedBy;
         }

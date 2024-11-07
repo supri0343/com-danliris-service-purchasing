@@ -68,21 +68,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     case "Date":
                         if (order.Value == "asc")
                         {
-                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? o.ValidatedMD2Date : o.Date);
+                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE" || o.PRType == "SUBCON") ? o.ValidatedMD2Date : o.Date);
                         }
                         else
                         {
-                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? o.ValidatedMD2Date : o.Date);
+                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE" || o.PRType == "SUBCON") ? o.ValidatedMD2Date : o.Date);
                         }
                         break;
                     case "Status":
                         if (order.Value == "asc")
                         {
-                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
+                            Query = Query.OrderBy(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE" || o.PRType == "SUBCON") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
                         }
                         else
                         {
-                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
+                            Query = Query.OrderByDescending(o => (o.PRType == "MASTER" || o.PRType == "SAMPLE" || o.PRType == "SUBCON") ? (o.IsValidatedMD1 && o.IsValidatedMD2 && o.IsValidatedPurchasing) : true);
                         }
                         break;
                     default:
@@ -176,7 +176,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			return new ReadResponse<dynamic>(Data, TotalData, OrderDictionary);
 		}
 
-		public GarmentPurchaseRequest ReadById(int id)
+        public Tuple<List<GarmentPurchaseRequest>, int, Dictionary<string, string>> ReadDynamicForSubconDeliveryOrder(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = "{}", string Search = "[]")
+        {
+            IQueryable<GarmentPurchaseRequest> Query = this.dbSet.Include(x => x.Items).Where(x => x.IsValidated ==  true && x.PRType == "SUBCON" && x.Items.Any(s => s.RemainingQuantity > 0));
+
+            List<string> SearchAttributes = JsonConvert.DeserializeObject<List<string>>(Search);
+            if (SearchAttributes.Count == 0)
+            {
+                SearchAttributes = new List<string>() { "Items.ProductName", "Items.PO_SerialNumber" };
+            }
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, SearchAttributes, Keyword, SearchWith: "StartsWith");
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+
+            Dictionary<string, string> SelectDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Select);
+            IQueryable SelectedQuery = Query;
+            if (SelectDictionary.Count > 0)
+            {
+                SelectedQuery = QueryHelper<GarmentPurchaseRequest>.ConfigureSelect(Query, SelectDictionary);
+            }
+
+            int TotalData = SelectedQuery.Count();
+
+            Pageable<GarmentPurchaseRequest> pageable = new Pageable<GarmentPurchaseRequest>(Query, Page - 1, Size);
+            List<GarmentPurchaseRequest> Data = pageable.Data.ToList<GarmentPurchaseRequest>();
+
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
+        public GarmentPurchaseRequest ReadById(int id)
         {
             var a = this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
@@ -228,7 +261,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
                     Created = await dbContext.SaveChangesAsync();
 
-                    if (m.PRType == "MASTER" || m.PRType == "SAMPLE")
+                    if (m.PRType == "MASTER" || m.PRType == "SAMPLE" || m.PRType == "SUBCON" || m.PRType == "TERIMA SUBCON")
                     {
                         await SetIsPR(m.SCId, true);
                     }
@@ -250,11 +283,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             DateTimeOffset now = m.Date.ToOffset(new TimeSpan(timeZone, 0, 0));
             string y = now.ToString("yy");
 
-            var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
-            if (unitCode < 1)
-            {
-                throw new Exception("UnitCode format is invalid when Generate RONo");
-            }
+            var unitCode = new List<string> { "GMT", "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
+            //if (unitCode < 1)
+            //{
+            //    throw new Exception("UnitCode format is invalid when Generate RONo");
+            //}
 
             var prefix = string.Concat(y, unitCode);
             var padding = 5;
@@ -268,9 +301,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             {
                 suffix = "S";
             }
+            else if (m.PRType == "SUBCON")
+            {
+                suffix = "SC";
+            }
+            else if (m.PRType == "TERIMA SUBCON")
+            {
+                suffix = "TS";
+            }
             else
             {
-                throw new Exception("PRType only accepting \"MASTER\" and \"SAMPLE\" in order to generate RONo.");
+                throw new Exception("PRType only accepting \"MASTER\" , \"SAMPLE\" , \"SUBCON\" , \"TERIMA SUBCON\" in order to generate RONo.");
             }
 
             var lastRONo = dbSet.Where(w => !string.IsNullOrWhiteSpace(w.RONo) && w.RONo.Length == prefix.Length + padding + suffix.Length && w.RONo.StartsWith(prefix) && w.RONo.EndsWith(suffix))
@@ -288,11 +329,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             DateTimeOffset now = m.Date.ToOffset(new TimeSpan(timeZone, 0, 0));
             string y = now.ToString("yy");
 
-            var unitCode = new List<string> { null, "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
-            if (unitCode < 1)
-            {
-                throw new Exception("UnitCode format is invalid when Generate POSerialnumber");
-            }
+            var unitCode = new List<string> { "GMT", "C2A", "C2B", "C2C", "C1A", "C1B" }.IndexOf(m.UnitCode);
+            //if (unitCode < 1)
+            //{
+            //    throw new Exception("UnitCode format is invalid when Generate POSerialnumber");
+            //}
 
             var prefix = string.Concat(y, unitCode);
             var padding = 6;
@@ -306,9 +347,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             {
                 suffix = "S";
             }
+            else if (m.PRType == "SUBCON")
+            {
+                suffix = "SC";
+            }
+            else if (m.PRType == "TERIMA SUBCON")
+            {
+                suffix = "TS";
+            }
             else
             {
-                throw new Exception("PRType only accepting \"MASTER\" and \"SAMPLE\" in order to generate POSerialNumber.");
+                throw new Exception("PRType only accepting \"MASTER\" , \"SAMPLE\" , \"SUBCON\" and \"TERIMA SUBCON\" in order to generate POSerialNumber.");
             }
 
             var prefixPM = string.Concat("PM", prefix);
@@ -362,7 +411,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                     {
                         EntityExtension.FlagForUpdate(oldM, user, USER_AGENT);
 
-                        if (m.PRType == "MASTER" || m.PRType == "SAMPLE")
+                        if (m.PRType == "MASTER" || m.PRType == "SAMPLE" || m.PRType == "SUBCON")
                         {
                             oldM.Article = m.Article;
                             oldM.Date = m.Date;
@@ -561,7 +610,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         EntityExtension.FlagForDelete(item, user, USER_AGENT);
                     }
 
-                    if (data.PRType == "MASTER" || data.PRType == "SAMPLE")
+                    if (data.PRType == "MASTER" || data.PRType == "SAMPLE" || data.PRType == "SUBCON")
                     {
                         var countPreSCinOtherPR = dbSet.Count(w => w.Id != data.Id && w.SCId == data.SCId);
                         if (countPreSCinOtherPR == 0)
@@ -1181,6 +1230,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Dibuat PO Internal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "NO RO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jenis", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Buyer", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Shipment GMT", DataType = typeof(String) });
@@ -1252,7 +1302,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "","","","","", "", "", 0, 0, "", 0,0, 0, 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "","", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "","","","","", "", "", 0, 0, "", 0,0, 0, 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -1260,7 +1310,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 {
                     index++;
 
-                    result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, 
+                    result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article,item.codeRequirement, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, 
                         item.paymentMethod, item.paymentType, 
                         item.paymentDueDays, item.supplierCode, item.supplierName, item.SupplierImport, item.status, item.productCode, item.productName,item.consts,item.yarn,item.width,item.composition, item.prProductRemark, item.poProductRemark, item.poDefaultQty, item.poDealQty,
                         item.poDealUomUnit, item.prBudgetPrice, item.poPricePerDealUnit, item.TotalNominalPO,item.prBudgetPrice * item.poDefaultQty, item.poCurrencyCode, item.poCurrencyRate, item.TotalNominalRp, item.ipoDate, item.doNo,
@@ -1299,7 +1349,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			}
 			return result;
 		}
-		private async Task<List<MonitoringPurchaseAllUserViewModel>> GetMonitoringPurchaseByUserReportQuery(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int offset, int page, int size)
+
+
+        private async Task<List<GarmentCategoryViewModel>> GetGarmentCategory()
+        {
+            var http = serviceProvider.GetService<IHttpClientService>();
+
+            List<GarmentCategoryViewModel> result = new List<GarmentCategoryViewModel>();
+            var Uri = APIEndpoint.Core + $"master/garment-categories?size=10000";
+
+            var httpResponse = await http.GetAsync(Uri);
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var contentString = await httpResponse.Content.ReadAsStringAsync();
+                Dictionary<string, object> content = JsonConvert.DeserializeObject<Dictionary<string, object>>(contentString);
+                var dataString = content.GetValueOrDefault("data").ToString();
+                var data = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(dataString);
+                result = data;
+            }
+            return result;
+        }
+        private async Task<List<MonitoringPurchaseAllUserViewModel>> GetMonitoringPurchaseByUserReportQuery(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int offset, int page, int size)
         {
 
 
@@ -1439,7 +1509,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             var purchaseRequestIds = queryResult.Select(s => s.PRId).Distinct().ToList();
             var purchaseRequests = dbContext.GarmentPurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.PRNo, s.Date, s.UnitName, s.BuyerCode, s.BuyerName, s.RONo, s.Article, s.ShipmentDate, s.IsUsed }).ToList();
             var purchaseRequestItemIds = queryResult.Select(s => s.PRItemId).Distinct().ToList();
-            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice, s.IsUsed }).ToList();
+            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice, s.IsUsed, s.Quantity }).ToList();
 
             var purchaseOrderInternalIds = queryResult.Select(s => s.POId).Distinct().ToList();
             var purchaseOrderInternals = dbContext.GarmentInternalPurchaseOrders.Where(w => purchaseOrderInternalIds.Contains(w.Id)).Select(s => new { s.Id, s.CreatedUtc, s.CreatedBy }).ToList();
@@ -1496,7 +1566,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 			}
 			listCode.Distinct();
 			var products = await GetProducts(listCode);
-			foreach (var item in queryResult)
+
+            var garmentCategory = await GetGarmentCategory();
+            foreach (var item in queryResult)
 			{
 
 
@@ -1588,7 +1660,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						productName = purchaseRequestItem.ProductName,
 						prProductRemark = purchaseRequestItem.ProductRemark,
 						poProductRemark = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.Remark,
-						poDefaultQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DefaultQuantity,
+						poDefaultQty = purchaseOrderExternalItem == null ? purchaseRequestItem.Quantity : purchaseOrderExternalItem.DefaultQuantity,
 						poDealQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity,
 						poDealUomUnit = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.DealUomUnit,
 						prBudgetPrice = purchaseRequestItem.BudgetPrice,
@@ -1674,6 +1746,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 				item.consts = products.Where(s => s.Code == item.productCode).Select(s => s.Const).FirstOrDefault();
 				item.composition = products.Where(s => s.Code == item.productCode).Select(s => s.Composition).FirstOrDefault();
 				item.Total = TotalCountReport;
+
+                item.codeRequirement = garmentCategory.Where(x => x.Name.Trim() == item.productName.Trim()).Select(x => x.CodeRequirement).FirstOrDefault();
 			}
 			return listEPO;
             //return listEPO.AsQueryable();
@@ -1834,7 +1908,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             var purchaseRequestIds = queryResult.Select(s => s.PRId).Distinct().ToList();
             var purchaseRequests = dbContext.GarmentPurchaseRequests.Include(s=> s.Items).Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.PRNo, s.Date, s.UnitName, s.BuyerCode, s.BuyerName, s.RONo, s.Article, s.ShipmentDate, s.IsUsed }).ToList();
             var purchaseRequestItemIds = queryResult.Select(s => s.PRItemId).Distinct().ToList();
-            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice, s.IsUsed }).ToList();
+            var purchaseRequestItems = dbContext.GarmentPurchaseRequestItems.Where(w => purchaseRequestItemIds.Contains(w.Id)).Select(s => new { s.Id, s.PO_SerialNumber, s.ProductCode, s.ProductName, s.ProductRemark, s.BudgetPrice, s.IsUsed, s.Quantity }).ToList();
 
             var purchaseOrderInternalIds = queryResult.Select(s => s.POId).Distinct().ToList();
             var purchaseOrderInternals = dbContext.GarmentInternalPurchaseOrders.Where(w => purchaseOrderInternalIds.Contains(w.Id)).Select(s => new { s.Id, s.CreatedUtc, s.CreatedBy }).ToList();
@@ -1975,7 +2049,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                         poDealQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity,
                         poDealUomUnit = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.DealUomUnit,
                         prBudgetPrice = purchaseRequestItem.BudgetPrice,
-                        poPricePerDealUnit = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.PricePerDealUnit,
+                        poPricePerDealUnit = purchaseOrderExternalItem == null ? purchaseRequestItem.Quantity : purchaseOrderExternalItem.PricePerDealUnit,
                         totalNominalPO = purchaseOrderExternalItem == null ? "" : string.Format("{0:N2}", purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit),
                         TotalNominalPO = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit,
                         poCurrencyCode = purchaseOrderExternal == null ? "" : purchaseOrderExternal.CurrencyCode,

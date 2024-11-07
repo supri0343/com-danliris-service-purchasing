@@ -930,6 +930,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              UPODate = a.Date,
                              SupplierCode = a.SupplierCode,
                              SupplierName = a.SupplierName,
+                             DivisionName = a.DivisionName,
+                             UnitCode = d.UnitCode,
+                             UnitName = d.UnitName,
                              CategoryName = a.CategoryName,
                              InvoiceNo = a.InvoiceNo,
                              InvoiceDate = a.InvoiceDate,
@@ -1013,10 +1016,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "PRINTED_FLAG", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "USER INPUT", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "TERM", DataType = typeof(string) });
-            result.Columns.Add(new DataColumn() { ColumnName = "RATE PPN", DataType = typeof(double) });          
-        
+            result.Columns.Add(new DataColumn() { ColumnName = "RATE PPN", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "DIVISI", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "KODE UNIT", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NAMA UNIT", DataType = typeof(String) });
+
+
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", 0, "", "", 0, 0, "", "", "", "", "", 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", 0, "", "", 0, 0, "", "", "", "", "", 0, "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -1034,7 +1041,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                     DueDate,item.PaymentDueDays,item.UPORemark, item.UseVat, item.VatNo, VatDate, item.UseIncomeTax, item.IncomeTaxName,
                                     item.IncomeTaxRate, item.IncomeTaxNo, IncomeTaxDate, item.EPONO, item.PRNo, item.AccountNo, item.ProductCode,
                                     item.ProductName, item.ReceiptQty, item.UOMUnit, item.PricePerDealUnit, item.IncludedPPN, item.CurrencyCode, item.CurrencyRate,
-                                    item.PriceTotal, item.URNNo, URNDate, item.Printed, item.UserCreated, item.PaymentMethod, item.VatRate);
+                                    item.PriceTotal, item.URNNo, URNDate, item.Printed, item.UserCreated, item.PaymentMethod, item.VatRate, item.DivisionName, item.UnitCode, item.UnitName);
                 }
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);

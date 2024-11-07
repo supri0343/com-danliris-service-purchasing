@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
             //Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 
-            Document document = new Document(PageSize.A4, 40, 40, 200, 40);
+            Document document = new Document(PageSize.A4, 40, 40, 210, 40);
             //document.AddHeader("Header", viewModel.inNo);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
@@ -104,6 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             PdfPCell cellInternNoteHeader = new PdfPCell(tableInternNoteHeader); // dont remove
             tableInternNoteHeader.ExtendLastRow = false;
+
             document.Add(tableInternNoteHeader);
             #endregion
 
@@ -162,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         PaymentBill = detail.deliveryOrder.paymentBill,
                         DONo = detail.deliveryOrder.doNo,
                         DODate = detail.deliveryOrder.doDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")),
-                        RefNo = detail.poSerialNumber + " - " + detail.ePONo,
+                        RefNo = detail.poSerialNumber + " - " + detail.ePONo + (detail.isOverBudget ? " - OB" : ""),
                         Product = detail.product.Name,
                         Quantity = detail.quantity.ToString("N", new CultureInfo("id-ID")),
                         UomUnit = detail.uomUnit.Unit,
@@ -262,7 +263,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
             tableContent.ExtendLastRow = false;
             tableContent.SpacingAfter = 20f;
-            //tableContent.SpacingBefore = document.TopMargin - 40f;
+            //tableContent.SpacingBefore = document.TopMargin - 50f;
             document.Add(tableContent);
             #endregion
 
@@ -500,7 +501,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cb.ShowTextAligned(PdfContentByte.ALIGN_LEFT, headOffices[i], headOfficeX, headOfficeY + 10 - (i * 12), 0);
             }
 
-            var titleY = height - marginTop + 80;
+            var titleY = height - marginTop + 90;
             var infoY = height - marginTop + 50;
 
             string titleString = "NOTA INTERN";
@@ -537,7 +538,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             DateTimeOffset coba1 = coba.Min(p => p);
 
             //PdfPCell newTblCell = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
-            PdfPCell newTblCellLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+            PdfPCell newTblCellLeft = new PdfPCell() { Border = Rectangle.NO_BORDER , HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell newTblCellRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
             newTblCellLeft.Phrase = new Phrase("No. Nota Intern" + "      : " + viewModel.inNo, baseFontNormal);
@@ -552,27 +553,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             pdfTab.AddCell(newTblCellLeft);
             newTblCellLeft.Phrase = new Phrase("Term Pembayaran" + "         : " + paymentmethods, baseFontNormal);
             pdfTab.AddCell(newTblCellLeft);
+            newTblCellLeft.Phrase = new Phrase("No. Invoice" + "             : " + viewModel.items.FirstOrDefault().garmentInvoice.invoiceNo, baseFontNormal);
+            pdfTab.AddCell(newTblCellLeft);
+
+            newTblCellLeft.Phrase = new Phrase("", baseFontNormal);
+            pdfTab.AddCell(newTblCellLeft);
 
 
-   //         if ( coba1 < viewModel.inDate)
-			//{
-   //             PdfPTable tableRemark = new PdfPTable(2);
-   //             float[] widths = new float[] { 1f, 0.5f };
-   //             tableRemark.SetWidths(widths);
-   //             PdfPCell CellRemarkContent = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
+            //         if ( coba1 < viewModel.inDate)
+            //{
+            //             PdfPTable tableRemark = new PdfPTable(2);
+            //             float[] widths = new float[] { 1f, 0.5f };
+            //             tableRemark.SetWidths(widths);
+            //             PdfPCell CellRemarkContent = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
 
-   //             CellRemarkContent.Phrase = new Phrase("Remark :\n\n\n\n\n\n\n", baseFontNormal);
-   //             tableRemark.AddCell(CellRemarkContent);
-   //             CellRemarkContent.Phrase = new Phrase("TTD\n\n\n\n\n\n\n", baseFontNormal);
-   //             tableRemark.AddCell(CellRemarkContent);
+            //             CellRemarkContent.Phrase = new Phrase("Remark :\n\n\n\n\n\n\n", baseFontNormal);
+            //             tableRemark.AddCell(CellRemarkContent);
+            //             CellRemarkContent.Phrase = new Phrase("TTD\n\n\n\n\n\n\n", baseFontNormal);
+            //             tableRemark.AddCell(CellRemarkContent);
 
-   //             PdfPCell cellRemark = new PdfPCell(tableRemark); // don't remove
-   //             tableRemark.ExtendLastRow = false;
-   //             tableRemark.SpacingAfter = 10f;
-   //             document.Add(tableRemark);
-   //         }
+            //             PdfPCell cellRemark = new PdfPCell(tableRemark); // don't remove
+            //             tableRemark.ExtendLastRow = false;
+            //             tableRemark.SpacingAfter = 10f;
+            //             document.Add(tableRemark);
+            //         }
 
-           
+
             string text = "Page " + writer.CurrentPageNumber;
 
             {
@@ -594,7 +600,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //call WriteSelectedRows of PdfTable. This writes rows from PdfWriter in PdfTable
             //first param is start row. -1 indicates there is no end row and all the rows to be included to write
             //Third and fourth param is x and y position to start writing
-            pdfTab.WriteSelectedRows(0, -1, 40, document.PageSize.Height - document.TopMargin + 70, writer.DirectContent);
+            pdfTab.WriteSelectedRows(0, -1, 40, document.PageSize.Height - document.TopMargin + 80, writer.DirectContent);
 
             //cb.MoveTo(40, document.PageSize.GetBottom(50));
             //cb.LineTo(document.PageSize.Width - 40, document.PageSize.GetBottom(50));

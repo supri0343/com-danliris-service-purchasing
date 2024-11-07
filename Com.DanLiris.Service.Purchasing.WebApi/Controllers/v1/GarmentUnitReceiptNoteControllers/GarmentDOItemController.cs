@@ -16,7 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
     [Produces("application/json")]
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/garment-do-items")]
-    [Authorize]
+  
     public class GarmentDOItemController : Controller
     {
         private string ApiVersion = "1.0.0";
@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             this.facade = facade;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
-
+        [Authorize]
         [HttpGet("unit-delivery-order")]
         public IActionResult GetForUnitDO(string keyword = null, string filter = "{}")
         {
@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
+        [Authorize]
         [HttpGet("unit-delivery-order/more")]
         public IActionResult GetForUnitDOMore(string keyword = null, string filter = "{}")
         {
@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
+        [Authorize]
         [HttpGet("by-po")]
         public IActionResult GetDOItemsByPO(string productcode, string po, string unitcode)
         {
@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
+        [Authorize]
         [HttpGet("by-po/download")]
         public IActionResult GetXls(string productcode, string po, string unitcode)
         {
@@ -122,7 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
 
         }
-
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] DOItemsRackingViewModels ViewModel)
         {
@@ -192,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+                //identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
                 var result = facade.GetStellingQuery(id, offset);
 
                 if (indexAcceptPdf < 0)
@@ -207,6 +207,50 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                     identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                     var stream = facade.GeneratePdf(result.Result);
+
+                    var po = result.Result.Select(x => x.POSerialNumber).Take(1).ToList();
+
+                    var a = po[0];
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"Racking - {po[0]}.pdf"
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [Authorize]
+        [HttpGet("barcode/{id}")]
+        public IActionResult GetBarcode(int id)
+        {
+            try
+            {
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                //identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+                var result = facade.GetStellingQuery(id, offset);
+
+                if (indexAcceptPdf < 0)
+                {
+                    Dictionary<string, object> Result =
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(result.Result);
+                    return Ok(Result);
+                }
+                else
+                {
+                    identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    var stream = facade.GenerateBarcode(result.Result);
 
                     var po = result.Result.Select(x => x.POSerialNumber).Take(1).ToList();
 

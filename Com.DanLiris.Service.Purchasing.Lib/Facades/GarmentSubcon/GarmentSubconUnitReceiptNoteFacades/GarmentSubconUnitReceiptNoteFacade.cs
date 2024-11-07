@@ -5,6 +5,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces.GarmentSubcon;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubconUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentSubcon.GarmentUnitReceiptNoteViewModels;
 using Com.Moonlay.Models;
@@ -31,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
         private readonly DbSet<GarmentSubconUnitReceiptNoteItem> dbSetGarmentUnitReceiptNoteItem;
 
         private readonly DbSet<GarmentSubconDeliveryOrder> dbsetGarmentDeliveryOrder;
+        private readonly DbSet<GarmentSubconDeliveryOrderItem> dbsetGarmentDeliveryOrderItem;
         private readonly IMapper mapper;
         public GarmentSubconUnitReceiptNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
@@ -41,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             dbSet = dbContext.Set<GarmentSubconUnitReceiptNote>();
             dbSetGarmentUnitReceiptNoteItem = dbContext.Set<GarmentSubconUnitReceiptNoteItem>();
             dbsetGarmentDeliveryOrder = dbContext.Set<GarmentSubconDeliveryOrder>();
-
+            dbsetGarmentDeliveryOrderItem = dbContext.Set<GarmentSubconDeliveryOrderItem>();
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
 
@@ -155,15 +157,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
 
                     if (garmentUnitReceiptNote.URNType == "TERIMA SUBCON")
                     {
-                        var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
-                        EntityExtension.FlagForUpdate(garmentDeliveryOrder, identityService.Username, USER_AGENT);
-                        garmentDeliveryOrder.IsReceived = true;
+                        //var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                        //EntityExtension.FlagForUpdate(garmentDeliveryOrder, identityService.Username, USER_AGENT);
+                        //garmentDeliveryOrder.IsReceived = true;
                     }
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
                         EntityExtension.FlagForCreate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
 
+                        //Update ReceiptQty DeliveryOrder
+                        var garmentDeliveryOrderItem = dbsetGarmentDeliveryOrderItem.First(d => d.Id == garmentUnitReceiptNoteItem.DOItemId);
+                        garmentDeliveryOrderItem.ReceiptQuantity += garmentUnitReceiptNoteItem.ReceiptQuantity;
+                        EntityExtension.FlagForUpdate(garmentDeliveryOrderItem, identityService.Username, USER_AGENT);
+                        
                         if (garmentUnitReceiptNote.URNType == "PROSES")
                         {
                             //await UpdateDR(garmentUnitReceiptNote.DRId, true, garmentUnitReceiptNote.UnitCode);
@@ -543,6 +550,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                     foreach(var item in garmentUnitReceiptNote.Items)
                     {
                         EntityExtension.FlagForDelete(item, identityService.Username, USER_AGENT);
+
+                        //Update ReceiptQty DeliveryOrder
+                        if (garmentUnitReceiptNote.URNType == "TERIMA SUBCON")
+                        {
+                            var garmentDeliveryOrderItem = dbsetGarmentDeliveryOrderItem.First(d => d.Id == item.DOItemId);
+                            garmentDeliveryOrderItem.ReceiptQuantity -= item.ReceiptQuantity;
+                            EntityExtension.FlagForUpdate(garmentDeliveryOrderItem, identityService.Username, USER_AGENT);
+                        }
                     }
 
                     #region Proses dari DR
@@ -761,10 +776,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             {
                 Query = Query.Where(x => x.UnitId == unitId);
             }
-            if (hasRONoFilter)
-            {
-                Query = Query.Where(x => x.RONo == RONo);
-            }
+            //if (hasRONoFilter)
+            //{
+            //    Query = Query.Where(x => x.RONo == RONo);
+            //}
             
             //if (hasPOSerialNumberFilter)
             //{
@@ -774,6 +789,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             var data = hasUrnItemIdFilter ? from a in Query
                                            join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
                                            where b.RemainingQuantity > 0 && b.IsDeleted == false && b.Id == UrnItemsId
+                                           && b.RONoMaster == (hasRONoFilter != null ? RONo : b.RONoMaster)
                                             select new
                                            {
                                                URNId = a.Id,
@@ -788,8 +804,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                                                b.DesignColor,
                                                b.POSerialNumber,
                                                b.RemainingQuantity,
-                                               a.RONo,
-                                               a.Article,
+                                               b.RONoMaster,
+                                               b.Article,
                                                b.ProductRemark,
                                                b.PricePerDealUnit,
                                                b.ReceiptCorrection,
@@ -801,7 +817,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                                             } : from a in Query
                        join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
                        where b.RemainingQuantity > 0 && b.StorageId == (hasStorageFilter != null ? storageId : b.StorageId) && b.IsDeleted== false
-                       select new
+                        && b.RONoMaster == (hasRONoFilter != null ? RONo : b.RONoMaster)
+                        select new
                        {
                            URNId = a.Id,
                            URNItemId = b.Id,
@@ -815,8 +832,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
                            b.DesignColor,
                            b.POSerialNumber,
                            b.RemainingQuantity,
-                           a.RONo,
-                           a.Article,
+                           b.RONoMaster,
+                           b.Article,
                            b.ProductRemark,
                            b.PricePerDealUnit,
                            b.ReceiptCorrection,
@@ -849,20 +866,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubco
             {
                 Query = Query.Where(x => x.UnitId == unitId);
             }
-            if (hasRONoFilter)
-            {
-                Query = Query.Where(x => x.RONo != RONo);
-            }
+            //if (hasRONoFilter)
+            //{
+            //    Query = Query.Where(x => x.RONo != RONo);
+            //}
 
             Keyword = (Keyword ?? "").Trim();
             var data = from a in Query
                        join b in dbSetGarmentUnitReceiptNoteItem on a.Id equals b.URNId
                        where b.RemainingQuantity > 0 && b.StorageId == (hasStorageFilter != null ? storageId : b.StorageId) && b.IsDeleted == false
-                       && (a.RONo.Contains(Keyword) || b.POSerialNumber.Contains(Keyword))
+                       && (b.RONoMaster.Contains(Keyword) || b.POSerialNumber.Contains(Keyword))
+                       && b.RONoMaster != (hasRONoFilter != null ? RONo : b.RONoMaster)
                        select new
                        {
                            URNItemId = b.Id,
-                           a.RONo,
+                           //a.RONo,
+                           RONo = b.RONoMaster,
                            b.ProductName,
                            b.ProductCode,
                            b.POSerialNumber,

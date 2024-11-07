@@ -17,6 +17,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
         public long prItemId { get; set; }
 
         public string? categoryCode { get; set; }
+        public int categoryId { get; set; }
+        public string categoryName { get; set; }
         public string? uom { get; set; }
         public string? uomId { get; set; }
         public bool isCorrection { get; set; }
@@ -27,5 +29,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
         public ProductViewModel product { get; set; }
         public PurchaseOrderViewModel purchaseOrder { get; set; }
         public bool isPaid { get; set; }
+        public bool IsSave { get; set; }
     }
 }

@@ -38,6 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
             mapItem.ForMember(s => s.CurrencyCode, opt => opt.MapFrom(d => d.CurrencyCode));
             mapItem.ForMember(s => s.VatId, opt => opt.MapFrom(d => d.VatId));
             mapItem.ForMember(s => s.VatRate, opt => opt.MapFrom(d => d.VatRate));
+            mapItem.ForMember(s => s.Invoice, opt => opt.MapFrom(d => d.Invoice));
 
             mapItem.ReverseMap();
 

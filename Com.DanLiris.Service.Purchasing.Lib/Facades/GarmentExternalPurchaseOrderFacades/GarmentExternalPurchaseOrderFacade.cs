@@ -940,16 +940,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             var Query = (from a in dbContext.GarmentExternalPurchaseOrders
                          join b in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals b.GarmentEPOId
                          join d in dbContext.GarmentPurchaseRequests on b.PRId equals d.Id
+                         join c in dbContext.GarmentPurchaseRequestItems on b.PO_SerialNumber equals c.PO_SerialNumber 
 
                          //Conditions
                          where b.IsOverBudget == true && a.IsOverBudget == true && a.IsDeleted == false
-                            && b.IsDeleted == false
-                            && d.IsDeleted == false
+                            && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
                             && a.IsApproved == (string.IsNullOrWhiteSpace(status) ? a.IsApproved : _status)
                             && d.UnitId == (string.IsNullOrWhiteSpace(unit) ? d.UnitId : unit)
                             && a.EPONo == (string.IsNullOrWhiteSpace(epono) ? a.EPONo : epono)
                             && a.SupplierId.ToString() == (string.IsNullOrWhiteSpace(supplier) ? a.SupplierId.ToString() : supplier)
-                             && ((d1 != new DateTime(1970, 1, 1)) ? (a.OrderDate.Date >= d1 && a.OrderDate.Date <= d2) : true)
+                            && ((d1 != new DateTime(1970, 1, 1)) ? (a.OrderDate.Date >= d1 && a.OrderDate.Date <= d2) : true)
 
                          select new GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel
                          {
@@ -965,7 +965,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              productCode = b.ProductCode,
                              productName = b.ProductName,
                              productDesc = b.Remark,
+                             budgetqty = c.Quantity,
                              quantity = b.DealQuantity,
+                             diffqty = b.DealQuantity - c.Quantity,
                              uom = b.DealUomUnit,
                              budgetPrice = b.BudgetPrice,
                              price = b.PricePerDealUnit,
@@ -995,7 +997,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         productCode = item.productCode,
                         productName = item.productName,
                         productDesc = item.productDesc,
+                        budgetqty = item.budgetqty,
                         quantity = item.quantity,
+                        diffqty = item.diffqty,
                         uom = item.uom,
                         budgetPrice = item.budgetPrice,
                         price = item.price,
@@ -1050,7 +1054,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Budget", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Selisih", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Budget", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga  Beli", DataType = typeof(String) });
@@ -1062,7 +1068,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Over Budget", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -1070,7 +1076,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                 {
                     index++;
 
-                    result.Rows.Add(item.no, item.poExtNo, item.poExtDate, item.supplierCode, item.supplierName, item.prNo, item.prDate, item.prRefNo, item.unit, item.productName, item.productCode, item.productDesc, item.quantity, item.uom, item.price, item.budgetPrice, item.totalBudgetPrice, item.totalPrice, item.overBudgetValue, item.overBudgetValuePercentage, item.status, item.overBudgetRemark);
+                    result.Rows.Add(item.no, item.poExtNo, item.poExtDate, item.supplierCode, item.supplierName, item.prNo, item.prDate, item.prRefNo, item.unit, item.productName, item.productCode, item.productDesc, item.budgetqty, item.quantity, item.diffqty, item.uom, item.price, item.budgetPrice, item.totalBudgetPrice, item.totalPrice, item.overBudgetValue, item.overBudgetValuePercentage, item.status, item.overBudgetRemark);
                 }
             }
 
@@ -1384,6 +1390,111 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             }
 
             return response;
+        }
+
+        public List<object> DynamicSubcon(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(x => x.Items);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo",
+            };
+
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+
+            List<object> ListData = new List<object>();
+
+            var res = from m in Query
+                      join b in dbContext.GarmentExternalPurchaseOrderItems on m.Id equals b.GarmentEPOId
+                      where m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && ((m.IsOverBudget == true && m.IsApproved == true) || m.IsOverBudget == false)
+                      && b.IsDeleted == false && (b.DealQuantity - b.DOQuantity > 0)
+                      select new
+                      {
+                          EPOId = m.Id,
+                          m.EPONo,
+                          m.CurrencyRate,
+                          EPOItemId = b.Id,
+                          Product = new GarmentProductViewModel{Id = b.ProductId,Code=b.ProductCode, Name = b.ProductName },
+                          Uom = new UomViewModel { Id = b.DealUomId.ToString(), Unit = b.DealUomUnit },
+                          BudgetQuantity = b.DealQuantity - b.DOQuantity,
+                          b.PO_SerialNumber,
+                          b.PricePerDealUnit,
+                          RONoMaster = b.RONo,
+                          b.Article
+                      };
+            //var res = Query
+            //    .Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && ((m.IsOverBudget == true && m.IsApproved == true) || m.IsOverBudget == false))
+            //    .Select(s => new 
+            //    {
+            //        Id = s.Id,
+            //        UId = s.UId,
+            //        EPONo = s.EPONo,
+            //        OrderDate = s.OrderDate,
+            //        DeliveryDate = s.DeliveryDate,
+            //        SupplierName = s.SupplierName,
+            //        SupplierId = s.SupplierId,
+            //        SupplierCode = s.SupplierCode,
+            //        SupplierImport = s.SupplierImport,
+            //        CurrencyId = s.CurrencyId,
+            //        CurrencyCode = s.CurrencyCode,
+            //        PaymentMethod = s.PaymentMethod,
+            //        PaymentType = s.PaymentType,
+            //        PaymentDueDays = s.PaymentDueDays,
+            //        IncomeTaxId = s.IncomeTaxId,
+            //        IncomeTaxName = s.IncomeTaxName,
+            //        IncomeTaxRate = s.IncomeTaxRate,
+            //        VatId = s.VatId,
+            //        VatRate = s.VatRate,
+            //        IsUseVat = s.IsUseVat,
+            //        IsIncomeTax = s.IsIncomeTax,
+            //        IsClosed = s.IsClosed,
+            //        CreatedBy = s.CreatedBy,
+            //        LastModifiedUtc = s.LastModifiedUtc,
+            //        IsPayVAT = s.IsPayVAT,
+            //        IsPayIncomeTax = s.IsPayIncomeTax,
+            //        Items = s.Items.Select(i => new GarmentExternalPurchaseOrderItem
+            //        {
+            //            Id = i.Id,
+            //            POId = i.POId,
+            //            PONo = i.PONo,
+            //            RONo = i.RONo,
+            //            PRId = i.PRId,
+            //            PRNo = i.PRNo,
+            //            ProductCode = i.ProductCode,
+            //            ProductId = i.ProductId,
+            //            ProductName = i.ProductName,
+            //            PO_SerialNumber = i.PO_SerialNumber,
+            //            DefaultQuantity = i.DefaultQuantity,
+            //            DefaultUomId = i.DefaultUomId,
+            //            DefaultUomUnit = i.DefaultUomUnit,
+            //            DealQuantity = i.DealQuantity,
+            //            DealUomId = i.DealUomId,
+            //            DealUomUnit = i.DealUomUnit,
+            //            DOQuantity = i.DOQuantity,
+            //            PricePerDealUnit = i.PricePerDealUnit,
+            //            BudgetPrice = i.BudgetPrice,
+            //            Conversion = i.Conversion,
+            //            SmallQuantity = i.SmallQuantity,
+            //            SmallUomId = i.SmallUomId,
+            //            SmallUomUnit = i.SmallUomUnit,
+            //            Remark = i.Remark
+            //        })
+            //        .Where(i => (i.DealQuantity - i.DOQuantity) > 0)
+            //        .ToList()
+            //    })
+            //    .Where(m => m.Items.Count > 0);
+
+            foreach(var a in res)
+            {
+                ListData.Add(a);
+            }
+
+
+            return ListData;
         }
     }
 }
