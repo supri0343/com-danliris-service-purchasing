@@ -32,7 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet]
-        public IActionResult GetReportBC(string filter, string keyword, int page = 1, int size = 25, string Order = "{}")
+        public async Task<IActionResult> GetReportBC(string filter, string keyword, int page = 1, int size = 25, string Order = "{}")
         {
             try
             {
@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
-                var data = _facade.GetBeacukaiNo(filter, keyword);
+                var data = await _facade.GetBeacukaiNo(filter, keyword);
 
                 return Ok(new
                 {

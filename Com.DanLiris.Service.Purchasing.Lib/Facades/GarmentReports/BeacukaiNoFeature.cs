@@ -10,6 +10,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using System.Net.Http;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
@@ -26,11 +27,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbSet = dbContext.Set<GarmentDeliveryOrder>();
         }
 
-        public Tuple<List<BeacukaiNoFeatureViewModel>, int> GetBeacukaiNoReport(string filter, string keyword)
+        public async Task<Tuple<List<BeacukaiNoFeatureViewModel>, int>> GetBeacukaiNoReport(string filter, string keyword)
         {
             //var Query = GetStockQuery(tipebarang, unitcode, dateFrom, dateTo, offset);
             //Query = Query.OrderByDescending(x => x.SupplierName).ThenBy(x => x.Dono);
-            List<BeacukaiNoFeatureViewModel> Data = GetBeacukaiNo(filter, keyword);
+            List<BeacukaiNoFeatureViewModel> Data = await GetBeacukaiNo(filter, keyword);
 
            // List<BeacukaiNoFeatureViewModel> Data= GetDeletHistory(string filter, string keyword);
 
@@ -39,7 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Tuple.Create(Data.OrderByDescending(x=>x.PO).ToList(), Data.OrderByDescending(x => x.PO).Count());
         }
 
-        public List<BeacukaiNoFeatureViewModel> GetBeacukaiNo(string filter, string keyword)
+        public async Task<List<BeacukaiNoFeatureViewModel>> GetBeacukaiNo(string filter, string keyword)
         {
             var Query = filter == "BCNo" ? from a in dbContext.GarmentBeacukais
                                            join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
@@ -208,7 +209,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 SupplierName = key.SupplierName,
             });
 
-            var Query2 = from a in Query
+            var Query2 = (from a in Query
                          join b in Code on a.ProductCode equals b.Code into Codes
                          from code in Codes.DefaultIfEmpty()
                          select new BeacukaiNoFeatureViewModel
@@ -234,11 +235,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              QtyUEN = a.QtyUEN,
                              UENType = a.UENType,
                              SupplierName = a.SupplierName
-                         };
+                         }).ToList();
+
+            //Tambah transaksi dari gudang sisa
+            var leftOverBUK = Query2.Where(x => x.UENType == "SISA").Select(s => new UEN {UENNo= s.UENNo,PO =s.PO }).ToHashSet();
+            
+            //kalkulasi jika ada buk dengan tujuan sisa
+            if(leftOverBUK.Count > 0)
+            {
+                var resultLeftOver = await GetLoftOverWarehouse(leftOverBUK);
+
+                //Mapping data jika ada transaksi dari gudang sisa
+                foreach (var data in Query2)
+                {
+                    var matchBUKPO = resultLeftOver.Where(x => x.UENNo == data.UENNo && x.PO == data.PO).FirstOrDefault();
+
+                    if (matchBUKPO != null)
+                    {
+                        data.ReceiptNo = matchBUKPO.ReceiptNo;
+                        data.ReceiptQty = matchBUKPO.ReceiptQty;
+                        data.ExpenditureNo = matchBUKPO.ExpenditureNo;
+                        data.ExpenditureQty = matchBUKPO.ExpenditureQty;
+                    }
+
+                }
+            }
 
             return Query2.OrderBy(x => x.BCNo).ThenBy(x => x.DONo).ThenBy(x => x.URNNo).ThenBy(x => x.UENNo).ToList();
         }
 
+        private class UEN
+        {
+            public string UENNo { get; set; }
+            public string PO { get; set; }
+        }
+
+        private class GarmentLeftoverWarehouseMonitoring
+        {
+            public string ReceiptNo { get; set; }
+            public double ReceiptQty { get; set; }
+            public string ExpenditureNo { get; set; }
+            public double ExpenditureQty { get; set; }
+            public string UENNo { get; set; }
+            public string PO { get; set; }
+        }
         private List<GarmentProductViewModel> GetProductCode(string codes)
         {
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
@@ -261,6 +301,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             return viewModel;
 
+        }
+
+        private async Task<List<GarmentLeftoverWarehouseMonitoring>> GetLoftOverWarehouse(HashSet<UEN> data)
+        {
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var httpContent = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var response = await httpClient.SendAsync(HttpMethod.Get,$"{APIEndpoint.Inventory}/garment/leftover-warehouse-stocks/report/monitoringBC",httpContent);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                List<GarmentLeftoverWarehouseMonitoring> viewModel = JsonConvert.DeserializeObject<List<GarmentLeftoverWarehouseMonitoring>>(result.GetValueOrDefault("data").ToString()); ;
+                return viewModel;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

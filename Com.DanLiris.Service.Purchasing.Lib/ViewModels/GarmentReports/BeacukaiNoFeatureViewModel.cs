@@ -28,5 +28,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double QtyUEN { get; set; }
         public string UENType { get; set; }
         public long UnitDOItemId { get; set; }
+
+        //Enhance 07-11-2024 add data from LeftOver
+        public string ReceiptNo { get; set; }
+        public double ReceiptQty { get; set; }
+        public string ExpenditureNo { get; set; }
+        public double ExpenditureQty { get; set; }
     }
 }
