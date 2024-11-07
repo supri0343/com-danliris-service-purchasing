@@ -40,9 +40,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public string? LastModifiedAgent { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime DeletedUtc { get; set; }
-        public string? DeletedBy { get; set; }
-        public string? DeletedAgent { get; set; }
-        public string? VatId { get; set; }
-        public string? VatRate { get; set; }
+        public string DeletedBy { get; set; }
+        public string DeletedAgent { get; set; }
+        public string VatId { get; set; }
+        public string VatRate { get; set; }
+        public string Invoice { get; set; }
     }
 }

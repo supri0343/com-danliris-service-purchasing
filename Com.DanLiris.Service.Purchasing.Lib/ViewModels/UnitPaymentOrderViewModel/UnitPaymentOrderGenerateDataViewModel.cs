@@ -11,10 +11,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
     {
         public string? UPONo { get; set; }
         public DateTimeOffset? UPODate { get; set; }
-        public string? SupplierCode { get; set; }
-        public string? SupplierName { get; set; }
-        public string? CategoryName { get; set; }
-        public string? InvoiceNo { get; set; }
+        public string SupplierCode { get; set; }
+        public string SupplierName { get; set; }
+        public string CategoryName { get; set; }
+        public string DivisionName { get; set; }
+        public string UnitCode { get; set; }
+        public string UnitName { get; set; }
+        public string InvoiceNo { get; set; }
         public DateTimeOffset? InvoiceDate { get; set; }
         public DateTimeOffset? DueDate { get; set; }
         public string? UPORemark { get; set; }

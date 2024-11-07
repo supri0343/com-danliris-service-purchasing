@@ -93,6 +93,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
 		public string? SupplierImport { get; set; }
 
 		public int Total { get; set; }
+		public string codeRequirement { get; set; }
 
 
 	}

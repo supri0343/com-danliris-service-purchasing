@@ -33,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 
         Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportDetailAccuracyofArrival(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, int offset);
         MemoryStream GenerateExcelArrivalDetail(string supplier, string category, DateTime? dateFrom, DateTime? dateTo, int offset);
+        MemoryStream GenerateExcelArrivalDetailAll(string category, DateTime? dateFrom, DateTime? dateTo, int offset);
 
         IQueryable<AccuracyOfArrivalReportViewModel> GetReportQuery2(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset);
         Tuple<List<AccuracyOfArrivalReportViewModel>, int> GetReportHeaderAccuracyofDelivery(DateTime? dateFrom, DateTime? dateTo, string paymentType, string paymentMethod, int offset);
@@ -47,5 +48,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<GarmentDeliveryOrder> ReadForInternNote(List<long> deliveryOrderIds);
         List<GarmentDOUrnViewModel> GetDataDO(int id);
         Task<int> SetIsSubconInvoice(List<string> DONos, bool isSubconInvoice);
+
+        Tuple<List<OverBudgetQtyReportViewModel>, int> GetReportOB(string epoNo, string poNo, string inNo, int page, int size, string Order);
+
+        MemoryStream GenerateExcelOB(string epoNo, string poNo, string inNo);
     }
 }

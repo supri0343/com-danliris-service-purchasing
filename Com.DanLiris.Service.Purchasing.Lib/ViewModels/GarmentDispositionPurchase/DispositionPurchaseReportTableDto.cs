@@ -18,5 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public DateTimeOffset DueDate { get; set; }
         public string? CurrencyCode { get; set; }
         public double Nominal { get; set; }
+        public int ItemId { get; set; }
+        public int Count { get; set; }
     }
 }

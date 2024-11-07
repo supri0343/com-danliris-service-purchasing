@@ -51,5 +51,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public bool IsApprovedOpenPOKadivMd { get; set; }
         public string? ApprovedOpenPOKadivMdBy { get; set; }
         public DateTimeOffset ApprovedOpenPOKadivMdDate { get; set; }
+        public double RemainingQuantity { get; set; }
     }
 }

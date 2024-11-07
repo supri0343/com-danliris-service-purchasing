@@ -13,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Tuple<List<GarmentInternNote>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         GarmentInternNote ReadById(int id);
         Task<int> Create(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7);
+        Task<int> CreateWithInvoice(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7);
         Task<int> Update(int id, GarmentInternNote m, string user, int clientTimeZoneOffset = 7);
         int Delete(int id, string username);
         Tuple<List<GarmentInternNoteReportViewModel>, int> GetReport(string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
@@ -22,5 +23,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(bool dppVATIsPaid, int bankExpenditureNoteId, string bankExpenditureNoteNo, string internalNoteIds = "[]", string invoiceNoteIds = "[]");
         MemoryStream GenerateDataExcel(DateTime? dateFrom, DateTime? dateTo, int offset);
         List<object> GetByNIForDPPVATExpenditure(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        Task<int> DeleteMerge(int id, string username);
     }
 }

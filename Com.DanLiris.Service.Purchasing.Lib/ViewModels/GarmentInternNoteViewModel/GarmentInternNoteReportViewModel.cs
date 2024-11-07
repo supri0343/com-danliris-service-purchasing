@@ -20,8 +20,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public long doId { get; set; }
         public string? doNo { get; set; }
         public DateTimeOffset doDate { get; set; }
-        public string? billNo { get; set; }
-        public string? paymentBill { get; set; }
+        public string epoNo { get; set; }
+        public DateTimeOffset epoDate { get; set; }
+        public string billNo { get; set; }
+        public string paymentBill { get; set; }
         public double? doCurrencyRate { get; set; }
         public string? paymentType { get; set; }
         public string? createdBy { get; set; }
@@ -29,6 +31,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public DateTimeOffset paymentDate { get; set; }
         public string? cnNo { get; set; }
         public DateTimeOffset cnDate { get; set; }
+        public DateTimeOffset dueDate { get; set; }
+        public int diffDays { get; set; }
         public decimal cnAmount { get; set; }
     }
 }

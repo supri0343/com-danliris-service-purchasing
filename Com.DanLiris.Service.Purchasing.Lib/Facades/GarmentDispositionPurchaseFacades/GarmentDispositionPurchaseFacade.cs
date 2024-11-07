@@ -1,16 +1,25 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurchase;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -126,22 +135,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
                     var afterDeletedModel = dbContext.GarmentDispositionPurchases.Update(dataModel);
 
-                    dataModel.GarmentDispositionPurchaseItems.ForEach(t =>
+                    var distinctEPOIds = dataModel.GarmentDispositionPurchaseItems.Select(obj => obj.EPOId).Distinct();
+                    foreach(var x in distinctEPOIds)
                     {
-                        var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrders.AsNoTracking().Where(a => a.Id == t.EPOId).FirstOrDefault();
+                        var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrders.AsNoTracking().Where(a => a.Id == x).FirstOrDefault();
                         EPOItems1.IsDispositionPaidCreatedAll = false;
                         EntityExtension.FlagForUpdate(EPOItems1, identityService.Username, USER_AGENT);
                         var afterUpdateModel1 = this.dbContext.GarmentExternalPurchaseOrders.Update(EPOItems1);
+                    }
+                    List<int> distinctPOId = new List<int>();
+                    dataModel.GarmentDispositionPurchaseItems.ForEach(t =>
+                    {
+                        EntityExtension.FlagForDelete(t, identityService.Username, USER_AGENT);
+                        //var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrders.AsNoTracking().Where(a => a.Id == t.EPOId).FirstOrDefault();
+                        //EPOItems1.IsDispositionPaidCreatedAll = false;
+                        //EntityExtension.FlagForUpdate(EPOItems1, identityService.Username, USER_AGENT);
+                        //var afterUpdateModel1 = this.dbContext.GarmentExternalPurchaseOrders.Update(EPOItems1);
 
                         t.GarmentDispositionPurchaseDetails.ForEach(s =>
                         {
-                            var EPOItems2 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == s.EPO_POId).FirstOrDefault();
-                            EPOItems2.IsDispositionCreatedAll = false;
-                            EntityExtension.FlagForUpdate(EPOItems2, identityService.Username, USER_AGENT);
-                            var afterUpdateModel2 = this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems2);
+                            EntityExtension.FlagForDelete(s, identityService.Username, USER_AGENT);
+                            if (!distinctPOId.Contains(s.EPO_POId))
+                                distinctPOId.Add(s.EPO_POId);
+                            //var EPOItems2 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == s.EPO_POId).FirstOrDefault();
+                            //EPOItems2.IsDispositionCreatedAll = false;
+                            //EntityExtension.FlagForUpdate(EPOItems2, identityService.Username, USER_AGENT);
+                            //var afterUpdateModel2 = this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems2);
                         });
                     });
-                    
+
+                    foreach (var y in distinctPOId)
+                    {
+                        var EPOItems2 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == y).FirstOrDefault();
+                        EPOItems2.IsDispositionCreatedAll = false;
+                        EntityExtension.FlagForUpdate(EPOItems2, identityService.Username, USER_AGENT);
+                        var afterUpdateModel2 = this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems2);
+                    }
+
                     Deleted = await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -187,6 +217,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 s.IsPayVat = epo.IsPayVAT;
                 return s;
                 });
+
+
+            var proformaNo = (string.IsNullOrWhiteSpace(model.ProformaNo) ? string.Join(", ", model.Items.Select(s => s.Invoice).Distinct()) : model.ProformaNo) ;
+         
+
+            model.ProformaNo = proformaNo;
             model.Items = modelFixing.ToList();
             return model;
         }
@@ -247,47 +283,85 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
         public DispositionPurchaseReportIndexDto GetReport(int supplierId, string username, DateTimeOffset? dateForm, DateTimeOffset? dateTo, int size, int page)
         {
-            var dataModel = dbSet
-                .AsNoTracking()
-                    .Include(p => p.GarmentDispositionPurchaseItems)
-                        .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
-                        //.Where(s=> s.Position == PurchasingGarmentExpeditionPosition.Purchasing)
-                        .AsQueryable();
+            //var dataModel = dbSet
+            //    .AsNoTracking()
+            //        .Include(p => p.GarmentDispositionPurchaseItems)
+            //            .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
+            //            //.Where(s=> s.Position == PurchasingGarmentExpeditionPosition.Purchasing)
+            //            .AsQueryable();
 
+            var dispositionFilter = dbContext.GarmentDispositionPurchases.AsQueryable();
+
+           
             if (supplierId != 0)
-                dataModel = dataModel.Where(s => s.SupplierId == supplierId);
+                dispositionFilter = dispositionFilter.Where(s => s.SupplierId == supplierId);
 
             if (!string.IsNullOrEmpty(username))
-                dataModel = dataModel.Where(s => s.CreatedBy == username);
+                dispositionFilter = dispositionFilter.Where(s => s.CreatedBy == username);
 
             if (dateForm.HasValue)
-                dataModel = dataModel.Where(s => s.CreatedUtc >= dateForm.GetValueOrDefault());
+                dispositionFilter = dispositionFilter.Where(s => s.CreatedUtc >= dateForm.GetValueOrDefault());
 
             if (dateTo.HasValue)
-                dataModel = dataModel.Where(s => s.CreatedUtc <= dateTo.GetValueOrDefault());
+                dispositionFilter = dispositionFilter.Where(s => s.CreatedUtc <= dateTo.GetValueOrDefault());
 
-            var countData = dataModel.Count();
+            var result = (from disposition in dispositionFilter
+                          join item in dbContext.GarmentDispositionPurchaseItems on disposition.Id equals item.GarmentDispositionPurchaseId
+                          join details in dbContext.GarmentDispositionPurchaseDetailss on item.Id equals details.GarmentDispositionPurchaseItemId
+                          select new DispositionPurchaseReportTableDto
+                          {
+                              StaffName = disposition.CreatedBy,
+                              DispositionNo = disposition.DispositionNo,
+                              InvoiceNo = item.Invoice != null ? item.Invoice : disposition.InvoiceProformaNo ,
+                              Nominal = details.PaidPrice,
+                              SupplierCode = disposition.SupplierCode,
+                              SupplierName = disposition.SupplierName,
+                              CurrencyCode = item.CurrencyCode,
+                              DispositionDate = disposition.CreatedUtc,
+                              Category = disposition.Category,
+                              PaymentType = disposition.PaymentType,
+                              DueDate = disposition.DueDate,
+                              ItemId = disposition.Id
+                          }).GroupBy(x => new { x.ItemId, x.InvoiceNo }, (key, group) => new DispositionPurchaseReportTableDto
+                          {
+                              StaffName = group.FirstOrDefault().StaffName,
+                              DispositionNo = group.FirstOrDefault().DispositionNo,
+                              InvoiceNo = key.InvoiceNo,
+                              Nominal = group.Sum(s => s.Nominal),
+                              SupplierCode = group.FirstOrDefault().SupplierCode,
+                              SupplierName = group.FirstOrDefault().SupplierName,
+                              CurrencyCode = group.FirstOrDefault().CurrencyCode,
+                              DispositionDate = group.FirstOrDefault().DispositionDate,
+                              Category = group.FirstOrDefault().Category,
+                              PaymentType = group.FirstOrDefault().PaymentType,
+                              DueDate = group.FirstOrDefault().DueDate,
+                              ItemId = key.ItemId
+                          }).OrderByDescending(s => s.DispositionDate);
 
-            var dataList = dataModel.ToList();
+            
+
+            var countData = result.Count();
+
+            var dataList = result.ToList();
 
 
             var Query = dataList.AsQueryable();
 
             if (page != 0 && size != 0)
             {
-                Pageable<GarmentDispositionPurchase> pageable = new Pageable<GarmentDispositionPurchase>(Query, page - 1, size);
-                List<GarmentDispositionPurchase> Data = pageable.Data.ToList();
+                Pageable<DispositionPurchaseReportTableDto> pageable = new Pageable<DispositionPurchaseReportTableDto>(Query, page - 1, size);
+                List<DispositionPurchaseReportTableDto> Data = pageable.Data.ToList();
 
                 int TotalData = pageable.TotalCount;
 
-                var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseReportTableDto>>(Data.ToList());
+                var model = mapper.Map<List<DispositionPurchaseReportTableDto>, List<DispositionPurchaseReportTableDto>>(Data.ToList());
 
                 var indexModel = new DispositionPurchaseReportIndexDto(model, page, countData);
                 return indexModel;
             }
             else
             {
-                var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseReportTableDto>>(Query.ToList());
+                var model =Query.ToList();
 
                 var indexModel = new DispositionPurchaseReportIndexDto(model, 1, countData);
                 return indexModel;
@@ -446,6 +520,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     }
                     GarmentDispositionPurchase dataModel = mapper.Map<FormEditDto, GarmentDispositionPurchase>(model);
                     //dataModel.GarmentDispositionPurchaseItems.ForEach(s => {
+                    Dictionary<int, bool> updateEpoIds = new Dictionary<int, bool>();
                     foreach (var s in dataModel.GarmentDispositionPurchaseItems)
                     {
                         //createNew Items
@@ -460,10 +535,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                             {
                                 if (t.QTYRemains <= 0)
                                 {
-                                    var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == t.EPO_POId).FirstOrDefault();
-                                    EPOItems1.IsDispositionCreatedAll = true;
-                                    EntityExtension.FlagForUpdate(EPOItems1, identityService.Username, USER_AGENT);
-                                    var afterUpdateModel1 = this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems1);
+                                    if (updateEpoIds.Keys.Contains(t.EPO_POId))
+                                    {
+                                        updateEpoIds[t.EPO_POId] = true;
+                                    }
+                                    else
+                                    {
+                                        updateEpoIds.Add(t.EPO_POId, true);
+                                    }
+                                    
                                     //dbContext.SaveChanges();
 
                                 }
@@ -495,20 +575,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                             {
                                 if (t.QTYRemains <= 0)
                                 {
-                                    var EPOItems2 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == t.EPO_POId).FirstOrDefault();
-                                    EPOItems2.IsDispositionCreatedAll = true;
-                                    EntityExtension.FlagForUpdate(EPOItems2, identityService.Username, USER_AGENT);
-                                    this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems2);
-                                    dbContext.SaveChanges();
+                                    if (updateEpoIds.Keys.Contains(t.EPO_POId))
+                                    {
+                                        updateEpoIds[t.EPO_POId] = true;
+                                    }
+                                    else
+                                    {
+                                        updateEpoIds.Add(t.EPO_POId, true);
+                                    }
 
                                 }
                                 else
                                 {
-                                    var EPOItems3 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == t.EPO_POId).FirstOrDefault();
-                                    EPOItems3.IsDispositionCreatedAll = false;
-                                    EntityExtension.FlagForUpdate(EPOItems3, identityService.Username, USER_AGENT);
-                                    this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems3);
-                                    dbContext.SaveChanges();
+                                    if (updateEpoIds.Keys.Contains(t.EPO_POId))
+                                    {
+                                        updateEpoIds[t.EPO_POId] = false;
+                                    }
+                                    else
+                                    {
+                                        updateEpoIds.Add(t.EPO_POId, false);
+                                    }
 
                                 }
                                 if (t.Id == 0)
@@ -536,12 +622,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         //deletedDetails.ForEach(j =>
                         foreach (var j in deletedDetails)
                         {
-                            var EPOItems = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == j.EPO_POId).FirstOrDefault();
-                            EPOItems.IsDispositionCreatedAll = false;
-                            EntityExtension.FlagForUpdate(EPOItems, identityService.Username, USER_AGENT);
-                            this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems);
-                            dbContext.SaveChanges();
-
+                            if (updateEpoIds.Keys.Contains(j.EPO_POId))
+                            {
+                                updateEpoIds[j.EPO_POId] = false;
+                            }
+                            else
+                            {
+                                updateEpoIds.Add(j.EPO_POId, false);
+                            }
                             EntityExtension.FlagForDelete(j, identityService.Username, USER_AGENT);
                             this.dbContext.GarmentDispositionPurchaseDetailss.Update(j);
                             dbContext.SaveChanges();
@@ -549,6 +637,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                             //});
                         }
                         //});
+                    }
+                    foreach (var x in updateEpoIds)
+                    {
+                        var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == x.Key).FirstOrDefault();
+                        EPOItems1.IsDispositionCreatedAll = x.Value;
+                        EntityExtension.FlagForUpdate(EPOItems1, identityService.Username, USER_AGENT);
+                        var afterUpdateModel1 = this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems1);
                     }
                     //deleted items 
                     var dataformItems = dataModel.GarmentDispositionPurchaseItems.Select(t => t.Id).ToList();
@@ -586,7 +681,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     modelParentUpdate.Dpp = dataModel.Dpp;
                     modelParentUpdate.DueDate = dataModel.DueDate;
                     modelParentUpdate.IncomeTax = dataModel.IncomeTax;
-                    modelParentUpdate.InvoiceProformaNo = dataModel.InvoiceProformaNo;
+                    //modelParentUpdate.InvoiceProformaNo = dataModel.InvoiceProformaNo;
                     modelParentUpdate.OtherCost = dataModel.OtherCost;
                     modelParentUpdate.PaymentType = dataModel.PaymentType;
                     modelParentUpdate.SupplierCode = dataModel.SupplierCode;
@@ -647,6 +742,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 .SelectMany(t => t.Item.GarmentDispositionPurchaseDetails).Sum(t => t.QTYPaid):0;
             viewModel.DispositionQuantityPaid = dispositionPaid!= null ? dispositionPaid
                 .SelectMany(t => t.Item.GarmentDispositionPurchaseDetails).Sum(t => t.QTYPaid):0;
+
             //foreach Unit
 
             viewModel.Items.ForEach(t =>
@@ -695,6 +791,265 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             var model = dbContext.GarmentDispositionPurchases.ToList();
 
             return model;
+        }
+
+        public IQueryable<GarmentDispositionByInvoiceReportDto> GetQuery(int dispositionId, int supplierId,  DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier,  int offset)
+        {
+            DateTime DateFromSendCashier = dateFromSendCashier == null ? new DateTime(1970, 1, 1).Date : ((DateTime)dateFromSendCashier).Date;
+            DateTime DateToSendCashier = dateToSendCashier == null ? DateTime.Now.Date : ((DateTime)dateToSendCashier).Date;
+
+            DateTime DateFromReceiptCashier = dateFromReceiptCashier == null ? new DateTime(1970, 1, 1).Date : ((DateTime)dateFromReceiptCashier).Date;
+            DateTime DateToReceiptCashier = dateToReceiptCashier == null ? DateTime.Now.Date : ((DateTime)dateToReceiptCashier).Date;
+
+            var test = new List<GarmentDispositionByInvoiceReportDto>();
+
+            var dispositionExpeditions = GetDispositionExpeditions(dispositionId, supplierId, DateFromSendCashier, DateToSendCashier, DateFromReceiptCashier, DateToReceiptCashier);
+
+            //var dispositionIds = dispositionExpeditions.Select(s => s.DispositionNoteId).ToList();
+
+            var dispositionFilter = dbContext.GarmentDispositionPurchases.AsQueryable();
+
+            if (dispositionId != 0)
+            {
+                dispositionFilter = dispositionFilter.Where(s => s.Id == dispositionId);
+            }
+
+            if (supplierId != 0)
+            { 
+                dispositionFilter = dispositionFilter.Where(s => s.SupplierId == supplierId);
+            }
+
+            var result = (from disposition in dispositionFilter
+                          join dispoExpedition in dispositionExpeditions on disposition.Id equals dispoExpedition.DispositionNoteId
+                          join item in dbContext.GarmentDispositionPurchaseItems on disposition.Id equals item.GarmentDispositionPurchaseId
+                          join details in dbContext.GarmentDispositionPurchaseDetailss on item.Id equals details.GarmentDispositionPurchaseItemId
+                          select new GarmentDispositionByInvoiceReportDto
+                          {
+                              DispositionId = disposition.Id,
+                              DispositionNo = disposition.DispositionNo,
+                              InvoiceNo = disposition.InvoiceProformaNo != null ? disposition.InvoiceProformaNo : item.Invoice,
+                              Amount = details.PaidPrice,
+                              SupplierName = disposition.SupplierName,
+                              CurrencyCode = item.CurrencyCode,
+                              SendToCashierDate = dispoExpedition.SendToCashierDate,
+                              ReceiptCashierDate = dispoExpedition.ReceiptCashierDate,
+                              ItemId = item.Id
+                          }).GroupBy(x => new { x.ItemId }, (key, group) => new GarmentDispositionByInvoiceReportDto
+                          { 
+                            DispositionId = group.FirstOrDefault().DispositionId,
+                            DispositionNo = group.FirstOrDefault().DispositionNo,
+                            InvoiceNo = group.FirstOrDefault().InvoiceNo,
+                            Amount = group.Sum(s => s.Amount),
+                            SupplierName = group.FirstOrDefault().SupplierName,
+                            CurrencyCode = group.FirstOrDefault().CurrencyCode,
+                            SendToCashierDate = group.FirstOrDefault().SendToCashierDate,
+                            ReceiptCashierDate = group.FirstOrDefault().ReceiptCashierDate
+                          }
+
+
+
+                          ).OrderByDescending(s => s.DispositionId);
+
+            return result.AsQueryable();
+        }
+
+        public Tuple<List<GarmentDispositionByInvoiceReportDto>, int> GetReport(int dispositionId, int supplierId, DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier, int page, int size, string Order, int offset)
+        {
+            var Query = GetQuery(dispositionId, supplierId, dateFromSendCashier, dateToSendCashier, dateFromReceiptCashier, dateToReceiptCashier,  offset);
+
+            Pageable<GarmentDispositionByInvoiceReportDto> pageable = new Pageable<GarmentDispositionByInvoiceReportDto>(Query, page - 1, size);
+            List<GarmentDispositionByInvoiceReportDto> Data = pageable.Data.ToList<GarmentDispositionByInvoiceReportDto>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public MemoryStream GenerateExcel(int dispositionId, int supplierId, DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier, int offset)
+        {
+            var Query = GetQuery(dispositionId, supplierId, dateFromSendCashier, dateToSendCashier, dateFromReceiptCashier, dateToReceiptCashier, offset);
+            //Query = Query.OrderBy(b => b.Invoice).ThenBy(b => b.ExpenditureGoodId);
+            var headers = new string[] { "No", "No Disposisi", "Proforma Invoice", "Amount", "Supplier", "Mata Uang", "Tgl Kirim ke Kasir", "Tgl Kasir Terima" };
+            //var subheaders = new string[] { "No. BON", "Keterangan", "Qty", "Asal", "No. BON", "Keterangan", "Qty", "Supplier", "No Nota", "No BON Kecil", "Surat Jalan" };
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Disposisi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Proforma Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Amount", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Kirim ke Kasir", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Kasir Terima", DataType = typeof(String) });
+
+            ExcelPackage package = new ExcelPackage();
+            if (Query.ToArray().Count() == 0)
+            {
+                result.Rows.Add("", "", "", 0,"","","","");
+                var sheet = package.Workbook.Worksheets.Add("Data");
+                sheet.Cells["A7"].LoadFromDataTable(result, false, OfficeOpenXml.Table.TableStyles.Light1);// to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                var Qr = Query.ToArray();
+                var q = Query.ToList();
+                var index = 0;
+                foreach (GarmentDispositionByInvoiceReportDto a in q)
+                {
+                    GarmentDispositionByInvoiceReportDto dup = Array.Find(Qr, o => o.DispositionId == a.DispositionId );
+                    if (dup != null)
+                    {
+                        if (dup.Count == 0)
+                        {
+                            index++;
+                            dup.Count = index;
+                        }
+                    }
+                    a.Count = dup.Count;
+                }
+                Query = q.AsQueryable();
+                foreach (var item in Query)
+                {
+                    string sendToCashierDate = item.SendToCashierDate == null ? "-" : item.SendToCashierDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string receiptCashierDate = item.ReceiptCashierDate == null ? "-" : item.ReceiptCashierDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(item.Count, item.DispositionNo, item.InvoiceNo, item.Amount, item.SupplierName, item.CurrencyCode, sendToCashierDate, receiptCashierDate);
+
+                }
+
+
+
+                // bool styling = true;
+
+                foreach (KeyValuePair<DataTable, String> item in new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") })
+                {
+                    var sheet = package.Workbook.Worksheets.Add(item.Value);
+                    #region KopTable
+                    sheet.Cells[$"A1:Q1"].Value = "LAPORAN DISPOSISI PEMBAYARAN PER INVOICE";
+                    sheet.Cells[$"A1:Q1"].Merge = true;
+                    sheet.Cells[$"A1:Q1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+                    sheet.Cells[$"A1:Q1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    sheet.Cells[$"A1:Q1"].Style.Font.Bold = true;
+                    
+                    #endregion
+
+
+                    sheet.Cells["A4"].LoadFromDataTable(item.Key, false, OfficeOpenXml.Table.TableStyles.Light16);
+                    
+
+                    foreach (var i in Enumerable.Range(0, 8))
+                    {
+                        var col = (char)('A' + i);
+                        sheet.Cells[$"{col}3"].Value = headers[i];
+                        sheet.Cells[$"{col}3"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                    }
+                    //foreach (var i in Enumerable.Range(0, 11))
+                    //{
+                    //    var col = (char)('G' + i);
+                    //    sheet.Cells[$"{col}7"].Value = subheaders[i];
+                    //    sheet.Cells[$"{col}7"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+
+                    //}
+                    sheet.Cells["A3:H3"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    sheet.Cells["A3:H3"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    sheet.Cells["A3:H3"].Style.Font.Bold = true;
+                    //sheet.Cells["C1:D1"].Merge = true;
+                    //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    //sheet.Cells["E1:F1"].Merge = true;
+                    //sheet.Cells["C1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                    Dictionary<string, int> counts = new Dictionary<string, int>();
+                    Dictionary<string, int> countsType = new Dictionary<string, int>();
+                    var docNo = Query.ToArray();
+                    int value;
+                    foreach (var a in Query)
+                    {
+                        //FactBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo);
+                        //if (counts.TryGetValue(a.Invoice + a.ExpenditureGoodId, out value))
+                        //{
+                        //    counts[a.Invoice + a.ExpenditureGoodId]++;
+                        //}
+                        //else
+                        //{
+                        //    counts[a.Invoice + a.ExpenditureGoodId] = 1;
+                        //}
+
+                        //FactBeacukaiViewModel dup1 = Array.Find(docNo, o => o.BCType == a.BCType);
+                        if (countsType.TryGetValue(a.DispositionNo, out value))
+                        {
+                            countsType[a.DispositionNo]++;
+                        }
+                        else
+                        {
+                            countsType[a.DispositionNo] = 1;
+                        }
+                    }
+
+                    //index = 8;
+                    //foreach (KeyValuePair<string, int> b in counts)
+                    //{
+                    //    sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    index += b.Value;
+                    //}
+
+                    index = 4;
+                    foreach (KeyValuePair<string, int> c in countsType)
+                    {
+
+                        sheet.Cells["A" + index + ":A" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["A" + index + ":A" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["B" + index + ":B" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        index += c.Value;
+                    }
+                    sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+
+                }
+            }
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+
+        private List<GarmentDispositionIdDto> GetDispositionExpeditions(int dispositionId, int supplierId, DateTime? dateFromSendCashier, DateTime? dateToSendCashier, DateTime? dateFromReceiptCashier, DateTime? dateToReceiptCashier)
+        {
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+
+            var garmentDispoExpeditionUri = APIEndpoint.Finance + $"garment-disposition-expeditions/report-disposition-purchase";
+            string queryUri = "?dispositionId=" + dispositionId + "&supplierId=" + supplierId + "&dateFromSendCashier=" + dateFromSendCashier.GetValueOrDefault().ToString("yyyy/MM/dd") + "&dateToSendCashier=" + dateToSendCashier.GetValueOrDefault().ToString("yyyy/MM/dd") + "&dateFromReceiptCashier=" + dateFromReceiptCashier.GetValueOrDefault().ToString("yyyy/MM/dd") + "&dateToReceiptCashier=" + dateToReceiptCashier.GetValueOrDefault().ToString("yyyy/MM/dd");
+            string uri = garmentDispoExpeditionUri + queryUri;
+            var httpResponse = httpClient.GetAsync($"{uri}").Result;
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentDispositionIdDto> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new List<GarmentDispositionIdDto>();
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentDispositionIdDto>>(result.GetValueOrDefault("data").ToString());
+
+                }
+                return viewModel;
+            }
+            else
+            {
+                List<GarmentDispositionIdDto> viewModel = new List<GarmentDispositionIdDto>();
+                return viewModel;
+            }
         }
     }
 }

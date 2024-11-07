@@ -11,7 +11,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public long pRId { get; set; }
         public string? pRNo { get; set; }
         public long pRItemId { get; set; }
-        public string? poSerialNumber { get; set; }
+        public string poSerialNumber { get; set; }
+        public string productRemark { get; set; }
 
         public UnitViewModel unit { get; set; }
 

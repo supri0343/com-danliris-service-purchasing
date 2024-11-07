@@ -7,17 +7,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
 {
     public class PurchaseOrderStaffReportViewModel : BaseViewModel
     {
-        public string? user { get; set; }
-        public string? divisi { get; set; }
-        public string? unit { get; set; }
+        public string user { get; set; }
+        public string divisi { get; set; }
+        public string unit { get; set; }
         public double selisih { get; set; }
+        public string selisih1 { get; set; }
         public double selisih2 { get; set; }
         public string? nmbarang { get; set; }
         public string? nmsupp { get; set; }
         public string? nopr { get; set; }
         public double jumpr { get; set; }
         public DateTimeOffset tgltarget { get; set; }
-        public DateTimeOffset tgldatang { get; set; }
+        public string tgldatang { get; set; }
+        public DateTimeOffset tgldatang1 { get; set; }
         public DateTimeOffset tglpoint { get; set; }
         public DateTimeOffset tglpoeks { get; set; }
         public DateTimeOffset tgpr { get; set; }

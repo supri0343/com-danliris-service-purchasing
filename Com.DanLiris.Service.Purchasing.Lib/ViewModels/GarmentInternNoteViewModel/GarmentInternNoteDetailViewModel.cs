@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 
         public UnitViewModel unit { get; set; }
         public long dODetailId { get; set; }
+        public bool isOverBudget { get; set; }
 
     }
 }

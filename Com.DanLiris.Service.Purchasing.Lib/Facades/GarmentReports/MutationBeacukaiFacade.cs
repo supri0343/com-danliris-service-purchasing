@@ -7,6 +7,8 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -847,7 +849,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             mm.AdjustmentQty = Math.Round(mutation.Sum(x => x.AdjustmentQty), 2);
             mm.BeginQty = Math.Round(mutation.Sum(x => x.BeginQty), 2);
             mm.ExpenditureQty = Math.Round(mutation.Sum(x => x.ExpenditureQty), 2);
-            mm.ItemCode = "";
+            mm.ItemCode = "TOTAL";
             mm.ItemName = "";
             mm.LastQty = Math.Round(mutation.Sum(x => x.LastQty), 2);
             mm.ReceiptQty = Math.Round(mutation.Sum(x => x.ReceiptQty), 2);
@@ -884,26 +886,49 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var Query = await GetCentralItemBBReport(dateFrom, dateTo, offset);
             //Query = Query.OrderBy(b => b.ItemCode).ToList();
             DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Tipe", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Tipe", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Saldo Awal", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Pemasukan", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Pengeluaran", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Penyesuaian", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Pemasukan Barang", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Pengeluaran Barang", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Penyesuaian (Adjusment)", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Saldo Akhir", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Stock Opname", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Selisih", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Hasil Pencacahan", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Selisih", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
             //if (Query.ToArray().Count() == 0)
             //    result.Rows.Add("", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             //else
+            int idx = 1;
             foreach (var item in Query)
             {
-                result.Rows.Add((item.ItemCode), item.ItemName, item.SupplierType, item.UnitQtyName, item.BeginQty, item.ReceiptQty, item.ExpenditureQty, item.AdjustmentQty, item.LastQty, item.OpnameQty, item.Diff);
+                result.Rows.Add(idx.ToString(),(item.ItemCode), item.ItemName, /*item.SupplierType,*/ item.UnitQtyName,0, item.BeginQty, item.ReceiptQty, item.ExpenditureQty, item.AdjustmentQty, item.LastQty, item.OpnameQty, item.Diff,"-");
+                idx++;
             }
 
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+            ExcelPackage package = new ExcelPackage();
+            var sheet = package.Workbook.Worksheets.Add("Data");
+
+            sheet.Cells["A1"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+            
+            var a = Query.Count();
+            sheet.Cells[$"A{a + 1}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Merge = true;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+
+            //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
 
         }
         #endregion 
@@ -1339,7 +1364,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             mm.AdjustmentQty = Math.Round(bpmutation.Sum(x => x.AdjustmentQty), 2);
             mm.BeginQty = Math.Round(bpmutation.Sum(x => x.BeginQty), 2);
             mm.ExpenditureQty = Math.Round(bpmutation.Sum(x => x.ExpenditureQty), 2);
-            mm.ItemCode = "";
+            mm.ItemCode = "TOTAL";
             mm.ItemName = "";
             mm.LastQty = Math.Round(bpmutation.Sum(x => x.LastQty), 2);
             mm.ReceiptQty = Math.Round(bpmutation.Sum(x => x.ReceiptQty), 2);
@@ -1423,27 +1448,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var Query = GetCentralItemBPReport(dateFrom, dateTo, offset);
             //Query = Query.OrderBy(b => b.ItemCode).ToList();
             DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Tipe", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Tipe", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Barang", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Saldo Awal", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Pemasukan", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Pengeluaran", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Penyesuaian", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Pemasukan Barang", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Pengeluaran Barang", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Penyesuaian (Adjusment)", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Saldo Akhir", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Stock Opname", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Selisih", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Hasil Pencacahan", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Selisih", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", 0, 0, 0, 0, 0, 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
             else
+            {
+                int idx = 1;
                 foreach (var item in Query)
                 {
-                    result.Rows.Add((item.ItemCode), item.ItemName, item.SupplierType, item.UnitQtyName, item.BeginQty, item.ReceiptQty, item.ExpenditureQty, item.AdjustmentQty, item.LastQty, item.OpnameQty, item.Diff);
+                    result.Rows.Add(idx.ToString(), (item.ItemCode), item.ItemName, /*item.SupplierType,*/ item.UnitQtyName, 0, item.BeginQty, item.ReceiptQty, item.ExpenditureQty, item.AdjustmentQty, item.LastQty, item.OpnameQty, item.Diff, "-");
+                    idx++;
                 }
+            }
 
-            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+            //return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
 
+            ExcelPackage package = new ExcelPackage();
+            var sheet = package.Workbook.Worksheets.Add("Data");
+
+            sheet.Cells["A1"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+
+            var a = Query.Count();
+            sheet.Cells[$"A{a + 1}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Merge = true;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{a + 1}:D{a + 1}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
         }
 
         #endregion

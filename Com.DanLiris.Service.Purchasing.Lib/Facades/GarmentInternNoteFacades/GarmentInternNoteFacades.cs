@@ -23,6 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports.BCForAvalFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 {
@@ -33,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
         private readonly DbSet<GarmentExternalPurchaseOrderItem> dbSetExternalPurchaseOrderItem;
         public readonly IServiceProvider serviceProvider;
         private readonly IGarmentDebtBalanceService _garmentDebtBalanceService;
+        //private readonly IGarmentInvoice _garmentInvoiceService;
         private string USER_AGENT = "Facade";
         private readonly ILogHistoryFacades logHistoryFacades;
 
@@ -43,6 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             dbSetExternalPurchaseOrderItem = dbContext.Set<GarmentExternalPurchaseOrderItem>();
             this.serviceProvider = serviceProvider;
             _garmentDebtBalanceService = serviceProvider.GetService<IGarmentDebtBalanceService>();
+            //_garmentInvoiceService = serviceProvider.GetService<IGarmentInvoice>();
             logHistoryFacades = serviceProvider.GetService<ILogHistoryFacades>();
         }
 
@@ -137,6 +140,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                             var result = _garmentDebtBalanceService.EmptyInternalNote((int)garmentDeliveryOrder.Id).Result;
                         }
+
+                        //_garmentInvoiceService.DeleteMerge(Convert.ToInt32(item.InvoiceId), username);
                     }
 
                     //Create Log History
@@ -151,6 +156,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     throw new Exception(e.Message);
                 }
             }
+
+            return Deleted;
+        }
+
+        public async Task<int> DeleteMerge(int id, string username)
+        {
+            int Deleted = 0;
+
+            
+                try
+                {
+                    var model = this.dbSet
+                                .Include(m => m.Items)
+                                .ThenInclude(i => i.Details)
+                                .SingleOrDefault(m => m.Id == id && !m.IsDeleted);
+
+                    EntityExtension.FlagForDelete(model, username, USER_AGENT);
+                    foreach (var item in model.Items)
+                    {
+                        GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+
+                        if (garmentInvoice != null)
+                        {
+                            garmentInvoice.HasInternNote = false;
+                        }
+                        EntityExtension.FlagForDelete(item, username, USER_AGENT);
+                        foreach (var detail in item.Details)
+                        {
+                            GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                            if (garmentDeliveryOrder != null)
+                            {
+                                garmentDeliveryOrder.InternNo = null;
+                            }
+                            EntityExtension.FlagForDelete(detail, username, USER_AGENT);
+
+                            var result = _garmentDebtBalanceService.EmptyInternalNote((int)garmentDeliveryOrder.Id).Result;
+                        }
+
+                    }
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Delete Nota Intern - " + model.INNo);
+
+                    Deleted = dbContext.SaveChanges();
+                    //transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    //transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            
 
             return Deleted;
         }
@@ -411,11 +468,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                          join c in dbContext.GarmentInternNoteDetails on b.Id equals c.GarmentItemINId
                          join d in dbContext.GarmentDeliveryOrders on c.DOId equals d.Id
                          join e in dbContext.GarmentInvoices on b.InvoiceId equals e.Id
+                         join f in dbContext.GarmentExternalPurchaseOrders on c.EPOId equals f.Id
                          where a.IsDeleted == false
                          && b.IsDeleted == false
                          && c.IsDeleted == false
                          && d.IsDeleted == false
                          && e.IsDeleted == false
+                         && f.IsDeleted == false
                          && a.INNo == (string.IsNullOrWhiteSpace(no) ? a.INNo : no)
                          && b.InvoiceNo == (string.IsNullOrWhiteSpace(invoiceNo) ? b.InvoiceNo : invoiceNo)
                          //&& npn != null ? e.NPN == npn : false 
@@ -427,27 +486,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                          && a.INDate.AddHours(offset).Date >= DateFrom.Date
                          && a.INDate.AddHours(offset).Date <= DateTo.Date
                          && a.CurrencyCode == (string.IsNullOrWhiteSpace(curencyCode) ? a.CurrencyCode : curencyCode)
+                         group new { a, b, c, d, e, f } by new { c.DONo } into pg
+                         let firstproduct = pg.FirstOrDefault()
+                         let IN = firstproduct.a
+                         let InItem = firstproduct.b
+                         let InDetail = firstproduct.c
+                         let Do = firstproduct.d
+                         let Inv = firstproduct.e
+                         let Epo = firstproduct.f
                          select new
                          {
-                             InternNoteId = a.Id,
-                             internNoteItemId = b.Id,
-                             internNoteDetailId = c.Id,
-                             deliveryOrderId = d.Id,
-                             invoiceId = e.Id,
-                             priceTotal = c.PriceTotal,
-                             INDate = a.INDate,
-                             NPN = e.NPN,
-                             doNo = c.DONo
-                         }).ToList().GroupBy(x => new { x.doNo/*x.InternNoteId, x.internNoteItemId, x.internNoteDetailId, x.deliveryOrderId, x.invoiceId, x.INDate, x.NPN*/ }, (key, group) => new
-                         {
-                             InternNoteId = group.FirstOrDefault().InternNoteId,
-                             internNoteItemId = group.FirstOrDefault().internNoteItemId,
-                             internNoteDetailId = group.FirstOrDefault().internNoteDetailId,
-                             deliveryOrderId = group.FirstOrDefault().deliveryOrderId,
-                             invoiceId = group.FirstOrDefault().invoiceId,
-                             priceTotal = group.Sum(m => m.priceTotal),
-                             INDate = group.FirstOrDefault().INDate,
-                             NPN = group.FirstOrDefault().NPN
+                             InternNoteId = IN.Id,
+                             internNoteItemId = InItem.Id,
+                             internNoteDetailId = InDetail.Id,
+                             deliveryOrderId = Do.Id,
+                             invoiceId = Inv.Id,
+                             epoId = Epo.Id,
+                             priceTotal = pg.Sum(m => m.c.PriceTotal),
+                             INDate = IN.INDate,
+                             NPN = Inv.NPN
                          });
 
 
@@ -475,11 +532,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             var internnoteitemIds = queryResult.Distinct().Select(x => x.internNoteItemId).ToList();
             var internnoteitems = dbContext.GarmentInternNoteItems.Where(x => internnoteitemIds.Contains(x.Id)).Select(x => new { x.Id, x.InvoiceNo, x.InvoiceDate }).ToList();
             var internnotedetailIds = queryResult.Distinct().Select(x => x.internNoteDetailId).ToList();
-            var internnotedetails = dbContext.GarmentInternNoteDetails.Where(x => internnotedetailIds.Contains(x.Id)).Select(x => new { x.Id, x.DONo, x.DODate, x.ProductName }).ToList();
+            var internnotedetails = dbContext.GarmentInternNoteDetails.Where(x => internnotedetailIds.Contains(x.Id)).Select(x => new { x.Id, x.DONo, x.DODate, x.ProductName, x.PaymentDueDate }).OrderBy(x => x.PaymentDueDate).ToList();
             var deliveryorderIds = queryResult.Distinct().Select(x => x.deliveryOrderId).ToList();
             var deliveryorders = dbContext.GarmentDeliveryOrders.Where(x => deliveryorderIds.Contains(x.Id)).Select(x => new { x.Id, x.BillNo, x.PaymentBill, x.DOCurrencyRate, x.PaymentMethod }).ToList();
             var invoiceIds = queryResult.Distinct().Select(x => x.invoiceId).ToList();
             var invoices = dbContext.GarmentInvoices.Where(x => invoiceIds.Contains(x.Id)).Select(x => new { x.Id, x.NPN, x.VatNo }).ToList();
+            var epoIds = queryResult.Distinct().Select(x => x.epoId).ToList();
+            var epos = dbContext.GarmentExternalPurchaseOrders.Where(x => epoIds.Contains(x.Id)).Select(x => new { x.Id, x.EPONo, x.OrderDate }).ToList();
 
             foreach (var item in queryResult)
             {
@@ -488,6 +547,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 var internnotedetail = internnotedetails.FirstOrDefault(x => x.Id.Equals(item.internNoteDetailId));
                 var deliveryorder = deliveryorders.FirstOrDefault(x => x.Id.Equals(item.deliveryOrderId));
                 var invoice = invoices.FirstOrDefault(x => x.Id.Equals(item.invoiceId));
+                var epo = epos.FirstOrDefault(x => x.Id.Equals(item.epoId));
                 var data1 = GetInvoice(item.invoiceId);
 
                 list.Add(new GarmentInternNoteReportViewModel
@@ -505,6 +565,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     doId = deliveryorder.Id,
                     doNo = internnotedetail.DONo,
                     doDate = internnotedetail.DODate,
+                    epoNo = epo.EPONo,
+                    epoDate = epo.OrderDate,
                     ProductName = internnotedetail.ProductName,
                     supplierCode = internnote.SupplierCode,
                     createdBy = internnote.CreatedBy,
@@ -513,7 +575,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     doCurrencyRate = deliveryorder.DOCurrencyRate,
                     paymentType = deliveryorder.PaymentMethod,
                     paymentDoc = data1 == null ? "-" : data1.ExpenditureNoteNo,
-                    paymentDate = data1 == null ? new DateTime(1970, 1, 1) : data1.ExpenditureDate
+                    paymentDate = data1 == null ? new DateTime(1970, 1, 1) : data1.ExpenditureDate,
+                    dueDate = internnotedetail.PaymentDueDate,
+                    diffDays = (internnote.INDate - internnotedetail.PaymentDueDate).Days,
                 });
             }
             //return list;
@@ -537,6 +601,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                               doId = i.doId,
                               doNo = i.doNo,
                               doDate = i.doDate,
+                              epoNo = i.epoNo,
+                              epoDate = i.epoDate,
                               ProductName = i.ProductName,
                               supplierCode = i.supplierCode,
                               createdBy = i.createdBy,
@@ -548,7 +614,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                               paymentDate = i.paymentDate,
                               cnNo = gcnn == null ? "-" : gcnn.CorrectionNo,
                               cnDate = gcnn == null ? new DateTime(1970, 1, 1) : gcnn.CorrectionDate,
-                              cnAmount = gcnn == null ? 0 : gcnn.TotalCorrection
+                              cnAmount = gcnn == null ? 0 : gcnn.TotalCorrection,
+                              dueDate = i.dueDate,
+                              diffDays = i.diffDays
                           });
 
             return result.ToList();
@@ -565,12 +633,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Nota Intern", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Jatuh Tempo", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Terlambat (Hari)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Invoice", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Invoice", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO External", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal PO External", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bon", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Bon Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nominal", DataType = typeof(Double) });
@@ -588,7 +660,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             //result.Columns.Add(new DataColumn() { ColumnName = "poserialnumber", DataType = typeof(String) });
 
             if (Query.Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", 0, "", "", 0, "","","");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", 0, "", "", 0, "", "", "");
             else
             {
                 int index = 0;
@@ -597,16 +669,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     index++;
                     string date = item.iNDate == null ? "-" : item.iNDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string paymentdate = item.paymentDate == new DateTime(1970, 1, 1) ? "-" : item.paymentDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string duedate = item.dueDate == new DateTime(1970, 1, 1) ? "-" : item.dueDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     //string DueDate = item.paymentDueDate == null ? "-" : item.paymentDueDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MM yyyy", new CultureInfo("id-ID"));
                     string invoDate = item.invoiceDate == null ? "-" : item.invoiceDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string Dodate = item.doDate == null ? "-" : item.doDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string EPOdate = item.epoDate == null ? "-" : item.epoDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
                     //var price = item.priceTotal.ToString();
                     string priceTotal = string.Format("{0:N2}", item.priceTotal);
                     //double totalHarga = item.pricePerDealUnit * item.quantity;
                     string corrDate = item.cnDate == new DateTime(1970, 1, 1) ? "-" : item.cnDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string corrAmt = string.Format("{0:N2}", item.cnAmount);
                     //result.Rows.Add(index, item.inNo, date, item.currencyCode, item.supplierName, item.paymentMethod, item.paymentType, DueDate, item.invoiceNo, invoDate, item.doNo, Dodate, item.pOSerialNumber, item.rONo, item.productCode, item.productName, item.quantity, item.uOMUnit, item.pricePerDealUnit, totalHarga);
-                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.billNo, item.paymentBill, priceTotal, item.NPN, item.VatNo, item.ProductName, item.currencyCode, item.doCurrencyRate, item.cnNo, corrDate, corrAmt, item.paymentType, item.paymentDoc, paymentdate);
+                    result.Rows.Add(index, item.inNo, date, duedate, item.diffDays, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.epoNo, EPOdate, item.billNo, item.paymentBill, priceTotal, item.NPN, item.VatNo, item.ProductName, item.currencyCode, item.doCurrencyRate, item.cnNo, corrDate, corrAmt, item.paymentType, item.paymentDoc, paymentdate);
                 }
             }
 
@@ -618,7 +693,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
         {
             var query = dbContext.GarmentInternNotes.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
 
-            if(niId > 0)
+            if (niId > 0)
             {
                 query = query.Where(entity => entity.Id == niId);
             }
@@ -648,7 +723,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 var garmentInvoiceItemIds = garmentInvoiceItems.Select(element => element.Id).ToList();
                 var garmentInvoiceDetails = dbContext.GarmentInvoiceDetails.Where(entity => garmentInvoiceItemIds.Contains(entity.InvoiceItemId)).Select(entity => new { entity.Id, entity.InvoiceItemId, entity.ProductName }).ToList();
                 var deliveryOrderIds = garmentInvoiceItems.Select(element => element.DeliveryOrderId).ToList();
-                var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo, entity.TotalAmount,entity.DOCurrencyRate }).ToList();
+                var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo, entity.TotalAmount, entity.DOCurrencyRate }).ToList();
 
                 var corrections = dbContext.GarmentCorrectionNotes.Where(entity => deliveryOrderIds.Contains(entity.DOId)).Select(entity => new { entity.Id, entity.TotalCorrection, entity.CorrectionType, entity.DOId });
                 var correctionIds = corrections.Select(element => element.Id).ToList();
@@ -682,7 +757,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         var invoiceDetails = garmentInvoiceDetails.Where(element => invoiceItemIds.Contains(element.InvoiceItemId)).ToList();
                         var selectedDeliveryOrderIds = invoiceItems.Select(item => item.DeliveryOrderId).ToList();
                         var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
-                        var selectedDeliveryOrderLists = selectedDeliveryOrders.Select(element => new DeliveryOrderDto(element.DONo, element.TotalAmount, element.PaymentBill, element.BillNo, element.Id,element.DOCurrencyRate.GetValueOrDefault())).ToList();
+                        var selectedDeliveryOrderLists = selectedDeliveryOrders.Select(element => new DeliveryOrderDto(element.DONo, element.TotalAmount, element.PaymentBill, element.BillNo, element.Id, element.DOCurrencyRate.GetValueOrDefault())).ToList();
 
 
                         var selectedCorrections = corrections.Where(element => selectedDeliveryOrderIds.Contains(element.DOId)).ToList();
@@ -700,8 +775,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         });
 
                         int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
-                        
-                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate, correctionAmount,selectedDeliveryOrderLists);
+
+                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate, correctionAmount, selectedDeliveryOrderLists);
 
                     }).ToList();
 
@@ -739,7 +814,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
         /// <returns></returns>
         public List<GarmentInternalNoteDto> BankExpenditureReadInternalNotesOptimized(int currencyId, int supplierId)
         {
-            var query = dbContext.GarmentInternNotes.Include(entity=> entity.Items).ThenInclude(item => item.Details).Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
+            var query = dbContext.GarmentInternNotes.Include(entity => entity.Items).ThenInclude(item => item.Details).Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
 
             if (currencyId > 0)
                 query = query.Where(entity => entity.CurrencyId.GetValueOrDefault() == currencyId);
@@ -750,9 +825,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             var result = new List<GarmentInternalNoteDto>();
             if (query.Count() > 0)
             {
-                var internalNotes = query.Select(entity => new { entity.Id, entity.INNo, entity.INDate, entity.SupplierId, entity.SupplierCode, entity.SupplierName, entity.CurrencyCode, entity.CurrencyId, entity.CurrencyRate });               
-                var internalNoteItems = query.SelectMany(entity=> entity.Items).Select(entity => new { entity.Id, entity.GarmentINId, entity.InvoiceId });
-                var internalNoteDetails = query.SelectMany(entity=> entity.Items).SelectMany(item=> item.Details).Select(entity => new { entity.Id, entity.DOId, entity.GarmentItemINId, entity.EPOId, entity.PaymentDueDate });
+                var internalNotes = query.Select(entity => new { entity.Id, entity.INNo, entity.INDate, entity.SupplierId, entity.SupplierCode, entity.SupplierName, entity.CurrencyCode, entity.CurrencyId, entity.CurrencyRate });
+                var internalNoteItems = query.SelectMany(entity => entity.Items).Select(entity => new { entity.Id, entity.GarmentINId, entity.InvoiceId });
+                var internalNoteDetails = query.SelectMany(entity => entity.Items).SelectMany(item => item.Details).Select(entity => new { entity.Id, entity.DOId, entity.GarmentItemINId, entity.EPOId, entity.PaymentDueDate });
 
                 var garmentInvoices = dbContext.GarmentInvoices.Include(entity => entity.Items).ThenInclude(item => item.Details)
                     .Join(internalNoteItems,
@@ -783,19 +858,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                             })
                         })
                     }
-                    ).Where(entity=> !entity.DPPVATIsPaid).ToList();
-                var garmentInvoiceItems = garmentInvoices.SelectMany(entity=> entity.Items).Select(entity => new { entity.Id, entity.InvoiceId, entity.DeliveryOrderId });
-                var garmentInvoiceDetails = garmentInvoices.SelectMany(entity => entity.Items).SelectMany(item=> item.Details).Select(entity => new { entity.Id, entity.InvoiceItemId, entity.ProductName });
+                    ).Where(entity => !entity.DPPVATIsPaid).ToList();
+                var garmentInvoiceItems = garmentInvoices.SelectMany(entity => entity.Items).Select(entity => new { entity.Id, entity.InvoiceId, entity.DeliveryOrderId });
+                var garmentInvoiceDetails = garmentInvoices.SelectMany(entity => entity.Items).SelectMany(item => item.Details).Select(entity => new { entity.Id, entity.InvoiceItemId, entity.ProductName });
 
                 var deliveryOrders = dbContext.GarmentDeliveryOrders//.Where(entity => deliveryOrderIds.Contains(entity.Id))
                     .Join(garmentInvoiceItems,
                     deliveryOrder => deliveryOrder.Id,
                     garmentInvoice => garmentInvoice.DeliveryOrderId,
                     (entity, garmentInvoice) =>
-                    new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo ,entity.TotalAmount,entity.DOCurrencyRate}
+                    new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo, entity.TotalAmount, entity.DOCurrencyRate }
                     ).ToList();
 
-                var externalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Include(entity=> entity.Items)
+                var externalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Include(entity => entity.Items)
                     .Join(internalNoteDetails,
                     Epo => Epo.Id,
                     internalNoteDetail => internalNoteDetail.EPOId,
@@ -803,13 +878,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     {
                         entity.Id,
                         entity.PaymentMethod,
-                        Items = entity.Items.Select(item=> new {
+                        Items = entity.Items.Select(item => new {
                             item.POId,
                             item.Id,
                             item.GarmentEPOId
                         })
                     }).ToList();
-                var externalPurchaseOrderItems = externalPurchaseOrders.SelectMany(entity=> entity.Items).Select(entity => new { entity.POId, entity.Id, entity.GarmentEPOId });
+                var externalPurchaseOrderItems = externalPurchaseOrders.SelectMany(entity => entity.Items).Select(entity => new { entity.POId, entity.Id, entity.GarmentEPOId });
                 var internalPurchaseOrderItems = dbContext.GarmentInternalPurchaseOrderItems
                     .Join(externalPurchaseOrderItems,
                     internalPO => internalPO.GPOId,
@@ -847,7 +922,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         var invoiceDetails = garmentInvoiceDetails.Where(element => invoiceItemIds.Contains(element.InvoiceItemId)).ToList();
                         var selectedDeliveryOrderIds = invoiceItems.Select(item => item.DeliveryOrderId).ToList();
                         var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
-                        var selectedDeliveryOrderLists = selectedDeliveryOrders.Select(element => new DeliveryOrderDto(element.DONo,element.TotalAmount,element.PaymentBill,element.BillNo,element.Id,element.DOCurrencyRate.GetValueOrDefault())).ToList();
+                        var selectedDeliveryOrderLists = selectedDeliveryOrders.Select(element => new DeliveryOrderDto(element.DONo, element.TotalAmount, element.PaymentBill, element.BillNo, element.Id, element.DOCurrencyRate.GetValueOrDefault())).ToList();
                         var productNames = string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct());
                         int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
                         var selectedCorrections = corrections.Where(element => selectedDeliveryOrderIds.Contains(element.DOId)).ToList();
@@ -880,7 +955,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                             s.IsPayVat,
                             s.UseIncomeTax,
                             s.IsPayTax,
-                            s.IncomeTaxRate, 
+                            s.IncomeTaxRate,
                             correctionAmount, selectedDeliveryOrderLists);
 
                     }).ToList();
@@ -1053,7 +1128,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                          from Inv in cc.DefaultIfEmpty()
                          join i in dbContext.GarmentInternNotes on a.InternNo equals i.INNo into dd
                          from IN in dd.DefaultIfEmpty()
-                         where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false && e.IsDeleted == false && 
+                         where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false && e.IsDeleted == false &&
                                DInv.IsDeleted == false && IInv.IsDeleted == false && Inv.IsDeleted == false && IN.IsDeleted == false &&
                                a.DODate.AddHours(offset).Date >= DateFrom.Date && a.DODate.AddHours(offset).Date <= DateTo.Date
 
@@ -1065,13 +1140,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                              SupplierName = a.SupplierName,
                              DONo = a.DONo,
                              DODate = a.DODate,
-                             PaymentBill= a.PaymentBill,
+                             PaymentBill = a.PaymentBill,
                              BillNo = a.BillNo,
                              DueDate = a.ArrivalDate.AddDays(e.PaymentDueDays),
                              PaymentDueDays = e.PaymentDueDays == 0 ? "D000" : (e.PaymentDueDays >= 1 && e.PaymentDueDays < 10 ? "D00" + e.PaymentDueDays.ToString() : (e.PaymentDueDays >= 10 && e.PaymentDueDays < 100 ? "D0" + e.PaymentDueDays.ToString() : "D" + e.PaymentDueDays.ToString())),
                              InvoiceNo = Inv == null ? "-" : Inv.InvoiceNo,
                              InvoiceDate = Inv == null ? new DateTime(1970, 1, 1) : Inv.InvoiceDate,
-                             UseVat = Inv == null ? "-"  : (Inv.UseVat ? "YA " : "TIDAK"),
+                             UseVat = Inv == null ? "-" : (Inv.UseVat ? "YA " : "TIDAK"),
                              VatNo = Inv == null ? "-" : Inv.VatNo,
                              VatDate = Inv == null ? new DateTime(1970, 1, 1) : Inv.VatDate,
                              VatRate = Inv == null ? 0 : Inv.VatRate,
@@ -1115,33 +1190,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                              a.CurrencyRate,
                          } into G
 
-                        select new GarmentInternNoteGenerateDataViewModel
-                        {
-                            INNo = G.Key.INNo,
-                            INDate = G.Key.INDate,
-                            SupplierCode = G.Key.SupplierCode,
-                            SupplierName = G.Key.SupplierName,
-                            DONo = G.Key.DONo,
-                            DODate = G.Key.DODate,
-                            PaymentBill = G.Key.PaymentBill,
-                            BillNo = G.Key.BillNo,
-                            DueDate = G.Key.DueDate,
-                            PaymentDueDays = G.Key.PaymentDueDays,
-                            InvoiceNo = G.Key.InvoiceNo,
-                            InvoiceDate = G.Key.InvoiceDate,
-                            UseVat = G.Key.UseVat,
-                            VatNo = G.Key.VatNo,
-                            VatDate = G.Key.VatDate,
-                            VatRate = G.Key.VatRate,
-                            UseIncomeTax = G.Key.UseIncomeTax,
-                            IncomeTaxName = G.Key.IncomeTaxName,
-                            IncomeTaxRate = G.Key.IncomeTaxRate,
-                            IncomeTaxNo = G.Key.IncomeTaxNo,
-                            IncomeTaxDate = G.Key.IncomeTaxDate,
-                            CurrencyCode = G.Key.CurrencyCode,
-                            CurrencyRate = G.Key.CurrencyRate,                          
-                            Amount = Math.Round(G.Sum(m => m.TotalAmount), 2),
-                        };
+                         select new GarmentInternNoteGenerateDataViewModel
+                         {
+                             INNo = G.Key.INNo,
+                             INDate = G.Key.INDate,
+                             SupplierCode = G.Key.SupplierCode,
+                             SupplierName = G.Key.SupplierName,
+                             DONo = G.Key.DONo,
+                             DODate = G.Key.DODate,
+                             PaymentBill = G.Key.PaymentBill,
+                             BillNo = G.Key.BillNo,
+                             DueDate = G.Key.DueDate,
+                             PaymentDueDays = G.Key.PaymentDueDays,
+                             InvoiceNo = G.Key.InvoiceNo,
+                             InvoiceDate = G.Key.InvoiceDate,
+                             UseVat = G.Key.UseVat,
+                             VatNo = G.Key.VatNo,
+                             VatDate = G.Key.VatDate,
+                             VatRate = G.Key.VatRate,
+                             UseIncomeTax = G.Key.UseIncomeTax,
+                             IncomeTaxName = G.Key.IncomeTaxName,
+                             IncomeTaxRate = G.Key.IncomeTaxRate,
+                             IncomeTaxNo = G.Key.IncomeTaxNo,
+                             IncomeTaxDate = G.Key.IncomeTaxDate,
+                             CurrencyCode = G.Key.CurrencyCode,
+                             CurrencyRate = G.Key.CurrencyRate,
+                             Amount = Math.Round(G.Sum(m => m.TotalAmount), 2),
+                         };
             return Query1;
         }
 
@@ -1194,7 +1269,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     string DueDate = item.DueDate == new DateTime(1970, 1, 1) ? "-" : item.DueDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
                     string VatDate = item.VatDate == DateTimeOffset.MinValue ? "-" : item.VatDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
                     string IncomeTaxDate = item.IncomeTaxDate == DateTimeOffset.MinValue ? "-" : item.IncomeTaxDate.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"));
-                    
+
                     result.Rows.Add(item.INNo, INDate, item.SupplierCode, item.SupplierName, item.DONo, DODate, item.PaymentBill, item.BillNo, DueDate,
                                     item.PaymentDueDays, item.InvoiceNo, InvoiceDate, item.UseVat, item.VatNo, VatDate, item.VatRate, item.UseIncomeTax,
                                     item.IncomeTaxName, item.IncomeTaxNo, IncomeTaxDate, item.IncomeTaxRate, item.CurrencyCode, item.CurrencyRate, item.Amount);
@@ -1238,6 +1313,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             //int TotalData = pageable.TotalCount;
 
             return ListData;
+        }
+
+        public async Task<int> CreateWithInvoice(GarmentInternNote m, bool isImport, string user, int clientTimeZoneOffset = 7)
+        {
+            int Created = 0;
+
+            
+                try
+                {
+                    EntityExtension.FlagForCreate(m, user, USER_AGENT);
+
+                    m.INNo = await GenerateNo(m, isImport, clientTimeZoneOffset);
+                    m.INDate = DateTimeOffset.Now;
+
+                    foreach (var item in m.Items)
+                    {
+                        GarmentInvoice garmentInvoice = this.dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == item.InvoiceId);
+                        if (garmentInvoice != null)
+                            garmentInvoice.HasInternNote = true;
+                        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        foreach (var detail in item.Details)
+                        {
+                            GarmentDeliveryOrder garmentDeliveryOrder = this.dbContext.GarmentDeliveryOrders.FirstOrDefault(s => s.Id == detail.DOId);
+                            GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.RONo.Equals(detail.RONo));
+                            if (internalPurchaseOrder != null)
+                            {
+                                detail.UnitId = internalPurchaseOrder.UnitId;
+                                detail.UnitCode = internalPurchaseOrder.UnitCode;
+                                detail.UnitName = internalPurchaseOrder.UnitName;
+                            }
+                            if (garmentDeliveryOrder != null)
+                            {
+                                garmentDeliveryOrder.InternNo = m.INNo;
+                            }
+                            EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+
+                            await _garmentDebtBalanceService.UpdateFromInternalNote((int)detail.DOId, new InternalNoteFormDto((int)m.Id, m.INNo));
+                        }
+                    }
+
+                    this.dbSet.Add(m);
+
+                    //Create Log History
+                    logHistoryFacades.Create("PEMBELIAN", "Create Nota Intern - " + m.INNo);
+
+                    Created = await dbContext.SaveChangesAsync();
+                    //transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    //transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            
+
+            return Created;
         }
     }
 }
