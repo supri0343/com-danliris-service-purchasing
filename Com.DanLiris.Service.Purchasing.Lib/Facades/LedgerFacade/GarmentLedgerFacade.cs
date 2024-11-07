@@ -28,22 +28,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.LedgerFacade
 
         public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentLedgerModel> Query = _dbContext.GarmentLedgers;
+            IQueryable<GarmentGeneralLedgerModel> Query = _dbContext.GarmentGeneralLedgers;
 
             List<string> searchAttributes = new List<string>()
             {
                 "COANo", "JournalType", "AccountNo", "ProofNo", "Remark"
             };
 
-            Query = QueryHelper<GarmentLedgerModel>.ConfigureSearch(Query, searchAttributes, Keyword);
+            Query = QueryHelper<GarmentGeneralLedgerModel>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentLedgerModel>.ConfigureFilter(Query, FilterDictionary);
+            Query = QueryHelper<GarmentGeneralLedgerModel>.ConfigureFilter(Query, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            //Query = QueryHelper<GarmentLedgerModel>.ConfigureOrder(Query, OrderDictionary);
+            //Query = QueryHelper<GarmentGeneralLedgerModel>.ConfigureOrder(Query, OrderDictionary);
 
-            Query = Query.Select(m => new GarmentLedgerModel
+            Query = Query.Select(m => new GarmentGeneralLedgerModel
             {
                 Id = m.Id,
                 COANo = m.COANo,
@@ -60,8 +60,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.LedgerFacade
                 CreatedUtc = m.CreatedUtc
             });
 
-            Pageable<GarmentLedgerModel> pageable = new Pageable<GarmentLedgerModel>(Query, Page - 1, Size);
-            List<GarmentLedgerModel> Data = pageable.Data.ToList();
+            Pageable<GarmentGeneralLedgerModel> pageable = new Pageable<GarmentGeneralLedgerModel>(Query, Page - 1, Size);
+            List<GarmentGeneralLedgerModel> Data = pageable.Data.ToList();
             int TotalData = pageable.TotalCount;
 
             List<object> ListData = new List<object>();
@@ -87,7 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.LedgerFacade
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
         }
 
-        public async Task<int> UploadExcelAsync(List<GarmentLedgerModel> listData)
+        public async Task<int> UploadExcelAsync(List<GarmentGeneralLedgerModel> listData)
         {
             int created = 0;
             using (var transaction = _dbContext.Database.BeginTransaction())
@@ -97,7 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.LedgerFacade
                     foreach (var data in listData)
                     {
                         EntityExtension.FlagForCreate(data, _identityService.Username, UserAgent);
-                        _dbContext.GarmentLedgers.Add(data);
+                        _dbContext.GarmentGeneralLedgers.Add(data);
                         
                     }
 
