@@ -87,6 +87,8 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUni
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSubcon.GarmentSubconUnitExpenditureNoteFacade;
 using Asp.Versioning;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -283,14 +285,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = Configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? Configuration[Constant.DEFAULT_CONNECTION];
+            //string connectionString = Configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? Configuration[Constant.DEFAULT_CONNECTION];
             string env = Configuration.GetValue<string>(Constant.ASPNETCORE_ENVIRONMENT);
             string connectionStringLocalCashFlow = Configuration.GetConnectionString("LocalDbCashFlowConnection") ?? Configuration["LocalDbCashFlowConnection"];
-            APIEndpoint.ConnectionString = Configuration.GetConnectionString("DefaultConnection") ?? Configuration["DefaultConnection"];
+            //APIEndpoint.ConnectionString = Configuration.GetConnectionString("DefaultConnection") ?? Configuration["DefaultConnection"];
+
+            var keyVaultEnpoint = new Uri(Configuration["VaultKey"]);
+            var secretClient = new SecretClient(keyVaultEnpoint, new DefaultAzureCredential());
+
+            KeyVaultSecret kvsDB = secretClient.GetSecret(Configuration["VaultKeyDbSecret"]);
+            KeyVaultSecret kvsServer = secretClient.GetSecret(Configuration["VaultKeyServerSecret"]);
 
             /* Register */
+            services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(string.Concat(kvsDB.Value, kvsServer.Value), sqlServerOptions => sqlServerOptions.CommandTimeout(1000 * 60 * 20)));
+
             //services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(1000 * 60 * 20)));
+            //services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(1000 * 60 * 20)));
             services.AddTransient<ILocalDbCashFlowDbContext>(s => new LocalDbCashFlowDbContext(connectionStringLocalCashFlow));
             RegisterEndpoints();
             RegisterFacades(services);
