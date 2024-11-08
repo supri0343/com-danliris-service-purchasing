@@ -1063,9 +1063,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     {
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
-                            GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(a => a.URNItemId == garmentUnitReceiptNoteItem.Id);
-                            if (garmentDOItems != null)
-                                EntityExtension.FlagForDelete(garmentDOItems, identityService.Username, USER_AGENT);
+                            var garmentDOItems = dbSetGarmentDOItems.Where(a => a.URNItemId == garmentUnitReceiptNoteItem.Id);
+                            if (garmentDOItems.Count() > 0)
+                            {
+                                foreach (var doitem in garmentDOItems)
+                                {
+                                    EntityExtension.FlagForDelete(doitem, identityService.Username, USER_AGENT);
+                                }
+                            }
                         }
                     }
 
