@@ -20,6 +20,7 @@ using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceControllers
@@ -150,7 +151,45 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 
                 List<object> listData = new List<object>();
 				listData.AddRange(
-					viewModel.AsQueryable().Select(s => new { 
+					//viewModel.AsQueryable().Select(s => new { 
+					//	s.Id,
+					//	s.CreatedBy,
+					//	s.LastModifiedUtc,
+					//	s.invoiceNo,
+					//	s.internNoteNo,
+					//	s.invoiceDate,
+					//	s.supplier,
+					//	s.npn,
+					//	s.nph,
+					//	s.internNoteId,
+					//	items =s.items.Select( i => new { 
+					//		i.deliveryOrderId,
+					//		i.deliveryOrderNo,
+     //                       deliveryOrder = new
+     //                       {
+					//			doNo = i.deliveryOrder.doNo,
+     //                           items = i.deliveryOrder.items == null ? null : i.deliveryOrder.items.Select(doi => new
+     //                           {
+     //                               fulfillments = doi.fulfillments == null ? null : doi.fulfillments.Select(dof => new
+     //                               {
+     //                                   dof.Id,
+     //                                   dof.receiptQuantity
+     //                               })
+     //                           })
+     //                       }
+
+     //                   })
+					
+					
+					//}).ToList()
+
+
+                    viewModel
+					.AsQueryable()
+					.GroupBy(s => s.invoiceNo)  // Group by invoiceNo
+					.Select(g => g.First())     // Ambil elemen pertama dari setiap grup
+					.Select(s => new
+					{
 						s.Id,
 						s.CreatedBy,
 						s.LastModifiedUtc,
@@ -161,26 +200,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 						s.npn,
 						s.nph,
 						s.internNoteId,
-						items =s.items.Select( i => new { 
+						items = s.items.Select(i => new
+						{
 							i.deliveryOrderId,
 							i.deliveryOrderNo,
-                            deliveryOrder = new
-                            {
+							deliveryOrder = new
+							{
 								doNo = i.deliveryOrder.doNo,
-                                items = i.deliveryOrder.items == null ? null : i.deliveryOrder.items.Select(doi => new
-                                {
-                                    fulfillments = doi.fulfillments == null ? null : doi.fulfillments.Select(dof => new
-                                    {
-                                        dof.Id,
-                                        dof.receiptQuantity
-                                    })
-                                })
-                            }
+								items = i.deliveryOrder.items == null ? null : i.deliveryOrder.items.Select(doi => new
+								{
+									fulfillments = doi.fulfillments == null ? null : doi.fulfillments.Select(dof => new
+									{
+										dof.Id,
+										dof.receiptQuantity
+									})
+								})
+							}
+						})
+					})
+					.ToList()
 
-                        })
-					
-					
-					}).ToList()
 				);
 
 				var info = new Dictionary<string, object>
