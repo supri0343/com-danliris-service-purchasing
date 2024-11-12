@@ -9,7 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Ledger
     public class BeginingBalanceGeneralLedgerModel : StandardEntity<long>
     {
         [MaxLength(10)]
-        public string COANo { get; set; }
+        public string? COANo { get; set; }
         [MaxLength(100)]
         public string JournalType { get; set; }
         public double BeginingTextileDebit { get; set; }

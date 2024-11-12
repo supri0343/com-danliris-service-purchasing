@@ -24,19 +24,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubconDeliveryOrderM
         public double BudgetQuantity { get; set; }
         public double DOQuantity { get; set; }
         public double PricePerDealUnit { get; set; }
-        public string CurrencyCode { get; set; }
+        public string? CurrencyCode { get; set; }
         public long PRItemId { get; set; }
         public decimal ReceiptQuantity { get; set; }
         public virtual long GarmentDOId { get; set; }
         [ForeignKey("GarmentDOId")]
         public virtual GarmentSubconDeliveryOrder GarmentSubconDeliveryOrder { get; set; }
         [MaxLength(20)]
-        public string EPONo { get; set; }
+        public string? EPONo { get; set; }
         public long EPOId { get; set; }
         public long EPOItemId { get; set; }
         [MaxLength(15)]
-        public string RONoMaster { get; set; }
+        public string? RONoMaster { get; set; }
         [MaxLength(100)]
-        public string Article { get; set; }
+        public string? Article { get; set; }
     }
 }

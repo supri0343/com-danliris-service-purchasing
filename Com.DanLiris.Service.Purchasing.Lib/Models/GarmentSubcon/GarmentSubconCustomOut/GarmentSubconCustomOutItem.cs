@@ -12,15 +12,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubcon
         //LeftOver
         public long? UENId { get; set; }
         [MaxLength(255)]
-        public string UENNo { get; set; }
+        public string? UENNo { get; set; }
         
 
         //Service
         public long? LocalSalesNoteId { get; set; }
-        public string LocalSalesNoteNo { get; set; }
+        public string? LocalSalesNoteNo { get; set; }
         public long? PackageUomId { get; set; }
         [MaxLength(1000)]
-        public string PackageUomUnit { get; set; }
+        public string? PackageUomUnit { get; set; }
         public double? PackageQuantity { get; set; }
 
 
@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubcon
         public double Quantity { get; set; }
         public long UomId { get; set; }
         [MaxLength(1000)]
-        public string UomUnit { get; set; }
+        public string? UomUnit { get; set; }
 
         public virtual long CustomsId { get; set; }
         [ForeignKey("CustomsId")]
