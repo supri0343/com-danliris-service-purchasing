@@ -9,23 +9,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSubcon.GarmentSubcon
     public class GarmentSubconCustomOut : BaseModel
     {
         [MaxLength(255)]
-        public string BCNo { get; set; }
+        public string? BCNo { get; set; }
         public DateTimeOffset BCDate { get; set; }
         [MaxLength(20)]
-        public string BCType { get; set; }
+        public string? BCType { get; set; }
 
         /* ProductOwner */
         [MaxLength(255)]
         public long ProductOwnerId { get; set; }
         [MaxLength(255)]
-        public string ProductOwnerCode { get; set; }
+        public string? ProductOwnerCode { get; set; }
         [MaxLength(1000)]
-        public string ProductOwnerName { get; set; }
+        public string? ProductOwnerName { get; set; }
 
         [MaxLength(255)]
-        public string Category { get; set; }
+        public string? Category { get; set; }
         [MaxLength(1000)]
-        public string Remark { get; set; }
+        public string? Remark { get; set; }
 
         public virtual IEnumerable<GarmentSubconCustomOutItem> Items { get; set; }
     }
