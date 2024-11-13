@@ -125,113 +125,104 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 
                           }).AsQueryable();
 
-            //var result = (from a in Query
-            //              join b in dbContext.GarmentInternNoteItems on a.Id equals b.InvoiceId into r
-            //              from b in r.DefaultIfEmpty()
-            //              join c in dbContext.GarmentInternNotes on b.GarmentINId equals c.Id into s
-            //              from c in s.DefaultIfEmpty()
-            //                  // where kondisi dapat ditambahkan di sini jika perlu
-            //              select new
-            //              {
-            //                  Id = a.Id,
-            //                  LastModifiedUtc = a.LastModifiedUtc,
-            //                  CreatedUtc = a.CreatedUtc,
-            //                  InvoiceNo = a.InvoiceNo,
-            //                  InvoiceDate = a.InvoiceDate,
-            //                  InternNoteNo = c.INNo,
-            //                  InternNoteId = c != null ? c.Id : 0,
-            //                  SupplierName = a.SupplierName,
-            //                  Supplier = new SupplierViewModel
-            //                  {
-            //                      Code = a.SupplierCode,
-            //                      Name = a.SupplierName
-            //                  },
-            //                  CreatedBy = a.CreatedBy,
-            //                  Npn = a.NPN,
-            //                  Nph = a.NPH,
-                             
 
-            //                  Items = a.Items.Select(x => new GarmentInvoiceItemIndexDto
-            //                  {
-            //                      deliveryOrderId = x.DeliveryOrderId,
-            //                      deliveryOrderNo = x.DeliveryOrderNo,
-            //                      deliveryOrder = new GarmentDeliveryOrderViewModel()
-            //                      {
-            //                          doNo = x.DeliveryOrderNo,
+            if (Keyword != null)
+            {
+                //result = result.Where(x =>
+                //                           x.invoiceNo.Contains(Keyword)
+                //                           || (x.CreatedBy != null && x.CreatedBy.Contains(Keyword))
+                //                           || (x.internNoteNo != null && x.internNoteNo.Contains(Keyword))  // Null check pada internNoteNo
+                //                           || (x.npn != null && x.npn.Contains(Keyword))  // Null check pada npn
+                //                           || (x.nph != null && x.nph.Contains(Keyword))  // Null check pada nph
+                //                           || (x.supplierName != null && x.supplierName.Contains(Keyword)) // Null check pada supplierName
+                //                           || x.items.Any(i => i.deliveryOrderNo != null && i.deliveryOrderNo.Contains(Keyword))
+                //                        );
+                //result = result.Select(s => s.items.Where(r => r.deliveryOrderNo.Contains(Keyword)));
 
-            //                      },
-            //                  }).ToList()
-            //              })
-            //  .GroupBy(x => x.InvoiceNo) // Mengelompokkan berdasarkan InvoiceNo
-            //  .Select(group => new GarmentInvoiceIndexDto
-            //  {
-            //      Id = group.First().Id,
-            //      LastModifiedUtc = group.First().LastModifiedUtc,
-            //      CreatedUtc = group.First().CreatedUtc,
-            //      invoiceNo = group.Key, // Nilai GroupBy menjadi Key di sini
-            //      invoiceDate = group.First().InvoiceDate,
-            //      internNoteNo = group.First().InternNoteNo,
-            //      internNoteId = group.First().InternNoteId,
-            //      supplierName = group.First().SupplierName,
-            //      supplier = group.First().Supplier,
-            //      CreatedBy = group.First().CreatedBy,
-            //      npn = group.First().Npn,
-            //      nph = group.First().Nph,
-            //      //items = group.SelectMany(x => x.Items).ToList(),
-            //      //items = group.SelectMany(x => x.Items.Select( s => new GarmentInvoiceItemIndexDto
-            //      //                        { 
-            //      //                              deliveryOrderId = s.deliveryOrderId,
-            //      //                              deliveryOrderNo = s.deliveryOrderNo,
-            //      //                              deliveryOrder = new GarmentDeliveryOrderViewModel()
-            //      //                              { 
-            //      //                                  doNo = s.deliveryOrderNo
-            //      //                              }
+                //var data = result.ToList();
+                var itemId = dbContext.GarmentInvoiceItems.Where(x => x.DeliveryOrderNo.Contains(Keyword)).Select(x => x.Id).ToList();
 
+                if (itemId.Count > 0)
+                {
 
-            //      //                        })
-            //      //                          .GroupBy(r => r.deliveryOrderId) // Mengelompokkan untuk menghapus duplikat berdasarkan DeliveryOrderId
-            //      //                          .Select(g => g.First()) // Memilih item pertama dari setiap grup untuk menghapus duplikat
-            //      //
-            //      //     .ToList()
-            //     // ).ToList()
+                    result = (from a in dbContext.GarmentInvoices
 
-            //    items = group.SelectMany(x => x.Items)
-            //                   .GroupBy(i => i.deliveryOrderId) // Grupkan berdasarkan DeliveryOrderId
-            //                   .Select(g => g.First()) // Ambil item pertama dari setiap grup untuk menghilangkan duplikat
-            //                   .ToList()
+                              join b in dbContext.GarmentInternNoteItems on a.Id equals b.InvoiceId into r
+                              from b in r.DefaultIfEmpty()
+                              join c in dbContext.GarmentInternNotes on b.GarmentINId equals c.Id into s
+                              from c in s.DefaultIfEmpty()
+                              join d in dbContext.GarmentInvoiceItems on a.Id equals d.InvoiceId into t
+                              from d in t.DefaultIfEmpty()
+                              where
+                              itemId.Contains(d.Id)
 
+                              select new GarmentInvoiceIndexDto
+                              {
+                                  Id = a.Id,
+                                  LastModifiedUtc = a.LastModifiedUtc,
+                                  CreatedUtc = a.CreatedUtc,
+                                  invoiceNo = a.InvoiceNo,
+                                  invoiceDate = a.InvoiceDate,
+                                  internNoteNo = c.INNo,
+                                  internNoteId = c != null ? c.Id : 0,
+                                  supplierName = a.SupplierName,
+                                  supplier = new SupplierViewModel
+                                  {
+                                      Code = a.SupplierCode,
+                                      Name = a.SupplierName
+                                  },
+                                  CreatedBy = a.CreatedBy,
+                                  npn = a.NPN,
+                                  nph = a.NPH,
+                                  items = a.Items.Select(x => new GarmentInvoiceItemIndexDto()
+                                  {
 
+                                      deliveryOrderId = x.DeliveryOrderId,
+                                      deliveryOrderNo = x.DeliveryOrderNo,
+                                      deliveryOrder = new GarmentDeliveryOrderViewModel()
+                                      {
+                                          doNo = x.DeliveryOrderNo,
 
+                                      },
 
+                                  }).ToList()
 
-            //      // Gabungkan semua item dari setiap grup
-            //  })
-            //  .AsQueryable();
+                              }).AsQueryable();
+
+                }
+                else
+                {
+                    result = result.Where(x =>
+                                          x.invoiceNo.Contains(Keyword)
+                                          || x.CreatedBy.Contains(Keyword)
+                                          || x.internNoteNo.Contains(Keyword) // Null check pada internNoteNo
+                                          || x.npn.Contains(Keyword)  // Null check pada npn
+                                          || x.nph.Contains(Keyword)  // Null check pada nph
+                                          || x.supplierName.Contains(Keyword) // Null check pada supplierName
+
+                                       //|| x.items.Any(i => i.deliveryOrderNo.Contains(Keyword))
+                                       );
+                }
 
 
-            if (Keyword != null) {
-                result = result.Where(x =>
-                                           x.invoiceNo.Contains(Keyword)
-                                           || (x.CreatedBy != null && x.CreatedBy.Contains(Keyword))
-                                           || (x.internNoteNo != null && x.internNoteNo.Contains(Keyword))  // Null check pada internNoteNo
-                                           || (x.npn != null && x.npn.Contains(Keyword))  // Null check pada npn
-                                           || (x.nph != null && x.nph.Contains(Keyword))  // Null check pada nph
-                                           || (x.supplierName != null && x.supplierName.Contains(Keyword)) // Null check pada supplierName
-                                           || x.items.Any(i => i.deliveryOrderNo != null && i.deliveryOrderNo.Contains(Keyword))
-                                        );
-                // result = result.Select(s => s.items.Where(r => r.deliveryOrderNo.Contains(Keyword)).ToList());
 
             }
 
-                
+
+
+
+
 
             //result = QueryHelper<GarmentInvoiceIndexDto>.ConfigureSearch(result, searchAttributes, Keyword);
+            //Query = QueryHelper<GarmentInvoice>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             result = QueryHelper<GarmentInvoiceIndexDto>.ConfigureFilter(result, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             result = QueryHelper<GarmentInvoiceIndexDto>.ConfigureOrder(result, OrderDictionary);
+
+            
 
             Pageable<GarmentInvoiceIndexDto> pageable = new Pageable<GarmentInvoiceIndexDto>(result, Page - 1, Size);
             List<GarmentInvoiceIndexDto> Data = pageable.Data.ToList();
@@ -869,8 +860,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
 
         public string GetInternNoteNo(long invoiceId)
         {
-            var internNote = dbContext.GarmentInternNotes.Where(x =>x.Items.Any(i => i.InvoiceId == invoiceId)).FirstOrDefault().INNo ;
-            return internNote;
+            var internNote = dbContext.GarmentInternNotes.Where(x =>x.Items.Any(i => i.InvoiceId == invoiceId));
+
+            var result = internNote.Count() == 0 ? "-" : internNote.FirstOrDefault().INNo;
+            return result;
         }
     }
 }
