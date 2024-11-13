@@ -309,31 +309,59 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     if (m != null && id == purchaseRequest.Id)
                     {
 
-                        EntityExtension.FlagForUpdate(purchaseRequest, user, USER_AGENT);
-
-                        foreach (var item in purchaseRequest.Items)
+                        EntityExtension.FlagForUpdate(m, user, USER_AGENT);
+                        foreach (var oldItem in m.Items)
                         {
-                            if (item.Id == 0)
+                            var newItem = m.Items.FirstOrDefault(i => i.Id.Equals(oldItem.Id));
+                            if (newItem == null)
                             {
-                                EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                                EntityExtension.FlagForDelete(oldItem, user, USER_AGENT);
                             }
                             else
                             {
-                                EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                                EntityExtension.FlagForUpdate(oldItem, user, USER_AGENT);
+
+                                oldItem.ProductCode = newItem.ProductCode;
+                                oldItem.Quantity = newItem.Quantity;
+                                oldItem.ProductId = newItem.ProductId;
+                                oldItem.ProductName = newItem.ProductName;
+                                oldItem.Uom = newItem.Uom;
+                                oldItem.Remark = newItem.Remark;
+                                oldItem.UomId = newItem.UomId;
+                                oldItem.Status = newItem.Status;
                             }
                         }
 
-                        this.dbContext.Update(purchaseRequest);
-
-                        foreach (var item in m.Items)
+                        foreach (var item in m.Items.Where(i => i.Id == 0))
                         {
-                            PurchaseRequestItem purchaseRequestItem = purchaseRequest.Items.FirstOrDefault(i => i.Id.Equals(item.Id));
-                            if (purchaseRequestItem == null)
-                            {
-                                EntityExtension.FlagForDelete(item, user, USER_AGENT);
-                                this.dbContext.PurchaseRequestItems.Update(item);
-                            }
+                            EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                            item.Status = "Belum diterima Pembelian";
+
+                            m.Items.Add(item);
                         }
+                        //foreach (var item in purchaseRequest.Items)
+                        //{
+                        //    if (item.Id == 0)
+                        //    {
+                        //        EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                        //    }
+                        //    else
+                        //    {
+                        //        EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                        //    }
+                        //}
+
+                        //this.dbContext.Update(purchaseRequest);
+
+                        //foreach (var item in m.Items)
+                        //{
+                        //    PurchaseRequestItem purchaseRequestItem = purchaseRequest.Items.FirstOrDefault(i => i.Id.Equals(item.Id));
+                        //    if (purchaseRequestItem == null)
+                        //    {
+                        //        EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                        //        this.dbContext.PurchaseRequestItems.Update(item);
+                        //    }
+                        //}
 
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
