@@ -161,6 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                             var existingItem = existingModel.Items.SingleOrDefault(m => m.Id == item.Id);
                             List<DeliveryOrderItem> duplicateDeliveryOrderItems = model.Items.Where(i => i.EPOId == item.EPOId && i.Id != item.Id).ToList();
 
+                            //if new item in submited
                             if (item.Id == 0)
                             {
                                 if (duplicateDeliveryOrderItems.Count <= 0)
@@ -209,6 +210,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                             }
 
                                         }
+                                        existingModel.Items.Add(item);
                                     }
                                     else
                                     {
@@ -226,6 +228,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                     {
                                         if (detail.Id != 0)
                                         {
+                                            var existingDetail = existingItem.Details.SingleOrDefault(m => m.Id == detail.Id);
                                             EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
 
                                             foreach (var duplicateItem in duplicateDeliveryOrderItems.ToList())
@@ -252,7 +255,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                                                         EntityExtension.FlagForCreate(duplicateDetail, user, USER_AGENT);
                                                         item.Details.Add(duplicateDetail);
-
+                                                        existingItem.Details.Add(duplicateDetail);
                                                         ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == duplicateDetail.EPODetailId);
 
                                                         if (externalPurchaseOrderDetail != null)
@@ -268,7 +271,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                                 model.Items.Remove(duplicateItem);
                                             }
 
-                                            var existingDetail = existingItem.Details.SingleOrDefault(m => m.Id == detail.Id);
+                                            //var existingDetail = existingItem.Details.SingleOrDefault(m => m.Id == detail.Id);
                                             if (existingDetail != null)
                                             {
                                                 ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.SingleOrDefault(m => m.Id == detail.EPODetailId);
@@ -276,6 +279,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                                                 EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
                                                 SetStatus(externalPurchaseOrderDetail, detail, user);
+
+                                                dbContext.Entry(existingDetail).CurrentValues.SetValues(detail);
                                             }
 
                                         }
@@ -299,14 +304,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                                 EntityExtension.FlagForUpdate(externalPurchaseOrderDetail, user, USER_AGENT);
                                                 SetStatus(externalPurchaseOrderDetail, detail, user);
                                             }
+                                            dbContext.Entry(existingDetail).CurrentValues.SetValues(detail);
 
                                         }
                                     }
                                 }
+
+                                dbContext.Entry(existingItem).CurrentValues.SetValues(item);
                             }
                         }
 
-                        this.dbContext.Update(model);
 
                         foreach (var existingItem in existingModel.Items)
                         {
@@ -355,6 +362,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 }
                             }
                         }
+
+                        dbContext.Entry(existingModel).CurrentValues.SetValues(model);
+                        dbContext.Update(existingModel);
 
                         Updated = await dbContext.SaveChangesAsync();
                         var updatedModel = this.dbSet.AsNoTracking()

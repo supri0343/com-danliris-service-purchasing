@@ -212,6 +212,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
                         foreach (var item in model.Items)
                         {
+                            var existingItem = existingModel.Items.FirstOrDefault(i => i.Id == item.Id);
                             if (item.Id == 0)
                             {
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
@@ -220,23 +221,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                     SetPOItemIdEPONo(detail);
                                     EntityExtension.FlagForCreate(detail, user, USER_AGENT);
                                 }
+                                existingModel.Items.Add(item);
                             }
                             else
                             {
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
                                 foreach (var detail in item.Details)
                                 {
+                                    var existingDetail = existingItem.Details.FirstOrDefault(i => i.Id == detail.Id);
                                     EntityExtension.FlagForUpdate(detail, user, USER_AGENT);
+                                    dbContext.Entry(existingDetail).CurrentValues.SetValues(detail);
                                 }
+                                dbContext.Entry(existingItem).CurrentValues.SetValues(item);
                             }
 
                             SetPaid(item, true, user);
                         }
 
                         SetDueDate(model);
-
-                        this.dbContext.Update(model);
-
+                        
                         foreach (var existingItem in existingModel.Items)
                         {
                             var newItem = model.Items.FirstOrDefault(i => i.Id == existingItem.Id);
@@ -253,6 +256,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 SetPaid(existingItem, false, user);
                             }
                         }
+
+                        dbContext.Entry(existingModel).CurrentValues.SetValues(model);
+                        this.dbContext.Update(existingModel);
 
                         Updated = await dbContext.SaveChangesAsync();
 
