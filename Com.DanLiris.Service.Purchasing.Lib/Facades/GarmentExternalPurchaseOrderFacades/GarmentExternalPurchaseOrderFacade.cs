@@ -208,6 +208,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
                         foreach (var item in m.Items)
                         {
+                            var existingItem = oldM.Items.SingleOrDefault(d => d.Id == item.Id);
                             if (item.Id == 0)
                             {
                                 GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(item.POId));
@@ -237,8 +238,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                     }
                                 }
 
-
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                                oldM.Items.Add(item);
                             }
                             else
                             {
@@ -262,10 +263,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                                     }
                                 }
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                                dbContext.Entry(existingItem).CurrentValues.SetValues(item);
                             }
                         }
-
-                        dbSet.Update(m);
+                        dbContext.Entry(oldM).CurrentValues.SetValues(m);
+                        dbSet.Update(oldM);
 
                         foreach (var oldItem in oldM.Items)
                         {

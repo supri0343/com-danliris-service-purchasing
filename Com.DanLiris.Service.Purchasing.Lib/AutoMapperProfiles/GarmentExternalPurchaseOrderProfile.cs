@@ -29,6 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ReverseMap();
 
             CreateMap<GarmentExternalPurchaseOrder, GarmentExternalPurchaseOrderViewModel>()
+                .ForPath(d => d._id, opt => opt.MapFrom(s => s.Id))
                 .ForPath(d => d.Supplier.Id, opt => opt.MapFrom(s => s.SupplierId))
                 .ForPath(d => d.Supplier.Code, opt => opt.MapFrom(s => s.SupplierCode))
                 .ForPath(d => d.Supplier.Name, opt => opt.MapFrom(s => s.SupplierName))
