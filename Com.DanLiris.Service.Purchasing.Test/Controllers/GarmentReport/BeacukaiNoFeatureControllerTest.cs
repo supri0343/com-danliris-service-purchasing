@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         {
             var mockFacade = new Mock<IBeacukaiNoFeature>();
             mockFacade.Setup(x => x.GetBeacukaiNo(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(new List<BeacukaiNoFeatureViewModel> { viewModel });
+                .ReturnsAsync(new List<BeacukaiNoFeatureViewModel> { viewModel });
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<BeacukaiNoFeatureViewModel>>(It.IsAny<List<BeacukaiNoFeatureViewModel>>()))
@@ -107,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
 
             var response = controller.GetReportBC(It.IsAny<string>(), It.IsAny<string>());
-            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response.Result));
 
         }
 
@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             var mockMapper = new Mock<IMapper>();
             BeacukaiNoFeatureController controller = new BeacukaiNoFeatureController(mockFacade.Object, GetServiceProvider().Object);
             var response = controller.GetReportBC(null, null);
-            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response.Result));
         }
     }
 
