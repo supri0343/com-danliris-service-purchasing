@@ -10,7 +10,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
     {
         public string? UId { get; set; }
         public AccountBankViewModel Bank { get; set; }
-        public string? BGCheckNumber { get; set; }
+        public string BGCheckNumber { get; set; }
+        public string BankCashNo { get; set; }
         public DateTimeOffset? Date { get; set; }
         public List<BankExpenditureNoteDetailViewModel> Details { get; set; }
         public string? DocumentNo { get; set; }

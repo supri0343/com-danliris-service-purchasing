@@ -89,6 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     CurrencyRate = s.CurrencyRate,
                     IsPosted = s.IsPosted,
                     Date = s.Date,
+                    BankCashNo = s.BankCashNo,
                     Details = s.Details.Where(x => x.BankExpenditureNoteId == s.Id).Select(a => new BankExpenditureNoteDetailModel
                     {
                         SupplierName = a.SupplierName,
@@ -128,6 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                    s.BankCurrencyCode,
                    s.IsPosted,
                    s.Date,
+                   s.BankCashNo,
                    Details = s.Details.Select(sl => new { sl.SupplierName, sl.UnitPaymentOrderNo, sl.Items }).ToList(),
                }).ToList()
             );
@@ -149,6 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     dbContext.Entry(model).Property(x => x.GrandTotal).IsModified = true;
                     dbContext.Entry(model).Property(x => x.BGCheckNumber).IsModified = true;
+                    dbContext.Entry(model).Property(x => x.BankCashNo).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
                     dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
@@ -1006,6 +1009,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                      {
                          Id = a.Id,
                          DocumentNo = a.DocumentNo,
+                         BankCashNo = a.BankCashNo,
                          Currency = a.BankCurrencyCode,
                          Date = a.Date,
                          SupplierCode = b.SupplierCode,
@@ -1109,6 +1113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 {
                     Id = key.Id,
                     DocumentNo = key.DocumentNo,
+                    BankCashNo = key.BankCashNo,
                     Currency = key.Currency,
                     Date = key.Date,
                     SupplierCode = key.SupplierCode,

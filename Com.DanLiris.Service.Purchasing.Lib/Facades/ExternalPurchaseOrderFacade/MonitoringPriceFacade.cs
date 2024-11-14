@@ -41,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                          // Delivery Order
                          join d in DbContext.DeliveryOrderItems on a.Id equals d.EPOId into e
                          from DOItem in e.DefaultIfEmpty()
-                         join f in DbContext.DeliveryOrderItems on DOItem.DOId equals f.Id into g
+                         join f in DbContext.DeliveryOrders on DOItem.DOId equals f.Id into g
                          from DO in g.DefaultIfEmpty()
                          // Unit Receipt Note
                          join h in DbContext.UnitReceiptNotes on DO.Id equals h.DOId into i
