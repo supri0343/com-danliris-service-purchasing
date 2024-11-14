@@ -316,14 +316,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                             if (item.Id == 0)
                             {
                                 EntityExtension.FlagForCreate(item, user, USER_AGENT);
+                                m.Items.Add(item);
                             }
                             else
                             {
+                                var existingItem = m.Items.FirstOrDefault(i => i.Id == item.Id);
                                 EntityExtension.FlagForUpdate(item, user, USER_AGENT);
+                                dbContext.Entry(existingItem).CurrentValues.SetValues(item);
                             }
                         }
 
-                        this.dbContext.Update(purchaseRequest);
+                     
 
                         foreach (var item in m.Items)
                         {
@@ -334,6 +337,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                 this.dbContext.PurchaseRequestItems.Update(item);
                             }
                         }
+                        dbContext.Entry(m).CurrentValues.SetValues(purchaseRequest);
+                        this.dbContext.Update(m);
 
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();

@@ -393,6 +393,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                         epoDetail.DispositionQuantity += detail.PaidQuantity;
                                         EntityExtension.FlagForCreate(detail, user, "Facade");
                                     }
+                                    existingModel.Items.Add(item);
 
                                 }
                             }
@@ -433,16 +434,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                                     {
                                         if (detail.Id != 0)
                                         {
+                                            var existingDetail = existingItem.Details.SingleOrDefault(d => d.Id == detail.Id);
                                             ExternalPurchaseOrderDetail epoDetail = this.dbContext.ExternalPurchaseOrderDetails.Where(s => s.Id.ToString() == detail.EPODetailId && s.IsDeleted == false).FirstOrDefault();
                                             epoDetail.DispositionQuantity += detail.PaidQuantity;
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
+                                            dbContext.Entry(existingDetail).CurrentValues.SetValues(detail);
                                         }
                                     }
                                 }
                             }
+        
                         }
 
-                        this.dbContext.Update(purchasingDisposition);
 
                         foreach (var existingItem in existingModel.Items)
                         {
@@ -475,6 +478,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                             }
                         }
 
+                        dbContext.Entry(existingModel).CurrentValues.SetValues(purchasingDisposition);
+                        dbContext.Update(existingModel);
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
 

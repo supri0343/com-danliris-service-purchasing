@@ -233,6 +233,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     }
                                     InternalPurchaseOrder internalPurchaseOrder = this.dbContext.InternalPurchaseOrders.FirstOrDefault(s => s.Id == item.POId);
                                     internalPurchaseOrder.IsPosted = true;
+                                    existingModel.Items.Add(item);
                                 }
                             }
                             else
@@ -245,7 +246,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     {
                                         if (detail.Id != 0)
                                         {
-
+                                            var existingDetail = existingItem.Details.SingleOrDefault(d => d.Id == detail.Id);
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
 
                                             foreach (var duplicateItem in duplicateExternalPurchaseOrderItems.ToList())
@@ -270,8 +271,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                                 }
                                                 externalPurchaseOrder.Items.Remove(duplicateItem);
                                             }
+
+                                            dbContext.Entry(existingDetail).CurrentValues.SetValues(detail);
                                         }
                                     }
+
+                                    dbContext.Entry(existingItem).CurrentValues.SetValues(item);
                                 }
                                 else
                                 {
@@ -279,16 +284,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                     {
                                         if (detail.Id != 0)
                                         {
+                                            var existingDetail = existingItem.Details.SingleOrDefault(d => d.Id == detail.Id);
                                             EntityExtension.FlagForUpdate(detail, user, "Facade");
                                             detail.PricePerDealUnit = detail.IncludePpn ? (100 * detail.PriceBeforeTax) / 110 : detail.PriceBeforeTax;
 
+                                            dbContext.Entry(existingDetail).CurrentValues.SetValues(detail);
                                         }
                                     }
                                 }
+                                dbContext.Entry(existingItem).CurrentValues.SetValues(item);
                             }
                         }
 
-                        this.dbContext.Update(externalPurchaseOrder);
 
                         foreach (var existingItem in existingModel.Items)
                         {
@@ -332,6 +339,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                             }
                         }
 
+                        dbContext.Entry(existingModel).CurrentValues.SetValues(externalPurchaseOrder);
+                        this.dbContext.Update(existingModel);
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
 

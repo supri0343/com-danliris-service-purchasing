@@ -1178,13 +1178,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         EntityExtension.FlagForUpdate(unitReceiptNote, user, USER_AGENT);
                         foreach (var item in unitReceiptNote.Items)
                         {
+                            var existingItem = m.Items.FirstOrDefault(i => i.Id == item.Id);
+
                             EntityExtension.FlagForUpdate(item, user, "Facade");
 
                             var poext = dbContext.ExternalPurchaseOrders.Select(s => new { s.Id, s.UseIncomeTax }).FirstOrDefault(f => f.Id.Equals(item.EPOId));
 
                             useIncomeTaxFlag = useIncomeTaxFlag || poext.UseIncomeTax;
+
+                            if(existingItem != null)
+                            {
+                                dbContext.Entry(existingItem).CurrentValues.SetValues(item);
+                            }
                         }
-                        this.dbContext.Update(unitReceiptNote);
+
+                        dbContext.Entry(m).CurrentValues.SetValues(unitReceiptNote);
+                        this.dbContext.Update(m);
                         #region UpdateStatus
                         //foreach (var item in unitReceiptNote.Items)
                         //{
