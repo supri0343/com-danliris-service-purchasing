@@ -25,6 +25,9 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
+using static iTextSharp.text.pdf.AcroFields;
+using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades
 {
@@ -98,8 +101,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         SmallUomUnit = z.SmallUomUnit,
                         PricePerDealUnit = z.PricePerDealUnit,
                         PriceTotal = z.PriceTotal
-                    }),
-                }),
+                    }).ToList(),
+                }).ToList(),
 
             });
 
@@ -299,6 +302,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
                             foreach (var modelItem in m.Items.Where(i => i.Id == vmItem.Id))
                             {
+
+                                var existingItem = oldM.Items.SingleOrDefault(m => m.Id == modelItem.Id);
                                 if (modelItem.Id == 0)
                                 {
                                     EntityExtension.FlagForCreate(modelItem, user, USER_AGENT);
@@ -342,9 +347,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                 modelDetail.PriceTotalCorrection = modelDetail.PriceTotal;
 
                                                 m.TotalAmount += modelDetail.PriceTotal;
+
                                             }
                                         }
+
                                     }
+                                    oldM.Items.Add(modelItem);
                                 }
                                 else
                                 {
@@ -361,8 +369,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                         {
                                             foreach (var modelDetail in modelItem.Details.Where(j => j.Id == vmDetail.Id))
                                             {
+                                                var existingDetail = item.Details.SingleOrDefault(m => m.Id == modelDetail.Id);
                                                 foreach (var detail in item.Details.Where(j => j.EPOItemId == modelDetail.EPOItemId).ToList())
                                                 {
+                                                    
                                                     GarmentInternalPurchaseOrder internalPurchaseOrder = this.dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(s => s.Id.Equals(modelDetail.POId));
                                                     GarmentInternalPurchaseOrderItem internalPurchaseOrderItem = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(s => s.GPOId.Equals(modelDetail.POId));
                                                     GarmentExternalPurchaseOrderItem externalPurchaseOrderItem = this.dbContext.GarmentExternalPurchaseOrderItems.FirstOrDefault(s => s.Id.Equals(modelDetail.EPOItemId));
@@ -404,15 +414,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                                             internalPurchaseOrderItem.Status = "Barang sudah datang semua";
                                                         }
                                                     }
+
+                                                    dbContext.Entry(existingDetail).CurrentValues.SetValues(modelDetail);
                                                 }
                                             }
                                         }
+
+                                        dbContext.Entry(existingItem).CurrentValues.SetValues(modelItem);
                                     }
                                 }
                             }
                         }
-
-                        dbSet.Update(m);
 
                         foreach (var oldItem in oldM.Items)
                         {
@@ -434,6 +446,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                         //Create Log History
                         logHistoryFacades.Create("PEMBELIAN", "Update Surat Jalan - " + m.DONo);
 
+                        dbContext.Entry(oldM).CurrentValues.SetValues(m);
+                        dbSet.Update(oldM);
                         Updated = await dbContext.SaveChangesAsync();
                         transaction.Commit();
                     }
