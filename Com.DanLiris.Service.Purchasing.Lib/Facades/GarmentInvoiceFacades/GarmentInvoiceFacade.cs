@@ -110,6 +110,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                               CreatedBy = a.CreatedBy,
                               npn = a.NPN,
                               nph = a.NPH,
+                              isPayTax = a.IsPayTax,
+                              useIncomeTax = a.UseIncomeTax,
+                              useVat = a.UseVat,
                               items = a.Items.Select(x => new GarmentInvoiceItemIndexDto()
                               {
 
@@ -174,6 +177,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                                   CreatedBy = a.CreatedBy,
                                   npn = a.NPN,
                                   nph = a.NPH,
+                                  isPayTax = a.IsPayTax,
+                                  useIncomeTax = a.UseIncomeTax,
+                                  useVat = a.UseVat,
                                   items = a.Items.Select(x => new GarmentInvoiceItemIndexDto()
                                   {
 
