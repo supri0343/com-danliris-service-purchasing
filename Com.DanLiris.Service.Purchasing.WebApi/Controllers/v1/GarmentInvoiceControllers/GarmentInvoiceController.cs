@@ -200,6 +200,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 						s.npn,
 						s.nph,
 						s.internNoteId,
+						s.useVat,
+						s.isPayTax,
+						s.useIncomeTax,
 						items = s.items.Select(i => new
 						{
 							i.deliveryOrderId,
