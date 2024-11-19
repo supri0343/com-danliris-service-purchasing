@@ -21,6 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
         public bool isPayTax { get; set; }
         public bool useIncomeTax { get; set; }
         public bool useVat { get; set; }
+        public bool isPayVat { get; set; }
         public virtual ICollection< GarmentInvoiceItemIndexDto> items { get; set; }
     }
 
