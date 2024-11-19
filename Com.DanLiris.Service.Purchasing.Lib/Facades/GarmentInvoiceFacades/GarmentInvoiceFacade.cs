@@ -113,6 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                               isPayTax = a.IsPayTax,
                               useIncomeTax = a.UseIncomeTax,
                               useVat = a.UseVat,
+                              isPayVat = a.IsPayVat,
                               items = a.Items.Select(x => new GarmentInvoiceItemIndexDto()
                               {
 
@@ -180,6 +181,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                                   isPayTax = a.IsPayTax,
                                   useIncomeTax = a.UseIncomeTax,
                                   useVat = a.UseVat,
+                                  isPayVat = a.IsPayVat,
                                   items = a.Items.Select(x => new GarmentInvoiceItemIndexDto()
                                   {
 
