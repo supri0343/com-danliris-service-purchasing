@@ -777,20 +777,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         //MONITORING OVER BUDGET QTY
         #region MONITORING OVER BUDGET QTY
         [HttpGet("monitoring/overbudget")]
-        public IActionResult GetReportOverBudget(string epoNo, string poNo, string inNo, int page, int size, string Order = "{}")
+        public IActionResult GetReportOverBudget(string epoNo, string poNo, string inNo, string Order = "{}")
         {
             try
             {
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
-                var data = facade.GetReportOB(epoNo, poNo, inNo, page, size, Order);
+                var data = facade.GetReportOB(epoNo, poNo, inNo, Order);
 
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
-                    data = data.Item1,
-                    info = new { total = data.Item2 },
+                    data = data,
                     message = General.OK_MESSAGE,
                     statusCode = General.OK_STATUS_CODE
                 });
@@ -816,6 +815,60 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 var xls = facade.GenerateExcelOB(epoNo, poNo, inNo);
 
                 string filename = String.Format("Monitoring Over Budget - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                   .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        #endregion
+
+        //MONITORING DELIVERY PENGIRIMAN
+        #region MONITORING MONITORING DELIVERY PENGIRIMAN
+        [HttpGet("monitoring-delivery")]
+        public IActionResult GetReportDelivery(string epoNo, bool jnsSpl, string supplierCode, string staffName, DateTime? dateFrom, DateTime? dateTo, int offset, string Order = "{}")
+        {
+            try
+            {
+                var data = facade.GetDeliveryReport(epoNo, jnsSpl, supplierCode, staffName, dateFrom, dateTo, offset, Order);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data,
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("monitoring-delivery/download")]
+        public IActionResult GetXlsDelivery(string epoNo, bool jnsSpl, string supplierCode, string staffName, DateTime? dateFrom, DateTime? dateTo, int offst)
+        {
+
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+
+                var xls = facade.GenerateExcelDeliveryReport(epoNo, jnsSpl, supplierCode, staffName, dateFrom, dateTo, offset);
+
+                string filename = String.Format("Monitoring Delivery Pengiriman - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
                 var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);

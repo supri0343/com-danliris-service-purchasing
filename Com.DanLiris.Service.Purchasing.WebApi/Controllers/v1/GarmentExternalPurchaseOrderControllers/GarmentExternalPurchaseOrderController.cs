@@ -738,5 +738,63 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        //MONITORING OVER BUDGET QTY
+        #region MONITORING PRICE GARMENT PRODUCT
+        [HttpGet("monitoring-price")]
+        public IActionResult GetReportPrice(string category, string productCode, string productName, string supplierCode, DateTime? dateFrom, DateTime? dateTo, string Order = "{}")
+        {
+            try
+            {
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
+
+                var data = facade.GetReportPriceProduct(category, productCode, productName, supplierCode, dateFrom, dateTo, offset, Order);
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data,        
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("monitoring-price/download")]
+        public IActionResult GetXlsPrice(string category, string productCode, string productName, string supplierCode, DateTime? dateFrom, DateTime? dateTo, int offst)
+        {
+
+            try
+            {
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+
+                var xls = facade.GenerateExcelPriceProduct(category, productCode, productName, supplierCode, dateFrom, dateTo, offset);
+
+                string filename = String.Format("Monitoring Price Barang Garment - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                   .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        #endregion
+
     }
 }
