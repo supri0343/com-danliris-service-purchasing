@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades
 {
@@ -422,7 +423,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         //}
                     });
 
-                    
+
 
                     Updated = dbContext.SaveChanges();
                     transaction.Commit();
@@ -647,7 +648,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                             //Create Log History
                             logHistoryFacades.Create("PEMBELIAN", "Approve Purchase Order External - " + m.EPONo);
                         }
-                       
+
 
                         foreach (var item in m.Items)
                         {
@@ -940,7 +941,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             var Query = (from a in dbContext.GarmentExternalPurchaseOrders
                          join b in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals b.GarmentEPOId
                          join d in dbContext.GarmentPurchaseRequests on b.PRId equals d.Id
-                         join c in dbContext.GarmentPurchaseRequestItems on b.PO_SerialNumber equals c.PO_SerialNumber 
+                         join c in dbContext.GarmentPurchaseRequestItems on b.PO_SerialNumber equals c.PO_SerialNumber
 
                          //Conditions
                          where b.IsOverBudget == true && a.IsOverBudget == true && a.IsDeleted == false
@@ -1128,7 +1129,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
         public List<GarmentExternalPurchaseOrder> ReadItemByEPONo(string EPONo = null, string Filter = "{}")
         {
-            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s=> s.Items).Where(m => m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
 
             List<string> searchAttributes = new List<string>()
             {
@@ -1143,7 +1144,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             return Query.ToList();
         }
-        public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}",int supplierId=0, int currencyId=0,int Page = 1,int Size= 10)
+        public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}", int supplierId = 0, int currencyId = 0, int Page = 1, int Size = 10)
         {
             //IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m =>m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t=> t.IsDispositionCreatedAll == false));
 
@@ -1213,7 +1214,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             //Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
 
-            Dictionary<string, string> OrderDictionary = new Dictionary<string, string>() ;
+            Dictionary<string, string> OrderDictionary = new Dictionary<string, string>();
             Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
 
             Pageable<GarmentExternalPurchaseOrder> pageable = new Pageable<GarmentExternalPurchaseOrder>(Query, Page - 1, Size);
@@ -1234,7 +1235,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, EPONo);
 
-            if(!string.IsNullOrEmpty(currencyCode))
+            if (!string.IsNullOrEmpty(currencyCode))
             {
                 Query = Query.Where(s => s.CurrencyCode == currencyCode);
             }
@@ -1319,8 +1320,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              ProductId = i.ProductId,
                              ProductName = i.ProductName,
                              Remark = i.Remark,
-                             Article=i.Article,
-                             RONo=i.RONo
+                             Article = i.Article,
+                             RONo = i.RONo
                          });
 
             List<GarmentExternalPurchaseOrderItem> ListData = new List<GarmentExternalPurchaseOrderItem>(QueryItem.OrderBy(o => o.PO_SerialNumber).Take(size));
@@ -1336,7 +1337,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             };
 
             QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
-            
+
             QueryItem = (from i in QueryItem
                          where i.RONo.Contains(Keyword)
                          select new GarmentExternalPurchaseOrderItem
@@ -1418,7 +1419,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                           m.EPONo,
                           m.CurrencyRate,
                           EPOItemId = b.Id,
-                          Product = new GarmentProductViewModel{Id = b.ProductId,Code=b.ProductCode, Name = b.ProductName },
+                          Product = new GarmentProductViewModel { Id = b.ProductId, Code = b.ProductCode, Name = b.ProductName },
                           Uom = new UomViewModel { Id = b.DealUomId.ToString(), Unit = b.DealUomUnit },
                           BudgetQuantity = b.DealQuantity - b.DOQuantity,
                           b.PO_SerialNumber,
@@ -1488,13 +1489,133 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             //    })
             //    .Where(m => m.Items.Count > 0);
 
-            foreach(var a in res)
+            foreach (var a in res)
             {
                 ListData.Add(a);
             }
 
-
             return ListData;
         }
+
+        public IQueryable<GarmentMonitoringPriceGarmentProductViewModel> GetReportPriceGmtProduct(string category, string productCode, string productName, string supplierCode, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+
+            var Query1 = (from a in dbContext.GarmentExternalPurchaseOrders
+                          join b in dbContext.GarmentExternalPurchaseOrderItems on a.Id equals b.GarmentEPOId
+
+                          join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.EPOItemId
+                          join d in dbContext.GarmentDeliveryOrderItems on c.GarmentDOItemId equals d.Id
+                          join e in dbContext.GarmentDeliveryOrders on d.GarmentDOId equals e.Id
+
+                          join f in dbContext.GarmentInvoiceDetails on c.Id equals f.DODetailId into aa
+                          from DInv in aa.DefaultIfEmpty()
+                          join g in dbContext.GarmentInvoiceItems on DInv.InvoiceItemId equals g.Id into bb
+                          from IInv in bb.DefaultIfEmpty()
+                          join h in dbContext.GarmentInvoices on IInv.InvoiceId equals h.Id into cc
+                          from Inv in cc.DefaultIfEmpty()
+
+                          join i in dbContext.GarmentInternNoteItems on Inv.Id equals i.InvoiceId into dd
+                          from INItm in dd.DefaultIfEmpty()
+
+                          join j in dbContext.GarmentInternNotes on INItm.GarmentINId equals j.Id into ee
+                          from IN in ee.DefaultIfEmpty()
+
+                          where (string.IsNullOrWhiteSpace(category) ? true : (category == "BAHAN PENDUKUNG" ? (b.ProductName != "FABRIC" && b.ProductName != "INTERLINING") : b.ProductName == category))
+                                && b.ProductCode == (string.IsNullOrWhiteSpace(productCode) ? b.ProductCode : productCode)
+                                && b.ProductName == (string.IsNullOrWhiteSpace(productName) ? b.ProductName : productName)
+                                && a.SupplierCode == (string.IsNullOrWhiteSpace(supplierCode) ? a.SupplierCode : supplierCode)
+                                && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
+                                && a.OrderDate.AddHours(offset).Date <= DateTo.Date
+
+                          select new GarmentMonitoringPriceGarmentProductViewModel
+                          {
+                              epoNo = a.EPONo,
+                              orderDate = a.OrderDate,
+                              supplierCode = a.SupplierCode,
+                              supplierName = a.SupplierName,
+                              prNo = b.PRNo,
+                              poNo = b.PO_SerialNumber,
+                              invoiceNo = Inv == null ? "-" : Inv.InvoiceNo,
+                              invoiceDate = Inv == null ? new DateTime(1970, 1, 1) : Inv.InvoiceDate,
+                              inNo = IN == null ? "-" : IN.INNo,
+                              inDate = IN == null ? new DateTime(1970, 1, 1) : IN.INDate,
+                              productCode = b.ProductCode,
+                              productName = b.ProductName,
+                              productRemark = b.Remark,
+                              epoQuantity = b.DealQuantity,
+                              uomunit     = b.DealUomUnit,
+                              currencyCode = e.DOCurrencyCode,
+                              epoprice     = b.PricePerDealUnit,
+                              rate         = e.DOCurrencyRate,
+                              amount       = b.DealQuantity * b.PricePerDealUnit * e.DOCurrencyRate
+
+                          }).OrderBy(b => b.supplierCode).ThenBy(b => b.productCode).ThenBy(b => b.orderDate);
+
+            return Query1;
+        }
+
+        public List<GarmentMonitoringPriceGarmentProductViewModel> GetReportPriceProduct(string category, string productCode, string productName, string supplierCode, DateTime? dateFrom, DateTime? dateTo, int offset, string Order = "{}")
+        {
+
+            var Query = GetReportPriceGmtProduct(category, productCode, productName, supplierCode, dateFrom, dateTo, offset);
+
+            Query = Query.OrderBy(b => b.supplierCode).ThenBy(b => b.productCode).ThenBy(b => b.orderDate);
+
+            return Query.ToList();
+        }
+
+        public MemoryStream GenerateExcelPriceProduct(string category, string productCode, string productName, string supplierCode, DateTime? dateFrom, DateTime? dateTo, int offset)
+        {
+            var Query = GetReportPriceGmtProduct(category, productCode, productName, supplierCode, dateFrom, dateTo, offset);
+
+            DataTable result = new DataTable();
+
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO External", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl PO External", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PR", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Ref PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });            
+        
+            result.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Invoice", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tgl Nota Intern", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
+
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah PO", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuan", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Total", DataType = typeof(Double) });
+         
+
+            if (Query.ToArray().Count() == 0)
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, 0, 0);
+            else
+            {
+                int index = 0;
+                foreach (var item in Query)
+                {
+                    index++;
+
+                    string EPODate = item.orderDate == new DateTime(1970, 1, 1) ? "-" : item.orderDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string InvDate = item.invoiceDate == new DateTime(1970, 1, 1) ? "-" : item.invoiceDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+                    string NIDate = item.inDate == new DateTime(1970, 1, 1) ? "-" : item.inDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
+
+                    result.Rows.Add(index, item.epoNo, EPODate, item.prNo, item.poNo, item.supplierCode, item.supplierName, item.invoiceNo, InvDate, item.inNo, NIDate, item.productCode, item.productName, item.productRemark, item.epoQuantity, item.uomunit, item.currencyCode, item.epoprice, item.rate, item.amount);
+
+                }
+            }
+
+            return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
+        }
+
     }
 }

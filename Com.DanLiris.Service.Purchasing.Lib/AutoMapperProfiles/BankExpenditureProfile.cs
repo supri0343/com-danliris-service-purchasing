@@ -21,6 +21,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.Bank.Currency.Id, opt => opt.MapFrom(s => s.BankCurrencyId))
                 .ForPath(d => d.Bank.Currency.Code, opt => opt.MapFrom(s => s.BankCurrencyCode))
                 .ForPath(d => d.Bank.Currency.Rate, opt => opt.MapFrom(s => s.BankCurrencyRate))
+                .ForPath(d => d.BankCashNo, opt => opt.MapFrom(s => s.BankCashNo))
+
 
                 /* Supplier */
                 .ForPath(d => d.Supplier._id, opt => opt.MapFrom(s => s.SupplierId))

@@ -39,5 +39,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         List<GarmentExternalPurchaseOrderItem> ReadItemForUnitDOByRO(string Keyword = null, string Filter = "{}");
         bool GetIsUnpost(int Id);
         List<object> DynamicSubcon(string Keyword = null, string Filter = "{}");
+
+        List<GarmentMonitoringPriceGarmentProductViewModel> GetReportPriceProduct(string category, string productCode, string productName, string supplierCode, DateTime? dateFrom, DateTime? dateTo, int offset, string Order = "{}");
+        MemoryStream GenerateExcelPriceProduct(string category, string productCode, string productName, string supplierCode, DateTime? dateFrom, DateTime? dateTo, int offset);
     }
 }
