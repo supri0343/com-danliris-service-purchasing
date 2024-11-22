@@ -2955,7 +2955,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
         //
-        public IQueryable<GarmentMonitoringDeliveryReportViewModel> GetReportDelivery(string epoNo, bool jnsSpl, string supplierCode, string staffName, DateTime? dateFrom, DateTime? dateTo, int offset, string Order = "{}")
+        public IQueryable<GarmentMonitoringDeliveryReportViewModel> GetReportDeliveryKirim(string epoNo, bool jnsSpl, string supplierCode, string staffName, DateTime? dateFrom, DateTime? dateTo, int offset, string Order = "{}")
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -2977,8 +2977,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                                 && a.SupplierCode != "GDG"
                                 && a.SupplierCode == (string.IsNullOrWhiteSpace(supplierCode) ? a.SupplierCode : supplierCode)
                                 && a.CreatedBy == (string.IsNullOrWhiteSpace(staffName) ? a.CreatedBy : staffName)
-                                && a.DeliveryDate.AddHours(offset).Date >= DateFrom.Date
-                                && a.DeliveryDate.AddHours(offset).Date <= DateTo.Date
+                                && a.DeliveryDate.AddHours(7).Date >= DateFrom.Date
+                                && a.DeliveryDate.AddHours(7).Date <= DateTo.Date
 
                           select new GarmentMonitoringDeliveryReportViewModel
                           {
@@ -3005,8 +3005,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                               arrivalDate = DO == null ? "-" : DO.ArrivalDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID")),
                               doQuantity = DtlDO == null ? 0 : DtlDO.DOQuantity,
                               statusDO = DO == null ? 1 : 2,                           
-                              diffDay = (a.DeliveryDate.ToOffset(new TimeSpan(7, 0, 0)) - DateTimeOffset.Now.ToOffset(new TimeSpan(7, 0, 0))).Days,
-                              sevenddaybefore = (DateTimeOffset.Now.ToOffset(new TimeSpan(7, 0, 0)) - a.DeliveryDate.ToOffset(new TimeSpan(7, 0, 0))).Days,                           
+                              diffDay = (DateTimeOffset.Now.AddHours(7).Date - a.DeliveryDate.ToOffset(new TimeSpan(7, 0, 0)).Date).Days,
+                              sevenddaybefore = (a.DeliveryDate.ToOffset(new TimeSpan(7, 0, 0)).Date - DateTimeOffset.Now.AddHours(7).Date).Days,                           
                               flagData = "-",
                        }).OrderBy(b => b.epoNo).ThenBy(b => b.poNo).ThenBy(b => b.deliveryDate); 
         
@@ -3041,7 +3041,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     diffDay = item.diffDay,
                     sevenddaybefore = item.sevenddaybefore,
                     statusDO = item.statusDO,
-                    flagData = item.statusDO == 1 && item.diffDay >= 0 && item.diffDay < 7 ? "R": (item.statusDO == 1 && item.diffDay == 7 ? "Y" : (item.statusDO == 2 && (item.doEpoQuantity - item.dealQuantity) >= 0 ? "G" : (item.statusDO == 2 && (item.dealQuantity - item.doEpoQuantity) > 0 ? "B" : "X"))),
+                    flagData = item.statusDO == 2 && (item.doEpoQuantity - item.dealQuantity) >= 0 ? "G" : (item.statusDO == 2 && (item.dealQuantity - item.doEpoQuantity) > 0 ? "B" : (item.statusDO == 1 && item.diffDay >= 0 ? "R" : (item.statusDO == 1 && item.sevenddaybefore > 0 ? "Y" : "R"))),
 
                  };
                 reportResult.Add(_newData);
@@ -3054,7 +3054,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
         public List<GarmentMonitoringDeliveryReportViewModel> GetDeliveryReport(string epoNo, bool jnsSpl, string supplierCode, string staffName, DateTime? dateFrom, DateTime? dateTo, int offset, string Order = "{}")
         {
 
-            var Query = GetReportDelivery(epoNo, jnsSpl, supplierCode, staffName, dateFrom, dateTo, offset);
+            var Query = GetReportDeliveryKirim(epoNo, jnsSpl, supplierCode, staffName, dateFrom, dateTo, offset);
 
             Query = Query.OrderBy(b => b.supplierCode).ThenBy(b => b.deliveryDate);
 
@@ -3063,7 +3063,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         public MemoryStream GenerateExcelDeliveryReport(string epoNo, bool jnsSpl,  string supplierCode, string staffName, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetReportDelivery(epoNo, jnsSpl, supplierCode, staffName, dateFrom, dateTo, offset);
+            var Query = GetReportDeliveryKirim(epoNo, jnsSpl, supplierCode, staffName, dateFrom, dateTo, offset);
 
             DataTable result = new DataTable();
 
