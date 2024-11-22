@@ -37,6 +37,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             IncomeTax = new IncomeTaxDto(entity.IncomeTaxId, entity.IncomeTaxName, entity.IncomeTaxRate);
             UseIncomeTax = entity.IsIncomeTax;
             EPOId = (int)entity.Id;
+            IsPayIncomeTax = entity.IsPayIncomeTax;
+            IsPayVAT = entity.IsPayVAT;
         }
 
         public ProductDto Product { get; private set; }
@@ -52,5 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         public string? IncomeTaxBy { get; private set; }
         public bool UseIncomeTax { get; private set; }
         public int EPOId { get; private set; }
+        public bool IsPayVAT { get; private set; }
+        public bool IsPayIncomeTax { get; private set; }
     }
 }
