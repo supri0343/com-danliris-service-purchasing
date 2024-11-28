@@ -1340,7 +1340,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //data = data.Where(x => (x.BeginningBalanceQty != 0) || (x.EndingBalanceQty != 0) || (x.ReceiptCorrectionQty > 0) || (x.ReceiptQty > 0) || (x.ExpendQty > 0)).ToList();
             //var Query = data.OrderBy(x => x.ProductCode).ThenBy(x => x.PlanPo).ToList();
             DataTable result = new DataTable();
-            var headers = new string[] { "No", "Kode Barang", "No RO", "Plan PO", "Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal2", "Penerimaan", "Penerimaan1", "Penerimaan2", "Pengeluaran", "Pengeluaran1", "Saldo Akhir", "Saldo Akhir1"/*, "Asal"*/ };
+            var headers = new string[] { "No", "Kode Barang", "No RO", "Plan PO", "Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal2", "Penerimaan", "Penerimaan1", "Penerimaan2", "Pengeluaran", "Pengeluaran1", "Saldo Akhir", "Saldo Akhir1", "Asal" };
             var subheaders = new string[] { "Jumlah", "Sat", "Jumlah", "Koreksi", "Sat", "Jumlah", "Sat", "Jumlah", "Sat" };
             for (int i = 0; i < 7; i++)
             {
@@ -1356,7 +1356,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = headers[13], DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = headers[14], DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = headers[15], DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = headers[16], DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = headers[16], DataType = typeof(String) });
 
             var index = 1;
             decimal BeginningQtyTotal = 0;
@@ -1384,8 +1384,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                     Convert.ToDouble(item.BeginningBalanceQty), item.BeginningBalanceUom, Convert.ToDouble(item.ReceiptQty), Convert.ToDouble(item.ReceiptCorrectionQty), item.ReceiptUom,
                     item.ExpendQty,
-                    item.ExpandUom, Convert.ToDouble(item.EndingBalanceQty), item.EndingUom
-                  /*  item.PaymentMethod*/ /*== "FREE FROM BUYER" || item.PaymentMethod == "CMT" || item.PaymentMethod == "CMT/IMPORT" ? "BY" : "BL"*/);
+                    item.ExpandUom, Convert.ToDouble(item.EndingBalanceQty), item.EndingUom,
+                    item.PaymentMethod == "FREE FROM BUYER" || item.PaymentMethod == "CMT" || item.PaymentMethod == "CMT/IMPORT" ? "BY" : "BL");
 
             }
 
@@ -1444,7 +1444,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             foreach (var i in Enumerable.Range(0, 1))
             {
                 col = (char)('Q' + i);
-                sheet.Cells[$"{col}5"].Value = headers[i + 15];
+                sheet.Cells[$"{col}5"].Value = headers[i + 16];
                 sheet.Cells[$"{col}5:{col}6"].Merge = true;
             }
 
