@@ -2042,12 +2042,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                 join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
                                 from prs in PR.DefaultIfEmpty()
+                                join buks in dbContext.GarmentUnitExpenditureNotes on b.UENId equals buks.Id into BUK
+                                from buks in BUK.DefaultIfEmpty()
                                 where a.IsDeleted == false && b.IsDeleted == false
                                   && b.ReceiptDate.AddHours(offset).Date >= lastdate.Date
                                   && b.ReceiptDate.AddHours(offset).Date < DateFrom.Date
                                   && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                                   && categories1.Contains(a.ProductName)
-                                  && (b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON")
+                                  && (b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON" || b.URNType == "GUDANG LAIN")
+                                  && (buks == null || buks.UnitSenderCode == "SMP1")
                                 select new AccountingStockGMTTempViewModel
                                 {
                                     ProductCode = a.ProductCode.Trim(),
@@ -2080,7 +2083,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ExpendOtherQty = 0,
                                     ExpendSubconPrice = 0,
                                     ExpendSubconQty = 0,
-                                }).GroupBy(x => new { x.ProductCode, x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockGMTTempViewModel
+                                }).GroupBy(x => 
+                                new { x.ProductCode, x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockGMTTempViewModel
                                 {
                                     ProductCode = key.ProductCode,
                                     RO = key.RO,
@@ -2324,7 +2328,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 && b.ReceiptDate.AddHours(offset).Date <= DateTo.Date
                                 && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                                 && categories1.Contains(a.ProductName)
-                                && (b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON")
+                                && (b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON" || b.URNType == "GUDANG LAIN")
+                                && (dd == null || dd.UnitSenderCode == "SMP1")
                               select new AccountingStockGMTTempViewModel
                               {
                                   ProductCode = a.ProductCode.Trim(),
@@ -2336,11 +2341,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   BeginningBalanceUom = a.SmallUomUnit.Trim(),
                                   BeginningBalancePrice = 0,
                                   ReceiptCorrectionQty = 0,
-                                  ReceiptPurchaseQty = b.URNType == "PEMBELIAN" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                                  ReceiptPurchaseQty = (b.URNType == "PEMBELIAN" || b.URNType == "GUDANG LAIN") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptProcessQty = b.URNType == "PROSES" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptSubconQty = b.URNType == "SISA SUBCON" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptCorrectionPrice = 0,
-                                  ReceiptPurchasePrice = b.URNType == "PEMBELIAN" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                                  ReceiptPurchasePrice = (b.URNType == "PEMBELIAN" || b.URNType == "GUDANG LAIN") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptProcessPrice = b.URNType == "PROSES" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptSubconPrice = b.URNType == "SISA SUBCON" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                                   ExpendReturQty = 0,
@@ -3111,11 +3116,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   BeginningBalanceUom = a.SmallUomUnit.Trim(),
                                   BeginningBalancePrice = 0,
                                   ReceiptCorrectionQty = 0,
-                                  ReceiptPurchaseQty = (b.URNType == "PEMBELIAN" || b.URNType == "GUDANG LAIN") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                                  ReceiptPurchaseQty = (b.URNType == "PEMBELIAN") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptProcessQty = b.URNType == "PROSES" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptSubconQty = b.URNType == "SISA SUBCON" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptCorrectionPrice = 0,
-                                  ReceiptPurchasePrice = (b.URNType == "PEMBELIAN" || b.URNType == "GUDANG LAIN") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                                  ReceiptPurchasePrice = (b.URNType == "PEMBELIAN") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptProcessPrice = b.URNType == "PROSES" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                                   ReceiptSubconPrice = b.URNType == "SISA SUBCON" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                                   ExpendReturQty = 0,
@@ -3208,10 +3213,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   ExpendSamplePrice = b.ExpenditureType == "SAMPLE" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
                                   EndingBalanceQty = 0,
                                   EndingBalancePrice = 0,
-                                  ExpendOtherQty = (b.ExpenditureType == "LAIN-LAIN" || b.ExpenditureType == "TRANSFER") ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
+                                  ExpendOtherQty = (b.ExpenditureType == "LAIN-LAIN") ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
                                   ExpendSubconQty = b.ExpenditureType == "SUBCON" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
                                   ExpendSubconPrice = b.ExpenditureType == "SUBCON" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
-                                  ExpendOtherPrice = (b.ExpenditureType == "LAIN-LAIN" || b.ExpenditureType == "TRANSFER") ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
+                                  ExpendOtherPrice = (b.ExpenditureType == "LAIN-LAIN") ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
                               }).GroupBy(x => new { x.ProductCode, x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => 
                               new AccountingStockGMTTempViewModel
                               {
