@@ -1921,7 +1921,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								&& a.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
 								&& a.ReceiptDate.AddHours(offset).Date <= DateTo.Date
 								&& a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
-							 select new FlowDetailPenerimaanViewModels
+                                //&& (a.URNType == "PEMBELIAN" || a.URNType == "PROSES" || a.URNType == "GUDANG SISA" || a.URNType == "SISA SUBCON" || a.URNType == "GUDANG LAIN")
+                                //&& (gg == null || gg.UnitSenderCode == "SMP1")
+                             select new FlowDetailPenerimaanViewModels
 							 {
 								 kdbarang = b.ProductCode.Trim(),
 								 nmbarang = b.ProductName,
@@ -1940,7 +1942,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : a.URNType == "SISA SUBCON" ? a.URNType : gg.UnitSenderName,
 								 Jenis = a.URNType,
 								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
-
                                  Colour = b.Colour,
                                  Rack = b.Rack,
                                  Box = b.Box,
