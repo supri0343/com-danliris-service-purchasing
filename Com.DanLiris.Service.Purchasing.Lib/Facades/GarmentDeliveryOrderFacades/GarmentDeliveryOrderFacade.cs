@@ -3094,10 +3094,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Surat Jalan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Barang Datang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Total", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Indikator", DataType = typeof(String) });
 
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0);
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0, "");
             else
             {
                 int index = 0;
@@ -3109,10 +3110,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     string DlvrDate = item.deliveryDate == new DateTime(1970, 1, 1) ? "-" : item.deliveryDate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
 
                     result.Rows.Add(index, item.epoNo, EPODate, DlvrDate, item.supplierCode, item.supplierName, item.paymentType, item.category, item.prNo, item.poNo, item.productCode, item.productName, item.productRemark, 
-                                    item.dealQuantity, item.uomUnit, item.currencyCode, item.epoPrice, item.createdBy, item.doNo, item.doDate, item.arrivalDate, item.doQuantity);
+                                    item.dealQuantity, item.uomUnit, item.currencyCode, item.epoPrice, item.createdBy, item.doNo, item.doDate, item.arrivalDate, item.doQuantity, item.flagData);
 
                 }
             }
+
+            //
+            result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0, "");
+            result.Rows.Add("", "NOTE :", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0, "");
+            result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0, "");
+            result.Rows.Add("", "R", ": SUDAH JATUH TEMPO", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0, "");
+            result.Rows.Add("", "Y", ": YANG AKAN JATUH TEMPO", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0, "");
+            result.Rows.Add("", "G", ": BARANG SUDAH DATANG SEMUA", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0, "");
+            result.Rows.Add("", "B", ": BARANG DATANG PARSIAL", "", "", "", "", "", "", "", "", "", "", 0, "", "", 0, "", "", "", "", 0, "");
+
+
 
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
