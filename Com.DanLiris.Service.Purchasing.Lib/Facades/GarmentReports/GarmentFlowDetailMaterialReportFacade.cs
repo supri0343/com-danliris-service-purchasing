@@ -134,6 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
                              && b.CreatedUtc.AddHours(7).Date >= DateFromCreate.Value.Date
                              && b.CreatedUtc.AddHours(7).Date <= DateToCreate.Value.Date
+                             //&& (b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA" || b.ExpenditureType == "SUBCON")
                              orderby a.CreatedUtc descending
 							 select new GarmentFlowDetailMaterialViewModel
 							 {
