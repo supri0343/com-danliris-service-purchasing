@@ -60,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                     && categories1.Contains(b.ProductName)
                                     && a.UnitCode != "SMP1"
-                                    //&& b.POSerialNumber == "PM213000746M"
+                                    //&& b.POSerialNumber == "PM241001321M"
                                     select new GarmentStockReportViewModelTemp
                                     {
                                         BeginningBalanceQty = Math.Round(b.Quantity, 2),
@@ -117,9 +117,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                                   && categories1.Contains(a.ProductName)
                                   && b.UnitCode != "SMP1"
-                                  //&& a.POSerialNumber == "PM213000746M"
-                                  && (b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON" || b.URNType == "GUDANG LAIN")
-                                  && (buks == null || buks.UnitSenderCode == "SMP1")
+                                  && ((b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON")
+                                  || (b.URNType == "GUDANG LAIN" && buks.UnitSenderCode == "SMP1"))
                                 select new GarmentStockReportViewModelTemp
                                 {
                                     BeginningBalanceQty = Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero),
@@ -174,8 +173,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                    && categories1.Contains(a.ProductName)
                                    && b.UnitSenderCode != "SMP1"
-                                   //&& a.POSerialNumber == "PM213000746M"
-                                   && (b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA" || b.ExpenditureType == "SUBCON")
+                                   && ((b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA")
+                                   || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null)
+                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.StorageRequestCode == null))
                                 select new GarmentStockReportViewModelTemp
                                 {
                                     BeginningBalanceQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * -1 * 0.9144) : (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion * -1 : -1 * Convert.ToDecimal(a.Quantity),
@@ -231,7 +231,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                  && categories1.Contains(b.ProductName)
                                  && a.UnitCode != "SMP1"
-                                 //&& b.POSerialNumber == "PM213000746M"
                                  && (a.URNType == "PEMBELIAN" || a.URNType == "PROSES" || a.URNType == "GUDANG SISA" || a.URNType == "SISA SUBCON" || a.URNType == "GUDANG LAIN")
                                  select new GarmentStockReportViewModelTemp
                                  {
@@ -270,7 +269,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      RO = key.RO
                                  });
 
-
                 var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
                 var SaldoAwal12 = SaldoAwal1.GroupBy(x => new { x.BeginningBalanceUom, /*x.Buyer,*/ x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
                 {
@@ -291,6 +289,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     RO = key.RO
                 }).ToList();
 
+                //var TerimaTEST = (from a in dbContext.GarmentUnitReceiptNoteItems
+                //              join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
+                //              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
+                //              join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                //              join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                //              from prs in PR.DefaultIfEmpty()
+                //              join g in dbContext.GarmentUnitExpenditureNotes on b.UENId equals g.Id into UEN
+                //              from dd in UEN.DefaultIfEmpty()
+                //              where a.IsDeleted == false && b.IsDeleted == false
+                //                  && b.ReceiptDate.AddHours(offset).Date >= DateFrom.Date
+                //                  && b.ReceiptDate.AddHours(offset).Date <= DateTo.Date
+                //                  && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
+                //                  && categories1.Contains(a.ProductName)
+                //                  && b.UnitCode != "SMP1"
+                //                  //&& a.POSerialNumber == "PM244000216M"
+                //                  && ((b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON")
+                //                  || (b.URNType == "GUDANG LAIN" && dd.UnitSenderCode == "SMP1"))
+                //              select new
+                //              {
+                //                  a.Id
+                //              }).ToList();
+
                 var Terima = (from a in dbContext.GarmentUnitReceiptNoteItems
                               join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                               join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -305,9 +325,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                                   && categories1.Contains(a.ProductName)
                                   && b.UnitCode != "SMP1"
-                                  && (b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON" || b.URNType == "GUDANG LAIN")
-                                  //&& a.POSerialNumber == "PM213000746M"
-                                  && (dd == null || dd.UnitSenderCode == "SMP1")
+                                  && ((b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON")
+                                  || (b.URNType == "GUDANG LAIN" && dd.UnitSenderCode == "SMP1"))
                               select new GarmentStockReportViewModelTemp
                               {
                                   BeginningBalanceQty = 0,
@@ -326,7 +345,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   ReceiptQty = Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero),
                                   ReceiptUom = a.SmallUomUnit.Trim(),
                                   RO = a.RONo
-                              }).GroupBy(x => new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
+                              }).GroupBy(x => 
+                              new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
                               {
                                   BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2, MidpointRounding.AwayFromZero),
                                   BeginningBalanceUom = key.BeginningBalanceUom,
@@ -359,8 +379,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                    && categories1.Contains(a.ProductName)
                                    && b.UnitSenderCode != "SMP1"
-                                   && (b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA" || b.ExpenditureType == "SUBCON")
-                                   //&& a.POSerialNumber == "PM213000746M"
+                                   && ((b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA")
+                                   || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null)
+                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.StorageRequestCode == null))
                               select new GarmentStockReportViewModelTemp
                               {
                                   BeginningBalanceQty = 0,
@@ -378,7 +399,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   ReceiptQty = 0,
                                   ReceiptUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
                                   RO = a.RONo
-                              }).GroupBy(x => new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
+                              }).GroupBy(x => 
+                              new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
                               {
                                   BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2, MidpointRounding.AwayFromZero),
                                   BeginningBalanceUom = key.BeginningBalanceUom,
@@ -397,6 +419,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   RO = key.RO
                               }).ToList();
 
+                //var KeluarTEST = (from a in dbContext.GarmentUnitExpenditureNoteItems
+                //                  join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
+                //                  join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
+                //                  join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                //                  join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                //                  from prs in PR.DefaultIfEmpty()
+                //                  join f in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals f.Id into urnitems
+                //                  from urnitem in urnitems.DefaultIfEmpty()
+                //                  where a.IsDeleted == false && b.IsDeleted == false
+                //                       && b.ExpenditureDate.AddHours(offset).Date >= DateFrom.Date
+                //                       && b.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
+                //                       && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
+                //                       && categories1.Contains(a.ProductName)
+                //                       && b.UnitSenderCode != "SMP1"
+                //                       && a.POSerialNumber == "PM223000840M"
+                //                       && ((b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA")
+                //                       || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null) 
+                //                       || (b.ExpenditureType == "TRANSFER SUBCON" && b.StorageRequestCode == null))
+                //                  //&& a.POSerialNumber == "PM241001321M"
+                //                  select new GarmentStockReportViewModelTemp
+                //                  {
+                //                      BeginningBalanceQty = 0,
+                //                      BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
+                //                      Buyer = a.BuyerCode == null ? "-" : a.BuyerCode.Trim(),
+                //                      EndingBalanceQty = 0,
+                //                      EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
+                //                      ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
+                //                      ExpendQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) : (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion : Convert.ToDecimal(a.Quantity),
+                //                      NoArticle = c.Article.TrimEnd(),
+                //                      PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
+                //                      PlanPo = a.POSerialNumber.Trim(),
+                //                      ProductCode = a.ProductCode.Trim(),
+                //                      ReceiptCorrectionQty = 0,
+                //                      ReceiptQty = 0,
+                //                      ReceiptUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
+                //                      RO = a.RONo
+                //                  }).GroupBy(x =>
+                //                  new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
+                //                  {
+                //                      BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2, MidpointRounding.AwayFromZero),
+                //                      BeginningBalanceUom = key.BeginningBalanceUom,
+                //                      Buyer = key.Buyer,
+                //                      EndingBalanceQty = Math.Round(group.Sum(x => x.EndingBalanceQty), 2, MidpointRounding.AwayFromZero),
+                //                      EndingUom = key.EndingUom,
+                //                      ExpandUom = key.ExpandUom,
+                //                      ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2, MidpointRounding.AwayFromZero),
+                //                      NoArticle = key.NoArticle,
+                //                      PaymentMethod = key.PaymentMethod,
+                //                      PlanPo = key.PlanPo,
+                //                      ProductCode = key.ProductCode,
+                //                      ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2, MidpointRounding.AwayFromZero),
+                //                      ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2, MidpointRounding.AwayFromZero),
+                //                      ReceiptUom = key.ReceiptUom,
+                //                      RO = key.RO
+                //                  }).ToList();
+
                 var Koreksi = (from a in dbContext.GarmentUnitReceiptNotes
                                join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
                                join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
@@ -413,7 +491,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  && categories1.Contains(b.ProductName)
                                  && a.UnitCode != "SMP1"
                                  && (a.URNType == "PEMBELIAN" || a.URNType == "PROSES" || a.URNType == "GUDANG SISA" || a.URNType == "SISA SUBCON" || a.URNType == "GUDANG LAIN")
-                                 //&& b.POSerialNumber == "PM213000746M"
                                select new GarmentStockReportViewModelTemp
                                {
                                    BeginningBalanceQty = 0,
