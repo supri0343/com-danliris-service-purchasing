@@ -174,8 +174,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    && categories1.Contains(a.ProductName)
                                    && b.UnitSenderCode != "SMP1"
                                    && ((b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA")
-                                   || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null)
-                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.StorageRequestCode == null))
+                                   || (b.ExpenditureType == "SUBCON" && b.IsTransfered == false)
+                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.IsTransfered == false))
                                 select new GarmentStockReportViewModelTemp
                                 {
                                     BeginningBalanceQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * -1 * 0.9144) : (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion * -1 : -1 * Convert.ToDecimal(a.Quantity),
@@ -382,8 +382,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    && categories1.Contains(a.ProductName)
                                    && b.UnitSenderCode != "SMP1"
                                    && ((b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA")
-                                   || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null)
-                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.StorageRequestCode == null))
+                                   || (b.ExpenditureType == "SUBCON" && b.IsTransfered == false)
+                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.IsTransfered == false))
                               select new GarmentStockReportViewModelTemp
                               {
                                   BeginningBalanceQty = 0,
