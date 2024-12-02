@@ -2569,17 +2569,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                      where ids.Contains(c.Id)
                                      select c).Distinct().ToList();
 
-                    listdata.ForEach(c =>
-                    {
-                        EntityExtension.FlagForUpdate(c, user, "Facade");
-                        c.CreatedUtc = reviseDate;
-                    });
+                    //listdata.ForEach(c =>
+                    //{
+                    //    EntityExtension.FlagForUpdate(c, user, "Facade");
+                    //    c.CreatedUtc = reviseDate;
 
-                    listdata2.ForEach(c =>
-                    {
-                        EntityExtension.FlagForUpdate(c, user, "Facade");
-                        c.CreatedUtc = reviseDate;                     
-                    });
+                    //});
+
+                    //listdata2.ForEach(c =>
+                    //{
+                    //    EntityExtension.FlagForUpdate(c, user, "Facade");
+                    //    //c.CreatedUtc = reviseDate;                     
+                    //});
 
                     listdata3.ForEach(c =>
                     {
@@ -2594,7 +2595,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                         };
 
-                        c.CreatedUtc = reviseDate;
+                        //c.CreatedUtc = reviseDate;
+                        c.ReceiptDate = reviseDate;
 
                         EntityExtension.FlagForCreate(changeDateHistory, user, "Facade");
                         dbSetUenUrnChangeDate.Add(changeDateHistory);
