@@ -108,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                 join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
                                 from prs in PR.DefaultIfEmpty()
-                                join buks in dbContext.GarmentUnitExpenditureNotes on b.UENId equals buks.Id into BUK
+                                join k in dbContext.GarmentUnitExpenditureNotes on b.UENId equals k.Id into BUK
                                 from buks in BUK.DefaultIfEmpty()
                                 where
                                   a.IsDeleted == false && b.IsDeleted == false
@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   && categories1.Contains(a.ProductName)
                                   && b.UnitCode != "SMP1"
                                   && ((b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON")
-                                  || (b.URNType == "GUDANG LAIN" && buks.UnitSenderCode == "SMP1"))
+                                  || (buks == null || (b.URNType == "GUDANG LAIN" && buks.UnitSenderCode == "SMP1")))
                                 select new GarmentStockReportViewModelTemp
                                 {
                                     BeginningBalanceQty = Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero),
@@ -174,8 +174,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    && categories1.Contains(a.ProductName)
                                    && b.UnitSenderCode != "SMP1"
                                    && ((b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA")
-                                   || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null)
-                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.StorageRequestCode == null))
+                                   || (b.ExpenditureType == "SUBCON" && b.IsTransfered == false)
+                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.IsTransfered == false))
                                 select new GarmentStockReportViewModelTemp
                                 {
                                     BeginningBalanceQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * -1 * 0.9144) : (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion * -1 : -1 * Convert.ToDecimal(a.Quantity),
@@ -326,7 +326,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   && categories1.Contains(a.ProductName)
                                   && b.UnitCode != "SMP1"
                                   && ((b.URNType == "PEMBELIAN" || b.URNType == "PROSES" || b.URNType == "GUDANG SISA" || b.URNType == "SISA SUBCON")
-                                  || (b.URNType == "GUDANG LAIN" && dd.UnitSenderCode == "SMP1"))
+                                  || (dd == null  || (b.URNType == "GUDANG LAIN" && dd.UnitSenderCode == "SMP1")))
                               select new GarmentStockReportViewModelTemp
                               {
                                   BeginningBalanceQty = 0,
@@ -365,6 +365,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   RO = key.RO
                               }).ToList();
 
+                //var ListTerimaTemp = Terima.ToList();
+
                 var Keluar = (from a in dbContext.GarmentUnitExpenditureNoteItems
                               join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                               join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -380,8 +382,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    && categories1.Contains(a.ProductName)
                                    && b.UnitSenderCode != "SMP1"
                                    && ((b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA")
-                                   || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null)
-                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.StorageRequestCode == null))
+                                   || (b.ExpenditureType == "SUBCON" && b.IsTransfered == false)
+                                   || (b.ExpenditureType == "TRANSFER SUBCON" && b.IsTransfered == false))
                               select new GarmentStockReportViewModelTemp
                               {
                                   BeginningBalanceQty = 0,
@@ -433,46 +435,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 //                       && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                 //                       && categories1.Contains(a.ProductName)
                 //                       && b.UnitSenderCode != "SMP1"
-                //                       && a.POSerialNumber == "PM223000840M"
+                //                       && a.POSerialNumber == "PM241001321M"
                 //                       && ((b.ExpenditureType == "EXTERNAL" || b.ExpenditureType == "PROSES" || b.ExpenditureType == "SAMPLE" || b.ExpenditureType == "SISA")
-                //                       || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null) 
+                //                       || (b.ExpenditureType == "SUBCON" && b.StorageRequestCode == null)
                 //                       || (b.ExpenditureType == "TRANSFER SUBCON" && b.StorageRequestCode == null))
-                //                  //&& a.POSerialNumber == "PM241001321M"
-                //                  select new GarmentStockReportViewModelTemp
+                //                  select new
                 //                  {
-                //                      BeginningBalanceQty = 0,
-                //                      BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
-                //                      Buyer = a.BuyerCode == null ? "-" : a.BuyerCode.Trim(),
-                //                      EndingBalanceQty = 0,
-                //                      EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
-                //                      ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
-                //                      ExpendQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) : (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion : Convert.ToDecimal(a.Quantity),
-                //                      NoArticle = c.Article.TrimEnd(),
-                //                      PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
-                //                      PlanPo = a.POSerialNumber.Trim(),
-                //                      ProductCode = a.ProductCode.Trim(),
-                //                      ReceiptCorrectionQty = 0,
-                //                      ReceiptQty = 0,
-                //                      ReceiptUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
-                //                      RO = a.RONo
-                //                  }).GroupBy(x =>
-                //                  new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
-                //                  {
-                //                      BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2, MidpointRounding.AwayFromZero),
-                //                      BeginningBalanceUom = key.BeginningBalanceUom,
-                //                      Buyer = key.Buyer,
-                //                      EndingBalanceQty = Math.Round(group.Sum(x => x.EndingBalanceQty), 2, MidpointRounding.AwayFromZero),
-                //                      EndingUom = key.EndingUom,
-                //                      ExpandUom = key.ExpandUom,
-                //                      ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2, MidpointRounding.AwayFromZero),
-                //                      NoArticle = key.NoArticle,
-                //                      PaymentMethod = key.PaymentMethod,
-                //                      PlanPo = key.PlanPo,
-                //                      ProductCode = key.ProductCode,
-                //                      ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2, MidpointRounding.AwayFromZero),
-                //                      ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2, MidpointRounding.AwayFromZero),
-                //                      ReceiptUom = key.ReceiptUom,
-                //                      RO = key.RO
+                //                      a.Id,
+                //                      a.Quantity,
+                //                      a.POSerialNumber
                 //                  }).ToList();
 
                 var Koreksi = (from a in dbContext.GarmentUnitReceiptNotes
@@ -1205,7 +1176,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     Convert.ToDouble(item.BeginningBalanceQty), item.BeginningBalanceUom, Convert.ToDouble(item.ReceiptQty), Convert.ToDouble(item.ReceiptCorrectionQty), item.ReceiptUom,
                     item.ExpendQty,
                     item.ExpandUom, Convert.ToDouble(item.EndingBalanceQty), item.EndingUom,
-                    item.PaymentMethod == "FREE FROM BUYER" || item.PaymentMethod == "CMT" || item.PaymentMethod == "CMT/IMPORT" ? "BY" : "BL");
+                    item.PaymentMethod/* == "FREE FROM BUYER" || item.PaymentMethod == "CMT" || item.PaymentMethod == "CMT/IMPORT" ? "BY" : "BL"*/);
 
             }
 
