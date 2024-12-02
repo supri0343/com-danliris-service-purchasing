@@ -2323,97 +2323,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Query;
         }
 
-        //public List<TraceableOutBeacukaiDetailViewModel> getQueryDetail(string RO)
-        //{
-        //    var expend = GetPreparingByRo(RO);
-        //    //var expenditems = new List<GarmentPreparingItemViewModel>();
-        //    //foreach(var i in expend)
-        //    //{
-        //    //    foreach(var n in i.Items)
-        //    //    {
-        //    //        expenditems.Add(new GarmentPreparingItemViewModel
-        //    //        {
-        //    //            BasicPrice = n.BasicPrice,
-        //    //            DesignColor = n.DesignColor,
-        //    //            FabricType = n.FabricType,
-        //    //            Id = n.Id,
-        //    //            LastModifiedBy = n.LastModifiedBy,
-        //    //            LastModifiedDate = n.LastModifiedDate,
-        //    //            Quantity = n.Quantity,
-        //    //            RemainingQuantity = n.RemainingQuantity,
-        //    //            ROSource = n.ROSource,
-        //    //            UENItemId = n.UENItemId
-        //    //        });
-        //    //    }
-        //    //}
+        public List<TraceableOutBeacukaiDetailViewModel> getQueryDetail(List<string> listRo)
+        {
+            var rinciandetil = (from a in dbContext.GarmentUnitDeliveryOrderItems
+                                join b in dbContext.GarmentUnitDeliveryOrders on a.UnitDOId equals b.Id
+                                join c in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals c.UnitDOItemId
+                                join d in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals d.Id
+                                join i in dbContext.GarmentUnitReceiptNotes on d.URNId equals i.Id
+                                join e in dbContext.GarmentDeliveryOrderDetails on d.DODetailId equals e.Id
+                                join f in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals f.Id
+                                join g in dbContext.GarmentDeliveryOrders on f.GarmentDOId equals g.Id
+                                join h in dbContext.GarmentBeacukais on g.CustomsId equals h.Id
+                                where listRo.Contains(b.RONo)
+                                && i.URNType == "PEMBELIAN"
+                                select new TraceableOutBeacukaiDetailViewModel
+                                {
+                                    BCDate = h.BeacukaiDate.DateTime,
+                                    BCNo = h.BeacukaiNo,
+                                    BCType = h.CustomsType,
+                                    DestinationJob = b.RONo,
+                                    ItemCode = d.ProductCode,
+                                    ItemName = d.ProductName,
+                                    SmallestQuantity = c.Quantity,
+                                    UnitQtyName = c.UomUnit
+                                }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.DestinationJob, x.ItemCode, x.ItemName, x.UnitQtyName }, (key, group) => new TraceableOutBeacukaiDetailViewModel
+                                {
+                                    BCDate = key.BCDate,
+                                    BCNo = key.BCNo,
+                                    BCType = key.BCType,
+                                    DestinationJob = key.DestinationJob,
+                                    ItemCode = key.ItemCode,
+                                    ItemName = key.ItemName,
+                                    SmallestQuantity = group.Sum(x => x.SmallestQuantity),
+                                    UnitQtyName = key.UnitQtyName
 
-        //    //var Query = (from a in dbContext.GarmentUnitDeliveryOrderItems
-        //    //             join b in dbContext.GarmentUnitDeliveryOrders on a.UnitDOId equals b.Id
-        //    //             join c in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals c.UnitDOItemId
-        //    //             join d in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals d.Id
-        //    //             join e in dbContext.GarmentDeliveryOrderDetails on d.DODetailId equals e.Id
-        //    //             join f in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals f.Id
-        //    //             join g in dbContext.GarmentDeliveryOrders on f.GarmentDOId equals g.Id
-        //    //             join h in dbContext.GarmentBeacukais on g.CustomsId equals h.Id
-        //    //             where b.RONo == (string.IsNullOrEmpty(RO) ? b.RONo : RO)
-        //    //             select new TraceableOutBeacukaiDetailViewModel
-        //    //             {
-        //    //                 BCDate = h.BeacukaiDate.DateTime,
-        //    //                 BCNo = h.BeacukaiNo,
-        //    //                 BCType = h.CustomsType,
-        //    //                 DestinationJob = b.RONo,
-        //    //                 ItemCode = d.ProductCode,
-        //    //                 ItemName = d.ProductName,
-        //    //                 SmallestQuantity = c.Quantity,
-        //    //                 UnitQtyName = c.UomUnit
-        //    //             }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.DestinationJob, x.ItemCode, x.ItemName, x.UnitQtyName }, (key, group) => new TraceableOutBeacukaiDetailViewModel
-        //    //             {
-        //    //                 BCDate = key.BCDate,
-        //    //                 BCNo = key.BCNo,
-        //    //                 BCType = key.BCType,
-        //    //                 DestinationJob = key.DestinationJob,
-        //    //                 ItemCode = key.ItemCode,
-        //    //                 ItemName = key.ItemName,
-        //    //                 SmallestQuantity = group.Sum(x => x.SmallestQuantity),
-        //    //                 UnitQtyName = key.UnitQtyName
-
-        //    //             }).ToList();
-
-        //    var Query = (from a in expend
-        //                 join c in dbContext.GarmentUnitExpenditureNoteItems on a.UENItemId equals c.Id
-        //                 join d in dbContext.GarmentUnitReceiptNoteItems on c.URNItemId equals d.Id
-        //                 join e in dbContext.GarmentDeliveryOrderDetails on d.DODetailId equals e.Id
-        //                 join f in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals f.Id
-        //                 join g in dbContext.GarmentDeliveryOrders on f.GarmentDOId equals g.Id
-        //                 join h in dbContext.GarmentBeacukais on g.CustomsId equals h.Id
-        //                 //where b.RONo == (string.IsNullOrEmpty(RO) ? b.RONo : RO)
-        //                 select new TraceableOutBeacukaiDetailViewModel
-        //                 {
-        //                     BCDate = h.BeacukaiDate.DateTime,
-        //                     BCNo = h.BeacukaiNo,
-        //                     BCType = h.CustomsType,
-        //                     DestinationJob = RO,
-        //                     ItemCode = d.ProductCode,
-        //                     ItemName = d.ProductName,
-        //                     SmallestQuantity = a.Quantity - a.RemainingQuantity,
-        //                     UnitQtyName = c.UomUnit
-        //                 }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.DestinationJob, x.ItemCode, x.ItemName, x.UnitQtyName }, (key, group) => new TraceableOutBeacukaiDetailViewModel
-        //                 {
-        //                     BCDate = key.BCDate,
-        //                     BCNo = key.BCNo,
-        //                     BCType = key.BCType,
-        //                     DestinationJob = key.DestinationJob,
-        //                     ItemCode = key.ItemCode,
-        //                     ItemName = key.ItemName,
-        //                     SmallestQuantity = group.Sum(x => x.SmallestQuantity),
-        //                     UnitQtyName = key.UnitQtyName
-
-        //                 }).ToList();
-
-
-
-        //    return Query;
-        //}
+                                }).OrderBy(s => s.DestinationJob).ThenByDescending(s => s.BCDate).ToList();
+            return rinciandetil;
+        }
 
 
         public MemoryStream GetExceltraceOut(string bcno)

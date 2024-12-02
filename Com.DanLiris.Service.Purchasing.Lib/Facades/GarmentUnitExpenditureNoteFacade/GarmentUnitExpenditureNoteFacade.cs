@@ -2270,7 +2270,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         };
 
-                        m.CreatedUtc = reviseDate;
+                        //m.CreatedUtc = reviseDate;
+                        m.ExpenditureDate = reviseDate;
 
 
 
